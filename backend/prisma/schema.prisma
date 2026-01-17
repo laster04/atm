@@ -1,0 +1,108 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEAM_MANAGER
+  VIEWER
+}
+
+enum SeasonStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+}
+
+enum GameStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  POSTPONED
+  CANCELLED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  managedTeams Team[]
+}
+
+model Season {
+  id        Int          @id @default(autoincrement())
+  name      String
+  sportType String
+  startDate DateTime
+  endDate   DateTime
+  status    SeasonStatus @default(DRAFT)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  teams Team[]
+  games Game[]
+}
+
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seasonId  Int
+  season    Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  managerId Int?
+  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+
+  players   Player[]
+  homeGames Game[]   @relation("HomeTeam")
+  awayGames Game[]   @relation("AwayTeam")
+
+  @@unique([name, seasonId])
+}
+
+model Player {
+  id        Int      @id @default(autoincrement())
+  name      String
+  number    Int?
+  position  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teamId Int
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Game {
+  id        Int        @id @default(autoincrement())
+  date      DateTime
+  location  String?
+  homeScore Int?
+  awayScore Int?
+  status    GameStatus @default(SCHEDULED)
+  round     Int?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  seasonId   Int
+  season     Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  homeTeamId Int
+  homeTeam   Team @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+
+  awayTeamId Int
+  awayTeam   Team @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+}

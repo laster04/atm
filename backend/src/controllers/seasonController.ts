@@ -1,0 +1,183 @@
+import { Request, Response } from 'express';
+import prisma from '../config/database.js';
+import { Prisma } from '@prisma/client';
+
+export const getAllSeasons = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const seasons = await prisma.season.findMany({
+      include: {
+        _count: { select: { teams: true, games: true } }
+      },
+      orderBy: { startDate: 'desc' }
+    });
+    res.json(seasons);
+  } catch (error) {
+    console.error('Get seasons error:', error);
+    res.status(500).json({ error: 'Failed to fetch seasons' });
+  }
+};
+
+export const getSeasonById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const season = await prisma.season.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        teams: {
+          include: {
+            _count: { select: { players: true } },
+            manager: { select: { id: true, name: true, email: true } }
+          }
+        },
+        _count: { select: { games: true } }
+      }
+    });
+
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    res.json(season);
+  } catch (error) {
+    console.error('Get season error:', error);
+    res.status(500).json({ error: 'Failed to fetch season' });
+  }
+};
+
+export const createSeason = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, sportType, startDate, endDate, status } = req.body;
+
+    if (!name || !sportType || !startDate || !endDate) {
+      res.status(400).json({ error: 'Name, sport type, start date, and end date are required' });
+      return;
+    }
+
+    const season = await prisma.season.create({
+      data: {
+        name,
+        sportType,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        status: status || 'DRAFT'
+      }
+    });
+
+    res.status(201).json(season);
+  } catch (error) {
+    console.error('Create season error:', error);
+    res.status(500).json({ error: 'Failed to create season' });
+  }
+};
+
+export const updateSeason = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { name, sportType, startDate, endDate, status } = req.body;
+
+    const season = await prisma.season.update({
+      where: { id: parseInt(id) },
+      data: {
+        ...(name && { name }),
+        ...(sportType && { sportType }),
+        ...(startDate && { startDate: new Date(startDate) }),
+        ...(endDate && { endDate: new Date(endDate) }),
+        ...(status && { status })
+      }
+    });
+
+    res.json(season);
+  } catch (error) {
+    if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+    console.error('Update season error:', error);
+    res.status(500).json({ error: 'Failed to update season' });
+  }
+};
+
+export const deleteSeason = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await prisma.season.delete({ where: { id: parseInt(id) } });
+    res.json({ message: 'Season deleted successfully' });
+  } catch (error) {
+    if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+    console.error('Delete season error:', error);
+    res.status(500).json({ error: 'Failed to delete season' });
+  }
+};
+
+export const getSeasonStandings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const seasonId = parseInt(id);
+
+    const season = await prisma.season.findUnique({ where: { id: seasonId } });
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    const teams = await prisma.team.findMany({
+      where: { seasonId },
+      select: { id: true, name: true, logo: true }
+    });
+
+    const games = await prisma.game.findMany({
+      where: { seasonId, status: 'COMPLETED' }
+    });
+
+    const standings = teams.map(team => {
+      let wins = 0, losses = 0, draws = 0, goalsFor = 0, goalsAgainst = 0;
+
+      games.forEach(game => {
+        if (game.homeTeamId === team.id) {
+          goalsFor += game.homeScore || 0;
+          goalsAgainst += game.awayScore || 0;
+          if ((game.homeScore || 0) > (game.awayScore || 0)) wins++;
+          else if ((game.homeScore || 0) < (game.awayScore || 0)) losses++;
+          else draws++;
+        } else if (game.awayTeamId === team.id) {
+          goalsFor += game.awayScore || 0;
+          goalsAgainst += game.homeScore || 0;
+          if ((game.awayScore || 0) > (game.homeScore || 0)) wins++;
+          else if ((game.awayScore || 0) < (game.homeScore || 0)) losses++;
+          else draws++;
+        }
+      });
+
+      const points = wins * 3 + draws;
+      const played = wins + losses + draws;
+      const goalDifference = goalsFor - goalsAgainst;
+
+      return {
+        team,
+        played,
+        wins,
+        draws,
+        losses,
+        goalsFor,
+        goalsAgainst,
+        goalDifference,
+        points
+      };
+    });
+
+    standings.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+      return b.goalsFor - a.goalsFor;
+    });
+
+    res.json(standings);
+  } catch (error) {
+    console.error('Get standings error:', error);
+    res.status(500).json({ error: 'Failed to fetch standings' });
+  }
+};
