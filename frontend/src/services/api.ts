@@ -37,11 +37,13 @@ export const authApi = {
     api.post<{ user: User; token: string }>('/auth/login', data),
   getMe: () => api.get<{ user: User }>('/auth/me'),
   updateProfile: (data: { name?: string; password?: string }) =>
-    api.put<{ user: User }>('/auth/profile', data)
+    api.put<{ user: User }>('/auth/profile', data),
+  getUsers: (role?: string) => api.get<User[]>('/auth/users', { params: role ? { role } : {} })
 };
 
 export const seasonApi = {
   getAll: () => api.get<Season[]>('/seasons'),
+  getMySeasons: () => api.get<Season[]>('/seasons/my'),
   getById: (id: string | number) => api.get<Season>(`/seasons/${id}`),
   create: (data: Partial<Season>) => api.post<Season>('/seasons', data),
   update: (id: string | number, data: Partial<Season>) => api.put<Season>(`/seasons/${id}`, data),
@@ -50,6 +52,7 @@ export const seasonApi = {
 };
 
 export const teamApi = {
+  getMyTeams: () => api.get<Team[]>('/teams/my'),
   getBySeason: (seasonId: string | number) => api.get<Team[]>(`/teams/season/${seasonId}`),
   getById: (id: string | number) => api.get<Team>(`/teams/${id}`),
   create: (seasonId: string | number, data: Partial<Team>) =>

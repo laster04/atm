@@ -1,11 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { seasonApi } from '../services/api';
-import type { Season } from '../types';
+import { useTranslation } from 'react-i18next';
+import { seasonApi, teamApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import type { Season, Team } from '../types';
 
 export default function Home() {
   const [seasons, setSeasons] = useState<Season[]>([]);
+  const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const { user, isTeamManager } = useAuth();
 
   useEffect(() => {
     seasonApi.getAll()
@@ -14,44 +19,72 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (isTeamManager()) {
+      teamApi.getMyTeams()
+        .then(res => setMyTeams(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Sport Season Scheduler
+          {t('home.title')}
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Manage your sports leagues with ease. Create seasons, track teams,
-          schedule games, and view standings all in one place.
+          {t('home.subtitle')}
         </p>
       </div>
 
+      {isTeamManager() && myTeams.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-4">{t('home.myTeams')}</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {myTeams.map(team => (
+              <Link
+                key={team.id}
+                to={`/teams/${team.id}`}
+                className="block bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow border-l-4 border-blue-500"
+              >
+                <h3 className="font-semibold text-lg">{team.name}</h3>
+                <p className="text-gray-600">{team.season?.name}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {team._count?.players} {t('common.players')}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid md:grid-cols-3 gap-6 mb-12">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-2">League Management</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('home.features.leagueManagement.title')}</h3>
           <p className="text-gray-600">
-            Create and manage multiple seasons with teams, players, and schedules.
+            {t('home.features.leagueManagement.description')}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-2">Auto Scheduling</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('home.features.autoScheduling.title')}</h3>
           <p className="text-gray-600">
-            Generate round-robin schedules automatically with just a few clicks.
+            {t('home.features.autoScheduling.description')}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-2">Live Standings</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('home.features.liveStandings.title')}</h3>
           <p className="text-gray-600">
-            Track standings in real-time as game results are entered.
+            {t('home.features.liveStandings.description')}
           </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500">Loading...</div>
+        <div className="text-center text-gray-500">{t('common.loading')}</div>
       ) : seasons.length > 0 ? (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Active Seasons</h2>
+          <h2 className="text-2xl font-bold mb-4">{t('home.activeSeasons')}</h2>
           <div className="grid md:grid-cols-3 gap-4">
             {seasons.map(season => (
               <Link
@@ -62,7 +95,7 @@ export default function Home() {
                 <h3 className="font-semibold text-lg">{season.name}</h3>
                 <p className="text-gray-600">{season.sportType}</p>
                 <p className="text-sm text-gray-500 mt-2">
-                  {season._count?.teams} teams · {season._count?.games} games
+                  {season._count?.teams} {t('common.teams')} · {season._count?.games} {t('common.games')}
                 </p>
               </Link>
             ))}
@@ -72,18 +105,18 @@ export default function Home() {
               to="/seasons"
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
-              View all seasons →
+              {t('home.viewAllSeasons')} →
             </Link>
           </div>
         </div>
       ) : (
         <div className="text-center">
-          <p className="text-gray-500 mb-4">No active seasons yet.</p>
+          <p className="text-gray-500 mb-4">{t('home.noActiveSeasons')}</p>
           <Link
             to="/seasons"
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            View all seasons →
+            {t('home.viewAllSeasons')} →
           </Link>
         </div>
       )}

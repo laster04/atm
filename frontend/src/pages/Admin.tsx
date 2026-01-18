@@ -1,35 +1,48 @@
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { seasonApi, teamApi, gameApi } from '../services/api';
-import type { Season, Team } from '../types';
+import { seasonApi, teamApi, gameApi, authApi } from '../services/api';
+import type { Season, Team, SeasonStatus, User } from '../types';
 import { AxiosError } from 'axios';
 
 interface SeasonFormData {
-  name?: string;
-  sportType?: string;
-  startDate?: string;
-  endDate?: string;
-  status?: string;
+  name: string;
+  sportType: string;
+  startDate: string;
+  endDate: string;
+  status: SeasonStatus;
 }
 
 interface TeamFormData {
-  name?: string;
+  name: string;
+  managerId?: string;
 }
 
 type ModalType = 'season' | 'team' | null;
 
 export default function Admin() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isSeasonManager } = useAuth();
+  const { t } = useTranslation();
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [teamManagers, setTeamManagers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<ModalType>(null);
-  const [formData, setFormData] = useState<SeasonFormData | TeamFormData>({});
   const [error, setError] = useState('');
+
+  const seasonForm = useForm<SeasonFormData>({
+    defaultValues: { status: 'DRAFT' }
+  });
+
+  const teamForm = useForm<TeamFormData>();
 
   useEffect(() => {
     loadSeasons();
+    authApi.getUsers('TEAM_MANAGER')
+      .then(res => setTeamManagers(res.data))
+      .catch(err => console.error(err));
   }, []);
 
   useEffect(() => {
@@ -41,7 +54,9 @@ export default function Admin() {
   }, [selectedSeason]);
 
   const loadSeasons = () => {
-    seasonApi.getAll()
+    // Season managers see only their seasons, admins see all
+    const apiCall = isSeasonManager() ? seasonApi.getMySeasons() : seasonApi.getAll();
+    apiCall
       .then(res => {
         setSeasons(res.data);
         if (res.data.length > 0 && !selectedSeason) {
@@ -52,42 +67,43 @@ export default function Admin() {
       .finally(() => setLoading(false));
   };
 
-  if (!isAdmin()) {
+  if (!isAdmin() && !isSeasonManager()) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-        <p className="text-gray-600 mt-2">You need admin privileges to access this page.</p>
+        <h1 className="text-2xl font-bold text-red-600">{t('admin.accessDenied')}</h1>
+        <p className="text-gray-600 mt-2">{t('admin.noPrivileges')}</p>
       </div>
     );
   }
 
-  const handleCreateSeason = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleCreateSeason = async (data: SeasonFormData) => {
     setError('');
     try {
-      await seasonApi.create(formData as SeasonFormData);
+      await seasonApi.create(data);
       loadSeasons();
       setShowModal(null);
-      setFormData({});
+      seasonForm.reset({ status: 'DRAFT' });
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
-      setError(axiosError.response?.data?.error || 'Failed to create season');
+      setError(axiosError.response?.data?.error || t('admin.errors.createSeason'));
     }
   };
 
-  const handleCreateTeam = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleCreateTeam = async (data: TeamFormData) => {
     setError('');
     try {
       if (!selectedSeason) return;
-      await teamApi.create(selectedSeason.id, formData as TeamFormData);
+      await teamApi.create(selectedSeason.id, {
+        name: data.name,
+        managerId: data.managerId ? parseInt(data.managerId) : undefined
+      });
       const res = await teamApi.getBySeason(selectedSeason.id);
       setTeams(res.data);
       setShowModal(null);
-      setFormData({});
+      teamForm.reset();
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
-      setError(axiosError.response?.data?.error || 'Failed to create team');
+      setError(axiosError.response?.data?.error || t('admin.errors.createTeam'));
     }
   };
 
@@ -103,12 +119,12 @@ export default function Admin() {
       alert(result.data.message);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
-      setError(axiosError.response?.data?.error || 'Failed to generate schedule');
+      setError(axiosError.response?.data?.error || t('admin.errors.generateSchedule'));
     }
   };
 
   const handleDeleteSeason = async (id: number) => {
-    if (!confirm('Are you sure? This will delete all teams and games in this season.')) return;
+    if (!confirm(t('admin.confirm.deleteSeason'))) return;
     try {
       await seasonApi.delete(id);
       loadSeasons();
@@ -117,12 +133,12 @@ export default function Admin() {
       }
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
-      setError(axiosError.response?.data?.error || 'Failed to delete season');
+      setError(axiosError.response?.data?.error || t('admin.errors.deleteSeason'));
     }
   };
 
   const handleDeleteTeam = async (id: number) => {
-    if (!confirm('Are you sure? This will delete all players and game data for this team.')) return;
+    if (!confirm(t('admin.confirm.deleteTeam'))) return;
     try {
       await teamApi.delete(id);
       if (selectedSeason) {
@@ -131,24 +147,31 @@ export default function Admin() {
       }
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
-      setError(axiosError.response?.data?.error || 'Failed to delete team');
+      setError(axiosError.response?.data?.error || t('admin.errors.deleteTeam'));
     }
+  };
+
+  const openSeasonModal = () => {
+    seasonForm.reset({ status: 'DRAFT' });
+    setShowModal('season');
+  };
+
+  const openTeamModal = () => {
+    teamForm.reset();
+    setShowModal('team');
   };
 
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        Loading...
+        {t('common.loading')}
       </div>
     );
   }
 
-  const seasonFormData = formData as SeasonFormData;
-  const teamFormData = formData as TeamFormData;
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('admin.title')}</h1>
 
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
@@ -160,15 +183,12 @@ export default function Admin() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Seasons</h2>
+              <h2 className="text-lg font-semibold">{t('admin.seasons.title')}</h2>
               <button
-                onClick={() => {
-                  setFormData({ status: 'DRAFT' });
-                  setShowModal('season');
-                }}
+                onClick={openSeasonModal}
                 className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
               >
-                + New
+                {t('admin.seasons.new')}
               </button>
             </div>
             <div className="space-y-2">
@@ -186,19 +206,21 @@ export default function Admin() {
                     <div className="font-medium">{season.name}</div>
                     <div className="text-sm text-gray-500">{season.sportType}</div>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteSeason(season.id);
-                    }}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
+                  {(isAdmin() || (isSeasonManager() && new Date(season.startDate) > new Date())) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteSeason(season.id);
+                      }}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      {t('common.delete')}
+                    </button>
+                  )}
                 </div>
               ))}
               {seasons.length === 0 && (
-                <p className="text-gray-500 text-center py-4">No seasons yet</p>
+                <p className="text-gray-500 text-center py-4">{t('admin.seasons.noSeasons')}</p>
               )}
             </div>
           </div>
@@ -209,24 +231,21 @@ export default function Admin() {
             <div className="bg-white rounded-lg shadow p-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">
-                  Teams in {selectedSeason.name}
+                  {t('admin.seasons.teamsIn', { name: selectedSeason.name })}
                 </h2>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      setFormData({});
-                      setShowModal('team');
-                    }}
+                    onClick={openTeamModal}
                     className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
                   >
-                    + Add Team
+                    {t('admin.teams.addTeam')}
                   </button>
                   <button
                     onClick={handleGenerateSchedule}
                     className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
                     disabled={teams.length < 2}
                   >
-                    Generate Schedule
+                    {t('admin.teams.generateSchedule')}
                   </button>
                 </div>
               </div>
@@ -239,25 +258,26 @@ export default function Admin() {
                     <div>
                       <div className="font-medium">{team.name}</div>
                       <div className="text-sm text-gray-500">
-                        {team._count?.players} players
+                        {team._count?.players} {t('common.players')}
+                        {team.manager && ` · ${t('admin.teams.managedBy', { name: team.manager.name })}`}
                       </div>
                     </div>
                     <button
                       onClick={() => handleDeleteTeam(team.id)}
                       className="text-red-500 hover:text-red-700 text-sm"
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 ))}
                 {teams.length === 0 && (
-                  <p className="text-gray-500 text-center py-4">No teams yet</p>
+                  <p className="text-gray-500 text-center py-4">{t('admin.teams.noTeams')}</p>
                 )}
               </div>
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-              Select a season to manage teams
+              {t('admin.seasons.selectSeason')}
             </div>
           )}
         </div>
@@ -266,61 +286,56 @@ export default function Admin() {
       {showModal === 'season' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Create Season</h3>
-            <form onSubmit={handleCreateSeason}>
+            <h3 className="text-lg font-semibold mb-4">{t('admin.modal.createSeason')}</h3>
+            <form onSubmit={seasonForm.handleSubmit(handleCreateSeason)}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="block text-sm font-medium mb-1">{t('admin.modal.name')}</label>
                 <input
                   type="text"
-                  value={seasonFormData.name || ''}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  {...seasonForm.register('name', { required: true })}
                   className="w-full px-3 py-2 border rounded"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Sport Type</label>
+                <label className="block text-sm font-medium mb-1">{t('admin.modal.sportType')}</label>
                 <input
                   type="text"
-                  value={seasonFormData.sportType || ''}
-                  onChange={(e) => setFormData({ ...formData, sportType: e.target.value })}
+                  {...seasonForm.register('sportType', { required: true })}
                   className="w-full px-3 py-2 border rounded"
-                  placeholder="e.g., Football, Basketball"
+                  placeholder={t('admin.modal.sportTypePlaceholder')}
                   required
                 />
               </div>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Start Date</label>
+                  <label className="block text-sm font-medium mb-1">{t('admin.modal.startDate')}</label>
                   <input
                     type="date"
-                    value={seasonFormData.startDate || ''}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    {...seasonForm.register('startDate', { required: true })}
                     className="w-full px-3 py-2 border rounded"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">End Date</label>
+                  <label className="block text-sm font-medium mb-1">{t('admin.modal.endDate')}</label>
                   <input
                     type="date"
-                    value={seasonFormData.endDate || ''}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    {...seasonForm.register('endDate', { required: true })}
                     className="w-full px-3 py-2 border rounded"
                     required
                   />
                 </div>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Status</label>
+                <label className="block text-sm font-medium mb-1">{t('admin.modal.status')}</label>
                 <select
-                  value={seasonFormData.status || 'DRAFT'}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  {...seasonForm.register('status')}
                   className="w-full px-3 py-2 border rounded"
                 >
-                  <option value="DRAFT">Draft</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="COMPLETED">Completed</option>
+                  <option value="DRAFT">{t('seasons.status.DRAFT')}</option>
+                  <option value="ACTIVE">{t('seasons.status.ACTIVE')}</option>
+                  <option value="COMPLETED">{t('seasons.status.COMPLETED')}</option>
                 </select>
               </div>
               <div className="flex justify-end gap-2">
@@ -329,13 +344,13 @@ export default function Admin() {
                   onClick={() => setShowModal(null)}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  Create
+                  {t('common.create')}
                 </button>
               </div>
             </form>
@@ -346,17 +361,30 @@ export default function Admin() {
       {showModal === 'team' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add Team</h3>
-            <form onSubmit={handleCreateTeam}>
+            <h3 className="text-lg font-semibold mb-4">{t('admin.modal.addTeam')}</h3>
+            <form onSubmit={teamForm.handleSubmit(handleCreateTeam)}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Team Name</label>
+                <label className="block text-sm font-medium mb-1">{t('admin.modal.teamName')}</label>
                 <input
                   type="text"
-                  value={teamFormData.name || ''}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  {...teamForm.register('name', { required: true })}
                   className="w-full px-3 py-2 border rounded"
                   required
                 />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">{t('admin.modal.manager')}</label>
+                <select
+                  {...teamForm.register('managerId')}
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  <option value="">{t('admin.modal.noManager')}</option>
+                  {teamManagers.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.email})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex justify-end gap-2">
                 <button
@@ -364,13 +392,13 @@ export default function Admin() {
                   onClick={() => setShowModal(null)}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  Add Team
+                  {t('admin.modal.addTeam')}
                 </button>
               </div>
             </form>

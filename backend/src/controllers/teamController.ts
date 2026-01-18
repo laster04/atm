@@ -3,6 +3,24 @@ import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
+export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teams = await prisma.team.findMany({
+      where: { managerId: req.user!.id },
+      include: {
+        season: true,
+        _count: { select: { players: true } },
+        manager: { select: { id: true, name: true, email: true } }
+      },
+      orderBy: { name: 'asc' }
+    });
+    res.json(teams);
+  } catch (error) {
+    console.error('Get my teams error:', error);
+    res.status(500).json({ error: 'Failed to fetch teams' });
+  }
+};
+
 export const getTeamsBySeasonId = async (req: Request, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
@@ -61,7 +79,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const createTeam = async (req: Request, res: Response): Promise<void> => {
+export const createTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
     const { name, logo, managerId } = req.body;
@@ -74,6 +92,12 @@ export const createTeam = async (req: Request, res: Response): Promise<void> => 
     const season = await prisma.season.findUnique({ where: { id: parseInt(seasonId) } });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    // Season managers can only add teams to their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to add teams to this season' });
       return;
     }
 
@@ -105,12 +129,26 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
     const { id } = req.params;
     const { name, logo, managerId } = req.body;
 
-    if (req.user!.role === 'TEAM_MANAGER') {
-      const team = await prisma.team.findUnique({ where: { id: parseInt(id) } });
-      if (!team || team.managerId !== req.user!.id) {
-        res.status(403).json({ error: 'Not authorized to update this team' });
-        return;
-      }
+    const existingTeam = await prisma.team.findUnique({
+      where: { id: parseInt(id) },
+      include: { season: true }
+    });
+
+    if (!existingTeam) {
+      res.status(404).json({ error: 'Team not found' });
+      return;
+    }
+
+    // Season managers can only update teams in their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && existingTeam.season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to update this team' });
+      return;
+    }
+
+    // Team managers can only update their own teams
+    if (req.user!.role === 'TEAM_MANAGER' && existingTeam.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to update this team' });
+      return;
     }
 
     const team = await prisma.team.update({
@@ -140,16 +178,29 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-export const deleteTeam = async (req: Request, res: Response): Promise<void> => {
+export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.team.delete({ where: { id: parseInt(id) } });
-    res.json({ message: 'Team deleted successfully' });
-  } catch (error) {
-    if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
+
+    const team = await prisma.team.findUnique({
+      where: { id: parseInt(id) },
+      include: { season: true }
+    });
+
+    if (!team) {
       res.status(404).json({ error: 'Team not found' });
       return;
     }
+
+    // Season managers can only delete teams in their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && team.season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to delete this team' });
+      return;
+    }
+
+    await prisma.team.delete({ where: { id: parseInt(id) } });
+    res.json({ message: 'Team deleted successfully' });
+  } catch (error) {
     console.error('Delete team error:', error);
     res.status(500).json({ error: 'Failed to delete team' });
   }

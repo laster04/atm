@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "edit": "Edit",
+    "save": "Save",
+    "vs": "vs",
+    "teams": "teams",
+    "games": "games",
+    "players": "players"
+  },
+  "nav": {
+    "brand": "Sport Scheduler",
+    "seasons": "Seasons",
+    "myTeams": "My Teams",
+    "mySeasons": "My Seasons",
+    "admin": "Admin",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Sport Season Scheduler",
+    "subtitle": "Manage your sports leagues with ease. Create seasons, track teams, schedule games, and view standings all in one place.",
+    "features": {
+      "leagueManagement": {
+        "title": "League Management",
+        "description": "Create and manage multiple seasons with teams, players, and schedules."
+      },
+      "autoScheduling": {
+        "title": "Auto Scheduling",
+        "description": "Generate round-robin schedules automatically with just a few clicks."
+      },
+      "liveStandings": {
+        "title": "Live Standings",
+        "description": "Track standings in real-time as game results are entered."
+      }
+    },
+    "activeSeasons": "Active Seasons",
+    "viewAllSeasons": "View all seasons",
+    "noActiveSeasons": "No active seasons yet.",
+    "myTeams": "My Teams"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register",
+      "failed": "Login failed"
+    },
+    "register": {
+      "title": "Register",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "submitting": "Registering...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "failed": "Registration failed"
+    }
+  },
+  "seasons": {
+    "title": "Seasons",
+    "loading": "Loading seasons...",
+    "noSeasons": "No seasons found.",
+    "filter": {
+      "all": "All"
+    },
+    "status": {
+      "DRAFT": "DRAFT",
+      "ACTIVE": "ACTIVE",
+      "COMPLETED": "COMPLETED"
+    }
+  },
+  "seasonDetail": {
+    "loading": "Loading season...",
+    "notFound": "Season not found.",
+    "backToSeasons": "Back to Seasons",
+    "tabs": {
+      "standings": "Standings",
+      "schedule": "Schedule",
+      "teams": "Teams"
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Team",
+      "played": "P",
+      "wins": "W",
+      "draws": "D",
+      "losses": "L",
+      "goalsFor": "GF",
+      "goalsAgainst": "GA",
+      "goalDifference": "GD",
+      "points": "Pts",
+      "noData": "No standings data yet."
+    },
+    "schedule": {
+      "noGames": "No games scheduled yet.",
+      "round": "Round {{round}}"
+    },
+    "teams": {
+      "noTeams": "No teams in this season yet.",
+      "manager": "Manager: {{name}}"
+    }
+  },
+  "teamDetail": {
+    "loading": "Loading team...",
+    "notFound": "Team not found.",
+    "backTo": "Back to {{name}}",
+    "manager": "Manager: {{name}}",
+    "roster": "Roster ({{count}} players)",
+    "noPlayers": "No players added yet.",
+    "addPlayer": "+ Add Player",
+    "playerTable": {
+      "number": "#",
+      "name": "Name",
+      "position": "Position",
+      "actions": "Actions"
+    },
+    "games": {
+      "title": "Games",
+      "upcoming": "UPCOMING",
+      "recentResults": "RECENT RESULTS",
+      "noGames": "No games scheduled."
+    },
+    "confirm": {
+      "deletePlayer": "Are you sure you want to delete this player?"
+    },
+    "modal": {
+      "addPlayer": "Add Player",
+      "editPlayer": "Edit Player",
+      "name": "Name",
+      "number": "Number",
+      "position": "Position"
+    }
+  },
+  "myTeams": {
+    "title": "My Teams",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need to be a team manager to access this page.",
+    "noTeams": "You are not managing any teams yet."
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need admin privileges to access this page.",
+    "seasons": {
+      "title": "Seasons",
+      "new": "+ New",
+      "noSeasons": "No seasons yet",
+      "teamsIn": "Teams in {{name}}",
+      "selectSeason": "Select a season to manage teams"
+    },
+    "teams": {
+      "addTeam": "+ Add Team",
+      "generateSchedule": "Generate Schedule",
+      "noTeams": "No teams yet",
+      "managedBy": "Manager: {{name}}"
+    },
+    "modal": {
+      "createSeason": "Create Season",
+      "addTeam": "Add Team",
+      "name": "Name",
+      "sportType": "Sport Type",
+      "sportTypePlaceholder": "e.g., Football, Basketball",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "status": "Status",
+      "teamName": "Team Name",
+      "manager": "Team Manager",
+      "noManager": "No manager"
+    },
+    "confirm": {
+      "deleteSeason": "Are you sure? This will delete all teams and games in this season.",
+      "deleteTeam": "Are you sure? This will delete all players and game data for this team."
+    },
+    "errors": {
+      "createSeason": "Failed to create season",
+      "createTeam": "Failed to create team",
+      "generateSchedule": "Failed to generate schedule",
+      "deleteSeason": "Failed to delete season",
+      "deleteTeam": "Failed to delete team"
+    }
+  },
+  "language": {
+    "en": "EN",
+    "cs": "CZ"
+  }
+}

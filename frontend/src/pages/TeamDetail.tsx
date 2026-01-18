@@ -1,12 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { teamApi } from '../services/api';
-import type { Team } from '../types';
+import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
+import { teamApi, playerApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import type { Team, Player } from '../types';
+
+interface PlayerFormData {
+  name: string;
+  number?: string;
+  position?: string;
+}
 
 export default function TeamDetail() {
   const { id } = useParams<{ id: string }>();
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+  const { t, i18n } = useTranslation();
+  const { canManageTeam } = useAuth();
+  const playerForm = useForm<PlayerFormData>();
 
   useEffect(() => {
     if (!id) return;
@@ -18,7 +32,8 @@ export default function TeamDetail() {
   }, [id]);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
+    const locale = i18n.language === 'cs' ? 'cs-CZ' : 'en-US';
+    return new Date(date).toLocaleDateString(locale, {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
@@ -27,10 +42,63 @@ export default function TeamDetail() {
     });
   };
 
+  const reloadTeam = () => {
+    if (!id) return;
+    teamApi.getById(id)
+      .then(res => setTeam(res.data))
+      .catch(err => console.error(err));
+  };
+
+  const openAddPlayer = () => {
+    setEditingPlayer(null);
+    playerForm.reset({ name: '', number: '', position: '' });
+    setShowPlayerModal(true);
+  };
+
+  const openEditPlayer = (player: Player) => {
+    setEditingPlayer(player);
+    playerForm.reset({
+      name: player.name,
+      number: player.number?.toString() || '',
+      position: player.position || ''
+    });
+    setShowPlayerModal(true);
+  };
+
+  const handleSavePlayer = async (data: PlayerFormData) => {
+    if (!team) return;
+    try {
+      const playerData = {
+        name: data.name,
+        number: data.number ? parseInt(data.number) : undefined,
+        position: data.position || undefined
+      };
+      if (editingPlayer) {
+        await playerApi.update(editingPlayer.id, playerData);
+      } else {
+        await playerApi.create(team.id, playerData);
+      }
+      reloadTeam();
+      setShowPlayerModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeletePlayer = async (playerId: number) => {
+    if (!confirm(t('teamDetail.confirm.deletePlayer'))) return;
+    try {
+      await playerApi.delete(playerId);
+      reloadTeam();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        Loading team...
+        {t('teamDetail.loading')}
       </div>
     );
   }
@@ -38,7 +106,7 @@ export default function TeamDetail() {
   if (!team) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        Team not found.
+        {t('teamDetail.notFound')}
       </div>
     );
   }
@@ -50,7 +118,7 @@ export default function TeamDetail() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-6">
         <Link to={`/seasons/${team.season?.id}`} className="text-blue-600 hover:underline">
-          ← Back to {team.season?.name}
+          ← {t('teamDetail.backTo', { name: team.season?.name })}
         </Link>
       </div>
 
@@ -61,26 +129,39 @@ export default function TeamDetail() {
         </p>
         {team.manager && (
           <p className="text-gray-500 mt-2">
-            Manager: {team.manager.name}
+            {t('teamDetail.manager', { name: team.manager.name })}
           </p>
         )}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-xl font-bold mb-4">Roster ({team.players?.length || 0} players)</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{t('teamDetail.roster', { count: team.players?.length || 0 })}</h2>
+            {canManageTeam(team.managerId) && (
+              <button
+                onClick={openAddPlayer}
+                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+              >
+                {t('teamDetail.addPlayer')}
+              </button>
+            )}
+          </div>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {!team.players || team.players.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                No players added yet.
+                {t('teamDetail.noPlayers')}
               </div>
             ) : (
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">#</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Position</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">{t('teamDetail.playerTable.number')}</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">{t('teamDetail.playerTable.name')}</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">{t('teamDetail.playerTable.position')}</th>
+                    {canManageTeam(team.managerId) && (
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">{t('teamDetail.playerTable.actions')}</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -89,6 +170,22 @@ export default function TeamDetail() {
                       <td className="px-4 py-3 text-sm">{player.number || '-'}</td>
                       <td className="px-4 py-3 font-medium">{player.name}</td>
                       <td className="px-4 py-3 text-sm text-gray-500">{player.position || '-'}</td>
+                      {canManageTeam(team.managerId) && (
+                        <td className="px-4 py-3 text-right space-x-2">
+                          <button
+                            onClick={() => openEditPlayer(player)}
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            {t('common.edit')}
+                          </button>
+                          <button
+                            onClick={() => handleDeletePlayer(player.id)}
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            {t('common.delete')}
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -98,11 +195,11 @@ export default function TeamDetail() {
         </div>
 
         <div>
-          <h2 className="text-xl font-bold mb-4">Games</h2>
+          <h2 className="text-xl font-bold mb-4">{t('teamDetail.games.title')}</h2>
           <div className="space-y-4">
             {upcomingGames.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 mb-2">UPCOMING</h3>
+                <h3 className="text-sm font-semibold text-gray-500 mb-2">{t('teamDetail.games.upcoming')}</h3>
                 {upcomingGames.slice(0, 5).map(game => (
                   <div key={game.id} className="bg-white p-3 rounded-lg shadow mb-2">
                     <div className="flex justify-between items-center">
@@ -123,7 +220,7 @@ export default function TeamDetail() {
 
             {completedGames.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 mb-2">RECENT RESULTS</h3>
+                <h3 className="text-sm font-semibold text-gray-500 mb-2">{t('teamDetail.games.recentResults')}</h3>
                 {completedGames.slice(-5).reverse().map(game => {
                   const isHome = game.homeTeamId === team.id;
                   const teamScore = isHome ? game.homeScore : game.awayScore;
@@ -153,12 +250,66 @@ export default function TeamDetail() {
 
             {upcomingGames.length === 0 && completedGames.length === 0 && (
               <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-                No games scheduled.
+                {t('teamDetail.games.noGames')}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {showPlayerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              {editingPlayer ? t('teamDetail.modal.editPlayer') : t('teamDetail.modal.addPlayer')}
+            </h3>
+            <form onSubmit={playerForm.handleSubmit(handleSavePlayer)}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">{t('teamDetail.modal.name')}</label>
+                <input
+                  type="text"
+                  {...playerForm.register('name', { required: true })}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">{t('teamDetail.modal.number')}</label>
+                  <input
+                    type="number"
+                    {...playerForm.register('number')}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">{t('teamDetail.modal.position')}</label>
+                  <input
+                    type="text"
+                    {...playerForm.register('position')}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPlayerModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  {editingPlayer ? t('common.save') : t('common.create')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

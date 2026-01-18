@@ -97,3 +97,21 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ error: 'Profile update failed' });
   }
 };
+
+export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { role } = req.query;
+    const where = role ? { role: role as string } : {};
+
+    const users = await prisma.user.findMany({
+      where,
+      select: { id: true, email: true, name: true, role: true },
+      orderBy: { name: 'asc' }
+    });
+
+    res.json(users);
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+};

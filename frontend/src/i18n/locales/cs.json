@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Nacitam...",
+    "cancel": "Zrusit",
+    "delete": "Smazat",
+    "create": "Vytvorit",
+    "edit": "Upravit",
+    "save": "Ulozit",
+    "vs": "vs",
+    "teams": "tymu",
+    "games": "zapasu",
+    "players": "hracu"
+  },
+  "nav": {
+    "brand": "Sportovni Planovac",
+    "seasons": "Sezony",
+    "myTeams": "Moje Tymy",
+    "mySeasons": "Moje Sezony",
+    "admin": "Administrace",
+    "login": "Prihlasit",
+    "register": "Registrovat",
+    "logout": "Odhlasit"
+  },
+  "home": {
+    "title": "Planovac Sportovnich Sezon",
+    "subtitle": "Spravujte sve sportovni ligy snadno. Vytvarejte sezony, sledujte tymy, planujte zapasy a zobrazujte tabulky na jednom miste.",
+    "features": {
+      "leagueManagement": {
+        "title": "Sprava Ligy",
+        "description": "Vytvarejte a spravujte vice sezon s tymy, hraci a rozpisy."
+      },
+      "autoScheduling": {
+        "title": "Automaticke Planovani",
+        "description": "Generujte rozpisy kazdy s kazdym automaticky na par kliknuti."
+      },
+      "liveStandings": {
+        "title": "Zive Tabulky",
+        "description": "Sledujte tabulky v realnem case s pridavanim vysledku zapasu."
+      }
+    },
+    "activeSeasons": "Aktivni Sezony",
+    "viewAllSeasons": "Zobrazit vsechny sezony",
+    "noActiveSeasons": "Zatim zadne aktivni sezony.",
+    "myTeams": "Moje Tymy"
+  },
+  "auth": {
+    "login": {
+      "title": "Prihlaseni",
+      "email": "E-mail",
+      "password": "Heslo",
+      "submit": "Prihlasit",
+      "submitting": "Prihlasuji...",
+      "noAccount": "Nemate ucet?",
+      "registerLink": "Registrovat",
+      "failed": "Prihlaseni selhalo"
+    },
+    "register": {
+      "title": "Registrace",
+      "name": "Jmeno",
+      "email": "E-mail",
+      "password": "Heslo",
+      "confirmPassword": "Potvrzeni hesla",
+      "submit": "Registrovat",
+      "submitting": "Registruji...",
+      "hasAccount": "Uz mate ucet?",
+      "loginLink": "Prihlasit",
+      "passwordMismatch": "Hesla se neshoduji",
+      "passwordTooShort": "Heslo musi mit alespon 6 znaku",
+      "failed": "Registrace selhala"
+    }
+  },
+  "seasons": {
+    "title": "Sezony",
+    "loading": "Nacitam sezony...",
+    "noSeasons": "Zadne sezony nenalezeny.",
+    "filter": {
+      "all": "Vse"
+    },
+    "status": {
+      "DRAFT": "KONCEPT",
+      "ACTIVE": "AKTIVNI",
+      "COMPLETED": "DOKONCENA"
+    }
+  },
+  "seasonDetail": {
+    "loading": "Nacitam sezonu...",
+    "notFound": "Sezona nenalezena.",
+    "backToSeasons": "Zpet na sezony",
+    "tabs": {
+      "standings": "Tabulka",
+      "schedule": "Rozpis",
+      "teams": "Tymy"
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Tym",
+      "played": "Z",
+      "wins": "V",
+      "draws": "R",
+      "losses": "P",
+      "goalsFor": "VG",
+      "goalsAgainst": "OG",
+      "goalDifference": "RG",
+      "points": "B",
+      "noData": "Zatim zadna data v tabulce."
+    },
+    "schedule": {
+      "noGames": "Zatim zadne naplanovanene zapasy.",
+      "round": "Kolo {{round}}"
+    },
+    "teams": {
+      "noTeams": "V teto sezone zatim zadne tymy.",
+      "manager": "Manazer: {{name}}"
+    }
+  },
+  "teamDetail": {
+    "loading": "Nacitam tym...",
+    "notFound": "Tym nenalezen.",
+    "backTo": "Zpet na {{name}}",
+    "manager": "Manazer: {{name}}",
+    "roster": "Soupiska ({{count}} hracu)",
+    "noPlayers": "Zatim zadni hraci.",
+    "addPlayer": "+ Pridat hrace",
+    "playerTable": {
+      "number": "#",
+      "name": "Jmeno",
+      "position": "Pozice",
+      "actions": "Akce"
+    },
+    "games": {
+      "title": "Zapasy",
+      "upcoming": "NADCHAZEJICI",
+      "recentResults": "POSLEDNI VYSLEDKY",
+      "noGames": "Zadne naplanovanene zapasy."
+    },
+    "confirm": {
+      "deletePlayer": "Opravdu chcete smazat tohoto hrace?"
+    },
+    "modal": {
+      "addPlayer": "Pridat hrace",
+      "editPlayer": "Upravit hrace",
+      "name": "Jmeno",
+      "number": "Cislo",
+      "position": "Pozice"
+    }
+  },
+  "myTeams": {
+    "title": "Moje Tymy",
+    "accessDenied": "Pristup odepren",
+    "noPrivileges": "Pro pristup na tuto stranku musite byt manazer tymu.",
+    "noTeams": "Zatim nespravujete zadne tymy."
+  },
+  "admin": {
+    "title": "Administrace",
+    "accessDenied": "Pristup odepren",
+    "noPrivileges": "Pro pristup na tuto stranku potrebujete administratorska opravneni.",
+    "seasons": {
+      "title": "Sezony",
+      "new": "+ Nova",
+      "noSeasons": "Zatim zadne sezony",
+      "teamsIn": "Tymy v {{name}}",
+      "selectSeason": "Vyberte sezonu pro spravu tymu"
+    },
+    "teams": {
+      "addTeam": "+ Pridat tym",
+      "generateSchedule": "Generovat rozpis",
+      "noTeams": "Zatim zadne tymy",
+      "managedBy": "Manazer: {{name}}"
+    },
+    "modal": {
+      "createSeason": "Vytvorit sezonu",
+      "addTeam": "Pridat tym",
+      "name": "Nazev",
+      "sportType": "Typ sportu",
+      "sportTypePlaceholder": "napr. Fotbal, Basketbal",
+      "startDate": "Datum zacatku",
+      "endDate": "Datum konce",
+      "status": "Stav",
+      "teamName": "Nazev tymu",
+      "manager": "Manazer tymu",
+      "noManager": "Bez manazera"
+    },
+    "confirm": {
+      "deleteSeason": "Jste si jisti? Toto smaze vsechny tymy a zapasy v teto sezone.",
+      "deleteTeam": "Jste si jisti? Toto smaze vsechny hrace a data zapasu tohoto tymu."
+    },
+    "errors": {
+      "createSeason": "Vytvoreni sezony selhalo",
+      "createTeam": "Vytvoreni tymu selhalo",
+      "generateSchedule": "Generovani rozpisu selhalo",
+      "deleteSeason": "Smazani sezony selhalo",
+      "deleteTeam": "Smazani tymu selhalo"
+    }
+  },
+  "language": {
+    "en": "EN",
+    "cs": "CZ"
+  }
+}

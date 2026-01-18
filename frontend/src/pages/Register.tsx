@@ -1,41 +1,49 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { AxiosError } from 'axios';
 
+interface RegisterFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export default function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const { register: registerField, handleSubmit, watch } = useForm<RegisterFormData>();
   const { register } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const password = watch('password');
+
+  const onSubmit = async (data: RegisterFormData) => {
     setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    if (data.password !== data.confirmPassword) {
+      setError(t('auth.register.passwordMismatch'));
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (data.password.length < 6) {
+      setError(t('auth.register.passwordTooShort'));
       return;
     }
 
     setLoading(true);
 
     try {
-      await register(email, password, name);
+      await register(data.email, data.password, data.name);
       navigate('/');
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
-      setError(axiosError.response?.data?.error || 'Registration failed');
+      setError(axiosError.response?.data?.error || t('auth.register.failed'));
     } finally {
       setLoading(false);
     }
@@ -44,7 +52,7 @@ export default function Register() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">{t('auth.register.title')}</h1>
 
         {error && (
           <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
@@ -52,46 +60,45 @@ export default function Register() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Name</label>
+            <label className="block text-gray-700 mb-2">{t('auth.register.name')}</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              {...registerField('name', { required: true })}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email</label>
+            <label className="block text-gray-700 mb-2">{t('auth.register.email')}</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...registerField('email', { required: true })}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Password</label>
+            <label className="block text-gray-700 mb-2">{t('auth.register.password')}</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...registerField('password', { required: true, minLength: 6 })}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Confirm Password</label>
+            <label className="block text-gray-700 mb-2">{t('auth.register.confirmPassword')}</label>
             <input
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              {...registerField('confirmPassword', {
+                required: true,
+                validate: value => value === password || t('auth.register.passwordMismatch')
+              })}
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -102,14 +109,14 @@ export default function Register() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? t('auth.register.submitting') : t('auth.register.submit')}
           </button>
         </form>
 
         <p className="text-center mt-4 text-gray-600">
-          Already have an account?{' '}
+          {t('auth.register.hasAccount')}{' '}
           <Link to="/login" className="text-blue-600 hover:underline">
-            Login
+            {t('auth.register.loginLink')}
           </Link>
         </p>
       </div>

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getAllSeasons,
+  getMySeasons,
   getSeasonById,
   createSeason,
   updateSeason,
@@ -12,11 +13,12 @@ import { authenticate, authorize } from '../middleware/auth.js';
 const router = Router();
 
 router.get('/', getAllSeasons);
+router.get('/my', authenticate, getMySeasons);
 router.get('/:id', getSeasonById);
 router.get('/:id/standings', getSeasonStandings);
 
-router.post('/', authenticate, authorize('ADMIN'), createSeason);
-router.put('/:id', authenticate, authorize('ADMIN'), updateSeason);
-router.delete('/:id', authenticate, authorize('ADMIN'), deleteSeason);
+router.post('/', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createSeason);
+router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), updateSeason);
+router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteSeason);
 
 export default router;

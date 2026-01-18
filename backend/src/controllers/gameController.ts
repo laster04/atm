@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
+import { AuthRequest } from '../types/index.js';
 import { Prisma, GameStatus } from '@prisma/client';
 
 export const getGamesBySeasonId = async (req: Request, res: Response): Promise<void> => {
@@ -44,7 +45,7 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const createGame = async (req: Request, res: Response): Promise<void> => {
+export const createGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
     const { homeTeamId, awayTeamId, date, location, round } = req.body;
@@ -62,6 +63,12 @@ export const createGame = async (req: Request, res: Response): Promise<void> => 
     const season = await prisma.season.findUnique({ where: { id: parseInt(seasonId) } });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    // Season managers can only create games in their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to create games in this season' });
       return;
     }
 
@@ -87,10 +94,26 @@ export const createGame = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const updateGame = async (req: Request, res: Response): Promise<void> => {
+export const updateGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { homeTeamId, awayTeamId, date, location, homeScore, awayScore, status, round } = req.body;
+
+    const existingGame = await prisma.game.findUnique({
+      where: { id: parseInt(id) },
+      include: { season: true }
+    });
+
+    if (!existingGame) {
+      res.status(404).json({ error: 'Game not found' });
+      return;
+    }
+
+    // Season managers can only update games in their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && existingGame.season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to update this game' });
+      return;
+    }
 
     const game = await prisma.game.update({
       where: { id: parseInt(id) },
@@ -112,31 +135,40 @@ export const updateGame = async (req: Request, res: Response): Promise<void> => 
 
     res.json(game);
   } catch (error) {
-    if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
-      res.status(404).json({ error: 'Game not found' });
-      return;
-    }
     console.error('Update game error:', error);
     res.status(500).json({ error: 'Failed to update game' });
   }
 };
 
-export const deleteGame = async (req: Request, res: Response): Promise<void> => {
+export const deleteGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.game.delete({ where: { id: parseInt(id) } });
-    res.json({ message: 'Game deleted successfully' });
-  } catch (error) {
-    if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
+
+    const game = await prisma.game.findUnique({
+      where: { id: parseInt(id) },
+      include: { season: true }
+    });
+
+    if (!game) {
       res.status(404).json({ error: 'Game not found' });
       return;
     }
+
+    // Season managers can only delete games in their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && game.season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to delete this game' });
+      return;
+    }
+
+    await prisma.game.delete({ where: { id: parseInt(id) } });
+    res.json({ message: 'Game deleted successfully' });
+  } catch (error) {
     console.error('Delete game error:', error);
     res.status(500).json({ error: 'Failed to delete game' });
   }
 };
 
-export const generateSchedule = async (req: Request, res: Response): Promise<void> => {
+export const generateSchedule = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
     const { startDate, intervalDays = 7, doubleRoundRobin = true } = req.body;
@@ -148,6 +180,12 @@ export const generateSchedule = async (req: Request, res: Response): Promise<voi
 
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    // Season managers can only generate schedule for their own seasons
+    if (req.user!.role === 'SEASON_MANAGER' && season.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to generate schedule for this season' });
       return;
     }
 

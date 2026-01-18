@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { seasonApi } from '../services/api';
 import type { Season, SeasonStatus } from '../types';
 
@@ -7,6 +8,7 @@ export default function Seasons() {
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | SeasonStatus>('all');
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     seasonApi.getAll()
@@ -20,7 +22,8 @@ export default function Seasons() {
     : seasons.filter(s => s.status === filter);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
+    const locale = i18n.language === 'cs' ? 'cs-CZ' : 'en-US';
+    return new Date(date).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -35,7 +38,7 @@ export default function Seasons() {
     };
     return (
       <span className={`px-2 py-1 rounded text-sm ${colors[status]}`}>
-        {status}
+        {t(`seasons.status.${status}`)}
       </span>
     );
   };
@@ -43,7 +46,7 @@ export default function Seasons() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        Loading seasons...
+        {t('seasons.loading')}
       </div>
     );
   }
@@ -51,7 +54,7 @@ export default function Seasons() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Seasons</h1>
+        <h1 className="text-3xl font-bold">{t('seasons.title')}</h1>
 
         <div className="flex gap-2">
           {(['all', 'ACTIVE', 'DRAFT', 'COMPLETED'] as const).map(status => (
@@ -64,7 +67,7 @@ export default function Seasons() {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              {status === 'all' ? 'All' : status}
+              {status === 'all' ? t('seasons.filter.all') : t(`seasons.status.${status}`)}
             </button>
           ))}
         </div>
@@ -72,7 +75,7 @@ export default function Seasons() {
 
       {filteredSeasons.length === 0 ? (
         <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-          No seasons found.
+          {t('seasons.noSeasons')}
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -91,8 +94,8 @@ export default function Seasons() {
                 {formatDate(season.startDate)} - {formatDate(season.endDate)}
               </p>
               <div className="mt-3 pt-3 border-t flex justify-between text-sm text-gray-500">
-                <span>{season._count?.teams} teams</span>
-                <span>{season._count?.games} games</span>
+                <span>{season._count?.teams} {t('common.teams')}</span>
+                <span>{season._count?.games} {t('common.games')}</span>
               </div>
             </Link>
           ))}

@@ -1,18 +1,37 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
+import { AuthRequest } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
 export const getAllSeasons = async (req: Request, res: Response): Promise<void> => {
   try {
     const seasons = await prisma.season.findMany({
       include: {
-        _count: { select: { teams: true, games: true } }
+        _count: { select: { teams: true, games: true } },
+        manager: { select: { id: true, name: true, email: true } }
       },
       orderBy: { startDate: 'desc' }
     });
     res.json(seasons);
   } catch (error) {
     console.error('Get seasons error:', error);
+    res.status(500).json({ error: 'Failed to fetch seasons' });
+  }
+};
+
+export const getMySeasons = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const seasons = await prisma.season.findMany({
+      where: { managerId: req.user!.id },
+      include: {
+        _count: { select: { teams: true, games: true } },
+        manager: { select: { id: true, name: true, email: true } }
+      },
+      orderBy: { startDate: 'desc' }
+    });
+    res.json(seasons);
+  } catch (error) {
+    console.error('Get my seasons error:', error);
     res.status(500).json({ error: 'Failed to fetch seasons' });
   }
 };
@@ -29,6 +48,7 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
             manager: { select: { id: true, name: true, email: true } }
           }
         },
+        manager: { select: { id: true, name: true, email: true } },
         _count: { select: { games: true } }
       }
     });
@@ -45,7 +65,7 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const createSeason = async (req: Request, res: Response): Promise<void> => {
+export const createSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, sportType, startDate, endDate, status } = req.body;
 
@@ -54,13 +74,20 @@ export const createSeason = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    // Auto-set managerId for SEASON_MANAGER role
+    const managerId = req.user!.role === 'SEASON_MANAGER' ? req.user!.id : null;
+
     const season = await prisma.season.create({
       data: {
         name,
         sportType,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: status || 'DRAFT'
+        status: status || 'DRAFT',
+        managerId
+      },
+      include: {
+        manager: { select: { id: true, name: true, email: true } }
       }
     });
 
@@ -71,10 +98,19 @@ export const createSeason = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const updateSeason = async (req: Request, res: Response): Promise<void> => {
+export const updateSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, sportType, startDate, endDate, status } = req.body;
+
+    // Season managers can only update their own seasons
+    if (req.user!.role === 'SEASON_MANAGER') {
+      const season = await prisma.season.findUnique({ where: { id: parseInt(id) } });
+      if (!season || season.managerId !== req.user!.id) {
+        res.status(403).json({ error: 'Not authorized to update this season' });
+        return;
+      }
+    }
 
     const season = await prisma.season.update({
       where: { id: parseInt(id) },
@@ -84,6 +120,9 @@ export const updateSeason = async (req: Request, res: Response): Promise<void> =
         ...(startDate && { startDate: new Date(startDate) }),
         ...(endDate && { endDate: new Date(endDate) }),
         ...(status && { status })
+      },
+      include: {
+        manager: { select: { id: true, name: true, email: true } }
       }
     });
 
@@ -98,9 +137,27 @@ export const updateSeason = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const deleteSeason = async (req: Request, res: Response): Promise<void> => {
+export const deleteSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+
+    // Season managers can only delete their own seasons that haven't started yet
+    if (req.user!.role === 'SEASON_MANAGER') {
+      const season = await prisma.season.findUnique({ where: { id: parseInt(id) } });
+      if (!season) {
+        res.status(404).json({ error: 'Season not found' });
+        return;
+      }
+      if (season.managerId !== req.user!.id) {
+        res.status(403).json({ error: 'Not authorized to delete this season' });
+        return;
+      }
+      if (new Date(season.startDate) <= new Date()) {
+        res.status(403).json({ error: 'Cannot delete a season that has already started' });
+        return;
+      }
+    }
+
     await prisma.season.delete({ where: { id: parseInt(id) } });
     res.json({ message: 'Season deleted successfully' });
   } catch (error) {

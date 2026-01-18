@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { seasonApi, gameApi } from '../services/api';
 import type { Season, Game, Standing } from '../types';
 
@@ -10,6 +11,7 @@ export default function SeasonDetail() {
   const [standings, setStandings] = useState<Standing[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'standings' | 'schedule' | 'teams'>('standings');
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (!id) return;
@@ -29,7 +31,8 @@ export default function SeasonDetail() {
   }, [id]);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
+    const locale = i18n.language === 'cs' ? 'cs-CZ' : 'en-US';
+    return new Date(date).toLocaleDateString(locale, {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
@@ -41,7 +44,7 @@ export default function SeasonDetail() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        Loading season...
+        {t('seasonDetail.loading')}
       </div>
     );
   }
@@ -49,22 +52,22 @@ export default function SeasonDetail() {
   if (!season) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        Season not found.
+        {t('seasonDetail.notFound')}
       </div>
     );
   }
 
   const tabs = [
-    { id: 'standings' as const, label: 'Standings' },
-    { id: 'schedule' as const, label: 'Schedule' },
-    { id: 'teams' as const, label: 'Teams' }
+    { id: 'standings' as const, label: t('seasonDetail.tabs.standings') },
+    { id: 'schedule' as const, label: t('seasonDetail.tabs.schedule') },
+    { id: 'teams' as const, label: t('seasonDetail.tabs.teams') }
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-6">
         <Link to="/seasons" className="text-blue-600 hover:underline">
-          ← Back to Seasons
+          ← {t('seasonDetail.backToSeasons')}
         </Link>
       </div>
 
@@ -79,7 +82,7 @@ export default function SeasonDetail() {
             season.status === 'COMPLETED' ? 'bg-blue-200 text-blue-700' :
             'bg-gray-200 text-gray-700'
           }`}>
-            {season.status}
+            {t(`seasons.status.${season.status}`)}
           </span>
         </div>
       </div>
@@ -107,16 +110,16 @@ export default function SeasonDetail() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">#</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Team</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">P</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">W</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">D</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">L</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">GF</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">GA</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">GD</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">Pts</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">{t('seasonDetail.standings.rank')}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">{t('seasonDetail.standings.team')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.played')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.wins')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.draws')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.losses')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.goalsFor')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.goalsAgainst')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.goalDifference')}</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600">{t('seasonDetail.standings.points')}</th>
               </tr>
             </thead>
             <tbody>
@@ -145,7 +148,7 @@ export default function SeasonDetail() {
           </table>
           {standings.length === 0 && (
             <div className="p-8 text-center text-gray-500">
-              No standings data yet.
+              {t('seasonDetail.standings.noData')}
             </div>
           )}
         </div>
@@ -155,7 +158,7 @@ export default function SeasonDetail() {
         <div className="space-y-4">
           {games.length === 0 ? (
             <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-              No games scheduled yet.
+              {t('seasonDetail.schedule.noGames')}
             </div>
           ) : (
             games.map(game => (
@@ -175,7 +178,7 @@ export default function SeasonDetail() {
                         {game.homeScore} - {game.awayScore}
                       </span>
                     ) : (
-                      <span className="text-gray-400">vs</span>
+                      <span className="text-gray-400">{t('common.vs')}</span>
                     )}
                   </div>
                   <div className="flex-1 pl-4">
@@ -190,7 +193,7 @@ export default function SeasonDetail() {
                 <div className="text-center mt-2 text-sm text-gray-500">
                   {formatDate(game.date)}
                   {game.location && ` · ${game.location}`}
-                  {game.round && ` · Round ${game.round}`}
+                  {game.round && ` · ${t('seasonDetail.schedule.round', { round: game.round })}`}
                 </div>
               </div>
             ))
@@ -202,7 +205,7 @@ export default function SeasonDetail() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {!season.teams || season.teams.length === 0 ? (
             <div className="col-span-full bg-white p-8 rounded-lg shadow text-center text-gray-500">
-              No teams in this season yet.
+              {t('seasonDetail.teams.noTeams')}
             </div>
           ) : (
             season.teams.map(team => (
@@ -213,11 +216,11 @@ export default function SeasonDetail() {
               >
                 <h3 className="font-semibold text-lg">{team.name}</h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  {team._count?.players} players
+                  {team._count?.players} {t('common.players')}
                 </p>
                 {team.manager && (
                   <p className="text-sm text-gray-500">
-                    Manager: {team.manager.name}
+                    {t('seasonDetail.teams.manager', { name: team.manager.name })}
                   </p>
                 )}
               </Link>

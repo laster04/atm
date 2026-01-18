@@ -8,6 +8,7 @@ import Seasons from './pages/Seasons';
 import SeasonDetail from './pages/SeasonDetail';
 import TeamDetail from './pages/TeamDetail';
 import Admin from './pages/Admin';
+import MyTeams from './pages/MyTeams';
 import './index.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/seasons" element={<Seasons />} />
             <Route path="/seasons/:id" element={<SeasonDetail />} />
             <Route path="/teams/:id" element={<TeamDetail />} />
+            <Route path="/my-teams" element={<MyTeams />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </div>

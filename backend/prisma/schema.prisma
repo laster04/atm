@@ -10,6 +10,7 @@ datasource db {
 
 enum Role {
   ADMIN
+  SEASON_MANAGER
   TEAM_MANAGER
   VIEWER
 }
@@ -37,7 +38,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  managedTeams Team[]
+  managedSeasons Season[]
+  managedTeams   Team[]
 }
 
 model Season {
@@ -49,6 +51,9 @@ model Season {
   status    SeasonStatus @default(DRAFT)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
+  managerId Int?
+  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   teams Team[]
   games Game[]

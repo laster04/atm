@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'TEAM_MANAGER' | 'VIEWER';
+export type Role = 'ADMIN' | 'SEASON_MANAGER' | 'TEAM_MANAGER' | 'VIEWER';
 export type SeasonStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
 export type GameStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
 
@@ -18,6 +18,8 @@ export interface Season {
   status: SeasonStatus;
   createdAt: string;
   updatedAt: string;
+  managerId?: number | null;
+  manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   teams?: Team[];
   _count?: {
     teams: number;
@@ -86,6 +88,7 @@ export interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<{ user: User; token: string }>;
   logout: () => void;
   isAdmin: () => boolean;
+  isSeasonManager: () => boolean;
   isTeamManager: () => boolean;
   canManageTeam: (teamManagerId?: number | null) => boolean;
 }
