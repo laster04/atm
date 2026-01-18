@@ -5,7 +5,7 @@ import { teamApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import type { Team } from '../types';
 
-export default function MyTeams() {
+export default function TeamManagerDashboard() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();

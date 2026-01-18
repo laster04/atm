@@ -5,6 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import { seasonApi, teamApi, gameApi, authApi } from '../services/api';
 import type { Season, Team, SeasonStatus, User } from '../types';
 import { AxiosError } from 'axios';
+import { Card, CardContent, CardHeader, CardTitle } from "@components/base/card.tsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/base/tabs.tsx";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@components/base/table";
+import { Badge } from "@components/base/badge";
+import { Button } from "@components/base/button";
+// import { Edit, Trash2 } from "lucide-react";
 
 interface SeasonFormData {
   name: string;
@@ -25,6 +31,7 @@ export default function Admin() {
   const { isAdmin, isSeasonManager } = useAuth();
   const { t } = useTranslation();
   const [seasons, setSeasons] = useState<Season[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamManagers, setTeamManagers] = useState<User[]>([]);
@@ -40,6 +47,7 @@ export default function Admin() {
 
   useEffect(() => {
     loadSeasons();
+    loadUsers();
     authApi.getUsers('TEAM_MANAGER')
       .then(res => setTeamManagers(res.data))
       .catch(err => console.error(err));
@@ -65,6 +73,16 @@ export default function Admin() {
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
+  };
+
+  const loadUsers = () => {
+    const apiCall = authApi.getUsers();
+    apiCall
+        .then(res => {
+          setUsers(res.data);
+        })
+        .catch(err => console.error(err))
+        .finally(() => setLoading(false));
   };
 
   if (!isAdmin() && !isSeasonManager()) {
@@ -170,7 +188,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="space-y-6">
       <h1 className="text-3xl font-bold mb-6">{t('admin.title')}</h1>
 
       {error && (
@@ -178,6 +196,111 @@ export default function Admin() {
           {error}
         </div>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('admin.tabs.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="user">
+            <TabsList>
+              <TabsTrigger value="user">{t('admin.tabs.user.title')}</TabsTrigger>
+              <TabsTrigger value="season">{t('admin.tabs.season.title')}</TabsTrigger>
+              <TabsTrigger value="team">{t('admin.tabs.team.title')}</TabsTrigger>
+              <TabsTrigger value="player">{t('admin.tabs.player.title')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="user" className="space-y-4 mt-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('admin.tabs.user.th-name')}</TableHead>
+                    <TableHead>{t('admin.tabs.user.th-email')}</TableHead>
+                    <TableHead>{t('admin.tabs.user.th-role')}</TableHead>
+                    {/*<TableHead>Status</TableHead>*/}
+                    <TableHead className="text-right">{t('admin.tabs.player.title')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{user.role}</Badge>
+                        </TableCell>
+                        {/*<TableCell>*/}
+                        {/*  <Badge variant={user.status === 'Active' ? 'default' : 'outline'}>*/}
+                        {/*    {user.status}*/}
+                        {/*  </Badge>*/}
+                        {/*</TableCell>*/}
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="sm">
+                              {/*<Edit className="size-4" />*/}
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              {/*<Trash2 className="size-4 text-destructive" />*/}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
+            <TabsContent value="season" className="space-y-4 mt-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('admin.tabs.season.th-name')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-sportType')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-startDate')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-endDate')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-status')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-created')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-manager')}</TableHead>
+                    <TableHead>{t('admin.tabs.season.th-teams-c')}</TableHead>
+                    {/*<TableHead>Status</TableHead>*/}
+                    <TableHead className="text-right">{t('admin.tabs.season.th-actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {seasons.map((season) => (
+                      <TableRow key={season.id}>
+                        <TableCell className="font-medium">{season.name}</TableCell>
+                        <TableCell>{season.sportType}</TableCell>
+                        <TableCell>{season.startDate}</TableCell>
+                        <TableCell>{season.endDate}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{season.status}</Badge>
+                        </TableCell>
+                        <TableCell>{season.createdAt}</TableCell>
+                        <TableCell>{season.manager?.name}</TableCell>
+                        <TableCell>{season._count?.teams}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="sm">
+                              {/*<Edit className="size-4" />*/}
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              {/*<Trash2 className="size-4 text-destructive" />*/}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
+            <TabsContent value="team" className="space-y-4 mt-4">
+              <span> team</span>
+            </TabsContent>
+            <TabsContent value="player" className="space-y-4 mt-4">
+              <span> player</span>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">

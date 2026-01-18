@@ -154,6 +154,34 @@
     "title": "Administrace",
     "accessDenied": "Pristup odepren",
     "noPrivileges": "Pro pristup na tuto stranku potrebujete administratorska opravneni.",
+    "tabs": {
+      "title": "Vyber pro úpravu",
+      "user": {
+        "title": "Uživatelé",
+        "th-name": "Jméno",
+        "th-email": "Email",
+        "th-role": "Role",
+        "th-actions": "Akce"
+      },
+      "season": {
+        "title": "Sezóny",
+        "th-name": "Název",
+        "th-sportType": "Sport",
+        "th-startDate": "Začátek",
+        "th-endDate": "Konec",
+        "th-status": "Status",
+        "th-created": "Vytvořeno",
+        "th-manager": "Manager",
+        "th-teams-c": "Počet teamů",
+        "th-actions": "Akce"
+      },
+      "team": {
+        "title": "Týmy"
+      },
+      "player": {
+        "title": "Hráči"
+      }
+    },
     "seasons": {
       "title": "Sezony",
       "new": "+ Nova",

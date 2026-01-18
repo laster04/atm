@@ -154,6 +154,34 @@
     "title": "Admin Dashboard",
     "accessDenied": "Access Denied",
     "noPrivileges": "You need admin privileges to access this page.",
+    "tabs": {
+      "title": "Select your choice",
+      "user": {
+        "title": "Users",
+        "th-name": "Name",
+        "th-email": "Email",
+        "th-role": "Role",
+        "th-actions": "Actions"
+      },
+      "season": {
+        "title": "Seasons",
+        "th-name": "Name",
+        "th-sportType": "Sport type",
+        "th-startDate": "Start",
+        "th-endDate": "End",
+        "th-status": "Status",
+        "th-created": "Created",
+        "th-manager": "Manager",
+        "th-teams-c": "Team count",
+        "th-actions": "Actions"
+      },
+      "team": {
+        "title": "Teams"
+      },
+      "player": {
+        "title": "Players"
+      }
+    },
     "seasons": {
       "title": "Seasons",
       "new": "+ New",
