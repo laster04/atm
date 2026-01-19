@@ -4,7 +4,22 @@ export enum Role {
   TEAM_MANAGER = 'TEAM_MANAGER',
   VIEWER = 'VIEWER',
 }
-export type SeasonStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
+export enum SeasonStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED',
+}
+
+export enum SportType {
+  FOOTBALL = 'FOOTBALL',
+  BASKETBALL = 'BASKETBALL',
+  VOLLEYBALL = 'VOLLEYBALL',
+  HOCKEY = 'HOCKEY',
+  TENNIS = 'TENNIS',
+  HANDBALL = 'HANDBALL',
+  FLOORBALL = 'FLOORBALL',
+  OTHER = 'OTHER',
+}
 export type GameStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
 
 export interface User {
@@ -18,7 +33,7 @@ export interface User {
 export interface Season {
   id: number;
   name: string;
-  sportType: string;
+  sportType: SportType;
   startDate: string;
   endDate: string;
   status: SeasonStatus;

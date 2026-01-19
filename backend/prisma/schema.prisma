@@ -29,6 +29,17 @@ enum GameStatus {
   CANCELLED
 }
 
+enum SportType {
+  FOOTBALL
+  BASKETBALL
+  VOLLEYBALL
+  HOCKEY
+  TENNIS
+  HANDBALL
+  FLOORBALL
+  OTHER
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -46,7 +57,7 @@ model User {
 model Season {
   id        Int          @id @default(autoincrement())
   name      String
-  sportType String
+  sportType SportType    @default(OTHER)
   startDate DateTime
   endDate   DateTime
   status    SeasonStatus @default(DRAFT)

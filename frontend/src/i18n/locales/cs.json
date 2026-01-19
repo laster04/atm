@@ -175,6 +175,7 @@
       },
       "season": {
         "title": "Sezóny",
+        "addSeason": "Přidat sezónu",
         "th-name": "Název",
         "th-sportType": "Sport",
         "th-startDate": "Začátek",
@@ -206,7 +207,10 @@
       "managedBy": "Manazer: {{name}}"
     },
     "modal": {
-      "createSeason": "Vytvorit sezonu",
+      "createSeason": "Vytvořit sezónu",
+      "editSeason": "Upravit sezónu",
+      "createSeasonDesc": "Vytvořte novou sezónu pro vaši ligu",
+      "editSeasonDesc": "Upravte detaily sezóny",
       "addTeam": "Pridat tym",
       "createUser": "Vytvorit uzivatele",
       "editUser": "Upravit uzivatele",
@@ -238,7 +242,8 @@
       "deleteUser": "Opravdu chcete smazat tohoto uživatele?"
     },
     "errors": {
-      "createSeason": "Vytvoreni sezony selhalo",
+      "createSeason": "Vytvoření sezóny selhalo",
+      "updateSeason": "Aktualizace sezóny selhala",
       "createTeam": "Vytvoreni tymu selhalo",
       "createUser": "Vytvoření uživatele selhalo",
       "updateUser": "Aktualizace uživatele selhala",
@@ -251,5 +256,15 @@
   "language": {
     "en": "EN",
     "cs": "CZ"
+  },
+  "sports": {
+    "FOOTBALL": "Fotbal",
+    "BASKETBALL": "Basketbal",
+    "VOLLEYBALL": "Volejbal",
+    "HOCKEY": "Hokej",
+    "TENNIS": "Tenis",
+    "HANDBALL": "Házená",
+    "FLOORBALL": "Florbal",
+    "OTHER": "Ostatní"
   }
 }

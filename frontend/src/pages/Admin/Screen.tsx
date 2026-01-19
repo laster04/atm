@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
-import { fetchSeasons, fetchMySeasons, createSeason, deleteSeason } from '@/store/slices/seasonsSlice.ts';
+import { fetchSeasons, fetchMySeasons, createSeason, updateSeason, deleteSeason } from '@/store/slices/seasonsSlice.ts';
 import { fetchTeamsBySeason, createTeam, deleteTeam } from '@/store/slices/teamsSlice.ts';
 import { generateSchedule } from '@/store/slices/gamesSlice.ts';
 import { authApi } from '@/services/api.ts';
@@ -79,10 +79,19 @@ export default function AdminScreen() {
     setError('');
     try {
       await dispatch(createSeason(data)).unwrap();
-      setShowModal(null);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
       setError(axiosError.response?.data?.error || t('admin.errors.createSeason'));
+    }
+  };
+
+  const handleUpdateSeason = async (id: number, data: SeasonFormData) => {
+    setError('');
+    try {
+      await dispatch(updateSeason({ id, data })).unwrap();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ error: string }>;
+      setError(axiosError.response?.data?.error || t('admin.errors.updateSeason'));
     }
   };
 
@@ -263,7 +272,12 @@ export default function AdminScreen() {
               />
             </TabsContent>
             <TabsContent value="season" className="space-y-4 mt-4">
-              <SeasonsTable seasons={seasons} />
+              <SeasonsTable
+                seasons={seasons}
+                onCreateSeason={handleCreateSeason}
+                onUpdateSeason={handleUpdateSeason}
+                onDeleteSeason={handleDeleteSeason}
+              />
             </TabsContent>
             <TabsContent value="team" className="space-y-4 mt-4">
               <span>team</span>

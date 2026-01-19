@@ -175,6 +175,7 @@
       },
       "season": {
         "title": "Seasons",
+        "addSeason": "Add Season",
         "th-name": "Name",
         "th-sportType": "Sport type",
         "th-startDate": "Start",
@@ -207,6 +208,9 @@
     },
     "modal": {
       "createSeason": "Create Season",
+      "editSeason": "Edit Season",
+      "createSeasonDesc": "Create a new season for your league",
+      "editSeasonDesc": "Update season details",
       "addTeam": "Add Team",
       "createUser": "Create User",
       "editUser": "Edit User",
@@ -239,6 +243,7 @@
     },
     "errors": {
       "createSeason": "Failed to create season",
+      "updateSeason": "Failed to update season",
       "createTeam": "Failed to create team",
       "createUser": "Failed to create user",
       "updateUser": "Failed to update user",
@@ -251,5 +256,15 @@
   "language": {
     "en": "EN",
     "cs": "CZ"
+  },
+  "sports": {
+    "FOOTBALL": "Football",
+    "BASKETBALL": "Basketball",
+    "VOLLEYBALL": "Volleyball",
+    "HOCKEY": "Hockey",
+    "TENNIS": "Tennis",
+    "HANDBALL": "Handball",
+    "FLOORBALL": "Floorball",
+    "OTHER": "Other"
   }
 }

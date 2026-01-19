@@ -1,97 +1,144 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import type { SeasonStatus } from '@types';
+import { SeasonStatus, SportType } from '@types';
+import type { Season } from '@types';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
+import { Label } from '@components/base/label';
+import { Input } from '@/components/base/input';
+import { Button } from '@components/base/button';
 
 interface SeasonFormData {
-  name: string;
-  sportType: string;
-  startDate: string;
-  endDate: string;
-  status: SeasonStatus;
+	name: string;
+	sportType: SportType;
+	startDate: string;
+	endDate: string;
+	status: SeasonStatus;
 }
 
 interface SeasonFormModalProps {
-  onSubmit: (data: SeasonFormData) => void;
-  onClose: () => void;
+	season: Season | null;
+	onSubmit: (data: SeasonFormData) => void;
+	onClose: () => void;
 }
 
-export default function SeasonFormModal({ onSubmit, onClose }: SeasonFormModalProps) {
-  const { t } = useTranslation();
-  const form = useForm<SeasonFormData>({
-    defaultValues: { status: 'DRAFT' },
-  });
+function formatDateForInput(dateString: string | undefined): string {
+	if (!dateString) return '';
+	const date = new Date(dateString);
+	return date.toISOString().split('T')[0];
+}
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">{t('admin.modal.createSeason')}</h3>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">{t('admin.modal.name')}</label>
-            <input
-              type="text"
-              {...form.register('name', { required: true })}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">{t('admin.modal.sportType')}</label>
-            <input
-              type="text"
-              {...form.register('sportType', { required: true })}
-              className="w-full px-3 py-2 border rounded"
-              placeholder={t('admin.modal.sportTypePlaceholder')}
-              required
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('admin.modal.startDate')}</label>
-              <input
-                type="date"
-                {...form.register('startDate', { required: true })}
-                className="w-full px-3 py-2 border rounded"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('admin.modal.endDate')}</label>
-              <input
-                type="date"
-                {...form.register('endDate', { required: true })}
-                className="w-full px-3 py-2 border rounded"
-                required
-              />
-            </div>
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">{t('admin.modal.status')}</label>
-            <select {...form.register('status')} className="w-full px-3 py-2 border rounded">
-              <option value="DRAFT">{t('seasons.status.DRAFT')}</option>
-              <option value="ACTIVE">{t('seasons.status.ACTIVE')}</option>
-              <option value="COMPLETED">{t('seasons.status.COMPLETED')}</option>
-            </select>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              {t('common.create')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+export default function SeasonFormModal({ season, onSubmit, onClose }: SeasonFormModalProps) {
+	const { t } = useTranslation();
+	const isEditing = !!season;
+
+	const initValues = {
+		name: season?.name || '',
+		sportType: season?.sportType || SportType.OTHER,
+		startDate: formatDateForInput(season?.startDate),
+		endDate: formatDateForInput(season?.endDate),
+		status: season?.status || SeasonStatus.DRAFT,
+	};
+
+	const form = useForm<SeasonFormData>({
+		defaultValues: initValues,
+	});
+
+	return (
+		<>
+			<DialogHeader>
+				<DialogTitle>{isEditing ? t('admin.modal.editSeason') : t('admin.modal.createSeason')}</DialogTitle>
+				<DialogDescription>
+					{isEditing ? t('admin.modal.editSeasonDesc') : t('admin.modal.createSeasonDesc')}
+				</DialogDescription>
+			</DialogHeader>
+			<form onSubmit={form.handleSubmit(onSubmit)}>
+				<div className="space-y-4 pt-4">
+					<div className="space-y-2">
+						<Label>{t('admin.modal.name')}</Label>
+						<Input
+							type="text"
+							{...form.register('name', { required: true })}
+							className="w-full px-3 py-2 border rounded"
+							required
+						/>
+					</div>
+					<div className="space-y-2">
+						<FormControl className="w-full" size="small">
+							<InputLabel id="select-sport-type-label">{t('admin.modal.sportType')}</InputLabel>
+							<Select
+								MenuProps={{
+									disablePortal: true,
+								}}
+								labelId="select-sport-type-label"
+								id="select-sport-type"
+								label={t('admin.modal.sportType')}
+								{...form.register('sportType')}
+								defaultValue={initValues.sportType}
+							>
+								<MenuItem value={SportType.FOOTBALL}>{t('sports.FOOTBALL')}</MenuItem>
+								<MenuItem value={SportType.BASKETBALL}>{t('sports.BASKETBALL')}</MenuItem>
+								<MenuItem value={SportType.VOLLEYBALL}>{t('sports.VOLLEYBALL')}</MenuItem>
+								<MenuItem value={SportType.HOCKEY}>{t('sports.HOCKEY')}</MenuItem>
+								<MenuItem value={SportType.TENNIS}>{t('sports.TENNIS')}</MenuItem>
+								<MenuItem value={SportType.HANDBALL}>{t('sports.HANDBALL')}</MenuItem>
+								<MenuItem value={SportType.FLOORBALL}>{t('sports.FLOORBALL')}</MenuItem>
+								<MenuItem value={SportType.OTHER}>{t('sports.OTHER')}</MenuItem>
+							</Select>
+						</FormControl>
+					</div>
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label>{t('admin.modal.startDate')}</Label>
+							<Input
+								type="date"
+								{...form.register('startDate', { required: true })}
+								className="w-full px-3 py-2 border rounded"
+								required
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label>{t('admin.modal.endDate')}</Label>
+							<Input
+								type="date"
+								{...form.register('endDate', { required: true })}
+								className="w-full px-3 py-2 border rounded"
+								required
+							/>
+						</div>
+					</div>
+					<div className="space-y-2">
+						<FormControl className="w-full" size="small">
+							<InputLabel id="select-season-status-label">{t('admin.modal.status')}</InputLabel>
+							<Select
+								MenuProps={{
+									disablePortal: true,
+								}}
+								labelId="select-season-status-label"
+								id="select-season-status"
+								label={t('admin.modal.status')}
+								{...form.register('status')}
+								defaultValue={initValues.status}
+							>
+								<MenuItem value={SeasonStatus.DRAFT}>{t('seasons.status.DRAFT')}</MenuItem>
+								<MenuItem value={SeasonStatus.ACTIVE}>{t('seasons.status.ACTIVE')}</MenuItem>
+								<MenuItem value={SeasonStatus.COMPLETED}>{t('seasons.status.COMPLETED')}</MenuItem>
+							</Select>
+						</FormControl>
+					</div>
+				</div>
+
+				<div className="flex gap-2 pt-4">
+					<Button className="flex-1" type="submit">
+						{isEditing ? t('common.save') : t('common.create')}
+					</Button>
+					<Button onClick={onClose} variant="outline">
+						{t('common.cancel')}
+					</Button>
+				</div>
+			</form>
+		</>
+	);
 }
 
 export type { SeasonFormData };
