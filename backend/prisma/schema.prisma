@@ -105,7 +105,7 @@ model Player {
 
 model Game {
   id        Int        @id @default(autoincrement())
-  date      DateTime
+  date      DateTime?
   location  String?
   homeScore Int?
   awayScore Int?

@@ -13,6 +13,7 @@ import TeamDetail from './pages/TeamDetail';
 import TeamManagerDashboard from './pages/TeamManagerDashboard';
 import Admin from './pages/Admin';
 import './index.css';
+import { Toaster } from "@components/base/toaster.tsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <BrowserRouter>
             <div className="min-h-screen bg-gray-100">
               <Navbar />
+              <Toaster />
               <main className="container mx-auto px-4 py-8">
                 <Routes>
                   <Route path="/" element={<Home />} />

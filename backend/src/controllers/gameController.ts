@@ -50,8 +50,8 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
     const { seasonId } = req.params;
     const { homeTeamId, awayTeamId, date, location, round } = req.body;
 
-    if (!homeTeamId || !awayTeamId || !date) {
-      res.status(400).json({ error: 'Home team, away team, and date are required' });
+    if (!homeTeamId || !awayTeamId) {
+      res.status(400).json({ error: 'Home team and away team are required' });
       return;
     }
 
@@ -77,7 +77,7 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
         seasonId: parseInt(seasonId),
         homeTeamId: parseInt(homeTeamId),
         awayTeamId: parseInt(awayTeamId),
-        date: new Date(date),
+        date: date ? new Date(date) : null,
         location,
         round: round ? parseInt(round) : null
       },
@@ -171,7 +171,7 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
 export const generateSchedule = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { startDate, intervalDays = 7, doubleRoundRobin = true } = req.body;
+    const { rounds: requestedRounds } = req.body;
 
     const season = await prisma.season.findUnique({
       where: { id: parseInt(seasonId) },
@@ -197,64 +197,38 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
 
     await prisma.game.deleteMany({ where: { seasonId: parseInt(seasonId) } });
 
-    const games: Prisma.GameCreateManyInput[] = [];
-    const teamIds: (number | null)[] = teams.map(t => t.id);
+    const teamIds = teams.map(t => t.id);
+    const totalRounds = requestedRounds || 1;
 
-    if (teamIds.length % 2 !== 0) {
-      teamIds.push(null);
-    }
+    // Generate all pairings for each round (every team plays every other team)
+    for (let round = 1; round <= totalRounds; round++) {
 
-    const n = teamIds.length;
-    const rounds = n - 1;
-    const matchesPerRound = n / 2;
+      const games: Prisma.GameCreateManyInput[] = [];
+      const isReversed = round % 2 === 0; // Alternate home/away each round
 
-    for (let round = 0; round < rounds; round++) {
-      for (let match = 0; match < matchesPerRound; match++) {
-        const home = (round + match) % (n - 1);
-        let away = (n - 1 - match + round) % (n - 1);
+      for (let i = 0; i < teamIds.length; i++) {
+        for (let j = i + 1; j < teamIds.length; j++) {
+          let homeTeamId = teamIds[i];
+          let awayTeamId = teamIds[j];
 
-        if (match === 0) {
-          away = n - 1;
+          // Swap home/away for even rounds
+          if (isReversed) {
+            [homeTeamId, awayTeamId] = [awayTeamId, homeTeamId];
+          }
+
+          games.push({
+            seasonId: parseInt(seasonId),
+            homeTeamId,
+            awayTeamId,
+            date: null,
+            round,
+            status: 'SCHEDULED' as GameStatus
+          });
         }
-
-        const homeTeamId = teamIds[home];
-        const awayTeamId = teamIds[away];
-
-        if (homeTeamId === null || awayTeamId === null) continue;
-
-        const gameDate = new Date(startDate || season.startDate);
-        gameDate.setDate(gameDate.getDate() + round * intervalDays);
-
-        games.push({
-          seasonId: parseInt(seasonId),
-          homeTeamId,
-          awayTeamId,
-          date: gameDate,
-          round: round + 1,
-          status: 'SCHEDULED' as GameStatus
-        });
       }
+      await prisma.game.createMany({ data: shuffleGames(games) });
     }
 
-    if (doubleRoundRobin) {
-      const firstHalfLength = games.length;
-      for (let i = 0; i < firstHalfLength; i++) {
-        const originalGame = games[i];
-        const gameDate = new Date(startDate || season.startDate);
-        gameDate.setDate(gameDate.getDate() + (rounds + originalGame.round! - 1) * intervalDays);
-
-        games.push({
-          seasonId: parseInt(seasonId),
-          homeTeamId: originalGame.awayTeamId,
-          awayTeamId: originalGame.homeTeamId,
-          date: gameDate,
-          round: rounds + originalGame.round!,
-          status: 'SCHEDULED' as GameStatus
-        });
-      }
-    }
-
-    await prisma.game.createMany({ data: games });
 
     const createdGames = await prisma.game.findMany({
       where: { seasonId: parseInt(seasonId) },
@@ -262,11 +236,11 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
         homeTeam: { select: { id: true, name: true, logo: true } },
         awayTeam: { select: { id: true, name: true, logo: true } }
       },
-      orderBy: [{ round: 'asc' }, { date: 'asc' }]
+      orderBy: [{ round: 'asc' }, { id: 'asc' }]
     });
 
     res.status(201).json({
-      message: `Generated ${createdGames.length} games`,
+      message: `Generated ${createdGames.length} games across ${totalRounds} round(s)`,
       games: createdGames
     });
   } catch (error) {
@@ -274,3 +248,49 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
     res.status(500).json({ error: 'Failed to generate schedule' });
   }
 };
+
+function shuffleGames(games: Prisma.GameCreateManyInput[]): Prisma.GameCreateManyInput[] {
+  let shuffled = [...games];
+  let attempts = 0;
+  const maxAttempts = 1000;
+
+  const fisherYatesShuffle = (array: Prisma.GameCreateManyInput[]): Prisma.GameCreateManyInput[] => {
+    const shuffled = [...array];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+  }
+
+  const isValidSchedule = (games: Prisma.GameCreateManyInput[]): boolean => {
+    for (let i = 0; i < games.length - 1; i++) {
+      const current = games[i];
+      const next = games[i + 1];
+
+      // Check if same team appears consecutively
+      if (
+          current.homeTeamId === next.homeTeamId ||
+          current.homeTeamId === next.awayTeamId ||
+          current.awayTeamId === next.homeTeamId ||
+          current.awayTeamId === next.awayTeamId
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  while (!isValidSchedule(shuffled) && attempts < maxAttempts) {
+    shuffled = fisherYatesShuffle([...games]);
+    attempts++;
+  }
+
+  if (attempts === maxAttempts) {
+    console.warn('Could not find valid schedule after max attempts');
+  }
+
+  return shuffled;
+}

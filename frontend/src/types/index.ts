@@ -76,7 +76,7 @@ export interface Player {
 
 export interface Game {
   id: number;
-  date: string;
+  date?: string | null;
   location?: string | null;
   homeScore?: number | null;
   awayScore?: number | null;
