@@ -38,7 +38,13 @@ export const authApi = {
   getMe: () => api.get<{ user: User }>('/auth/me'),
   updateProfile: (data: { name?: string; password?: string }) =>
     api.put<{ user: User }>('/auth/profile', data),
-  getUsers: (role?: string) => api.get<User[]>('/auth/users', { params: role ? { role } : {} })
+  getUsers: (filters?: { role?: string; name?: string; active?: boolean }) =>
+    api.get<User[]>('/auth/users', { params: filters }),
+  createUser: (data: { email: string; password: string; name: string; role?: string; active?: boolean }) =>
+    api.post<User>('/auth/users', data),
+  updateUser: (id: number, data: { email?: string; password?: string; name?: string; role?: string; active?: boolean }) =>
+    api.put<User>(`/auth/users/${id}`, data),
+  deleteUser: (id: number) => api.delete(`/auth/users/${id}`)
 };
 
 export const seasonApi = {

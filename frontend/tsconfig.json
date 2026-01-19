@@ -15,8 +15,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
     "paths": {
-      "@components/*": ["./src/components/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@types": ["./src/types/index.ts"],
+      "@types/*": ["./src/types/*"]
     }
   },
   "include": ["src"],

@@ -158,10 +158,14 @@
       "title": "Vyber pro úpravu",
       "user": {
         "title": "Uživatelé",
+        "addUser": "Přidat uživatele",
         "th-name": "Jméno",
         "th-email": "Email",
         "th-role": "Role",
-        "th-actions": "Akce"
+        "th-status": "Stav",
+        "th-actions": "Akce",
+        "active": "Aktivní",
+        "inactive": "Neaktivní"
       },
       "season": {
         "title": "Sezóny",
@@ -198,6 +202,8 @@
     "modal": {
       "createSeason": "Vytvorit sezonu",
       "addTeam": "Pridat tym",
+      "createUser": "Vytvorit uzivatele",
+      "editUser": "Upravit uzivatele",
       "name": "Nazev",
       "sportType": "Typ sportu",
       "sportTypePlaceholder": "napr. Fotbal, Basketbal",
@@ -206,15 +212,31 @@
       "status": "Stav",
       "teamName": "Nazev tymu",
       "manager": "Manazer tymu",
-      "noManager": "Bez manazera"
+      "noManager": "Bez manazera",
+      "userName": "Jmeno",
+      "userEmail": "Email",
+      "userPassword": "Heslo",
+      "userRole": "Role",
+      "userActive": "Aktivni",
+      "leaveBlankToKeep": "ponechte prazdne pro zachovani"
+    },
+    "roles": {
+      "ADMIN": "Administrator",
+      "SEASON_MANAGER": "Manazer sezony",
+      "TEAM_MANAGER": "Manazer tymu",
+      "VIEWER": "Divak"
     },
     "confirm": {
       "deleteSeason": "Jste si jisti? Toto smaze vsechny tymy a zapasy v teto sezone.",
-      "deleteTeam": "Jste si jisti? Toto smaze vsechny hrace a data zapasu tohoto tymu."
+      "deleteTeam": "Jste si jisti? Toto smaze vsechny hrace a data zapasu tohoto tymu.",
+      "deleteUser": "Opravdu chcete smazat tohoto uživatele?"
     },
     "errors": {
       "createSeason": "Vytvoreni sezony selhalo",
       "createTeam": "Vytvoreni tymu selhalo",
+      "createUser": "Vytvoření uživatele selhalo",
+      "updateUser": "Aktualizace uživatele selhala",
+      "deleteUser": "Smazání uživatele selhalo",
       "generateSchedule": "Generovani rozpisu selhalo",
       "deleteSeason": "Smazani sezony selhalo",
       "deleteTeam": "Smazani tymu selhalo"

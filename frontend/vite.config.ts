@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, 'src/components'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@types': path.resolve(__dirname, './src/types/index.ts'),
     },
   },
   server: {

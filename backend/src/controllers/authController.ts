@@ -100,12 +100,22 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
 
 export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { role } = req.query;
-    const where = role ? { role: role as string } : {};
+    const { role, name, active } = req.query;
+    const where: { role?: string; name?: { contains: string; mode: 'insensitive' }; active?: boolean } = {};
+
+    if (role) {
+      where.role = role as string;
+    }
+    if (name) {
+      where.name = { contains: name as string, mode: 'insensitive' };
+    }
+    if (active !== undefined) {
+      where.active = active === 'true';
+    }
 
     const users = await prisma.user.findMany({
       where,
-      select: { id: true, email: true, name: true, role: true },
+      select: { id: true, email: true, name: true, role: true, active: true },
       orderBy: { name: 'asc' }
     });
 
@@ -113,5 +123,106 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
+  }
+};
+
+export const createUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email, password, name, role, active } = req.body;
+
+    if (!email || !password || !name) {
+      res.status(400).json({ error: 'Email, password, and name are required' });
+      return;
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      res.status(400).json({ error: 'Email already registered' });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        role: role || 'VIEWER',
+        active: active ?? true
+      },
+      select: { id: true, email: true, name: true, role: true, active: true }
+    });
+
+    res.status(201).json(user);
+  } catch (error) {
+    console.error('Create user error:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+};
+
+export const updateUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { email, password, name, role, active } = req.body;
+
+    const existingUser = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+    if (!existingUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (email && email !== existingUser.email) {
+      const emailTaken = await prisma.user.findUnique({ where: { email } });
+      if (emailTaken) {
+        res.status(400).json({ error: 'Email already in use' });
+        return;
+      }
+    }
+
+    const updateData: { email?: string; password?: string; name?: string; role?: string; active?: boolean } = {};
+    if (email) updateData.email = email;
+    if (name) updateData.name = name;
+    if (role) updateData.role = role;
+    if (typeof active === 'boolean') updateData.active = active;
+    if (password) updateData.password = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: updateData,
+      select: { id: true, email: true, name: true, role: true, active: true }
+    });
+
+    res.json(user);
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+};
+
+export const deleteUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = parseInt(id);
+
+    // Prevent self-deletion
+    if (req.user!.id === userId) {
+      res.status(400).json({ error: 'Cannot delete your own account' });
+      return;
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existingUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    await prisma.user.delete({ where: { id: userId } });
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 };

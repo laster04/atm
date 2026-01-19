@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authApi } from '../services/api';
+import { Role } from '../types';
 import type { User, AuthContextType } from '../types';
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -53,9 +54,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
   };
 
-  const isAdmin = () => user?.role === 'ADMIN';
-  const isSeasonManager = () => user?.role === 'SEASON_MANAGER';
-  const isTeamManager = () => user?.role === 'TEAM_MANAGER';
+  const isAdmin = () => user?.role === Role.ADMIN;
+  const isSeasonManager = () => user?.role === Role.SEASON_MANAGER;
+  const isTeamManager = () => user?.role === Role.TEAM_MANAGER;
   const canManageTeam = (teamManagerId?: number | null) =>
     isAdmin() || (isTeamManager() && user?.id === teamManagerId);
 

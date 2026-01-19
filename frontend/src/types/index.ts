@@ -1,4 +1,9 @@
-export type Role = 'ADMIN' | 'SEASON_MANAGER' | 'TEAM_MANAGER' | 'VIEWER';
+export enum Role {
+  ADMIN = 'ADMIN',
+  SEASON_MANAGER = 'SEASON_MANAGER',
+  TEAM_MANAGER = 'TEAM_MANAGER',
+  VIEWER = 'VIEWER',
+}
 export type SeasonStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED';
 export type GameStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
 
@@ -7,6 +12,7 @@ export interface User {
   email: string;
   name: string;
   role: Role;
+  active: boolean;
 }
 
 export interface Season {
