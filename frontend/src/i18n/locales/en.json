@@ -165,7 +165,13 @@
         "th-status": "Status",
         "th-actions": "Actions",
         "active": "Active",
-        "inactive": "Inactive"
+        "inactive": "Inactive",
+        "filterByName": "Search by name...",
+        "filterByRole": "Filter by role",
+        "filterByStatus": "Filter by status",
+        "allRoles": "All roles",
+        "allStatuses": "All statuses",
+        "clearFilters": "Clear"
       },
       "season": {
         "title": "Seasons",

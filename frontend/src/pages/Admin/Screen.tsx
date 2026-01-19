@@ -12,7 +12,7 @@ import { AxiosError } from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs';
 
-import UsersTable from './components/users/UsersTable.tsx';
+import UsersTable, { type UserFilters } from './components/users/UsersTable.tsx';
 import { type UserFormData } from './components/users/UserFormModal.tsx';
 import SeasonsTable from './components/seasons/SeasonsTable.tsx';
 import SeasonsList from './components/seasons/SeasonsList.tsx';
@@ -214,6 +214,15 @@ export default function AdminScreen() {
     }
   };
 
+  const handleFilterUsers = async (filters: UserFilters) => {
+    try {
+      const res = await authApi.getUsers(filters);
+      setUsers(res.data);
+    } catch (err) {
+      console.error('Failed to filter users:', err);
+    }
+  };
+
   if (seasonsLoading && seasons.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
@@ -250,6 +259,7 @@ export default function AdminScreen() {
                 onCreateUser={handleCreateUser}
                 onUpdateUser={handleUpdateUser}
                 onDeleteUser={handleDeleteUser}
+                onFilterChange={handleFilterUsers}
               />
             </TabsContent>
             <TabsContent value="season" className="space-y-4 mt-4">

@@ -165,7 +165,13 @@
         "th-status": "Stav",
         "th-actions": "Akce",
         "active": "Aktivní",
-        "inactive": "Neaktivní"
+        "inactive": "Neaktivní",
+        "filterByName": "Hledat podle jména...",
+        "filterByRole": "Filtrovat podle role",
+        "filterByStatus": "Filtrovat podle stavu",
+        "allRoles": "Všechny role",
+        "allStatuses": "Všechny stavy",
+        "clearFilters": "Vymazat"
       },
       "season": {
         "title": "Sezóny",
