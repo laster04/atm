@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
 import { fetchSeasons, fetchMySeasons, createSeason, updateSeason, deleteSeason } from '@/store/slices/seasonsSlice.ts';
-import { fetchTeamsBySeason, createTeam, deleteTeam } from '@/store/slices/teamsSlice.ts';
+import { fetchTeamsBySeason, createTeam, updateTeam, deleteTeam } from '@/store/slices/teamsSlice.ts';
+import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
 import { generateSchedule } from '@/store/slices/gamesSlice.ts';
 import { authApi } from '@/services/api.ts';
 import { Role } from '@types';
@@ -17,8 +18,11 @@ import { type UserFormData } from './components/users/UserFormModal.tsx';
 import SeasonsTable from './components/seasons/SeasonsTable.tsx';
 import SeasonsList from './components/seasons/SeasonsList.tsx';
 import TeamsList from './components/teams/TeamsList.tsx';
+import TeamsTable from './components/teams/TeamsTable.tsx';
+import PlayersTable from './components/players/PlayersTable.tsx';
 import SeasonFormModal, { type SeasonFormData } from './components/seasons/SeasonFormModal.tsx';
 import TeamFormModal, { type TeamFormData } from './components/teams/TeamFormModal.tsx';
+import { type PlayerFormData } from './components/players/PlayerFormModal.tsx';
 
 type ModalType = 'season' | 'team' | null;
 
@@ -29,14 +33,17 @@ export default function AdminScreen() {
 
   const { items: seasons, loading: seasonsLoading } = useAppSelector((state) => state.seasons);
   const { items: teamsBySeasonId, loading: teamsLoading } = useAppSelector((state) => state.teams);
+  const { items: playersByTeamId, loading: playersLoading } = useAppSelector((state) => state.players);
 
   const [users, setUsers] = useState<User[]>([]);
   const [teamManagers, setTeamManagers] = useState<User[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
   const [showModal, setShowModal] = useState<ModalType>(null);
   const [error, setError] = useState('');
 
   const teams = selectedSeason ? teamsBySeasonId[selectedSeason.id] || [] : [];
+  const players = selectedTeamId ? playersByTeamId[selectedTeamId] || [] : [];
 
   useEffect(() => {
     if (isSeasonManager() && !isAdmin()) {
@@ -63,8 +70,15 @@ export default function AdminScreen() {
   useEffect(() => {
     if (selectedSeason) {
       dispatch(fetchTeamsBySeason(selectedSeason.id));
+      setSelectedTeamId(null);
     }
   }, [dispatch, selectedSeason]);
+
+  useEffect(() => {
+    if (selectedTeamId) {
+      dispatch(fetchPlayersByTeam(selectedTeamId));
+    }
+  }, [dispatch, selectedTeamId]);
 
   if (!isAdmin() && !isSeasonManager()) {
     return (
@@ -157,6 +171,74 @@ export default function AdminScreen() {
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
       setError(axiosError.response?.data?.error || t('admin.errors.deleteTeam'));
+    }
+  };
+
+  const handleUpdateTeam = async (id: number, data: TeamFormData) => {
+    setError('');
+    try {
+      await dispatch(
+        updateTeam({
+          id,
+          data: {
+            name: data.name,
+            managerId: data.managerId ? parseInt(data.managerId) : null,
+          },
+        })
+      ).unwrap();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ error: string }>;
+      setError(axiosError.response?.data?.error || t('admin.errors.updateTeam'));
+    }
+  };
+
+  const handleCreatePlayer = async (data: PlayerFormData) => {
+    setError('');
+    try {
+      if (!selectedTeamId) return;
+      await dispatch(
+        createPlayer({
+          teamId: selectedTeamId,
+          data: {
+            name: data.name,
+            number: data.number,
+            position: data.position,
+          },
+        })
+      ).unwrap();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ error: string }>;
+      setError(axiosError.response?.data?.error || t('admin.errors.createPlayer'));
+    }
+  };
+
+  const handleUpdatePlayer = async (id: number, data: PlayerFormData) => {
+    setError('');
+    try {
+      await dispatch(
+        updatePlayer({
+          id,
+          data: {
+            name: data.name,
+            number: data.number,
+            position: data.position,
+          },
+        })
+      ).unwrap();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ error: string }>;
+      setError(axiosError.response?.data?.error || t('admin.errors.updatePlayer'));
+    }
+  };
+
+  const handleDeletePlayer = async (id: number) => {
+    if (!confirm(t('admin.confirm.deletePlayer'))) return;
+    if (!selectedTeamId) return;
+    try {
+      await dispatch(deletePlayer({ id, teamId: selectedTeamId })).unwrap();
+    } catch (err) {
+      const axiosError = err as AxiosError<{ error: string }>;
+      setError(axiosError.response?.data?.error || t('admin.errors.deletePlayer'));
     }
   };
 
@@ -280,10 +362,36 @@ export default function AdminScreen() {
               />
             </TabsContent>
             <TabsContent value="team" className="space-y-4 mt-4">
-              <span>team</span>
+              <TeamsTable
+                teams={teams}
+                seasons={seasons}
+                selectedSeasonId={selectedSeason?.id || null}
+                teamManagers={teamManagers}
+                onSeasonChange={(seasonId) => {
+                  const season = seasons.find((s) => s.id === seasonId);
+                  if (season) setSelectedSeason(season);
+                }}
+                onCreateTeam={handleCreateTeam}
+                onUpdateTeam={handleUpdateTeam}
+                onDeleteTeam={handleDeleteTeam}
+              />
             </TabsContent>
             <TabsContent value="player" className="space-y-4 mt-4">
-              <span>player</span>
+              <PlayersTable
+                players={players}
+                teams={teams}
+                seasons={seasons}
+                selectedSeasonId={selectedSeason?.id || null}
+                selectedTeamId={selectedTeamId}
+                onSeasonChange={(seasonId) => {
+                  const season = seasons.find((s) => s.id === seasonId);
+                  if (season) setSelectedSeason(season);
+                }}
+                onTeamChange={setSelectedTeamId}
+                onCreatePlayer={handleCreatePlayer}
+                onUpdatePlayer={handleUpdatePlayer}
+                onDeletePlayer={handleDeletePlayer}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>

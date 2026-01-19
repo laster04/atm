@@ -187,10 +187,28 @@
         "th-actions": "Akce"
       },
       "team": {
-        "title": "Týmy"
+        "title": "Týmy",
+        "addTeam": "Přidat tým",
+        "filterBySeason": "Vyberte sezónu",
+        "selectSeasonFirst": "Vyberte sezónu pro zobrazení týmů",
+        "noTeams": "V této sezóně zatím nejsou žádné týmy.",
+        "th-name": "Název",
+        "th-manager": "Manažer",
+        "th-players": "Hráči",
+        "th-actions": "Akce"
       },
       "player": {
-        "title": "Hráči"
+        "title": "Hráči",
+        "addPlayer": "Přidat hráče",
+        "filterBySeason": "Vyberte sezónu",
+        "filterByTeam": "Vyberte tým",
+        "selectSeasonFirst": "Nejprve vyberte sezónu",
+        "selectTeamFirst": "Vyberte tým pro zobrazení hráčů",
+        "noPlayers": "V tomto týmu zatím nejsou žádní hráči.",
+        "th-name": "Jméno",
+        "th-number": "Číslo",
+        "th-position": "Pozice",
+        "th-actions": "Akce"
       }
     },
     "seasons": {
@@ -211,24 +229,34 @@
       "editSeason": "Upravit sezónu",
       "createSeasonDesc": "Vytvořte novou sezónu pro vaši ligu",
       "editSeasonDesc": "Upravte detaily sezóny",
-      "addTeam": "Pridat tym",
-      "createUser": "Vytvorit uzivatele",
-      "editUser": "Upravit uzivatele",
-      "name": "Nazev",
+      "addTeam": "Přidat tým",
+      "editTeam": "Upravit tým",
+      "addTeamDesc": "Přidejte nový tým do této sezóny",
+      "editTeamDesc": "Upravte detaily týmu",
+      "addPlayer": "Přidat hráče",
+      "editPlayer": "Upravit hráče",
+      "addPlayerDesc": "Přidejte nového hráče do tohoto týmu",
+      "editPlayerDesc": "Upravte detaily hráče",
+      "createUser": "Vytvořit uživatele",
+      "editUser": "Upravit uživatele",
+      "name": "Název",
       "sportType": "Typ sportu",
-      "sportTypePlaceholder": "napr. Fotbal, Basketbal",
-      "startDate": "Datum zacatku",
+      "sportTypePlaceholder": "např. Fotbal, Basketbal",
+      "startDate": "Datum začátku",
       "endDate": "Datum konce",
       "status": "Stav",
-      "teamName": "Nazev tymu",
-      "manager": "Manazer tymu",
-      "noManager": "Bez manazera",
-      "userName": "Jmeno",
+      "teamName": "Název týmu",
+      "manager": "Manažer týmu",
+      "noManager": "Bez manažera",
+      "playerName": "Jméno hráče",
+      "playerNumber": "Číslo",
+      "playerPosition": "Pozice",
+      "userName": "Jméno",
       "userEmail": "Email",
       "userPassword": "Heslo",
       "userRole": "Role",
-      "userActive": "Aktivni",
-      "leaveBlankToKeep": "ponechte prazdne pro zachovani"
+      "userActive": "Aktivní",
+      "leaveBlankToKeep": "ponechte prázdné pro zachování"
     },
     "roles": {
       "ADMIN": "Administrator",
@@ -237,20 +265,25 @@
       "VIEWER": "Divak"
     },
     "confirm": {
-      "deleteSeason": "Jste si jisti? Toto smaze vsechny tymy a zapasy v teto sezone.",
-      "deleteTeam": "Jste si jisti? Toto smaze vsechny hrace a data zapasu tohoto tymu.",
+      "deleteSeason": "Jste si jisti? Toto smaže všechny týmy a zápasy v této sezóně.",
+      "deleteTeam": "Jste si jisti? Toto smaže všechny hráče a data zápasů tohoto týmu.",
+      "deletePlayer": "Opravdu chcete smazat tohoto hráče?",
       "deleteUser": "Opravdu chcete smazat tohoto uživatele?"
     },
     "errors": {
       "createSeason": "Vytvoření sezóny selhalo",
       "updateSeason": "Aktualizace sezóny selhala",
-      "createTeam": "Vytvoreni tymu selhalo",
+      "createTeam": "Vytvoření týmu selhalo",
+      "updateTeam": "Aktualizace týmu selhala",
+      "createPlayer": "Vytvoření hráče selhalo",
+      "updatePlayer": "Aktualizace hráče selhala",
+      "deletePlayer": "Smazání hráče selhalo",
       "createUser": "Vytvoření uživatele selhalo",
       "updateUser": "Aktualizace uživatele selhala",
       "deleteUser": "Smazání uživatele selhalo",
-      "generateSchedule": "Generovani rozpisu selhalo",
-      "deleteSeason": "Smazani sezony selhalo",
-      "deleteTeam": "Smazani tymu selhalo"
+      "generateSchedule": "Generování rozpisu selhalo",
+      "deleteSeason": "Smazání sezóny selhalo",
+      "deleteTeam": "Smazání týmu selhalo"
     }
   },
   "language": {
