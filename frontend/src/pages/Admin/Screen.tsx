@@ -27,6 +27,7 @@ import { type GameFormData } from './components/games/GameFormModal.tsx';
 import { type GenerateScheduleData } from './components/games/GenerateScheduleModal.tsx';
 
 type ModalType = 'season' | 'team' | null;
+const RESET_TIMEOUT_SECONDS = 10;
 
 export default function AdminScreen() {
 	const { isAdmin, isSeasonManager } = useAuth();
@@ -84,6 +85,18 @@ export default function AdminScreen() {
 			dispatch(fetchPlayersByTeam(selectedTeamId));
 		}
 	}, [dispatch, selectedTeamId]);
+
+	useEffect(() => {
+		if (!error) {
+			return;
+		}
+		const timeout = setTimeout(() => {
+			setError('');
+		}, RESET_TIMEOUT_SECONDS * 1000);
+		return () => {
+			clearTimeout(timeout);
+		};
+	}, [error]);
 
 	if (!isAdmin() && !isSeasonManager()) {
 		return (

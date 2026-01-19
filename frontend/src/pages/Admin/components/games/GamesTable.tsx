@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/base/table.tsx';
 import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Edit, Plus, Trash2, Calendar } from 'lucide-react';
+import { Calendar, Edit, Plus, Trash2 } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
-import type { Game, Season, Team } from '@types';
+import { Game, Season, SeasonStatus, Team } from '@types';
 import GameFormModal, { type GameFormData } from './GameFormModal.tsx';
 import GenerateScheduleModal, { type GenerateScheduleData } from './GenerateScheduleModal.tsx';
 
@@ -133,7 +133,7 @@ export default function GamesTable({
 								<Button
 									variant="outline"
 									onClick={() => setIsGenerateModalOpen(true)}
-									disabled={!selectedSeasonId || teams.length < 2}
+									disabled={!selectedSeasonId || teams.length < 2 || seasons.find(s => s.id === selectedSeasonId)?.status !== SeasonStatus.DRAFT}
 								>
 									<Calendar className="size-4 mr-2" />
 									{t('admin.tabs.game.generateSchedule')}

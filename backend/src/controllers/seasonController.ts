@@ -209,7 +209,7 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
         }
       });
 
-      const points = wins * 3 + draws;
+      const points = wins * 2 + draws;
       const played = wins + losses + draws;
       const goalDifference = goalsFor - goalsAgainst;
 

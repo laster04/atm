@@ -195,6 +195,11 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
+    if (season.status != 'DRAFT') {
+      res.status(400).json({ error: 'You can\'t reschedule ACTIVE or COMPLETED season'});
+      return;
+    }
+
     await prisma.game.deleteMany({ where: { seasonId: parseInt(seasonId) } });
 
     const teamIds = teams.map(t => t.id);
