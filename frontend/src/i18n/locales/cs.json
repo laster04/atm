@@ -92,6 +92,13 @@
       "schedule": "Rozpis",
       "teams": "Tymy"
     },
+    "overview": {
+      "gamePlayed": "Odehráno zápasů",
+      "outOfTotal": "Z celkového počtu {{count}}",
+      "leader": "Vedoucí team",
+      "leaderPoints": "{{points}} bodů",
+      "scoredTotal": "Nastříleno gólů"
+    },
     "standings": {
       "rank": "#",
       "team": "Tym",
