@@ -20,7 +20,14 @@ export enum SportType {
   FLOORBALL = 'FLOORBALL',
   OTHER = 'OTHER',
 }
-export type GameStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'POSTPONED' | 'CANCELLED';
+
+export enum GameStatus {
+  SCHEDULED = 'SCHEDULED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  POSTPONED = 'POSTPONED',
+  CANCELLED = 'CANCELLED',
+}
 
 export interface User {
   id: number;

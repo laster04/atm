@@ -87,6 +87,7 @@
     "notFound": "Season not found.",
     "backToSeasons": "Back to Seasons",
     "tabs": {
+      "overview": "Overview",
       "standings": "Standings",
       "schedule": "Schedule",
       "teams": "Teams"
@@ -106,7 +107,10 @@
     },
     "schedule": {
       "noGames": "No games scheduled yet.",
-      "round": "Round {{round}}"
+      "round": "Round {{round}}",
+      "recent": "Recent",
+      "today": "Today",
+      "upcoming": "upcoming"
     },
     "teams": {
       "noTeams": "No teams in this season yet.",

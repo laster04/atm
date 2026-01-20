@@ -5,6 +5,7 @@ import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/d
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
+import { formatDateTimeForInput } from '@/utils/date';
 import type { Game, Team, GameStatus } from '@types';
 
 interface GameFormData {
@@ -23,13 +24,6 @@ interface GameFormModalProps {
 	teams: Team[];
 	onSubmit: (data: GameFormData) => void;
 	onClose: () => void;
-}
-
-function formatDateTimeForInput(dateString: string | undefined): string {
-	if (!dateString) return '';
-	const date = new Date(dateString);
-	// Format: YYYY-MM-DDTHH:mm
-	return date.toISOString().slice(0, 16);
 }
 
 export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFormModalProps) {

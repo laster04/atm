@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 
+import { formatDateLocale } from '@/utils/date';
 import type { Season } from '@types';
 import SeasonFormModal, { type SeasonFormData } from './SeasonFormModal.tsx';
 
@@ -15,11 +16,6 @@ interface SeasonsTableProps {
 	onCreateSeason?: (data: SeasonFormData) => void;
 	onUpdateSeason?: (id: number, data: SeasonFormData) => void;
 	onDeleteSeason?: (id: number) => void;
-}
-
-function formatDate(dateString: string): string {
-	const date = new Date(dateString);
-	return date.toLocaleDateString();
 }
 
 export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
@@ -91,8 +87,8 @@ export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, 
 							<TableRow key={season.id}>
 								<TableCell className="font-medium">{season.name}</TableCell>
 								<TableCell>{t(`sports.${season.sportType}`)}</TableCell>
-								<TableCell>{formatDate(season.startDate)}</TableCell>
-								<TableCell>{formatDate(season.endDate)}</TableCell>
+								<TableCell>{formatDateLocale(season.startDate)}</TableCell>
+								<TableCell>{formatDateLocale(season.endDate)}</TableCell>
 								<TableCell>
 									<Badge variant="secondary">{t(`seasons.status.${season.status}`)}</Badge>
 								</TableCell>

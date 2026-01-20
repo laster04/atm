@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatSeasonDate } from '@/utils/date';
 import type { Season, SeasonStatus } from '@types';
 
 interface SeasonCardProps {
@@ -8,15 +9,6 @@ interface SeasonCardProps {
 
 export default function SeasonCard({ season }: SeasonCardProps) {
   const { t, i18n } = useTranslation();
-
-  const formatDate = (date: string) => {
-    const locale = i18n.language === 'cs' ? 'cs-CZ' : 'en-US';
-    return new Date(date).toLocaleDateString(locale, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   const statusBadge = (status: SeasonStatus) => {
     const colors: Record<SeasonStatus, string> = {
@@ -42,7 +34,7 @@ export default function SeasonCard({ season }: SeasonCardProps) {
       </div>
       <p className="text-gray-600 mb-3">{season.sportType}</p>
       <p className="text-sm text-gray-500">
-        {formatDate(season.startDate)} - {formatDate(season.endDate)}
+        {formatSeasonDate(season.startDate, i18n.language)} - {formatSeasonDate(season.endDate, i18n.language)}
       </p>
       <div className="mt-3 pt-3 border-t flex justify-between text-sm text-gray-500">
         <span>

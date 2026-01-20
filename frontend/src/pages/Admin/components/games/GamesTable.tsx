@@ -9,6 +9,7 @@ import { Calendar, Edit, Plus, Trash2 } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import { Game, Season, SeasonStatus, Team } from '@types';
+import { formatGameDateTime } from '@/utils/date';
 import GameFormModal, { type GameFormData } from './GameFormModal.tsx';
 import GenerateScheduleModal, { type GenerateScheduleData } from './GenerateScheduleModal.tsx';
 
@@ -24,16 +25,6 @@ interface GamesTableProps {
 	onGenerateSchedule?: (data: GenerateScheduleData) => void;
 }
 
-function formatDate(dateString: string | null | undefined, locale: string, t: (key: string) => string): string {
-	if (!dateString) return t('admin.tabs.game.noDate');
-	return new Date(dateString).toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', {
-		weekday: 'short',
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
-}
 
 function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
 	switch (status) {
@@ -198,7 +189,7 @@ export default function GamesTable({
 										{gamesByRound[round].map((game) => (
 											<TableRow key={game.id}>
 												<TableCell className="whitespace-nowrap">
-													{formatDate(game.date, i18n.language, t)}
+													{formatGameDateTime(game.date, i18n.language) || t('admin.tabs.game.noDate')}
 												</TableCell>
 												<TableCell className="font-medium">{game.homeTeam?.name}</TableCell>
 												<TableCell className="text-center font-bold">

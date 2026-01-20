@@ -87,6 +87,7 @@
     "notFound": "Sezona nenalezena.",
     "backToSeasons": "Zpet na sezony",
     "tabs": {
+      "overview": "Přehled",
       "standings": "Tabulka",
       "schedule": "Rozpis",
       "teams": "Tymy"
@@ -106,7 +107,10 @@
     },
     "schedule": {
       "noGames": "Zatim zadne naplanovanene zapasy.",
-      "round": "Kolo {{round}}"
+      "round": "Kolo {{round}}",
+      "recent": "Uplynulé",
+      "today": "Dnes",
+      "upcoming": "Nadcházející"
     },
     "teams": {
       "noTeams": "V teto sezone zatim zadne tymy.",

@@ -7,6 +7,7 @@ import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/d
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
+import { formatDateForInput } from '@/utils/date';
 
 interface SeasonFormData {
 	name: string;
@@ -20,12 +21,6 @@ interface SeasonFormModalProps {
 	season: Season | null;
 	onSubmit: (data: SeasonFormData) => void;
 	onClose: () => void;
-}
-
-function formatDateForInput(dateString: string | undefined): string {
-	if (!dateString) return '';
-	const date = new Date(dateString);
-	return date.toISOString().split('T')[0];
 }
 
 export default function SeasonFormModal({ season, onSubmit, onClose }: SeasonFormModalProps) {

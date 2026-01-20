@@ -1,5 +1,8 @@
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/base/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
+import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
+
 import type { Game } from '@types';
 
 interface ScheduleListProps {
@@ -7,59 +10,63 @@ interface ScheduleListProps {
 }
 
 export default function ScheduleList({ games }: ScheduleListProps) {
-  const { t, i18n } = useTranslation();
-
-  const formatDate = (date: string) => {
-    const locale = i18n.language === 'cs' ? 'cs-CZ' : 'en-US';
-    return new Date(date).toLocaleDateString(locale, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const { t } = useTranslation();
 
   if (games.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-        {t('seasonDetail.schedule.noGames')}
-      </div>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">{t('seasonDetail.schedule.noGames')}</p>
+          </CardContent>
+        </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {games.map((game) => (
-        <div key={game.id} className="bg-white p-4 rounded-lg shadow">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 text-right pr-4">
-              <Link to={`/teams/${game.homeTeam?.id}`} className="font-medium hover:text-blue-600">
-                {game.homeTeam?.name}
-              </Link>
-            </div>
-            <div className="text-center px-4">
-              {game.status === 'COMPLETED' ? (
-                <span className="text-2xl font-bold">
-                  {game.homeScore} - {game.awayScore}
-                </span>
-              ) : (
-                <span className="text-gray-400">{t('common.vs')}</span>
-              )}
-            </div>
-            <div className="flex-1 pl-4">
-              <Link to={`/teams/${game.awayTeam?.id}`} className="font-medium hover:text-blue-600">
-                {game.awayTeam?.name}
-              </Link>
-            </div>
-          </div>
-          <div className="text-center mt-2 text-sm text-gray-500">
-            {formatDate(game.date)}
-            {game.location && ` · ${game.location}`}
-            {game.round && ` · ${t('seasonDetail.schedule.round', { round: game.round })}`}
-          </div>
-        </div>
-      ))}
-    </div>
+      <>
+      <Tabs defaultValue="today" className="space-y-6">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+          <TabsTrigger value="recent">{t('seasonDetail.schedule.recent')}</TabsTrigger>
+          <TabsTrigger value="today">{t('seasonDetail.schedule.today')}</TabsTrigger>
+          <TabsTrigger value="upcoming">{t('seasonDetail.schedule.upcoming')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="recent">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Games</CardTitle>
+              <CardDescription>Final scores from past</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GameSchedule filter={FilterTimeEnum.RECENT} games={games} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="today">
+          <Card>
+            <CardHeader>
+              <CardTitle>Today's Schedule</CardTitle>
+              <CardDescription>Games scheduled for today</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GameSchedule filter={FilterTimeEnum.TODAY} games={games} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="upcoming">
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Games</CardTitle>
+              <CardDescription>Schedule for the next few days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      </>
   );
 }

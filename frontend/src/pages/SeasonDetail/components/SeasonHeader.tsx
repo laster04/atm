@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Season } from '@types';
+import { Button } from "@/components/base/button";
 
 interface SeasonHeaderProps {
   season: Season;
@@ -19,15 +20,17 @@ export default function SeasonHeader({ season }: SeasonHeaderProps) {
   return (
     <>
       <div className="mb-6">
-        <Link to="/seasons" className="text-blue-600 hover:underline">
-          ← {t('seasonDetail.backToSeasons')}
-        </Link>
+        <Button variant="outline" >
+          <Link to="/seasons">
+            ← {t('seasonDetail.backToSeasons')}
+          </Link>
+        </Button>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{season.name}</h1>
+            <h2 className="text-2xl font-bold mb-2">{season.name}</h2>
             <p className="text-gray-600 text-lg">{season.sportType}</p>
           </div>
           <span className={`px-3 py-1 rounded ${statusClasses}`}>

@@ -8,6 +8,7 @@ import { fetchTeamsBySeason, createTeam, updateTeam, deleteTeam } from '@/store/
 import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
 import { fetchGamesBySeason, createGame, updateGame, deleteGame, generateSchedule } from '@/store/slices/gamesSlice.ts';
 import { authApi } from '@/services/api.ts';
+import { toISOString, isDateInFuture } from '@/utils/date';
 import { Role } from '@types';
 import type { Season, User } from '@types';
 import { AxiosError } from 'axios';
@@ -176,7 +177,7 @@ export default function AdminScreen() {
 				createGame({
 					seasonId: selectedSeason.id,
 					data: {
-						date: new Date(data.date).toISOString(),
+						date: toISOString(data.date),
 						homeTeamId: data.homeTeamId,
 						awayTeamId: data.awayTeamId,
 						location: data.location || undefined,
@@ -198,7 +199,7 @@ export default function AdminScreen() {
 				updateGame({
 					id,
 					data: {
-						date: new Date(data.date).toISOString(),
+						date: toISOString(data.date),
 						homeTeamId: data.homeTeamId,
 						awayTeamId: data.awayTeamId,
 						homeScore: data.homeScore,
@@ -319,7 +320,7 @@ export default function AdminScreen() {
 	};
 
 	const canDeleteSeason = (season: Season) => {
-		return isAdmin() || (isSeasonManager() && new Date(season.startDate) > new Date());
+		return isAdmin() || (isSeasonManager() && isDateInFuture(season.startDate));
 	};
 
 	const refreshUsers = async () => {

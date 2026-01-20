@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { formatGameDateTime } from '@/utils/date';
 import type { Game } from '@types';
 
 interface GamesListProps {
@@ -8,17 +9,6 @@ interface GamesListProps {
 
 export default function GamesList({ games, teamId }: GamesListProps) {
   const { t, i18n } = useTranslation();
-
-  const formatDate = (date: string) => {
-    const locale = i18n.language === 'cs' ? 'cs-CZ' : 'en-US';
-    return new Date(date).toLocaleDateString(locale, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const upcomingGames = games.filter((g) => g.status === 'SCHEDULED');
   const completedGames = games.filter((g) => g.status === 'COMPLETED');
@@ -39,7 +29,7 @@ export default function GamesList({ games, teamId }: GamesListProps) {
                     {game.homeTeamId === teamId ? 'vs' : '@'}{' '}
                     {game.homeTeamId === teamId ? game.awayTeam?.name : game.homeTeam?.name}
                   </span>
-                  <span className="text-sm text-gray-500">{formatDate(game.date)}</span>
+                  <span className="text-sm text-gray-500">{formatGameDateTime(game.date, i18n.language)}</span>
                 </div>
               </div>
             ))}
