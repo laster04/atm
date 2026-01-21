@@ -13,6 +13,7 @@
   },
   "nav": {
     "brand": "Sport Scheduler",
+    "tagline": "Your central hub for all sports leagues and seasons",
     "seasons": "Seasons",
     "myTeams": "My Teams",
     "mySeasons": "My Seasons",
@@ -46,6 +47,7 @@
   "auth": {
     "login": {
       "title": "Login",
+      "description": "Sign in to manage your sports season",
       "email": "Email",
       "password": "Password",
       "submit": "Login",
@@ -97,7 +99,13 @@
       "outOfTotal": "Out of {{count}} total",
       "leader": "Leading team",
       "leaderPoints": "{{points}} points",
-      "scoredTotal": "Goals scored"
+      "scoredTotal": "Goals scored",
+      "leagueWide": "League-wide",
+      "avgGoalsPerGame": "Avg Goals/Game",
+      "thisSeason": "This season",
+      "upcomingGames": "Upcoming Games",
+      "topScorers": "Top Scorers",
+      "leagueLeadersDescription": "League leaders in points"
     },
     "standings": {
       "rank": "#",
@@ -110,14 +118,21 @@
       "goalsAgainst": "GA",
       "goalDifference": "GD",
       "points": "Pts",
-      "noData": "No standings data yet."
+      "noData": "No standings data yet.",
+      "tableTitle": "Standings after {{count}} games"
     },
     "schedule": {
       "noGames": "No games scheduled yet.",
       "round": "Round {{round}}",
       "recent": "Recent",
       "today": "Today",
-      "upcoming": "upcoming"
+      "upcoming": "Upcoming",
+      "recentGames": "Recent Games",
+      "recentGamesDescription": "Final scores from past",
+      "todaysSchedule": "Today's Schedule",
+      "todaysGamesDescription": "Games scheduled for today",
+      "upcomingGames": "Upcoming Games",
+      "upcomingGamesDescription": "Schedule for the next few days"
     },
     "teams": {
       "noTeams": "No teams in this season yet.",
@@ -160,6 +175,38 @@
     "accessDenied": "Access Denied",
     "noPrivileges": "You need to be a team manager to access this page.",
     "noTeams": "You are not managing any teams yet."
+  },
+  "teamManagement": {
+    "back": "Back",
+    "toast": {
+      "colorUpdated": "Color for {{name}} updated!"
+    },
+    "stats": {
+      "teamRecord": "Team Record",
+      "totalPoints": "Total Points",
+      "leagueRank": "League Rank"
+    },
+    "branding": {
+      "title": "Team Branding & Colors",
+      "description": "Customize the primary color for {{name}} - appears in standings and schedules",
+      "primaryColor": "Primary Team Color",
+      "colorUsageExplanation": "This color will be used to identify {{name}} in public standings and game schedules",
+      "quickPresets": "Quick Color Presets",
+      "livePreview": "Live Preview",
+      "standingsRow": "Standings Row",
+      "gameCard": "Game Card",
+      "vsOpponent": "vs Opponent",
+      "colors": {
+        "blue": "Blue",
+        "red": "Red",
+        "gold": "Gold",
+        "green": "Green",
+        "purple": "Purple",
+        "orange": "Orange",
+        "navy": "Navy",
+        "teal": "Teal"
+      }
+    }
   },
   "admin": {
     "title": "Admin Dashboard",
@@ -206,7 +253,8 @@
         "th-name": "Name",
         "th-manager": "Manager",
         "th-players": "Players",
-        "th-actions": "Actions"
+        "th-actions": "Actions",
+        "goToDetail": "Go to detail"
       },
       "player": {
         "title": "Players",

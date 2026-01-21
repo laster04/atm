@@ -32,7 +32,7 @@ export default function Navbar() {
 								<Link to="/">
 									<h1 className="text-3xl font-medium">{t('nav.brand')}</h1>
 									<p className="text-sm text-muted-foreground">
-										Your central hub for all sports leagues and seasons
+										{t('nav.tagline')}
 									</p>
 								</Link>
 							</div>

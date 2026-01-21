@@ -127,7 +127,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 export const updateTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, logo, managerId } = req.body;
+    const { name, logo, managerId, primaryColor } = req.body;
 
     const existingTeam = await prisma.team.findUnique({
       where: { id: parseInt(id) },
@@ -156,7 +156,8 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
       data: {
         ...(name && { name }),
         ...(logo !== undefined && { logo }),
-        ...(managerId !== undefined && { managerId: managerId ? parseInt(managerId) : null })
+        ...(primaryColor !== undefined && { primaryColor }),
+        ...(managerId !== undefined && { managerId: managerId ? parseInt(managerId) : null }),
       },
       include: {
         manager: { select: { id: true, name: true, email: true } }

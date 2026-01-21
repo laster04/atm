@@ -1,17 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
 
 import { Calendar, Target, TrendingUp, Trophy } from 'lucide-react';
-import { Game, GameStatus, Season, Standing } from "@types";
+import { Game, GameStatus, Standing } from "@types";
 import { useTranslation } from "react-i18next";
 import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
 
 interface StatsOverviewProps {
-	season: Season;
 	standings: Standing[];
 	games: Game[];
 }
 
-export function StatsOverview({ season, standings, games }: StatsOverviewProps) {
+export function StatsOverview({ standings, games }: StatsOverviewProps) {
 	const { t } = useTranslation();
 
 	const stats = [
@@ -31,16 +30,16 @@ export function StatsOverview({ season, standings, games }: StatsOverviewProps) 
 			title: t('seasonDetail.overview.scoredTotal'),
 			value: standings.reduce((sum, item) => sum + item.goalsFor, 0),
 			icon: Target,
-			description: 'League-wide',
+			description: t('seasonDetail.overview.leagueWide'),
 		},
 		{
-			title: 'Avg Goals/Game',
+			title: t('seasonDetail.overview.avgGoalsPerGame'),
 			value: games
 				.filter(item => item.status == GameStatus.COMPLETED)
 				.reduce((sum, game) => sum + (game?.homeScore ?? 0) + (game?.awayScore ?? 0), 0)
 				/ games.filter(item => item.status == GameStatus.COMPLETED).length,
 			icon: TrendingUp,
-			description: 'This season',
+			description: t('seasonDetail.overview.thisSeason'),
 		},
 	];
 
@@ -63,7 +62,7 @@ export function StatsOverview({ season, standings, games }: StatsOverviewProps) 
 			<div className="grid gap-6 lg:grid-cols-2">
 				<Card>
 					<CardHeader>
-						<CardTitle>Upcoming Games</CardTitle>
+						<CardTitle>{t('seasonDetail.overview.upcomingGames')}</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />
@@ -72,8 +71,8 @@ export function StatsOverview({ season, standings, games }: StatsOverviewProps) 
 
 				<Card>
 					<CardHeader>
-						<CardTitle>Top Scorers</CardTitle>
-						<CardDescription>League leaders in points</CardDescription>
+						<CardTitle>{t('seasonDetail.overview.topScorers')}</CardTitle>
+						<CardDescription>{t('seasonDetail.overview.leagueLeadersDescription')}</CardDescription>
 					</CardHeader>
 					<CardContent>
 

@@ -65,8 +65,8 @@ export default function SeasonDetailScreen() {
   }
 
   const tabs: { id: TabType; label: string, icon: any, content: JSX.Element }[] = [
-    { id: TabType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview season={season} standings={standings} games={games} /> },
-    { id: TabType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} /> },
+    { id: TabType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview standings={standings} games={games} /> },
+    { id: TabType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
     { id: TabType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> },
     { id: TabType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Users className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
   ];

@@ -106,6 +106,10 @@ const teamsSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setTeamPrimaryColor: (state, action: PayloadAction<string>) => {
+      if (!state.currentTeam) return;
+      state.currentTeam.primaryColor = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -215,5 +219,5 @@ const teamsSlice = createSlice({
   },
 });
 
-export const { clearCurrentTeam, clearError } = teamsSlice.actions;
+export const { clearCurrentTeam, clearError, setTeamPrimaryColor } = teamsSlice.actions;
 export default teamsSlice.reducer;

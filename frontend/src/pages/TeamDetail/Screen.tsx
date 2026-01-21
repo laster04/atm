@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchTeamById } from '../../store/slices/teamsSlice';
-import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '../../store/slices/playersSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import { fetchTeamById } from '@/store/slices/teamsSlice.ts';
+import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
 import type { Player } from '@types';
 
 import TeamHeader from './components/TeamHeader';

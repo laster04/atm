@@ -53,7 +53,13 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 
 							<div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
 								<div className="text-right">
-									<div className="mt-1">{game.awayTeam?.name}</div>
+									<div className="flex items-center justify-end gap-2 mb-1">
+										<div
+											className="size-4 rounded-full border-2 border-white shadow-sm"
+											style={{ backgroundColor: game.awayTeam?.primaryColor || '#808080' }}
+										/>
+										<span className="font-medium"> {game.awayTeam?.name}</span>
+									</div>
 								</div>
 
 								<div className="flex items-center gap-4 px-4">
@@ -69,7 +75,13 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 								</div>
 
 								<div className="text-left">
-									<div className="mt-1">{game.homeTeam?.name}</div>
+									<div className="flex items-center gap-2 mb-1">
+										<div
+											className="size-4 rounded-full border-2 border-white shadow-sm"
+											style={{ backgroundColor: game.homeTeam?.primaryColor ?? '#808080' }}
+										/>
+										<span className="font-medium"> {game.homeTeam?.name}</span>
+									</div>
 								</div>
 							</div>
 

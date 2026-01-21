@@ -13,6 +13,7 @@
   },
   "nav": {
     "brand": "Sportovni Planovac",
+    "tagline": "Vaše centrální místo pro všechny sportovní ligy a sezóny",
     "seasons": "Sezony",
     "myTeams": "Moje Tymy",
     "mySeasons": "Moje Sezony",
@@ -46,6 +47,7 @@
   "auth": {
     "login": {
       "title": "Prihlaseni",
+      "description": "Přihlaste se pro správu vaší sportovní sezóny",
       "email": "E-mail",
       "password": "Heslo",
       "submit": "Prihlasit",
@@ -97,7 +99,13 @@
       "outOfTotal": "Z celkového počtu {{count}}",
       "leader": "Vedoucí team",
       "leaderPoints": "{{points}} bodů",
-      "scoredTotal": "Nastříleno gólů"
+      "scoredTotal": "Nastříleno gólů",
+      "leagueWide": "Celá liga",
+      "avgGoalsPerGame": "Průměr gólů/zápas",
+      "thisSeason": "Tato sezóna",
+      "upcomingGames": "Nadcházející zápasy",
+      "topScorers": "Nejlepší střelci",
+      "leagueLeadersDescription": "Lídři ligy v bodech"
     },
     "standings": {
       "rank": "#",
@@ -110,14 +118,21 @@
       "goalsAgainst": "OG",
       "goalDifference": "RG",
       "points": "B",
-      "noData": "Zatim zadna data v tabulce."
+      "noData": "Zatim zadna data v tabulce.",
+      "tableTitle": "Tabulka po {{count}} zápasech"
     },
     "schedule": {
       "noGames": "Zatim zadne naplanovanene zapasy.",
       "round": "Kolo {{round}}",
       "recent": "Uplynulé",
       "today": "Dnes",
-      "upcoming": "Nadcházející"
+      "upcoming": "Nadcházející",
+      "recentGames": "Poslední zápasy",
+      "recentGamesDescription": "Konečné výsledky z minulosti",
+      "todaysSchedule": "Dnešní program",
+      "todaysGamesDescription": "Zápasy naplánované na dnes",
+      "upcomingGames": "Nadcházející zápasy",
+      "upcomingGamesDescription": "Program na příštích pár dní"
     },
     "teams": {
       "noTeams": "V teto sezone zatim zadne tymy.",
@@ -160,6 +175,38 @@
     "accessDenied": "Pristup odepren",
     "noPrivileges": "Pro pristup na tuto stranku musite byt manazer tymu.",
     "noTeams": "Zatim nespravujete zadne tymy."
+  },
+  "teamManagement": {
+    "back": "Zpět",
+    "toast": {
+      "colorUpdated": "Barva pro {{name}} byla aktualizována!"
+    },
+    "stats": {
+      "teamRecord": "Bilance týmu",
+      "totalPoints": "Celkem bodů",
+      "leagueRank": "Pozice v lize"
+    },
+    "branding": {
+      "title": "Značka a barvy týmu",
+      "description": "Přizpůsobte primární barvu pro {{name}} - zobrazuje se v tabulkách a rozpisech",
+      "primaryColor": "Primární barva týmu",
+      "colorUsageExplanation": "Tato barva bude použita k identifikaci {{name}} ve veřejných tabulkách a rozpisech zápasů",
+      "quickPresets": "Rychlé předvolby barev",
+      "livePreview": "Živý náhled",
+      "standingsRow": "Řádek tabulky",
+      "gameCard": "Karta zápasu",
+      "vsOpponent": "vs Soupeř",
+      "colors": {
+        "blue": "Modrá",
+        "red": "Červená",
+        "gold": "Zlatá",
+        "green": "Zelená",
+        "purple": "Fialová",
+        "orange": "Oranžová",
+        "navy": "Námořnická",
+        "teal": "Tyrkysová"
+      }
+    }
   },
   "admin": {
     "title": "Administrace",
@@ -206,7 +253,8 @@
         "th-name": "Název",
         "th-manager": "Manažer",
         "th-players": "Hráči",
-        "th-actions": "Akce"
+        "th-actions": "Akce",
+        "goToDetail": "Přejít na detail"
       },
       "player": {
         "title": "Hráči",

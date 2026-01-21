@@ -54,7 +54,8 @@ export const seasonApi = {
   create: (data: Partial<Season>) => api.post<Season>('/seasons', data),
   update: (id: string | number, data: Partial<Season>) => api.put<Season>(`/seasons/${id}`, data),
   delete: (id: string | number) => api.delete(`/seasons/${id}`),
-  getStandings: (id: string | number) => api.get<Standing[]>(`/seasons/${id}/standings`)
+  getStandings: (id: string | number) => api.get<Standing[]>(`/seasons/${id}/standings`),
+  getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`)
 };
 
 export const teamApi = {

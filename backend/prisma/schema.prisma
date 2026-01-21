@@ -72,11 +72,12 @@ model Season {
 }
 
 model Team {
-  id        Int      @id @default(autoincrement())
-  name      String
-  logo      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  name         String
+  logo         String?
+  primaryColor String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   seasonId  Int
   season    Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)

@@ -34,8 +34,8 @@ export default function ScheduleList({ games }: ScheduleListProps) {
         <TabsContent value="recent">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Games</CardTitle>
-              <CardDescription>Final scores from past</CardDescription>
+              <CardTitle>{t('seasonDetail.schedule.recentGames')}</CardTitle>
+              <CardDescription>{t('seasonDetail.schedule.recentGamesDescription')}</CardDescription>
             </CardHeader>
             <CardContent>
               <GameSchedule filter={FilterTimeEnum.RECENT} games={games} />
@@ -46,8 +46,8 @@ export default function ScheduleList({ games }: ScheduleListProps) {
         <TabsContent value="today">
           <Card>
             <CardHeader>
-              <CardTitle>Today's Schedule</CardTitle>
-              <CardDescription>Games scheduled for today</CardDescription>
+              <CardTitle>{t('seasonDetail.schedule.todaysSchedule')}</CardTitle>
+              <CardDescription>{t('seasonDetail.schedule.todaysGamesDescription')}</CardDescription>
             </CardHeader>
             <CardContent>
               <GameSchedule filter={FilterTimeEnum.TODAY} games={games} />
@@ -58,8 +58,8 @@ export default function ScheduleList({ games }: ScheduleListProps) {
         <TabsContent value="upcoming">
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Games</CardTitle>
-              <CardDescription>Schedule for the next few days</CardDescription>
+              <CardTitle>{t('seasonDetail.schedule.upcomingGames')}</CardTitle>
+              <CardDescription>{t('seasonDetail.schedule.upcomingGamesDescription')}</CardDescription>
             </CardHeader>
             <CardContent>
               <GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />

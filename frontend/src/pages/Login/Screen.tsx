@@ -10,7 +10,7 @@ export default function LoginScreen() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{t('auth.login.title')}</CardTitle>
-          <CardDescription>Sign in to manage your hockey season</CardDescription>
+          <CardDescription>{t('auth.login.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <LoginForm />

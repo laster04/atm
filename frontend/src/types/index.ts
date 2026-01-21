@@ -59,6 +59,7 @@ export interface Team {
   id: number;
   name: string;
   logo?: string | null;
+  primaryColor?: string | null;
   seasonId: number;
   managerId?: number | null;
   season?: Season;
@@ -93,12 +94,12 @@ export interface Game {
   homeTeamId: number;
   awayTeamId: number;
   season?: Season;
-  homeTeam?: Pick<Team, 'id' | 'name' | 'logo'>;
-  awayTeam?: Pick<Team, 'id' | 'name' | 'logo'>;
+  homeTeam?: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+  awayTeam?: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
 }
 
 export interface Standing {
-  team: Pick<Team, 'id' | 'name' | 'logo'>;
+  team: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
   played: number;
   wins: number;
   draws: number;

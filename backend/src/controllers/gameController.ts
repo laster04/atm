@@ -9,8 +9,8 @@ export const getGamesBySeasonId = async (req: Request, res: Response): Promise<v
     const games = await prisma.game.findMany({
       where: { seasonId: parseInt(seasonId) },
       include: {
-        homeTeam: { select: { id: true, name: true, logo: true } },
-        awayTeam: { select: { id: true, name: true, logo: true } }
+        homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
+        awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true } }
       },
       orderBy: [{ round: 'asc' }, { date: 'asc' }]
     });

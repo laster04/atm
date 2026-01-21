@@ -183,7 +183,7 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
 
     const teams = await prisma.team.findMany({
       where: { seasonId },
-      select: { id: true, name: true, logo: true }
+      select: { id: true, name: true, logo: true, primaryColor: true }
     });
 
     const games = await prisma.game.findMany({
@@ -236,5 +236,93 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
   } catch (error) {
     console.error('Get standings error:', error);
     res.status(500).json({ error: 'Failed to fetch standings' });
+  }
+};
+
+export const getTeamStanding = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, teamId } = req.params;
+    const seasonId = parseInt(id);
+    const teamIdNum = parseInt(teamId);
+
+    const season = await prisma.season.findUnique({ where: { id: seasonId } });
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    const team = await prisma.team.findFirst({
+      where: { id: teamIdNum, seasonId },
+      select: { id: true, name: true, logo: true }
+    });
+
+    if (!team) {
+      res.status(404).json({ error: 'Team not found in this season' });
+      return;
+    }
+
+    const allTeams = await prisma.team.findMany({
+      where: { seasonId },
+      select: { id: true, name: true, logo: true }
+    });
+
+    const games = await prisma.game.findMany({
+      where: { seasonId, status: 'COMPLETED' }
+    });
+
+    // Calculate standings for all teams to determine rank
+    const allStandings = allTeams.map(t => {
+      let wins = 0, losses = 0, draws = 0, goalsFor = 0, goalsAgainst = 0;
+
+      games.forEach(game => {
+        if (game.homeTeamId === t.id) {
+          goalsFor += game.homeScore || 0;
+          goalsAgainst += game.awayScore || 0;
+          if ((game.homeScore || 0) > (game.awayScore || 0)) wins++;
+          else if ((game.homeScore || 0) < (game.awayScore || 0)) losses++;
+          else draws++;
+        } else if (game.awayTeamId === t.id) {
+          goalsFor += game.awayScore || 0;
+          goalsAgainst += game.homeScore || 0;
+          if ((game.awayScore || 0) > (game.homeScore || 0)) wins++;
+          else if ((game.awayScore || 0) < (game.homeScore || 0)) losses++;
+          else draws++;
+        }
+      });
+
+      const points = wins * 2 + draws;
+      const played = wins + losses + draws;
+      const goalDifference = goalsFor - goalsAgainst;
+
+      return {
+        team: t,
+        played,
+        wins,
+        draws,
+        losses,
+        goalsFor,
+        goalsAgainst,
+        goalDifference,
+        points
+      };
+    });
+
+    allStandings.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+      return b.goalsFor - a.goalsFor;
+    });
+
+    const rank = allStandings.findIndex(s => s.team.id === teamIdNum) + 1;
+    const teamStanding = allStandings.find(s => s.team.id === teamIdNum);
+
+    res.json({
+      ...teamStanding,
+      rank,
+      totalTeams: allTeams.length
+    });
+  } catch (error) {
+    console.error('Get team standing error:', error);
+    res.status(500).json({ error: 'Failed to fetch team standing' });
   }
 };

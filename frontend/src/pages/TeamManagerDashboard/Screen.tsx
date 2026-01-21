@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchMyTeams } from '../../store/slices/teamsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import { fetchMyTeams } from '@/store/slices/teamsSlice.ts';
 
 import TeamCard from './components/TeamCard';
 
-export default function TeamManagerDashboardScreen() {
+export default function Screen(): React.JSX.Element {
   const { t } = useTranslation();
   const { isTeamManager } = useAuth();
   const dispatch = useAppDispatch();

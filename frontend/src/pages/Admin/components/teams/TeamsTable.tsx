@@ -4,7 +4,8 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Edit, Plus, Trash2 } from 'lucide-react';
+import { Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import type { Team, Season, User } from '@types';
@@ -32,6 +33,7 @@ export default function TeamsTable({
 	onDeleteTeam,
 }: TeamsTableProps) {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingTeam, setEditingTeam] = useState<Team | null>(null);
 
@@ -123,6 +125,14 @@ export default function TeamsTable({
 									<TableCell>{team._count?.players || 0}</TableCell>
 									<TableCell className="text-right">
 										<div className="flex justify-end gap-1">
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => navigate(`/team-management/${team.id}`)}
+												title={t('admin.tabs.team.goToDetail')}
+											>
+												<Eye className="size-4" />
+											</Button>
 											<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(team)}>
 												<Edit className="size-4" />
 											</Button>

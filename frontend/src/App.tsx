@@ -11,6 +11,7 @@ import Seasons from './pages/Seasons';
 import SeasonDetail from './pages/SeasonDetail';
 import TeamDetail from './pages/TeamDetail';
 import TeamManagerDashboard from './pages/TeamManagerDashboard';
+import Detail from './pages/TeamManagerDashboard/Detail.tsx';
 import Admin from './pages/Admin';
 import './index.css';
 import { Toaster } from "@components/base/toaster.tsx";
@@ -33,6 +34,7 @@ function App() {
                   <Route path="/seasons/:id" element={<SeasonDetail />} />
                   <Route path="/teams/:id" element={<TeamDetail />} />
                   <Route path="/my-teams" element={<TeamManagerDashboard />} />
+                  <Route path="/team-management/:id" element={<Detail />} />
                   <Route path="/admin" element={<Admin />} />
                 </Routes>
               </main>
