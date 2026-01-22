@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import { AuthRequest } from '../types/index.js';
+import {
+  AuthRequest,
+  CreateTeamRequest,
+  UpdateTeamRequest,
+} from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -69,7 +73,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
     }
 
     const allGames = [...team.homeGames, ...team.awayGames].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
     );
 
     res.json({ ...team, games: allGames });
@@ -82,7 +86,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
 export const createTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { name, logo, managerId } = req.body;
+    const { name, logo, managerId } = req.body as CreateTeamRequest;
 
     if (!name) {
       res.status(400).json({ error: 'Team name is required' });
@@ -127,7 +131,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 export const updateTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, logo, managerId, primaryColor } = req.body;
+    const { name, logo, managerId, primaryColor } = req.body as UpdateTeamRequest;
 
     const existingTeam = await prisma.team.findUnique({
       where: { id: parseInt(id) },

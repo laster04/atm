@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import { AuthRequest } from '../types/index.js';
+import {
+  AuthRequest,
+  CreateGameRequest,
+  UpdateGameRequest,
+  GenerateScheduleRequest,
+} from '../types/index.js';
 import { Prisma, GameStatus } from '@prisma/client';
 
 export const getGamesBySeasonId = async (req: Request, res: Response): Promise<void> => {
@@ -48,7 +53,7 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
 export const createGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { homeTeamId, awayTeamId, date, location, round } = req.body;
+    const { homeTeamId, awayTeamId, date, location, round } = req.body as CreateGameRequest;
 
     if (!homeTeamId || !awayTeamId) {
       res.status(400).json({ error: 'Home team and away team are required' });
@@ -72,14 +77,18 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    const homeTeamIdNum = typeof homeTeamId === 'string' ? parseInt(homeTeamId) : homeTeamId;
+    const awayTeamIdNum = typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId;
+    const roundNum = round ? (typeof round === 'string' ? parseInt(round) : round) : null;
+
     const game = await prisma.game.create({
       data: {
         seasonId: parseInt(seasonId),
-        homeTeamId: parseInt(homeTeamId),
-        awayTeamId: parseInt(awayTeamId),
+        homeTeamId: homeTeamIdNum,
+        awayTeamId: awayTeamIdNum,
         date: date ? new Date(date) : null,
         location,
-        round: round ? parseInt(round) : null
+        round: roundNum
       },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true } },
@@ -97,7 +106,7 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
 export const updateGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { homeTeamId, awayTeamId, date, location, homeScore, awayScore, status, round } = req.body;
+    const { homeTeamId, awayTeamId, date, location, homeScore, awayScore, status, round } = req.body as UpdateGameRequest;
 
     const existingGame = await prisma.game.findUnique({
       where: { id: parseInt(id) },
@@ -115,17 +124,21 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    const homeTeamIdNum = homeTeamId ? (typeof homeTeamId === 'string' ? parseInt(homeTeamId) : homeTeamId) : undefined;
+    const awayTeamIdNum = awayTeamId ? (typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId) : undefined;
+    const roundNum = round !== undefined ? (round ? (typeof round === 'string' ? parseInt(round) : round) : null) : undefined;
+
     const game = await prisma.game.update({
       where: { id: parseInt(id) },
       data: {
-        ...(homeTeamId && { homeTeamId: parseInt(homeTeamId) }),
-        ...(awayTeamId && { awayTeamId: parseInt(awayTeamId) }),
+        ...(homeTeamIdNum && { homeTeamId: homeTeamIdNum }),
+        ...(awayTeamIdNum && { awayTeamId: awayTeamIdNum }),
         ...(date && { date: new Date(date) }),
         ...(location !== undefined && { location }),
-        ...(homeScore !== undefined && { homeScore: homeScore !== null ? parseInt(homeScore) : null }),
-        ...(awayScore !== undefined && { awayScore: awayScore !== null ? parseInt(awayScore) : null }),
+        ...(homeScore !== undefined && { homeScore: homeScore !== null ? homeScore : null }),
+        ...(awayScore !== undefined && { awayScore: awayScore !== null ? awayScore : null }),
         ...(status && { status }),
-        ...(round !== undefined && { round: round ? parseInt(round) : null })
+        ...(roundNum !== undefined && { round: roundNum })
       },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true } },
@@ -171,7 +184,7 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
 export const generateSchedule = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { rounds: requestedRounds } = req.body;
+    const { rounds: requestedRounds } = req.body as GenerateScheduleRequest;
 
     const season = await prisma.season.findUnique({
       where: { id: parseInt(seasonId) },

@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import { AuthRequest } from '../types/index.js';
+import {
+  AuthRequest,
+  CreatePlayerRequest,
+  UpdatePlayerRequest,
+} from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
 export const getPlayersByTeamId = async (req: Request, res: Response): Promise<void> => {
@@ -44,7 +48,7 @@ export const getPlayerById = async (req: Request, res: Response): Promise<void> 
 export const createPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { teamId } = req.params;
-    const { name, number, position } = req.body;
+    const { name, number, position } = req.body as CreatePlayerRequest;
 
     if (!name) {
       res.status(400).json({ error: 'Player name is required' });
@@ -62,10 +66,12 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
+    const numberValue = number ? (typeof number === 'string' ? parseInt(number) : number) : null;
+
     const player = await prisma.player.create({
       data: {
         name,
-        number: number ? parseInt(number) : null,
+        number: numberValue,
         position,
         teamId: parseInt(teamId)
       }
@@ -81,7 +87,7 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
 export const updatePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, number, position } = req.body;
+    const { name, number, position } = req.body as UpdatePlayerRequest;
 
     if (req.user!.role === 'TEAM_MANAGER') {
       const player = await prisma.player.findUnique({
@@ -94,11 +100,15 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
       }
     }
 
+    const numberValue = number !== undefined
+      ? (number ? (typeof number === 'string' ? parseInt(number) : number) : null)
+      : undefined;
+
     const player = await prisma.player.update({
       where: { id: parseInt(id) },
       data: {
         ...(name && { name }),
-        ...(number !== undefined && { number: number ? parseInt(number) : null }),
+        ...(numberValue !== undefined && { number: numberValue }),
         ...(position !== undefined && { position })
       }
     });

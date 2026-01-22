@@ -1,6 +1,13 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import { AuthRequest } from '../types/index.js';
+import {
+  AuthRequest,
+  CreateSeasonRequest,
+  UpdateSeasonRequest,
+  Standing,
+  TeamStanding,
+  StandingTeamRef,
+} from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
 export const getAllSeasons = async (req: Request, res: Response): Promise<void> => {
@@ -67,7 +74,7 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
 
 export const createSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, sportType, startDate, endDate, status } = req.body;
+    const { name, sportType, startDate, endDate, status } = req.body as CreateSeasonRequest;
 
     if (!name || !sportType || !startDate || !endDate) {
       res.status(400).json({ error: 'Name, sport type, start date, and end date are required' });
@@ -101,7 +108,7 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, sportType, startDate, endDate, status } = req.body;
+    const { name, sportType, startDate, endDate, status } = req.body as UpdateSeasonRequest;
 
     // Season managers can only update their own seasons
     if (req.user!.role === 'SEASON_MANAGER') {
@@ -190,7 +197,7 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
       where: { seasonId, status: 'COMPLETED' }
     });
 
-    const standings = teams.map(team => {
+    const standings: Standing[] = teams.map(team => {
       let wins = 0, losses = 0, draws = 0, goalsFor = 0, goalsAgainst = 0;
 
       games.forEach(game => {
@@ -213,8 +220,15 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
       const played = wins + losses + draws;
       const goalDifference = goalsFor - goalsAgainst;
 
+      const standingTeam: StandingTeamRef = {
+        id: team.id,
+        name: team.name,
+        logo: team.logo,
+        primaryColor: team.primaryColor
+      };
+
       return {
-        team,
+        team: standingTeam,
         played,
         wins,
         draws,
@@ -271,7 +285,7 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
     });
 
     // Calculate standings for all teams to determine rank
-    const allStandings = allTeams.map(t => {
+    const allStandings: Standing[] = allTeams.map(t => {
       let wins = 0, losses = 0, draws = 0, goalsFor = 0, goalsAgainst = 0;
 
       games.forEach(game => {
@@ -294,8 +308,14 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
       const played = wins + losses + draws;
       const goalDifference = goalsFor - goalsAgainst;
 
+      const standingTeam: StandingTeamRef = {
+        id: t.id,
+        name: t.name,
+        logo: t.logo
+      };
+
       return {
-        team: t,
+        team: standingTeam,
         played,
         wins,
         draws,
@@ -316,11 +336,13 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
     const rank = allStandings.findIndex(s => s.team.id === teamIdNum) + 1;
     const teamStanding = allStandings.find(s => s.team.id === teamIdNum);
 
-    res.json({
-      ...teamStanding,
+    const response: TeamStanding = {
+      ...teamStanding!,
       rank,
       totalTeams: allTeams.length
-    });
+    };
+
+    res.json(response);
   } catch (error) {
     console.error('Get team standing error:', error);
     res.status(500).json({ error: 'Failed to fetch team standing' });

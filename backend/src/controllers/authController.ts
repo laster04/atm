@@ -2,11 +2,20 @@ import { Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
-import { AuthRequest } from '../types/index.js';
+import {
+  AuthRequest,
+  RegisterRequest,
+  LoginRequest,
+  UpdateProfileRequest,
+  CreateUserRequest,
+  UpdateUserRequest,
+  GetUsersQuery,
+  UserFilters,
+} from '../types/index.js';
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name } = req.body as RegisterRequest;
 
     if (!email || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
@@ -42,7 +51,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as LoginRequest;
 
     if (!email || !password) {
       res.status(400).json({ error: 'Email and password are required' });
@@ -79,7 +88,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, password } = req.body;
+    const { name, password } = req.body as UpdateProfileRequest;
     const updateData: { name?: string; password?: string } = {};
 
     if (name) updateData.name = name;
@@ -100,14 +109,14 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
 
 export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { role, name, active } = req.query;
-    const where: { role?: string; name?: { contains: string; mode: 'insensitive' }; active?: boolean } = {};
+    const { role, name, active } = req.query as GetUsersQuery;
+    const where: UserFilters = {};
 
     if (role) {
-      where.role = role as string;
+      where.role = role as UserFilters['role'];
     }
     if (name) {
-      where.name = { contains: name as string, mode: 'insensitive' };
+      where.name = { contains: name, mode: 'insensitive' };
     }
     if (active !== undefined) {
       where.active = active === 'true';
@@ -128,7 +137,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const createUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name, role, active } = req.body;
+    const { email, password, name, role, active } = req.body as CreateUserRequest;
 
     if (!email || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
@@ -164,7 +173,7 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
 export const updateUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { email, password, name, role, active } = req.body;
+    const { email, password, name, role, active } = req.body as UpdateUserRequest;
 
     const existingUser = await prisma.user.findUnique({ where: { id: parseInt(id) } });
     if (!existingUser) {
@@ -181,7 +190,7 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
       }
     }
 
-    const updateData: { email?: string; password?: string; name?: string; role?: string; active?: boolean } = {};
+    const updateData: { email?: string; password?: string; name?: string; role?: UpdateUserRequest['role']; active?: boolean } = {};
     if (email) updateData.email = email;
     if (name) updateData.name = name;
     if (role) updateData.role = role;
