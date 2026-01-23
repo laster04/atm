@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.tsx';
 import { Button } from "@components/base/button";
@@ -15,24 +15,26 @@ import { Badge } from "./base/badge";
 import { Role } from "@types";
 import logoImage from '../assets/logo-full.png';
 
-export default function Navbar() {
-	const { user, logout, isAdmin, isSeasonManager, isTeamManager } = useAuth();
-	const { t, i18n } = useTranslation();
-	const navigate = useNavigate();
+import logoImage from '../assets/logo-full.png';
 
-	const handleLogout = () => {
-		logout();
-		navigate('/');
-	};
+export default function Navbar() {
+	// const { user, logout, isAdmin, isSeasonManager, isTeamManager } = useAuth();
+	const { t, i18n } = useTranslation();
+	// const navigate = useNavigate();
+
+	// const handleLogout = () => {
+	// 	logout();
+	// 	navigate('/');
+	// };
 
 	const toggleLanguage = () => {
 		const newLang = i18n.language === 'en' ? 'cs' : 'en';
 		i18n.changeLanguage(newLang);
 	};
 
-	const handleToLoginPage = () => {
-		navigate('/login');
-	}
+	// const handleToLoginPage = () => {
+	// 	navigate('/login');
+	// }
 
 	const getRoleBadgeVariant = (role: Role | undefined) => {
 		switch (role) {
