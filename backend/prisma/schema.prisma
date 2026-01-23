@@ -50,19 +50,37 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  managedLeagues League[]
   managedSeasons Season[]
   managedTeams   Team[]
+}
+
+model League {
+  id          Int       @id @default(autoincrement())
+  name        String
+  sportType   SportType @default(OTHER)
+  logo        String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  managerId Int?
+  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+
+  seasons Season[]
 }
 
 model Season {
   id        Int          @id @default(autoincrement())
   name      String
-  sportType SportType    @default(OTHER)
   startDate DateTime
   endDate   DateTime
   status    SeasonStatus @default(DRAFT)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
+  leagueId Int
+  league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
 
   managerId Int?
   manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)

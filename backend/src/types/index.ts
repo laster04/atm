@@ -44,6 +44,10 @@ export interface TeamIdParam {
   teamId: string;
 }
 
+export interface LeagueIdParam {
+  leagueId: string;
+}
+
 // ============================================================================
 // USER TYPES
 // ============================================================================
@@ -122,13 +126,96 @@ export interface UserResponse {
 }
 
 // ============================================================================
+// LEAGUE TYPES
+// ============================================================================
+
+// Request bodies
+export interface CreateLeagueRequest {
+  name: string;
+  sportType: SportType;
+  logo?: string;
+  description?: string;
+}
+
+export interface UpdateLeagueRequest {
+  name?: string;
+  sportType?: SportType;
+  logo?: string;
+  description?: string;
+}
+
+// Response types
+export interface LeagueRef {
+  id: number;
+  name: string;
+  sportType: SportType;
+}
+
+export interface LeagueListItem {
+  id: number;
+  name: string;
+  sportType: SportType;
+  logo: string | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  managerId: number | null;
+  manager: ManagerRef | null;
+  _count: {
+    seasons: number;
+  };
+}
+
+export interface LeagueDetail {
+  id: number;
+  name: string;
+  sportType: SportType;
+  logo: string | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  managerId: number | null;
+  manager: ManagerRef | null;
+  seasons: SeasonInLeague[];
+}
+
+export interface SeasonInLeague {
+  id: number;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  status: SeasonStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  leagueId: number;
+  managerId: number | null;
+  manager: ManagerRef | null;
+  _count: {
+    teams: number;
+    games: number;
+  };
+}
+
+export interface LeagueResponse {
+  id: number;
+  name: string;
+  sportType: SportType;
+  logo: string | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  managerId: number | null;
+  manager: ManagerRef | null;
+}
+
+// ============================================================================
 // SEASON TYPES
 // ============================================================================
 
 // Request bodies
 export interface CreateSeasonRequest {
   name: string;
-  sportType: SportType;
+  leagueId: number;
   startDate: string;
   endDate: string;
   status?: SeasonStatus;
@@ -136,7 +223,7 @@ export interface CreateSeasonRequest {
 
 export interface UpdateSeasonRequest {
   name?: string;
-  sportType?: SportType;
+  leagueId?: number;
   startDate?: string;
   endDate?: string;
   status?: SeasonStatus;
@@ -146,12 +233,13 @@ export interface UpdateSeasonRequest {
 export interface SeasonListItem {
   id: number;
   name: string;
-  sportType: SportType;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
+  leagueId: number;
+  league: LeagueRef;
   managerId: number | null;
   manager: ManagerRef | null;
   _count: {
@@ -178,12 +266,13 @@ export interface TeamInSeason {
 export interface SeasonDetail {
   id: number;
   name: string;
-  sportType: SportType;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
+  leagueId: number;
+  league: LeagueRef;
   managerId: number | null;
   manager: ManagerRef | null;
   teams: TeamInSeason[];
@@ -195,12 +284,13 @@ export interface SeasonDetail {
 export interface SeasonResponse {
   id: number;
   name: string;
-  sportType: SportType;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
+  leagueId: number;
+  league: LeagueRef;
   managerId: number | null;
   manager: ManagerRef | null;
 }
@@ -250,12 +340,13 @@ export interface TeamWithSeason extends TeamListItem {
   season: {
     id: number;
     name: string;
-    sportType: SportType;
     startDate: Date;
     endDate: Date;
     status: SeasonStatus;
     createdAt: Date;
     updatedAt: Date;
+    leagueId: number;
+    league: LeagueRef;
     managerId: number | null;
   };
 }
@@ -284,12 +375,13 @@ export interface TeamDetail {
   season: {
     id: number;
     name: string;
-    sportType: SportType;
     startDate: Date;
     endDate: Date;
     status: SeasonStatus;
     createdAt: Date;
     updatedAt: Date;
+    leagueId: number;
+    league: LeagueRef;
     managerId: number | null;
   };
   manager: ManagerRef | null;

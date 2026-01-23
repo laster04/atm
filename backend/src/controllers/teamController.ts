@@ -12,7 +12,11 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
     const teams = await prisma.team.findMany({
       where: { managerId: req.user!.id },
       include: {
-        season: true,
+        season: {
+          include: {
+            league: { select: { id: true, name: true, sportType: true } }
+          }
+        },
         _count: { select: { players: true } },
         manager: { select: { id: true, name: true, email: true } }
       },
@@ -49,7 +53,11 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
     const team = await prisma.team.findUnique({
       where: { id: parseInt(id) },
       include: {
-        season: true,
+        season: {
+          include: {
+            league: { select: { id: true, name: true, sportType: true } }
+          }
+        },
         players: { orderBy: { number: 'asc' } },
         manager: { select: { id: true, name: true, email: true } },
         homeGames: {

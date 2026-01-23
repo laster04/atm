@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth.js';
+import leagueRoutes from './routes/leagues.js';
 import seasonRoutes from './routes/seasons.js';
 import teamRoutes from './routes/teams.js';
 import playerRoutes from './routes/players.js';
@@ -22,6 +23,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/leagues', leagueRoutes);
 app.use('/api/seasons', seasonRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);

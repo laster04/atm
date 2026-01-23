@@ -14,6 +14,7 @@ export const getAllSeasons = async (req: Request, res: Response): Promise<void> 
   try {
     const seasons = await prisma.season.findMany({
       include: {
+        league: { select: { id: true, name: true, sportType: true } },
         _count: { select: { teams: true, games: true } },
         manager: { select: { id: true, name: true, email: true } }
       },
@@ -31,6 +32,7 @@ export const getMySeasons = async (req: AuthRequest, res: Response): Promise<voi
     const seasons = await prisma.season.findMany({
       where: { managerId: req.user!.id },
       include: {
+        league: { select: { id: true, name: true, sportType: true } },
         _count: { select: { teams: true, games: true } },
         manager: { select: { id: true, name: true, email: true } }
       },
@@ -49,6 +51,7 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
     const season = await prisma.season.findUnique({
       where: { id: parseInt(id) },
       include: {
+        league: { select: { id: true, name: true, sportType: true } },
         teams: {
           include: {
             _count: { select: { players: true } },
@@ -74,10 +77,17 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
 
 export const createSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, sportType, startDate, endDate, status } = req.body as CreateSeasonRequest;
+    const { name, leagueId, startDate, endDate, status } = req.body as CreateSeasonRequest;
 
-    if (!name || !sportType || !startDate || !endDate) {
-      res.status(400).json({ error: 'Name, sport type, start date, and end date are required' });
+    if (!name || !leagueId || !startDate || !endDate) {
+      res.status(400).json({ error: 'Name, league, start date, and end date are required' });
+      return;
+    }
+
+    // Verify league exists
+    const league = await prisma.league.findUnique({ where: { id: leagueId } });
+    if (!league) {
+      res.status(400).json({ error: 'League not found' });
       return;
     }
 
@@ -87,13 +97,14 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
     const season = await prisma.season.create({
       data: {
         name,
-        sportType,
+        leagueId,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         status: status || 'DRAFT',
         managerId
       },
       include: {
+        league: { select: { id: true, name: true, sportType: true } },
         manager: { select: { id: true, name: true, email: true } }
       }
     });
@@ -108,7 +119,7 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, sportType, startDate, endDate, status } = req.body as UpdateSeasonRequest;
+    const { name, leagueId, startDate, endDate, status } = req.body as UpdateSeasonRequest;
 
     // Season managers can only update their own seasons
     if (req.user!.role === 'SEASON_MANAGER') {
@@ -119,16 +130,26 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
       }
     }
 
+    // If changing league, verify it exists
+    if (leagueId) {
+      const league = await prisma.league.findUnique({ where: { id: leagueId } });
+      if (!league) {
+        res.status(400).json({ error: 'League not found' });
+        return;
+      }
+    }
+
     const season = await prisma.season.update({
       where: { id: parseInt(id) },
       data: {
         ...(name && { name }),
-        ...(sportType && { sportType }),
+        ...(leagueId && { leagueId }),
         ...(startDate && { startDate: new Date(startDate) }),
         ...(endDate && { endDate: new Date(endDate) }),
         ...(status && { status })
       },
       include: {
+        league: { select: { id: true, name: true, sportType: true } },
         manager: { select: { id: true, name: true, email: true } }
       }
     });
@@ -346,5 +367,31 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
   } catch (error) {
     console.error('Get team standing error:', error);
     res.status(500).json({ error: 'Failed to fetch team standing' });
+  }
+};
+
+export const getSeasonsByLeague = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { leagueId } = req.params;
+
+    const league = await prisma.league.findUnique({ where: { id: parseInt(leagueId) } });
+    if (!league) {
+      res.status(404).json({ error: 'League not found' });
+      return;
+    }
+
+    const seasons = await prisma.season.findMany({
+      where: { leagueId: parseInt(leagueId) },
+      include: {
+        league: { select: { id: true, name: true, sportType: true } },
+        _count: { select: { teams: true, games: true } },
+        manager: { select: { id: true, name: true, email: true } }
+      },
+      orderBy: { startDate: 'desc' }
+    });
+    res.json(seasons);
+  } catch (error) {
+    console.error('Get seasons by league error:', error);
+    res.status(500).json({ error: 'Failed to fetch seasons' });
   }
 };

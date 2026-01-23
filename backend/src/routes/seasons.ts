@@ -3,6 +3,7 @@ import {
   getAllSeasons,
   getMySeasons,
   getSeasonById,
+  getSeasonsByLeague,
   createSeason,
   updateSeason,
   deleteSeason,
@@ -15,6 +16,7 @@ const router = Router();
 
 router.get('/', getAllSeasons);
 router.get('/my', authenticate, getMySeasons);
+router.get('/league/:leagueId', getSeasonsByLeague);
 router.get('/:id', getSeasonById);
 router.get('/:id/standings', getSeasonStandings);
 router.get('/:id/standings/:teamId', getTeamStanding);
