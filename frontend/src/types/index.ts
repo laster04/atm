@@ -37,15 +37,38 @@ export interface User {
   active: boolean;
 }
 
-export interface Season {
+export interface League {
   id: number;
   name: string;
   sportType: SportType;
+  logo?: string | null;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  managerId?: number | null;
+  manager?: Pick<User, 'id' | 'name' | 'email'> | null;
+  seasons?: Season[];
+  _count?: {
+    seasons: number;
+  };
+}
+
+export interface LeagueRef {
+  id: number;
+  name: string;
+  sportType: SportType;
+}
+
+export interface Season {
+  id: number;
+  name: string;
   startDate: string;
   endDate: string;
   status: SeasonStatus;
   createdAt: string;
   updatedAt: string;
+  leagueId: number;
+  league?: LeagueRef;
   managerId?: number | null;
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   teams?: Team[];

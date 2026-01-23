@@ -89,7 +89,7 @@ export const generateSchedule = createAsyncThunk(
       data,
     }: {
       seasonId: string | number;
-      data: { rounds?: number };
+      data: { rounds: number };
     },
     { rejectWithValue }
   ) => {

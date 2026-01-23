@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { SeasonStatus } from '@types';
+import { SeasonStatus } from '@types';
 
 type FilterValue = 'all' | SeasonStatus;
 
@@ -11,7 +11,7 @@ interface SeasonFiltersProps {
 export default function SeasonFilters({ filter, onFilterChange }: SeasonFiltersProps) {
   const { t } = useTranslation();
 
-  const filters: FilterValue[] = ['all', 'ACTIVE', 'DRAFT', 'COMPLETED'];
+  const filters: FilterValue[] = ['all', SeasonStatus.ACTIVE, SeasonStatus.DRAFT, SeasonStatus.COMPLETED];
 
   return (
     <div className="flex gap-2">

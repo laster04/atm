@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
 import { formatDateTimeForInput } from '@/utils/date';
-import type { Game, Team, GameStatus } from '@types';
+import { Game, GameStatus, Team } from '@types';
 
 interface GameFormData {
 	date: string;
@@ -37,7 +37,7 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 		homeScore: game?.homeScore ?? null,
 		awayScore: game?.awayScore ?? null,
 		location: game?.location || '',
-		status: game?.status || 'SCHEDULED',
+		status: game?.status || GameStatus.SCHEDULED,
 		round: game?.round ?? null,
 	};
 

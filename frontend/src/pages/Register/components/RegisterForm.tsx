@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext.tsx';
 import { AxiosError } from 'axios';
 
 interface RegisterFormData {

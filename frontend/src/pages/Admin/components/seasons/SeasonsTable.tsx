@@ -8,17 +8,18 @@ import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.ts
 import { Edit, Plus, Trash2 } from 'lucide-react';
 
 import { formatDateLocale } from '@/utils/date';
-import type { Season } from '@types';
+import type { Season, League } from '@types';
 import SeasonFormModal, { type SeasonFormData } from './SeasonFormModal.tsx';
 
 interface SeasonsTableProps {
 	seasons: Season[];
+	leagues: League[];
 	onCreateSeason?: (data: SeasonFormData) => void;
 	onUpdateSeason?: (id: number, data: SeasonFormData) => void;
 	onDeleteSeason?: (id: number) => void;
 }
 
-export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
+export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
 	const { t } = useTranslation();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingSeason, setEditingSeason] = useState<Season | null>(null);
@@ -47,13 +48,24 @@ export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, 
 		handleClose();
 	};
 
+	const getLeagueName = (season: Season) => {
+		if (season.league) {
+			return `${season.league.name} (${t(`sports.${season.league.sportType}`)})`;
+		}
+		const league = leagues.find(l => l.id === season.leagueId);
+		if (league) {
+			return `${league.name} (${t(`sports.${league.sportType}`)})`;
+		}
+		return '-';
+	};
+
 	return (
 		<Card>
 			<CardHeader>
 				<div className="flex items-center justify-end">
 					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 						<DialogTrigger asChild>
-							<Button onClick={handleOpenCreate}>
+							<Button onClick={handleOpenCreate} disabled={leagues.length === 0}>
 								<Plus className="size-4 mr-2" />
 								{t('admin.tabs.season.addSeason')}
 							</Button>
@@ -61,6 +73,7 @@ export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, 
 						<DialogContent>
 							<SeasonFormModal
 								season={editingSeason}
+								leagues={leagues}
 								onSubmit={handleSubmit}
 								onClose={handleClose}
 							/>
@@ -73,7 +86,7 @@ export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, 
 					<TableHeader>
 						<TableRow>
 							<TableHead>{t('admin.tabs.season.th-name')}</TableHead>
-							<TableHead>{t('admin.tabs.season.th-sportType')}</TableHead>
+							<TableHead>{t('admin.tabs.season.th-league')}</TableHead>
 							<TableHead>{t('admin.tabs.season.th-startDate')}</TableHead>
 							<TableHead>{t('admin.tabs.season.th-endDate')}</TableHead>
 							<TableHead>{t('admin.tabs.season.th-status')}</TableHead>
@@ -86,7 +99,7 @@ export default function SeasonsTable({ seasons, onCreateSeason, onUpdateSeason, 
 						{seasons.map((season) => (
 							<TableRow key={season.id}>
 								<TableCell className="font-medium">{season.name}</TableCell>
-								<TableCell>{t(`sports.${season.sportType}`)}</TableCell>
+								<TableCell>{getLeagueName(season)}</TableCell>
 								<TableCell>{formatDateLocale(season.startDate)}</TableCell>
 								<TableCell>{formatDateLocale(season.endDate)}</TableCell>
 								<TableCell>

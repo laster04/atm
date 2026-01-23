@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, Season, Team, Player, Game, Standing } from '../types';
+import type { User, League, Season, Team, Player, Game, Standing } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -47,9 +47,19 @@ export const authApi = {
   deleteUser: (id: number) => api.delete(`/auth/users/${id}`)
 };
 
+export const leagueApi = {
+  getAll: () => api.get<League[]>('/leagues'),
+  getMyLeagues: () => api.get<League[]>('/leagues/my'),
+  getById: (id: string | number) => api.get<League>(`/leagues/${id}`),
+  create: (data: Partial<League>) => api.post<League>('/leagues', data),
+  update: (id: string | number, data: Partial<League>) => api.put<League>(`/leagues/${id}`, data),
+  delete: (id: string | number) => api.delete(`/leagues/${id}`)
+};
+
 export const seasonApi = {
   getAll: () => api.get<Season[]>('/seasons'),
   getMySeasons: () => api.get<Season[]>('/seasons/my'),
+  getByLeague: (leagueId: string | number) => api.get<Season[]>(`/seasons/league/${leagueId}`),
   getById: (id: string | number) => api.get<Season>(`/seasons/${id}`),
   create: (data: Partial<Season>) => api.post<Season>('/seasons', data),
   update: (id: string | number, data: Partial<Season>) => api.put<Season>(`/seasons/${id}`, data),
@@ -86,7 +96,7 @@ export const gameApi = {
   delete: (id: string | number) => api.delete(`/games/${id}`),
   generateSchedule: (
     seasonId: string | number,
-    data: { startDate?: string; intervalDays?: number; doubleRoundRobin?: boolean }
+    data: { rounds: number }
   ) => api.post<{ message: string; games: Game[] }>(`/games/season/${seasonId}/generate`, data)
 };
 

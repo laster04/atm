@@ -38,6 +38,16 @@ export default function Navbar() {
 							</div>
 						</div>
 						<div className="flex items-center justify-end gap-8">
+							<Link to="/leagues" className="hover:text-blue-200">
+								<Button variant="outline">
+									{t('nav.leagues')}
+								</Button>
+							</Link>
+							<Link to="/seasons" className="hover:text-blue-200">
+								<Button variant="outline">
+									{t('nav.seasons')}
+								</Button>
+							</Link>
 							{user ? (
 								<>
 									{isTeamManager() && (

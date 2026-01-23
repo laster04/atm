@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import { fetchLeagues, createLeague, updateLeague, deleteLeague } from '@/store/slices/leaguesSlice.ts';
 import { fetchSeasons, fetchMySeasons, createSeason, updateSeason, deleteSeason } from '@/store/slices/seasonsSlice.ts';
 import { fetchTeamsBySeason, createTeam, updateTeam, deleteTeam } from '@/store/slices/teamsSlice.ts';
 import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
 import { fetchGamesBySeason, createGame, updateGame, deleteGame, generateSchedule } from '@/store/slices/gamesSlice.ts';
 import { authApi } from '@/services/api.ts';
-import { toISOString, isDateInFuture } from '@/utils/date';
+import { toISOString } from '@/utils/date';
 import { Role } from '@types';
 import type { Season, User } from '@types';
 import { AxiosError } from 'axios';
@@ -17,6 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs'
 
 import UsersTable, { type UserFilters } from './components/users/UsersTable.tsx';
 import { type UserFormData } from './components/users/UserFormModal.tsx';
+import LeaguesTable from './components/leagues/LeaguesTable.tsx';
+import { type LeagueFormData } from './components/leagues/LeagueFormModal.tsx';
 import SeasonsTable from './components/seasons/SeasonsTable.tsx';
 import TeamsTable from './components/teams/TeamsTable.tsx';
 import PlayersTable from './components/players/PlayersTable.tsx';
@@ -35,10 +38,11 @@ export default function AdminScreen() {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
+	const { items: leagues } = useAppSelector((state) => state.leagues);
 	const { items: seasons, loading: seasonsLoading } = useAppSelector((state) => state.seasons);
-	const { items: teamsBySeasonId, loading: teamsLoading } = useAppSelector((state) => state.teams);
-	const { items: playersByTeamId, loading: playersLoading } = useAppSelector((state) => state.players);
-	const { items: gamesBySeasonId, loading: gamesLoading } = useAppSelector((state) => state.games);
+	const { items: teamsBySeasonId } = useAppSelector((state) => state.teams);
+	const { items: playersByTeamId } = useAppSelector((state) => state.players);
+	const { items: gamesBySeasonId } = useAppSelector((state) => state.games);
 
 	const [users, setUsers] = useState<User[]>([]);
 	const [teamManagers, setTeamManagers] = useState<User[]>([]);
@@ -52,6 +56,7 @@ export default function AdminScreen() {
 	const games = selectedSeason ? gamesBySeasonId[selectedSeason.id] || [] : [];
 
 	useEffect(() => {
+		dispatch(fetchLeagues());
 		if (isSeasonManager() && !isAdmin()) {
 			dispatch(fetchMySeasons());
 		} else {
@@ -108,6 +113,36 @@ export default function AdminScreen() {
 		);
 	}
 
+	const handleCreateLeague = async (data: LeagueFormData) => {
+		setError('');
+		try {
+			await dispatch(createLeague(data)).unwrap();
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('admin.errors.createLeague'));
+		}
+	};
+
+	const handleUpdateLeague = async (id: number, data: LeagueFormData) => {
+		setError('');
+		try {
+			await dispatch(updateLeague({ id, data })).unwrap();
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('admin.errors.updateLeague'));
+		}
+	};
+
+	const handleDeleteLeague = async (id: number) => {
+		if (!confirm(t('admin.confirm.deleteLeague'))) return;
+		try {
+			await dispatch(deleteLeague(id)).unwrap();
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('admin.errors.deleteLeague'));
+		}
+	};
+
 	const handleCreateSeason = async (data: SeasonFormData) => {
 		setError('');
 		try {
@@ -156,7 +191,7 @@ export default function AdminScreen() {
 				generateSchedule({
 					seasonId: selectedSeason.id,
 					data: {
-						rounds: data?.rounds,
+						rounds: data?.rounds ?? 1,
 					},
 				})
 			).unwrap();
@@ -319,9 +354,9 @@ export default function AdminScreen() {
 		}
 	};
 
-	const canDeleteSeason = (season: Season) => {
-		return isAdmin() || (isSeasonManager() && isDateInFuture(season.startDate));
-	};
+	// const canDeleteSeason = (season: Season) => {
+	// 	return isAdmin() || (isSeasonManager() && isDateInFuture(season.startDate));
+	// };
 
 	const refreshUsers = async () => {
 		try {
@@ -417,6 +452,7 @@ export default function AdminScreen() {
 					<Tabs defaultValue="user">
 						<TabsList>
 							<TabsTrigger value="user">{t('admin.tabs.user.title')}</TabsTrigger>
+							<TabsTrigger value="league">{t('admin.tabs.league.title')}</TabsTrigger>
 							<TabsTrigger value="season">{t('admin.tabs.season.title')}</TabsTrigger>
 							<TabsTrigger value="team">{t('admin.tabs.team.title')}</TabsTrigger>
 							<TabsTrigger value="player">{t('admin.tabs.player.title')}</TabsTrigger>
@@ -431,9 +467,18 @@ export default function AdminScreen() {
 								onFilterChange={handleFilterUsers}
 							/>
 						</TabsContent>
+						<TabsContent value="league" className="space-y-4 mt-4">
+							<LeaguesTable
+								leagues={leagues}
+								onCreateLeague={handleCreateLeague}
+								onUpdateLeague={handleUpdateLeague}
+								onDeleteLeague={handleDeleteLeague}
+							/>
+						</TabsContent>
 						<TabsContent value="season" className="space-y-4 mt-4">
 							<SeasonsTable
 								seasons={seasons}
+								leagues={leagues}
 								onCreateSeason={handleCreateSeason}
 								onUpdateSeason={handleUpdateSeason}
 								onDeleteSeason={handleDeleteSeason}
@@ -495,6 +540,7 @@ export default function AdminScreen() {
 			{showModal === 'season' && (
 				<SeasonFormModal
 					season={selectedSeason}
+					leagues={leagues}
 					onSubmit={handleCreateSeason}
 					onClose={() => setShowModal(null)}
 				/>

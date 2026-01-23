@@ -32,7 +32,7 @@ export default function SeasonCard({ season }: SeasonCardProps) {
         <h2 className="text-xl font-semibold">{season.name}</h2>
         {statusBadge(season.status)}
       </div>
-      <p className="text-gray-600 mb-3">{season.sportType}</p>
+      <p className="text-gray-600 mb-3">{season.league?.name || '-'}</p>
       <p className="text-sm text-gray-500">
         {formatSeasonDate(season.startDate, i18n.language)} - {formatSeasonDate(season.endDate, i18n.language)}
       </p>

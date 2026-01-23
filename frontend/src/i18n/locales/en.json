@@ -9,11 +9,14 @@
     "vs": "vs",
     "teams": "teams",
     "games": "games",
-    "players": "players"
+    "players": "players",
+    "seasons": "seasons",
+    "all": "All"
   },
   "nav": {
     "brand": "Sport Scheduler",
     "tagline": "Your central hub for all sports leagues and seasons",
+    "leagues": "Leagues",
     "seasons": "Seasons",
     "myTeams": "My Teams",
     "mySeasons": "My Seasons",
@@ -70,6 +73,18 @@
       "passwordTooShort": "Password must be at least 6 characters",
       "failed": "Registration failed"
     }
+  },
+  "leagues": {
+    "title": "Leagues",
+    "loading": "Loading leagues...",
+    "noLeagues": "No leagues found."
+  },
+  "leagueDetail": {
+    "loading": "Loading league...",
+    "notFound": "League not found.",
+    "seasons": "Seasons",
+    "noSeasons": "No seasons in this league yet.",
+    "seasonsCount": "Total Seasons"
   },
   "seasons": {
     "title": "Seasons",
@@ -214,6 +229,17 @@
     "noPrivileges": "You need admin privileges to access this page.",
     "tabs": {
       "title": "Select your choice",
+      "league": {
+        "title": "Leagues",
+        "addLeague": "Add League",
+        "th-name": "Name",
+        "th-sportType": "Sport Type",
+        "th-logo": "Logo",
+        "th-description": "Description",
+        "th-manager": "Manager",
+        "th-seasons-c": "Seasons",
+        "th-actions": "Actions"
+      },
       "user": {
         "title": "Users",
         "addUser": "Add User",
@@ -235,7 +261,7 @@
         "title": "Seasons",
         "addSeason": "Add Season",
         "th-name": "Name",
-        "th-sportType": "Sport type",
+        "th-league": "League",
         "th-startDate": "Start",
         "th-endDate": "End",
         "th-status": "Status",
@@ -313,10 +339,18 @@
       "managedBy": "Manager: {{name}}"
     },
     "modal": {
+      "createLeague": "Create League",
+      "editLeague": "Edit League",
+      "createLeagueDesc": "Create a new league to organize your seasons",
+      "editLeagueDesc": "Update league details",
+      "leagueName": "League Name",
+      "leagueLogo": "Logo URL",
+      "leagueDescription": "Description",
       "createSeason": "Create Season",
       "editSeason": "Edit Season",
       "createSeasonDesc": "Create a new season for your league",
       "editSeasonDesc": "Update season details",
+      "league": "League",
       "addTeam": "Add Team",
       "editTeam": "Edit Team",
       "addTeamDesc": "Add a new team to this season",
@@ -374,6 +408,7 @@
       "VIEWER": "Viewer"
     },
     "confirm": {
+      "deleteLeague": "Are you sure? This will delete all seasons, teams, and games in this league.",
       "deleteSeason": "Are you sure? This will delete all teams and games in this season.",
       "deleteTeam": "Are you sure? This will delete all players and game data for this team.",
       "deletePlayer": "Are you sure you want to delete this player?",
@@ -381,6 +416,9 @@
       "deleteUser": "Are you sure you want to delete this user?"
     },
     "errors": {
+      "createLeague": "Failed to create league",
+      "updateLeague": "Failed to update league",
+      "deleteLeague": "Failed to delete league",
       "createSeason": "Failed to create season",
       "updateSeason": "Failed to update season",
       "createTeam": "Failed to create team",

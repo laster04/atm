@@ -31,7 +31,7 @@ export default function SeasonHeader({ season }: SeasonHeaderProps) {
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-2xl font-bold mb-2">{season.name}</h2>
-            <p className="text-gray-600 text-lg">{season.sportType}</p>
+            <p className="text-gray-600 text-lg">{season.league?.name || '-'}</p>
           </div>
           <span className={`px-3 py-1 rounded ${statusClasses}`}>
             {t(`seasons.status.${season.status}`)}
