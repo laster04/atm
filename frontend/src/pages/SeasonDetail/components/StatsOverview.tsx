@@ -34,10 +34,10 @@ export function StatsOverview({ standings, games }: StatsOverviewProps) {
 		},
 		{
 			title: t('seasonDetail.overview.avgGoalsPerGame'),
-			value: games
+			value: (games
 				.filter(item => item.status == GameStatus.COMPLETED)
 				.reduce((sum, game) => sum + (game?.homeScore ?? 0) + (game?.awayScore ?? 0), 0)
-				/ games.filter(item => item.status == GameStatus.COMPLETED).length,
+				/ games.filter(item => item.status == GameStatus.COMPLETED).length).toFixed(1),
 			icon: TrendingUp,
 			description: t('seasonDetail.overview.thisSeason'),
 		},
