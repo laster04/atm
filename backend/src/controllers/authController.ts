@@ -1,7 +1,9 @@
 import { Response } from 'express';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
+import emailService from '../services/emailService.js';
 import {
   AuthRequest,
   RegisterRequest,
@@ -12,6 +14,16 @@ import {
   GetUsersQuery,
   UserFilters,
 } from '../types/index.js';
+
+const generateActivationToken = (): string => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+const getActivationTokenExpiry = (): Date => {
+  const expiry = new Date();
+  expiry.setHours(expiry.getHours() + 24); // 24 hours
+  return expiry;
+};
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -29,20 +41,30 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const activationToken = generateActivationToken();
 
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name,
-        role: 'VIEWER'
+        role: 'VIEWER',
+        emailVerified: false,
+        activationToken,
+        activationTokenExpiresAt: getActivationTokenExpiry(),
       },
-      select: { id: true, email: true, name: true, role: true }
+      select: { id: true, email: true, name: true, role: true, emailVerified: true }
     });
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    // Send activation email (don't wait for it to complete)
+    emailService.sendActivationEmail(email, name, activationToken).catch((err) => {
+      console.error('Failed to send activation email:', err);
+    });
 
-    res.status(201).json({ user, token });
+    res.status(201).json({
+      message: 'Registration successful. Please check your email to activate your account.',
+      user,
+    });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Registration failed' });
@@ -70,6 +92,16 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       return;
     }
 
+    if (!user.emailVerified) {
+      res.status(403).json({ error: 'Please verify your email before logging in' });
+      return;
+    }
+
+    if (!user.active) {
+      res.status(403).json({ error: 'Your account has been deactivated' });
+      return;
+    }
+
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 
     res.json({
@@ -79,6 +111,200 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+};
+
+export const activateAccount = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      res.status(400).json({ error: 'Activation token is required' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { activationToken: token }
+    });
+
+    if (!user) {
+      res.status(400).json({ error: 'Invalid activation token' });
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.status(400).json({ error: 'Account is already activated' });
+      return;
+    }
+
+    if (user.activationTokenExpiresAt && user.activationTokenExpiresAt < new Date()) {
+      res.status(400).json({ error: 'Activation token has expired. Please request a new one.' });
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+        activationToken: null,
+        activationTokenExpiresAt: null,
+      }
+    });
+
+    // Send welcome email
+    emailService.sendWelcomeEmail(user.email, user.name).catch((err) => {
+      console.error('Failed to send welcome email:', err);
+    });
+
+    res.json({ message: 'Account activated successfully. You can now log in.' });
+  } catch (error) {
+    console.error('Activation error:', error);
+    res.status(500).json({ error: 'Account activation failed' });
+  }
+};
+
+export const resendActivationEmail = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      // Don't reveal if user exists
+      res.json({ message: 'If an account exists with this email, an activation link will be sent.' });
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.status(400).json({ error: 'Account is already activated' });
+      return;
+    }
+
+    const activationToken = generateActivationToken();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        activationToken,
+        activationTokenExpiresAt: getActivationTokenExpiry(),
+      }
+    });
+
+    await emailService.sendActivationEmail(email, user.name, activationToken);
+
+    res.json({ message: 'If an account exists with this email, an activation link will be sent.' });
+  } catch (error) {
+    console.error('Resend activation error:', error);
+    res.status(500).json({ error: 'Failed to resend activation email' });
+  }
+};
+
+const generatePasswordResetToken = (): string => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+const getPasswordResetTokenExpiry = (): Date => {
+  const expiry = new Date();
+  expiry.setHours(expiry.getHours() + 1); // 1 hour
+  return expiry;
+};
+
+export const requestPasswordReset = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      res.json({ message: 'If an account exists with this email, a password reset link will be sent.' });
+      return;
+    }
+
+    const resetToken = generatePasswordResetToken();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetTokenExpiresAt: getPasswordResetTokenExpiry(),
+      }
+    });
+
+    await emailService.sendPasswordResetEmail(email, user.name, resetToken);
+
+    res.json({ message: 'If an account exists with this email, a password reset link will be sent.' });
+  } catch (error) {
+    console.error('Request password reset error:', error);
+    res.status(500).json({ error: 'Failed to process password reset request' });
+  }
+};
+
+export const resetPassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token) {
+      res.status(400).json({ error: 'Reset token is required' });
+      return;
+    }
+
+    if (!password) {
+      res.status(400).json({ error: 'New password is required' });
+      return;
+    }
+
+    if (password.length < 6) {
+      res.status(400).json({ error: 'Password must be at least 6 characters' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { passwordResetToken: token }
+    });
+
+    if (!user) {
+      res.status(400).json({ error: 'Invalid or expired reset token' });
+      return;
+    }
+
+    if (user.passwordResetTokenExpiresAt && user.passwordResetTokenExpiresAt < new Date()) {
+      res.status(400).json({ error: 'Reset token has expired. Please request a new one.' });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetTokenExpiresAt: null,
+      }
+    });
+
+    // Send confirmation email
+    emailService.sendPasswordChangedEmail(user.email, user.name).catch((err) => {
+      console.error('Failed to send password changed email:', err);
+    });
+
+    res.json({ message: 'Password has been reset successfully. You can now log in with your new password.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Failed to reset password' });
   }
 };
 
@@ -137,7 +363,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const createUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name, role, active } = req.body as CreateUserRequest;
+    const { email, password, name, role, active, sendActivationEmail } = req.body as CreateUserRequest & { sendActivationEmail?: boolean };
 
     if (!email || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
@@ -152,16 +378,30 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Admin-created users are verified by default, unless sendActivationEmail is true
+    const shouldSendActivation = sendActivationEmail === true;
+    const activationToken = shouldSendActivation ? generateActivationToken() : null;
+
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name,
         role: role || 'VIEWER',
-        active: active ?? true
+        active: active ?? true,
+        emailVerified: !shouldSendActivation,
+        emailVerifiedAt: !shouldSendActivation ? new Date() : null,
+        activationToken,
+        activationTokenExpiresAt: shouldSendActivation ? getActivationTokenExpiry() : null,
       },
-      select: { id: true, email: true, name: true, role: true, active: true }
+      select: { id: true, email: true, name: true, role: true, active: true, emailVerified: true }
     });
+
+    if (shouldSendActivation && activationToken) {
+      emailService.sendActivationEmail(email, name, activationToken).catch((err) => {
+        console.error('Failed to send activation email:', err);
+      });
+    }
 
     res.status(201).json(user);
   } catch (error) {

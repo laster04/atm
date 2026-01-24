@@ -57,7 +57,37 @@
       "submitting": "Prihlasuji...",
       "noAccount": "Nemate ucet?",
       "registerLink": "Registrovat",
+      "forgotPassword": "Zapomenuté heslo?",
       "failed": "Prihlaseni selhalo"
+    },
+    "forgotPassword": {
+      "title": "Zapomenuté heslo",
+      "description": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovení",
+      "email": "E-mail",
+      "submit": "Odeslat odkaz",
+      "sending": "Odesílám...",
+      "emailSent": "Zkontrolujte e-mail",
+      "emailSentTo": "Pokud účet existuje, poslali jsme odkaz na:",
+      "checkSpam": "Nevidíte e-mail? Zkontrolujte složku spam.",
+      "backToLogin": "Zpět na přihlášení",
+      "failed": "Nepodařilo se zpracovat požadavek"
+    },
+    "resetPassword": {
+      "title": "Obnovení hesla",
+      "description": "Zadejte své nové heslo",
+      "newPassword": "Nové heslo",
+      "confirmPassword": "Potvrdit heslo",
+      "submit": "Obnovit heslo",
+      "resetting": "Obnovuji...",
+      "successTitle": "Heslo obnoveno!",
+      "successMessage": "Vaše heslo bylo úspěšně obnoveno. Nyní se můžete přihlásit s novým heslem.",
+      "goToLogin": "Přejít na přihlášení",
+      "invalidLink": "Neplatný odkaz",
+      "invalidLinkMessage": "Tento odkaz pro obnovení hesla je neplatný nebo vypršel.",
+      "requestNew": "Požádat o nový odkaz",
+      "passwordMismatch": "Hesla se neshodují",
+      "passwordTooShort": "Heslo musí mít alespoň 6 znaků",
+      "failed": "Nepodařilo se obnovit heslo"
     },
     "register": {
       "title": "Registrace",
@@ -71,7 +101,21 @@
       "loginLink": "Prihlasit",
       "passwordMismatch": "Hesla se neshoduji",
       "passwordTooShort": "Heslo musi mit alespon 6 znaku",
-      "failed": "Registrace selhala"
+      "failed": "Registrace selhala",
+      "success": "Registrace uspesna!",
+      "checkEmail": "Poslali jsme aktivacni odkaz na:",
+      "activationNote": "Zkontrolujte svuj e-mail a kliknete na aktivacni odkaz pro dokonceni registrace."
+    },
+    "activate": {
+      "title": "Aktivace uctu",
+      "activating": "Aktivuji vas ucet...",
+      "success": "Ucet aktivovan!",
+      "successMessage": "Vas ucet byl uspesne aktivovan. Nyni se muzete prihlasit.",
+      "error": "Aktivace selhala",
+      "invalidToken": "Neplatny aktivacni odkaz",
+      "failed": "Aktivace uctu selhala",
+      "goToLogin": "Prejit na prihlaseni",
+      "registerAgain": "Registrovat znovu"
     }
   },
   "leagues": {

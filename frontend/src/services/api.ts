@@ -32,15 +32,23 @@ api.interceptors.response.use(
 
 export const authApi = {
   register: (data: { email: string; password: string; name: string }) =>
-    api.post<{ user: User; token: string }>('/auth/register', data),
+    api.post<{ message: string; user: User }>('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post<{ user: User; token: string }>('/auth/login', data),
+  activateAccount: (token: string) =>
+    api.get<{ message: string }>(`/auth/activate/${token}`),
+  resendActivationEmail: (email: string) =>
+    api.post<{ message: string }>('/auth/resend-activation', { email }),
+  forgotPassword: (email: string) =>
+    api.post<{ message: string }>('/auth/forgot-password', { email }),
+  resetPassword: (token: string, password: string) =>
+    api.post<{ message: string }>(`/auth/reset-password/${token}`, { password }),
   getMe: () => api.get<{ user: User }>('/auth/me'),
   updateProfile: (data: { name?: string; password?: string }) =>
     api.put<{ user: User }>('/auth/profile', data),
   getUsers: (filters?: { role?: string; name?: string; active?: boolean }) =>
     api.get<User[]>('/auth/users', { params: filters }),
-  createUser: (data: { email: string; password: string; name: string; role?: string; active?: boolean }) =>
+  createUser: (data: { email: string; password: string; name: string; role?: string; active?: boolean; sendActivationEmail?: boolean }) =>
     api.post<User>('/auth/users', data),
   updateUser: (id: number, data: { email?: string; password?: string; name?: string; role?: string; active?: boolean }) =>
     api.put<User>(`/auth/users/${id}`, data),

@@ -7,6 +7,9 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Activate from './pages/Activate';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Leagues from './pages/Leagues';
 import LeagueDetail from './pages/LeagueDetail';
 import Seasons from './pages/Seasons';
@@ -33,6 +36,9 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/activate/:token" element={<Activate />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
                   <Route path="/leagues" element={<Leagues />} />
                   <Route path="/leagues/:id" element={<LeagueDetail />} />
                   <Route path="/seasons" element={<Seasons />} />

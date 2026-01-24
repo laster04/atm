@@ -41,14 +41,20 @@ enum SportType {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(VIEWER)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                        Int       @id @default(autoincrement())
+  email                     String    @unique
+  password                  String
+  name                      String
+  role                      Role      @default(VIEWER)
+  active                    Boolean   @default(true)
+  emailVerified             Boolean   @default(false)
+  emailVerifiedAt           DateTime?
+  activationToken           String?   @unique
+  activationTokenExpiresAt  DateTime?
+  passwordResetToken        String?   @unique
+  passwordResetTokenExpiresAt DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
   managedLeagues League[]
   managedSeasons Season[]

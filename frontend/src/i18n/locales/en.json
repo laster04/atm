@@ -57,7 +57,37 @@
       "submitting": "Logging in...",
       "noAccount": "Don't have an account?",
       "registerLink": "Register",
+      "forgotPassword": "Forgot password?",
       "failed": "Login failed"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "description": "Enter your email and we'll send you a reset link",
+      "email": "Email",
+      "submit": "Send Reset Link",
+      "sending": "Sending...",
+      "emailSent": "Check Your Email",
+      "emailSentTo": "If an account exists, we sent a reset link to:",
+      "checkSpam": "Don't see the email? Check your spam folder.",
+      "backToLogin": "Back to Login",
+      "failed": "Failed to process request"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password below",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Reset Password",
+      "resetting": "Resetting...",
+      "successTitle": "Password Reset!",
+      "successMessage": "Your password has been successfully reset. You can now log in with your new password.",
+      "goToLogin": "Go to Login",
+      "invalidLink": "Invalid Reset Link",
+      "invalidLinkMessage": "This password reset link is invalid or has expired.",
+      "requestNew": "Request New Link",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "failed": "Failed to reset password"
     },
     "register": {
       "title": "Register",
@@ -71,7 +101,21 @@
       "loginLink": "Login",
       "passwordMismatch": "Passwords do not match",
       "passwordTooShort": "Password must be at least 6 characters",
-      "failed": "Registration failed"
+      "failed": "Registration failed",
+      "success": "Registration Successful!",
+      "checkEmail": "We have sent an activation link to:",
+      "activationNote": "Please check your email and click the activation link to complete your registration."
+    },
+    "activate": {
+      "title": "Account Activation",
+      "activating": "Activating your account...",
+      "success": "Account Activated!",
+      "successMessage": "Your account has been successfully activated. You can now log in.",
+      "error": "Activation Failed",
+      "invalidToken": "Invalid activation link",
+      "failed": "Account activation failed",
+      "goToLogin": "Go to Login",
+      "registerAgain": "Register Again"
     }
   },
   "leagues": {
