@@ -510,6 +510,39 @@ export interface GenerateScheduleResponse {
 }
 
 // ============================================================================
+// GAME STATISTIC TYPES
+// ============================================================================
+
+// Request bodies
+export interface CreateGameStatisticRequest {
+  playerId: string | number;
+  goals?: number | null;
+  assists?: number | null;
+}
+
+export interface UpdateGameStatisticRequest {
+  goals?: number | null;
+  assists?: number | null;
+}
+
+// Response types
+export interface GameStatisticResponse {
+  id: number;
+  playerId: number;
+  gameId: number;
+  goals: number | null;
+  assists: number | null;
+}
+
+export interface GameIdParam {
+  gameId: string;
+}
+
+export interface PlayerIdParam {
+  playerId: string;
+}
+
+// ============================================================================
 // STANDINGS TYPES
 // ============================================================================
 

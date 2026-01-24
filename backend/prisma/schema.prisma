@@ -97,8 +97,8 @@ model Team {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  seasonId  Int
-  season    Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId Int
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
   managerId Int?
   manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
@@ -118,8 +118,9 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  teamId Int
-  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    Int
+  team      Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  statistic GameStatistic[] @relation("PlayerStatistic")
 }
 
 model Game {
@@ -133,12 +134,25 @@ model Game {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  seasonId   Int
-  season     Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId Int
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
   homeTeamId Int
   homeTeam   Team @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
 
   awayTeamId Int
-  awayTeam   Team @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+  awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+  statistic  GameStatistic[] @relation("GameStatistic")
+}
+
+model GameStatistic {
+  id       Int    @id @default(autoincrement())
+  playerId Int
+  player   Player @relation("PlayerStatistic", fields: [playerId], references: [id], onDelete: Cascade)
+  gameId   Int
+  game     Game   @relation("GameStatistic", fields: [gameId], references: [id], onDelete: Cascade)
+  goals    Int?
+  assists  Int?
+
+  @@unique([playerId, gameId])
 }
