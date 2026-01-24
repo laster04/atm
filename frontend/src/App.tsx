@@ -27,7 +27,7 @@ function App() {
             <div className="min-h-screen bg-gray-100">
               <Navbar />
               <Toaster />
-              <main className="container mx-auto px-4 py-8">
+              <main className="container mx-auto px-2 py-3">
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />

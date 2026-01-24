@@ -72,22 +72,22 @@ export default function SeasonDetailScreen() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto py-8">
       <SeasonHeader season={season} />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto py-8">
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4">
             {tabs.map((tab) => (
-                <TabsTrigger value={tab.id} className="flex items-center gap-2">
+                <TabsTrigger value={tab.id} key={tab.id} className="flex items-center gap-2">
                   {tab.icon}
                   <span className="hidden sm:inline">{tab.label}</span>
                 </TabsTrigger>
             ))}
           </TabsList>
           {tabs.map((tab) => (
-              <TabsContent value={tab.id} className="space-y-6">
+              <TabsContent value={tab.id} key={tab.id} className="space-y-6">
                 {tab.content}
               </TabsContent>
           ))}

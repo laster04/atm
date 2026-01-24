@@ -37,10 +37,10 @@ export function formatGameDateTime(dateString: string | null | undefined, locale
  */
 export function formatGameTime(dateString: string | null | undefined, locale: string): string | null {
 	if (!dateString) return null;
-	return new Date(dateString).toLocaleDateString(getLocale(locale), {
+	return new Intl.DateTimeFormat(getLocale(locale), {
 		hour: '2-digit',
 		minute: '2-digit',
-	});
+	}).format(new Date(dateString));
 }
 
 /**

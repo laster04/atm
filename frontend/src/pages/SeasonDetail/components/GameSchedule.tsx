@@ -42,7 +42,7 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 						<CardContent className="pt-6">
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-4 flex-1">
-									<div className="flex items-center gap-2 text-sm text-muted-foreground">
+									<div className="flex items-center gap-1 text-sm text-muted-foreground">
 										<Calendar className="size-4"/>
 										<span>{game.date && formatDateShort(game.date, i18n.language)}</span>
 										<Clock className="size-4 ml-2"/>
@@ -51,7 +51,7 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 								</div>
 							</div>
 
-							<div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+							<div className="text-sm sm:text-xl mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2 ">
 								<div className="text-right">
 									<div className="flex items-center justify-end gap-2 mb-1">
 										<div
@@ -62,14 +62,14 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 									</div>
 								</div>
 
-								<div className="flex items-center gap-4 px-4">
+								<div className="flex items-center gap-3 px-4">
 									{game.status === 'SCHEDULED' ? (
 										<span className="text-2xl font-medium text-muted-foreground"> vs </span>
 									) : (
 										<>
-											<span className="text-3xl font-medium">{game.awayScore}</span>
-											<span className="text-xl text-muted-foreground">-</span>
-											<span className="text-3xl font-medium">{game.homeScore}</span>
+											<span className="text-sm sm:text-3xl font-medium">{game.awayScore}</span>
+											<span className="text-sm sm:text-xl text-muted-foreground">-</span>
+											<span className="text-sm sm:text-3xl font-medium">{game.homeScore}</span>
 										</>
 									)}
 								</div>
