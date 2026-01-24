@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { leagueApi } from '@/services/api';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { League } from '@/types';
 
 import LeagueHeader from './components/LeagueHeader';
@@ -12,6 +13,8 @@ export default function LeagueDetailScreen() {
   const { t } = useTranslation();
   const [league, setLeague] = useState<League | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useDocumentTitle([league?.name]);
 
   useEffect(() => {
     if (!id) return;

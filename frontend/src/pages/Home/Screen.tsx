@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchSeasons } from '../../store/slices/seasonsSlice';
 import { fetchMyTeams } from '../../store/slices/teamsSlice';
 
@@ -13,6 +14,8 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const { user, isTeamManager } = useAuth();
   const dispatch = useAppDispatch();
+
+  useDocumentTitle();
 
   const { items: seasons, loading: seasonsLoading } = useAppSelector((state) => state.seasons);
   const { myTeams } = useAppSelector((state) => state.teams);

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { fetchTeamById } from '@/store/slices/teamsSlice.ts';
 import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
 import type { Player } from '@types';
@@ -20,6 +21,8 @@ export default function TeamDetailScreen() {
 
   const { currentTeam: team, loading } = useAppSelector((state) => state.teams);
   const { items: playersByTeamId } = useAppSelector((state) => state.players);
+
+  useDocumentTitle([team?.season?.league?.name, team?.season?.name, team?.name]);
 
   const [showPlayerModal, setShowPlayerModal] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);

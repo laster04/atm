@@ -2,6 +2,7 @@ import { JSX, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { seasonApi, gameApi } from '@/services/api';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Season, Game, Standing } from '@/types';
 
 import SeasonHeader from './components/SeasonHeader';
@@ -27,6 +28,8 @@ export default function SeasonDetailScreen() {
   const [standings, setStandings] = useState<Standing[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useDocumentTitle([season?.league?.name, season?.name]);
 
   useEffect(() => {
     if (!id) return;
