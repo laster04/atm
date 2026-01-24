@@ -35,6 +35,7 @@ export interface User {
   name: string;
   role: Role;
   active: boolean;
+  emailVerified?: boolean;
 }
 
 export interface League {

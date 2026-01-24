@@ -350,7 +350,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
     const users = await prisma.user.findMany({
       where,
-      select: { id: true, email: true, name: true, role: true, active: true },
+      select: { id: true, email: true, name: true, role: true, active: true, emailVerified: true },
       orderBy: { name: 'asc' }
     });
 

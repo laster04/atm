@@ -5,13 +5,16 @@ import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Input } from '@components/base/input.tsx';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { Edit, Plus, Trash2, Search, X } from 'lucide-react';
+import { Edit, Plus, Trash2, Search, X, Mail, CheckCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader } from "@components/base/card.tsx";
 import { Role } from '@types';
 import type { User } from '@types';
 import { Dialog, DialogContent, DialogTrigger } from "@components/base/dialog.tsx";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@components/base/tooltip.tsx";
 import UserFormModal, { type UserFormData } from "@/pages/Admin/components/users/UserFormModal.tsx";
+import { authApi } from '@/services/api';
 
 export interface UserFilters {
 	name?: string;
@@ -32,6 +35,19 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<User | null>(null);
 	const [filters, setFilters] = useState<UserFilters>({});
+	const [resendingEmail, setResendingEmail] = useState<number | null>(null);
+
+	const handleResendVerification = async (user: User) => {
+		setResendingEmail(user.id);
+		try {
+			await authApi.resendActivationEmail(user.email);
+			toast.success(t('admin.tabs.user.verificationSent', 'Verification email sent'));
+		} catch (error) {
+			toast.error(t('admin.tabs.user.verificationFailed', 'Failed to send verification email'));
+		} finally {
+			setResendingEmail(null);
+		}
+	};
 
 	const handleOpenCreate = () => {
 		setEditingUser(null);
@@ -150,6 +166,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 							<TableHead>{t('admin.tabs.user.th-email')}</TableHead>
 							<TableHead>{t('admin.tabs.user.th-role')}</TableHead>
 							<TableHead>{t('admin.tabs.user.th-status')}</TableHead>
+							<TableHead>{t('admin.tabs.user.th-emailStatus', 'Email')}</TableHead>
 							<TableHead className="text-right">{t('admin.tabs.user.th-actions')}</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -166,8 +183,53 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 										{user.active ? t('admin.tabs.user.active') : t('admin.tabs.user.inactive')}
 									</Badge>
 								</TableCell>
+								<TableCell>
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<div className="flex items-center gap-1">
+													{user.emailVerified ? (
+														<Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
+															<CheckCircle className="size-3 mr-1" />
+															{t('admin.tabs.user.verified', 'Verified')}
+														</Badge>
+													) : (
+														<Badge variant="outline" className="text-amber-600 border-amber-300">
+															<AlertCircle className="size-3 mr-1" />
+															{t('admin.tabs.user.unverified', 'Unverified')}
+														</Badge>
+													)}
+												</div>
+											</TooltipTrigger>
+											<TooltipContent>
+												{user.emailVerified
+													? t('admin.tabs.user.emailVerifiedTooltip', 'Email has been verified')
+													: t('admin.tabs.user.emailUnverifiedTooltip', 'Email not yet verified')}
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-1">
+										{!user.emailVerified && (
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<Button
+															variant="ghost"
+															size="sm"
+															onClick={() => handleResendVerification(user)}
+															disabled={resendingEmail === user.id}
+														>
+															<Mail className={`size-4 ${resendingEmail === user.id ? 'animate-pulse' : ''}`} />
+														</Button>
+													</TooltipTrigger>
+													<TooltipContent>
+														{t('admin.tabs.user.resendVerification', 'Resend verification email')}
+													</TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										)}
 										<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(user)}>
 											<Edit className="size-4"/>
 										</Button>
