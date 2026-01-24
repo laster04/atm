@@ -13,7 +13,7 @@ export default function StandingsTable({ standings, games }: StandingsTableProps
 	const { t } = useTranslation();
 
 	return (
-		<div className="grid gap-6">
+		<div className="gap-6">
 			<Card>
 				<CardHeader>
 					<CardTitle>{t('seasonDetail.standings.tableTitle', { count: games.filter(item => item.status == GameStatus.COMPLETED).length })}</CardTitle>

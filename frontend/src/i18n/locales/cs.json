@@ -323,6 +323,22 @@
           "generatedGamesSuccessTitle": "Zápasy vygenerovány",
           "generatedGamesSuccessDescription": "Vygenerováno {{count}} zápasů"
         }
+      },
+      "statistics": {
+        "title": "Statistiky zápasu",
+        "th-player": "Hráč",
+        "th-team": "Tým",
+        "th-goals": "Góly",
+        "th-assists": "Asistence",
+        "th-actions": "Akce",
+        "noStatistics": "Pro tento zápas zatím nejsou zaznamenány žádné statistiky.",
+        "addStatistic": "Přidat statistiky hráče",
+        "selectPlayer": "Vyberte hráče",
+        "allPlayersHaveStats": "Všichni hráči mají zaznamenané statistiky.",
+        "loadError": "Nepodařilo se načíst statistiky",
+        "createError": "Nepodařilo se vytvořit statistiku",
+        "updateError": "Nepodařilo se aktualizovat statistiku",
+        "deleteError": "Nepodařilo se smazat statistiku"
       }
     },
     "seasons": {
@@ -413,7 +429,8 @@
       "deleteTeam": "Jste si jisti? Toto smaže všechny hráče a data zápasů tohoto týmu.",
       "deletePlayer": "Opravdu chcete smazat tohoto hráče?",
       "deleteGame": "Opravdu chcete smazat tento zápas?",
-      "deleteUser": "Opravdu chcete smazat tohoto uživatele?"
+      "deleteUser": "Opravdu chcete smazat tohoto uživatele?",
+      "deleteStatistic": "Opravdu chcete smazat tuto statistiku?"
     },
     "errors": {
       "createLeague": "Vytvoření ligy selhalo",

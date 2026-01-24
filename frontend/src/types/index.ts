@@ -133,6 +133,16 @@ export interface Standing {
   points: number;
 }
 
+export interface GameStatistic {
+  id: number;
+  playerId: number;
+  gameId: number;
+  goals?: number | null;
+  assists?: number | null;
+  player?: Player & { team?: Team };
+  game?: Game & { homeTeam?: Team; awayTeam?: Team };
+}
+
 export interface AuthContextType {
   user: User | null;
   loading: boolean;

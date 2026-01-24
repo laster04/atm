@@ -5,13 +5,15 @@ import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Calendar, Edit, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Edit, Plus, Trash2, BarChart3 } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import { Game, Season, SeasonStatus, Team } from '@types';
 import { formatGameDateTime } from '@/utils/date';
 import GameFormModal, { type GameFormData } from './GameFormModal.tsx';
 import GenerateScheduleModal, { type GenerateScheduleData } from './GenerateScheduleModal.tsx';
+import GameStatisticsModal from './GameStatisticsModal.tsx';
+import { useNavigate } from "react-router-dom";
 
 interface GamesTableProps {
 	games: Game[];
@@ -50,10 +52,13 @@ export default function GamesTable({
 	onDeleteGame,
 	onGenerateSchedule,
 }: GamesTableProps) {
+	const navigate = useNavigate();
 	const { t, i18n } = useTranslation();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+	const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 	const [editingGame, setEditingGame] = useState<Game | null>(null);
+	const [statsGame, setStatsGame] = useState<Game | null>(null);
 
 	const handleOpenCreate = () => {
 		setEditingGame(null);
@@ -82,6 +87,11 @@ export default function GamesTable({
 	const handleGenerateSubmit = (data: GenerateScheduleData) => {
 		onGenerateSchedule?.(data);
 		setIsGenerateModalOpen(false);
+	};
+
+	const handleCloseStats = () => {
+		setIsStatsModalOpen(false);
+		setStatsGame(null);
 	};
 
 	// Group games by round
@@ -208,6 +218,11 @@ export default function GamesTable({
 												</TableCell>
 												<TableCell className="text-right">
 													<div className="flex justify-end gap-1">
+														<Button variant="ghost" size="sm"
+																onClick={() => navigate(`/game-statistic/${game.id}`)}
+																title={t('admin.tabs.statistics.title')}>
+															<BarChart3 className="size-4" />
+														</Button>
 														<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(game)}>
 															<Edit className="size-4" />
 														</Button>
@@ -225,6 +240,17 @@ export default function GamesTable({
 					</div>
 				)}
 			</CardContent>
+
+			<Dialog open={isStatsModalOpen} onOpenChange={setIsStatsModalOpen}>
+				<DialogContent className="max-w-3xl">
+					{statsGame && (
+						<GameStatisticsModal
+							game={statsGame}
+							onClose={handleCloseStats}
+						/>
+					)}
+				</DialogContent>
+			</Dialog>
 		</Card>
 	);
 }

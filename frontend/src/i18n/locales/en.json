@@ -323,6 +323,22 @@
           "generatedGamesSuccessTitle": "Games generated",
           "generatedGamesSuccessDescription": "Generated {{count}} games"
         }
+      },
+      "statistics": {
+        "title": "Game Statistics",
+        "th-player": "Player",
+        "th-team": "Team",
+        "th-goals": "Goals",
+        "th-assists": "Assists",
+        "th-actions": "Actions",
+        "noStatistics": "No statistics recorded for this game yet.",
+        "addStatistic": "Add Player Statistics",
+        "selectPlayer": "Select Player",
+        "allPlayersHaveStats": "All players have statistics recorded.",
+        "loadError": "Failed to load statistics",
+        "createError": "Failed to create statistic",
+        "updateError": "Failed to update statistic",
+        "deleteError": "Failed to delete statistic"
       }
     },
     "seasons": {
@@ -413,7 +429,8 @@
       "deleteTeam": "Are you sure? This will delete all players and game data for this team.",
       "deletePlayer": "Are you sure you want to delete this player?",
       "deleteGame": "Are you sure you want to delete this game?",
-      "deleteUser": "Are you sure you want to delete this user?"
+      "deleteUser": "Are you sure you want to delete this user?",
+      "deleteStatistic": "Are you sure you want to delete this statistic?"
     },
     "errors": {
       "createLeague": "Failed to create league",
