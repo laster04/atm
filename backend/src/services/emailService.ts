@@ -1,5 +1,4 @@
-import nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 
 interface EmailOptions {
   to: string;
@@ -8,40 +7,42 @@ interface EmailOptions {
 }
 
 class EmailService {
-  private transporter: Transporter | null = null;
+  private resend: Resend | null = null;
 
-  private getTransporter(): Transporter {
-    if (!this.transporter) {
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+  private getResend(): Resend {
+    if (!this.resend) {
+      this.resend = new Resend(process.env.RESEND_API_KEY);
     }
-    return this.transporter;
+    return this.resend;
   }
 
   private isConfigured(): boolean {
-    return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    return !!process.env.RESEND_API_KEY;
+  }
+
+  private getFromAddress(): string {
+    return process.env.EMAIL_FROM || 'ATM <onboarding@resend.dev>';
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     if (!this.isConfigured()) {
-      console.warn('Email service not configured. Skipping email send.');
+      console.warn('Email service not configured (RESEND_API_KEY missing). Skipping email send.');
       return false;
     }
 
     try {
-      await this.getTransporter().sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      const { error } = await this.getResend().emails.send({
+        from: this.getFromAddress(),
         to: options.to,
         subject: options.subject,
         html: options.html,
       });
+
+      if (error) {
+        console.error('Failed to send email:', error);
+        return false;
+      }
+
       return true;
     } catch (error) {
       console.error('Failed to send email:', error);
