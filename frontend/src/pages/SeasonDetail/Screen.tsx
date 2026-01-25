@@ -1,5 +1,5 @@
 import { JSX, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { seasonApi, gameApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/base/tabs
 import { BarChart3, Calendar, Trophy, Users } from "lucide-react";
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
 
-enum TabType {
+export enum TabSeasonDetailType {
   OVERVIEW = 'overview',
   STANDINGS = 'standings',
   SCHEDULE = 'schedule',
@@ -23,7 +23,12 @@ enum TabType {
 export default function SeasonDetailScreen() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || TabSeasonDetailType.OVERVIEW;
+
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab }, { replace: true });
+  };
   const [season, setSeason] = useState<Season | null>(null);
   const [standings, setStandings] = useState<Standing[]>([]);
   const [games, setGames] = useState<Game[]>([]);
@@ -67,11 +72,11 @@ export default function SeasonDetailScreen() {
     );
   }
 
-  const tabs: { id: TabType; label: string, icon: any, content: JSX.Element }[] = [
-    { id: TabType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview standings={standings} games={games} /> },
-    { id: TabType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
-    { id: TabType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> },
-    { id: TabType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Users className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
+  const tabs: { id: TabSeasonDetailType; label: string, icon: any, content: JSX.Element }[] = [
+    { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview standings={standings} games={games} /> },
+    { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
+    { id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> },
+    { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Users className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
   ];
 
   return (

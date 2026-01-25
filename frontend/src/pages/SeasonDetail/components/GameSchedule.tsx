@@ -25,7 +25,7 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 	} else if (filter === FilterTimeEnum.UPCOMING) {
 		filteredGames = games.filter((game) => isAfterToday(game.date));
 	} else if (filter === FilterTimeEnum.RECENT) {
-		filteredGames = games.filter((game) => isBeforeToday(game.date));
+		filteredGames = games.filter((game) => isBeforeToday(game.date)).reverse();
 	}
 
 	return (

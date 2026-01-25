@@ -1,16 +1,30 @@
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/base/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
 import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
 
 import type { Game } from '@types';
+import { TabSeasonDetailType } from "@/pages/SeasonDetail/Screen.tsx";
 
 interface ScheduleListProps {
   games: Game[];
 }
 
+enum TabScheduleType {
+  RECENT = 'recent',
+  TODAY = 'today',
+  UPCOMING = 'upcoming'
+}
+
 export default function ScheduleList({ games }: ScheduleListProps) {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('scheduleType') || TabScheduleType.TODAY;
+
+  const setActiveScheduleTab = (scheduleType: string) => {
+    setSearchParams({ tab: TabSeasonDetailType.SCHEDULE, scheduleType }, { replace: true });
+  };
 
   if (games.length === 0) {
     return (
@@ -24,11 +38,11 @@ export default function ScheduleList({ games }: ScheduleListProps) {
 
   return (
       <>
-      <Tabs defaultValue="today" className="space-y-6">
+      <Tabs defaultValue={activeTab} onValueChange={setActiveScheduleTab} className="space-y-6">
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
-          <TabsTrigger value="recent">{t('seasonDetail.schedule.recent')}</TabsTrigger>
-          <TabsTrigger value="today">{t('seasonDetail.schedule.today')}</TabsTrigger>
-          <TabsTrigger value="upcoming">{t('seasonDetail.schedule.upcoming')}</TabsTrigger>
+          <TabsTrigger value={TabScheduleType.RECENT}>{t('seasonDetail.schedule.recent')}</TabsTrigger>
+          <TabsTrigger value={TabScheduleType.TODAY}>{t('seasonDetail.schedule.today')}</TabsTrigger>
+          <TabsTrigger value={TabScheduleType.UPCOMING}>{t('seasonDetail.schedule.upcoming')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="recent">
