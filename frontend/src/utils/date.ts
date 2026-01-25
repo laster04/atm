@@ -92,18 +92,25 @@ export function formatDateForInput(dateString: string | null | undefined): strin
 
 /**
  * Format a date string for HTML datetime-local input (YYYY-MM-DDTHH:mm).
+ * Returns UTC time without timezone conversion.
  */
 export function formatDateTimeForInput(dateString: string | null | undefined): string {
 	if (!dateString) return '';
+	// Parse as UTC and return in datetime-local format (without Z suffix)
 	const date = new Date(dateString);
 	return date.toISOString().slice(0, 16);
 }
 
 /**
  * Convert a date string or Date object to ISO string for API calls.
+ * Treats datetime-local input strings (without timezone) as UTC.
  */
 export function toISOString(date: Date | string): string {
 	if (typeof date === 'string') {
+		// If the string doesn't have timezone info (datetime-local format), treat as UTC
+		if (!date.includes('Z') && !date.includes('+') && !date.includes('-', 10)) {
+			return new Date(date + 'Z').toISOString();
+		}
 		return new Date(date).toISOString();
 	}
 	return date.toISOString();
