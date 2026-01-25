@@ -201,7 +201,12 @@ export default function GamesTable({
 												<TableCell className="whitespace-nowrap">
 													{formatGameDateTime(game.date, i18n.language) || t('admin.tabs.game.noDate')}
 												</TableCell>
-												<TableCell className="font-medium">{game.homeTeam?.name}</TableCell>
+												<TableCell
+													className="font-medium"
+													style={{ borderLeft: `4px solid ${game.homeTeam?.primaryColor ?? '#808080'}` }}
+												>
+													{game.homeTeam?.name}
+												</TableCell>
 												<TableCell className="text-center font-bold">
 													{game.status === 'COMPLETED' ? (
 														`${game.homeScore} - ${game.awayScore}`
@@ -209,7 +214,12 @@ export default function GamesTable({
 														<span className="text-muted-foreground">-</span>
 													)}
 												</TableCell>
-												<TableCell className="font-medium">{game.awayTeam?.name}</TableCell>
+												<TableCell
+													className="font-medium"
+													style={{ borderLeft: `4px solid ${game.awayTeam?.primaryColor ?? '#808080'}` }}
+												>
+													{game.awayTeam?.name}
+												</TableCell>
 												<TableCell>{game.location || '-'}</TableCell>
 												<TableCell>
 													<Badge variant={getStatusVariant(game.status)}>

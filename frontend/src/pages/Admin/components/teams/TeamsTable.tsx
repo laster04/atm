@@ -75,7 +75,7 @@ export default function TeamsTable({
 						>
 							{seasons.map((season) => (
 								<MenuItem key={season.id} value={season.id}>
-									{season.name}
+									{season.league?.name} - {season.name}
 								</MenuItem>
 							))}
 						</Select>
@@ -119,7 +119,13 @@ export default function TeamsTable({
 						</TableHeader>
 						<TableBody>
 							{teams.map((team) => (
-								<TableRow key={team.id}>
+								<TableRow
+									key={team.id}
+									style={{
+										backgroundColor: `${team.primaryColor}08`,
+										borderLeft: `4px solid ${team.primaryColor ?? '#808080'}`
+									}}
+								>
 									<TableCell className="font-medium">{team.name}</TableCell>
 									<TableCell>{team.manager?.name || '-'}</TableCell>
 									<TableCell>{team._count?.players || 0}</TableCell>

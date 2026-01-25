@@ -22,13 +22,14 @@ export function getTodayString(): string {
  */
 export function formatGameDateTime(dateString: string | null | undefined, locale: string): string | null {
 	if (!dateString) return null;
-	return new Date(dateString).toLocaleDateString(getLocale(locale), {
+	return new Intl.DateTimeFormat(getLocale(locale), {
 		weekday: 'short',
 		month: 'short',
 		day: 'numeric',
 		hour: '2-digit',
 		minute: '2-digit',
-	});
+		timeZone: 'UTC',
+	}).format(new Date(dateString));
 }
 
 /**
@@ -40,6 +41,7 @@ export function formatGameTime(dateString: string | null | undefined, locale: st
 	return new Intl.DateTimeFormat(getLocale(locale), {
 		hour: '2-digit',
 		minute: '2-digit',
+		timeZone: 'UTC',
 	}).format(new Date(dateString));
 }
 
@@ -49,11 +51,12 @@ export function formatGameTime(dateString: string | null | undefined, locale: st
  */
 export function formatDateShort(dateString: string | null | undefined, locale: string): string | null {
 	if (!dateString) return null;
-	return new Date(dateString).toLocaleDateString(getLocale(locale), {
+	return new Intl.DateTimeFormat(getLocale(locale), {
 		weekday: 'short',
 		month: 'short',
 		day: 'numeric',
-	});
+		timeZone: 'UTC',
+	}).format(new Date(dateString));
 }
 
 /**
