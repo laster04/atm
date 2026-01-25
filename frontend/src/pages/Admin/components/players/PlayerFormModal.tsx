@@ -10,6 +10,8 @@ interface PlayerFormData {
 	name: string;
 	number?: number | null;
 	position?: string | null;
+	bornYear?: number | null;
+	note?: string | null;
 }
 
 interface PlayerFormModalProps {
@@ -26,6 +28,8 @@ export default function PlayerFormModal({ player, onSubmit, onClose }: PlayerFor
 		name: player?.name || '',
 		number: player?.number || undefined,
 		position: player?.position || '',
+		bornYear: player?.bornYear || undefined,
+		note: player?.note || '',
 	};
 
 	const form = useForm<PlayerFormData>({
@@ -37,6 +41,8 @@ export default function PlayerFormModal({ player, onSubmit, onClose }: PlayerFor
 			name: data.name,
 			number: data.number ? Number(data.number) : null,
 			position: data.position || null,
+			bornYear: data.bornYear ? Number(data.bornYear) : null,
+			note: data.note || null,
 		});
 	};
 
@@ -78,6 +84,24 @@ export default function PlayerFormModal({ player, onSubmit, onClose }: PlayerFor
 								className="w-full px-3 py-2 border rounded"
 							/>
 						</div>
+					</div>
+					<div className="space-y-2">
+						<Label>{t('admin.modal.playerBornYear')}</Label>
+						<Input
+							type="number"
+							{...form.register('bornYear', { valueAsNumber: true })}
+							className="w-full px-3 py-2 border rounded"
+							min={1900}
+							max={new Date().getFullYear()}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label>{t('admin.modal.playerNote')}</Label>
+						<Input
+							type="text"
+							{...form.register('note')}
+							className="w-full px-3 py-2 border rounded"
+						/>
 					</div>
 				</div>
 

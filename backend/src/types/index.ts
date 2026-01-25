@@ -410,12 +410,16 @@ export interface CreatePlayerRequest {
   name: string;
   number?: string | number;
   position?: string;
+  bornYear?: string | number;
+  note?: string;
 }
 
 export interface UpdatePlayerRequest {
   name?: string;
   number?: string | number;
   position?: string;
+  bornYear?: string | number | null;
+  note?: string | null;
 }
 
 // Response types
@@ -424,6 +428,8 @@ export interface PlayerResponse {
   name: string;
   number: number | null;
   position: string | null;
+  bornYear: number | null;
+  note: string | null;
   createdAt: Date;
   updatedAt: Date;
   teamId: number;
@@ -434,6 +440,8 @@ export interface PlayerDetail {
   name: string;
   number: number | null;
   position: string | null;
+  bornYear: number | null;
+  note: string | null;
   createdAt: Date;
   updatedAt: Date;
   teamId: number;

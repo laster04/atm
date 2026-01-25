@@ -345,6 +345,8 @@
         "th-name": "Jméno",
         "th-number": "Číslo",
         "th-position": "Pozice",
+        "th-bornYear": "Ročník",
+        "th-note": "Poznámka",
         "th-actions": "Akce"
       },
       "game": {
@@ -441,6 +443,8 @@
       "playerName": "Jméno hráče",
       "playerNumber": "Číslo",
       "playerPosition": "Pozice",
+      "playerBornYear": "Ročník narození",
+      "playerNote": "Poznámka",
       "addGame": "Přidat zápas",
       "editGame": "Upravit zápas",
       "addGameDesc": "Naplánovat nový zápas",

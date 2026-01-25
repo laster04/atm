@@ -102,6 +102,8 @@ export interface Player {
   name: string;
   number?: number | null;
   position?: string | null;
+  bornYear?: number | null;
+  note?: string | null;
   teamId: number;
   team?: Team;
 }

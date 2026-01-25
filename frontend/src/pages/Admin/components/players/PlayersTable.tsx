@@ -136,6 +136,8 @@ export default function PlayersTable({
 								<TableHead>{t('admin.tabs.player.th-name')}</TableHead>
 								<TableHead>{t('admin.tabs.player.th-number')}</TableHead>
 								<TableHead>{t('admin.tabs.player.th-position')}</TableHead>
+								<TableHead>{t('admin.tabs.player.th-bornYear')}</TableHead>
+								<TableHead>{t('admin.tabs.player.th-note')}</TableHead>
 								<TableHead className="text-right">{t('admin.tabs.player.th-actions')}</TableHead>
 							</TableRow>
 						</TableHeader>
@@ -145,6 +147,8 @@ export default function PlayersTable({
 									<TableCell className="font-medium">{player.name}</TableCell>
 									<TableCell>{player.number || '-'}</TableCell>
 									<TableCell>{player.position || '-'}</TableCell>
+									<TableCell>{player.bornYear || '-'}</TableCell>
+									<TableCell>{player.note || '-'}</TableCell>
 									<TableCell className="text-right">
 										<div className="flex justify-end gap-1">
 											<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(player)}>

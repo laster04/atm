@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
@@ -37,6 +38,12 @@ export default function AdminScreen() {
 	const { isAdmin, isSeasonManager } = useAuth();
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const activeTab = searchParams.get('tab') || 'user';
+
+	const setActiveTab = (tab: string) => {
+		setSearchParams({ tab }, { replace: true });
+	};
 
 	const { items: leagues } = useAppSelector((state) => state.leagues);
 	const { items: seasons, loading: seasonsLoading } = useAppSelector((state) => state.seasons);
@@ -315,6 +322,8 @@ export default function AdminScreen() {
 						name: data.name,
 						number: data.number,
 						position: data.position,
+						bornYear: data.bornYear,
+						note: data.note,
 					},
 				})
 			).unwrap();
@@ -334,6 +343,8 @@ export default function AdminScreen() {
 						name: data.name,
 						number: data.number,
 						position: data.position,
+						bornYear: data.bornYear,
+						note: data.note,
 					},
 				})
 			).unwrap();
@@ -449,7 +460,7 @@ export default function AdminScreen() {
 					<CardTitle>{t('admin.tabs.title')}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<Tabs defaultValue="user">
+					<Tabs value={activeTab} onValueChange={setActiveTab}>
 						<TabsList>
 							<TabsTrigger value="user">{t('admin.tabs.user.title')}</TabsTrigger>
 							<TabsTrigger value="league">{t('admin.tabs.league.title')}</TabsTrigger>

@@ -345,6 +345,8 @@
         "th-name": "Name",
         "th-number": "Number",
         "th-position": "Position",
+        "th-bornYear": "Born",
+        "th-note": "Note",
         "th-actions": "Actions"
       },
       "game": {
@@ -441,6 +443,8 @@
       "playerName": "Player Name",
       "playerNumber": "Number",
       "playerPosition": "Position",
+      "playerBornYear": "Birth Year",
+      "playerNote": "Note",
       "addGame": "Add Game",
       "editGame": "Edit Game",
       "addGameDesc": "Schedule a new game",

@@ -48,7 +48,7 @@ export const getPlayerById = async (req: Request, res: Response): Promise<void> 
 export const createPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { teamId } = req.params;
-    const { name, number, position } = req.body as CreatePlayerRequest;
+    const { name, number, position, bornYear, note } = req.body as CreatePlayerRequest;
 
     if (!name) {
       res.status(400).json({ error: 'Player name is required' });
@@ -67,12 +67,15 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const numberValue = number ? (typeof number === 'string' ? parseInt(number) : number) : null;
+    const bornYearValue = bornYear ? (typeof bornYear === 'string' ? parseInt(bornYear) : bornYear) : null;
 
     const player = await prisma.player.create({
       data: {
         name,
         number: numberValue,
         position,
+        bornYear: bornYearValue,
+        note: note || null,
         teamId: parseInt(teamId)
       }
     });
@@ -87,7 +90,7 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
 export const updatePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, number, position } = req.body as UpdatePlayerRequest;
+    const { name, number, position, bornYear, note } = req.body as UpdatePlayerRequest;
 
     if (req.user!.role === 'TEAM_MANAGER') {
       const player = await prisma.player.findUnique({
@@ -104,12 +107,18 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
       ? (number ? (typeof number === 'string' ? parseInt(number) : number) : null)
       : undefined;
 
+    const bornYearValue = bornYear !== undefined
+      ? (bornYear ? (typeof bornYear === 'string' ? parseInt(bornYear) : bornYear) : null)
+      : undefined;
+
     const player = await prisma.player.update({
       where: { id: parseInt(id) },
       data: {
         ...(name && { name }),
         ...(numberValue !== undefined && { number: numberValue }),
-        ...(position !== undefined && { position })
+        ...(position !== undefined && { position }),
+        ...(bornYearValue !== undefined && { bornYear: bornYearValue }),
+        ...(note !== undefined && { note: note || null })
       }
     });
 
