@@ -41,72 +41,78 @@ enum SportType {
 }
 
 model User {
-  id                        Int       @id @default(autoincrement())
-  email                     String    @unique
-  password                  String
-  name                      String
-  role                      Role      @default(VIEWER)
-  active                    Boolean   @default(true)
-  emailVerified             Boolean   @default(false)
-  emailVerifiedAt           DateTime?
-  activationToken           String?   @unique
-  activationTokenExpiresAt  DateTime?
-  passwordResetToken        String?   @unique
-  passwordResetTokenExpiresAt DateTime?
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
+  id                          Int       @id @default(autoincrement())
+  email                       String    @unique
+  password                    String
+  name                        String
+  role                        Role      @default(VIEWER)
+  active                      Boolean   @default(true)
+  emailVerified               Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt             DateTime? @map("email_verified_at")
+  activationToken             String?   @unique @map("activation_token")
+  activationTokenExpiresAt    DateTime? @map("activation_token_expires_at")
+  passwordResetToken          String?   @unique @map("password_reset_token")
+  passwordResetTokenExpiresAt DateTime? @map("password_reset_token_expires_at")
+  createdAt                   DateTime  @default(now()) @map("created_at")
+  updatedAt                   DateTime  @updatedAt @map("updated_at")
 
   managedLeagues League[]
   managedSeasons Season[]
   managedTeams   Team[]
+
+  @@map("users")
 }
 
 model League {
   id          Int       @id @default(autoincrement())
   name        String
-  sportType   SportType @default(OTHER)
+  sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  managerId Int?
+  managerId Int?  @map("manager_id")
   manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   seasons Season[]
+
+  @@map("leagues")
 }
 
 model Season {
   id        Int          @id @default(autoincrement())
   name      String
-  startDate DateTime
-  endDate   DateTime
+  startDate DateTime     @map("start_date")
+  endDate   DateTime     @map("end_date")
   status    SeasonStatus @default(DRAFT)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
 
-  leagueId Int
+  leagueId Int    @map("league_id")
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
 
-  managerId Int?
+  managerId Int?  @map("manager_id")
   manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   teams Team[]
   games Game[]
+
+  @@map("seasons")
 }
 
 model Team {
   id           Int      @id @default(autoincrement())
   name         String
   logo         String?
-  primaryColor String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  primaryColor String?  @map("primary_color")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  seasonId Int
+  seasonId Int    @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
-  managerId Int?
+  managerId Int?  @map("manager_id")
   manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   players   Player[]
@@ -114,6 +120,7 @@ model Team {
   awayGames Game[]   @relation("AwayTeam")
 
   @@unique([name, seasonId])
+  @@map("teams")
 }
 
 model Player {
@@ -121,46 +128,51 @@ model Player {
   name      String
   number    Int?
   position  String?
-  bornYear  Int?
+  bornYear  Int?     @map("born_year")
   note      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  teamId    Int
+  teamId    Int             @map("team_id")
   team      Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
   statistic GameStatistic[] @relation("PlayerStatistic")
+
+  @@map("players")
 }
 
 model Game {
   id        Int        @id @default(autoincrement())
   date      DateTime?
   location  String?
-  homeScore Int?
-  awayScore Int?
+  homeScore Int?       @map("home_score")
+  awayScore Int?       @map("away_score")
   status    GameStatus @default(SCHEDULED)
   round     Int?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
 
-  seasonId Int
+  seasonId Int    @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
-  homeTeamId Int
-  homeTeam   Team @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  homeTeamId Int             @map("home_team_id")
+  homeTeam   Team            @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
 
-  awayTeamId Int
+  awayTeamId Int             @map("away_team_id")
   awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
   statistic  GameStatistic[] @relation("GameStatistic")
+
+  @@map("games")
 }
 
 model GameStatistic {
   id       Int    @id @default(autoincrement())
-  playerId Int
+  playerId Int    @map("player_id")
   player   Player @relation("PlayerStatistic", fields: [playerId], references: [id], onDelete: Cascade)
-  gameId   Int
+  gameId   Int    @map("game_id")
   game     Game   @relation("GameStatistic", fields: [gameId], references: [id], onDelete: Cascade)
   goals    Int?
   assists  Int?
 
   @@unique([playerId, gameId])
+  @@map("game_statistics")
 }
