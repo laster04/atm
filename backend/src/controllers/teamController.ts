@@ -101,14 +101,17 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const season = await prisma.season.findUnique({ where: { id: parseInt(seasonId) } });
+    const season = await prisma.season.findUnique({
+      where: { id: parseInt(seasonId) },
+      include: { league: { select: { managerId: true } } }
+    });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
       return;
     }
 
-    // Season managers can only add teams to their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && season.managerId !== req.user!.id) {
+    // Season managers can only add teams to their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to add teams to this season' });
       return;
     }
@@ -143,7 +146,7 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
 
     const existingTeam = await prisma.team.findUnique({
       where: { id: parseInt(id) },
-      include: { season: true }
+      include: { season: { include: { league: { select: { managerId: true } } } } }
     });
 
     if (!existingTeam) {
@@ -151,8 +154,8 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only update teams in their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && existingTeam.season.managerId !== req.user!.id) {
+    // Season managers can only update teams in their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && existingTeam.season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to update this team' });
       return;
     }
@@ -197,7 +200,7 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
 
     const team = await prisma.team.findUnique({
       where: { id: parseInt(id) },
-      include: { season: true }
+      include: { season: { include: { league: { select: { managerId: true } } } } }
     });
 
     if (!team) {
@@ -205,8 +208,8 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only delete teams in their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && team.season.managerId !== req.user!.id) {
+    // Season managers can only delete teams in their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && team.season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to delete this team' });
       return;
     }

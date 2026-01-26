@@ -57,7 +57,6 @@ model User {
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 
   managedLeagues League[]
-  managedSeasons Season[]
   managedTeams   Team[]
 
   @@map("users")
@@ -91,9 +90,6 @@ model Season {
 
   leagueId Int    @map("league_id")
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-
-  managerId Int?  @map("manager_id")
-  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   teams Team[]
   games Game[]

@@ -149,6 +149,7 @@ export interface LeagueRef {
   id: number;
   name: string;
   sportType: SportType;
+  managerId?: number | null;
 }
 
 export interface LeagueListItem {
@@ -188,8 +189,6 @@ export interface SeasonInLeague {
   createdAt: Date;
   updatedAt: Date;
   leagueId: number;
-  managerId: number | null;
-  manager: ManagerRef | null;
   _count: {
     teams: number;
     games: number;
@@ -240,8 +239,6 @@ export interface SeasonListItem {
   updatedAt: Date;
   leagueId: number;
   league: LeagueRef;
-  managerId: number | null;
-  manager: ManagerRef | null;
   _count: {
     teams: number;
     games: number;
@@ -273,8 +270,6 @@ export interface SeasonDetail {
   updatedAt: Date;
   leagueId: number;
   league: LeagueRef;
-  managerId: number | null;
-  manager: ManagerRef | null;
   teams: TeamInSeason[];
   _count: {
     games: number;
@@ -291,8 +286,6 @@ export interface SeasonResponse {
   updatedAt: Date;
   leagueId: number;
   league: LeagueRef;
-  managerId: number | null;
-  manager: ManagerRef | null;
 }
 
 // ============================================================================
@@ -347,7 +340,6 @@ export interface TeamWithSeason extends TeamListItem {
     updatedAt: Date;
     leagueId: number;
     league: LeagueRef;
-    managerId: number | null;
   };
 }
 
@@ -382,7 +374,6 @@ export interface TeamDetail {
     updatedAt: Date;
     leagueId: number;
     league: LeagueRef;
-    managerId: number | null;
   };
   manager: ManagerRef | null;
   players: PlayerResponse[];

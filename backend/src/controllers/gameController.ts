@@ -65,14 +65,17 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const season = await prisma.season.findUnique({ where: { id: parseInt(seasonId) } });
+    const season = await prisma.season.findUnique({
+      where: { id: parseInt(seasonId) },
+      include: { league: { select: { managerId: true } } }
+    });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
       return;
     }
 
-    // Season managers can only create games in their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && season.managerId !== req.user!.id) {
+    // Season managers can only create games in their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to create games in this season' });
       return;
     }
@@ -110,7 +113,7 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
 
     const existingGame = await prisma.game.findUnique({
       where: { id: parseInt(id) },
-      include: { season: true }
+      include: { season: { include: { league: { select: { managerId: true } } } } }
     });
 
     if (!existingGame) {
@@ -118,8 +121,8 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only update games in their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && existingGame.season.managerId !== req.user!.id) {
+    // Season managers can only update games in their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && existingGame.season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to update this game' });
       return;
     }
@@ -159,7 +162,7 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
 
     const game = await prisma.game.findUnique({
       where: { id: parseInt(id) },
-      include: { season: true }
+      include: { season: { include: { league: { select: { managerId: true } } } } }
     });
 
     if (!game) {
@@ -167,8 +170,8 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only delete games in their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && game.season.managerId !== req.user!.id) {
+    // Season managers can only delete games in their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && game.season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to delete this game' });
       return;
     }
@@ -188,7 +191,7 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
 
     const season = await prisma.season.findUnique({
       where: { id: parseInt(seasonId) },
-      include: { teams: true }
+      include: { teams: true, league: { select: { managerId: true } } }
     });
 
     if (!season) {
@@ -196,8 +199,8 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    // Season managers can only generate schedule for their own seasons
-    if (req.user!.role === 'SEASON_MANAGER' && season.managerId !== req.user!.id) {
+    // Season managers can only generate schedule for their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to generate schedule for this season' });
       return;
     }

@@ -13,10 +13,12 @@ const router = Router();
 
 // Public routes
 router.get('/', getAllLeagues);
-router.get('/:id', getLeagueById);
 
-// Protected routes
+// Protected routes - /my must come before /:id to avoid being caught by the param route
 router.get('/my', authenticate, getMyLeagues);
+
+// Public route with param
+router.get('/:id', getLeagueById);
 router.post('/', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createLeague);
 router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), updateLeague);
 router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteLeague);

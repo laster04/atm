@@ -14,9 +14,8 @@ export const getAllSeasons = async (req: Request, res: Response): Promise<void> 
   try {
     const seasons = await prisma.season.findMany({
       include: {
-        league: { select: { id: true, name: true, sportType: true } },
-        _count: { select: { teams: true, games: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        _count: { select: { teams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
@@ -30,11 +29,10 @@ export const getAllSeasons = async (req: Request, res: Response): Promise<void> 
 export const getMySeasons = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const seasons = await prisma.season.findMany({
-      where: { managerId: req.user!.id },
+      where: { league: { managerId: req.user!.id } },
       include: {
-        league: { select: { id: true, name: true, sportType: true } },
-        _count: { select: { teams: true, games: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        _count: { select: { teams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
@@ -51,14 +49,13 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
     const season = await prisma.season.findUnique({
       where: { id: parseInt(id) },
       include: {
-        league: { select: { id: true, name: true, sportType: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true } },
         teams: {
           include: {
             _count: { select: { players: true } },
             manager: { select: { id: true, name: true, email: true } }
           }
         },
-        manager: { select: { id: true, name: true, email: true } },
         _count: { select: { games: true } }
       }
     });
@@ -91,8 +88,11 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Auto-set managerId for SEASON_MANAGER role
-    const managerId = req.user!.role === 'SEASON_MANAGER' ? req.user!.id : null;
+    // Season managers can only create seasons in their own leagues
+    if (req.user!.role === 'SEASON_MANAGER' && league.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to create seasons in this league' });
+      return;
+    }
 
     const season = await prisma.season.create({
       data: {
@@ -100,12 +100,11 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
         leagueId,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: status || 'DRAFT',
-        managerId
+        status: status || 'DRAFT'
       },
       include: {
-        league: { select: { id: true, name: true, sportType: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        _count: { select: { teams: true, games: true } }
       }
     });
 
@@ -121,20 +120,27 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
     const { id } = req.params;
     const { name, leagueId, startDate, endDate, status } = req.body as UpdateSeasonRequest;
 
-    // Season managers can only update their own seasons
+    // Season managers can only update seasons in their own leagues
     if (req.user!.role === 'SEASON_MANAGER') {
-      const season = await prisma.season.findUnique({ where: { id: parseInt(id) } });
-      if (!season || season.managerId !== req.user!.id) {
+      const season = await prisma.season.findUnique({
+        where: { id: parseInt(id) },
+        include: { league: { select: { managerId: true } } }
+      });
+      if (!season || season.league.managerId !== req.user!.id) {
         res.status(403).json({ error: 'Not authorized to update this season' });
         return;
       }
     }
 
-    // If changing league, verify it exists
+    // If changing league, verify it exists and user has access
     if (leagueId) {
       const league = await prisma.league.findUnique({ where: { id: leagueId } });
       if (!league) {
         res.status(400).json({ error: 'League not found' });
+        return;
+      }
+      if (req.user!.role === 'SEASON_MANAGER' && league.managerId !== req.user!.id) {
+        res.status(403).json({ error: 'Not authorized to move season to this league' });
         return;
       }
     }
@@ -149,8 +155,8 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
         ...(status && { status })
       },
       include: {
-        league: { select: { id: true, name: true, sportType: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        _count: { select: { teams: true, games: true } }
       }
     });
 
@@ -169,14 +175,17 @@ export const deleteSeason = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const { id } = req.params;
 
-    // Season managers can only delete their own seasons that haven't started yet
+    // Season managers can only delete seasons in their own leagues that haven't started yet
     if (req.user!.role === 'SEASON_MANAGER') {
-      const season = await prisma.season.findUnique({ where: { id: parseInt(id) } });
+      const season = await prisma.season.findUnique({
+        where: { id: parseInt(id) },
+        include: { league: { select: { managerId: true } } }
+      });
       if (!season) {
         res.status(404).json({ error: 'Season not found' });
         return;
       }
-      if (season.managerId !== req.user!.id) {
+      if (season.league.managerId !== req.user!.id) {
         res.status(403).json({ error: 'Not authorized to delete this season' });
         return;
       }
@@ -383,9 +392,8 @@ export const getSeasonsByLeague = async (req: Request, res: Response): Promise<v
     const seasons = await prisma.season.findMany({
       where: { leagueId: parseInt(leagueId) },
       include: {
-        league: { select: { id: true, name: true, sportType: true } },
-        _count: { select: { teams: true, games: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        _count: { select: { teams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
