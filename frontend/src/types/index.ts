@@ -58,6 +58,7 @@ export interface LeagueRef {
   id: number;
   name: string;
   sportType: SportType;
+  managerId?: number | null;
 }
 
 export interface Season {
@@ -70,8 +71,6 @@ export interface Season {
   updatedAt: string;
   leagueId: number;
   league?: LeagueRef;
-  managerId?: number | null;
-  manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   teams?: Team[];
   _count?: {
     teams: number;

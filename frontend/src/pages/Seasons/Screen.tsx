@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchSeasons } from '../../store/slices/seasonsSlice';
+import { seasonApi } from '../../services/api';
+import type { Season } from '@types';
 
 import SeasonFilters, { type FilterValue } from './components/SeasonFilters';
 import SeasonCard from './components/SeasonCard';
 
 export default function SeasonsScreen() {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const [filter, setFilter] = useState<FilterValue>('all');
-
-  const { items: seasons, loading } = useAppSelector((state) => state.seasons);
+  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchSeasons());
-  }, [dispatch]);
+    setLoading(true);
+    seasonApi.getAll()
+      .then((res) => setSeasons(res.data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredSeasons = filter === 'all' ? seasons : seasons.filter((s) => s.status === filter);
 

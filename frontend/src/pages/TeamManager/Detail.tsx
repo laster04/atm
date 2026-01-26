@@ -4,13 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Award, Palette, Target, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
-import { setTeamPrimaryColor, fetchTeamById, updateTeam } from '@/store/slices/teamsSlice.ts';
-import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
+import { teamApi, playerApi, seasonApi } from '@/services/api';
 import { Button } from '@components/base/button.tsx';
-import { seasonApi } from '@/services/api';
 
-import type { Player, Standing } from '@types';
+import type { Player, Standing, Team } from '@types';
 import RosterTable from '../TeamDetail/components/RosterTable';
 import GamesList from '../TeamDetail/components/GamesList';
 import PlayerFormModal, { type PlayerFormData } from '../TeamDetail/components/PlayerFormModal';
@@ -23,22 +20,29 @@ export default function Detail() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { canManageTeam, isAdmin } = useAuth();
-	const dispatch = useAppDispatch();
 	const [standing, setStanding] = useState<Standing | undefined>();
 
-	const { currentTeam: team, loading } = useAppSelector((state) => state.teams);
-	const { items: playersByTeamId } = useAppSelector((state) => state.players);
+	const [team, setTeam] = useState<Team | null>(null);
+	const [players, setPlayers] = useState<Player[]>([]);
+	const [loading, setLoading] = useState(false);
 
 	const [showPlayerModal, setShowPlayerModal] = useState(false);
 	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
-	const players = id ? playersByTeamId[Number(id)] || [] : [];
-
 	useEffect(() => {
 		if (!id) return;
-		dispatch(fetchTeamById(id));
-		dispatch(fetchPlayersByTeam(id));
-	}, [dispatch, id]);
+		setLoading(true);
+		Promise.all([
+			teamApi.getById(id),
+			playerApi.getByTeam(id)
+		])
+			.then(([teamRes, playersRes]) => {
+				setTeam(teamRes.data);
+				setPlayers(playersRes.data);
+			})
+			.catch((err) => console.error(err))
+			.finally(() => setLoading(false));
+	}, [id]);
 
 	useEffect(() => {
 
@@ -75,9 +79,11 @@ export default function Detail() {
 		};
 
 		if (editingPlayer) {
-			await dispatch(updatePlayer({ id: editingPlayer.id, data: playerData }));
+			const res = await playerApi.update(editingPlayer.id, playerData);
+			setPlayers((prev) => prev.map((p) => (p.id === editingPlayer.id ? res.data : p)));
 		} else {
-			await dispatch(createPlayer({ teamId: team.id, data: playerData }));
+			const res = await playerApi.create(team.id, playerData);
+			setPlayers((prev) => [...prev, res.data]);
 		}
 		setShowPlayerModal(false);
 	};
@@ -85,7 +91,8 @@ export default function Detail() {
 	const handleDeletePlayer = async (playerId: number) => {
 		if (!confirm(t('teamDetail.confirm.deletePlayer'))) return;
 		if (!team) return;
-		dispatch(deletePlayer({ id: playerId, teamId: team.id }));
+		await playerApi.delete(playerId);
+		setPlayers((prev) => prev.filter((p) => p.id !== playerId));
 	};
 
 	const handleBack = () => {
@@ -120,16 +127,9 @@ export default function Detail() {
 	}
 
 
-	const handleColorChange = (teamId: number, color: string) => {
-		dispatch(setTeamPrimaryColor(color));
-		dispatch(
-			updateTeam({
-				id: teamId,
-				data: {
-					primaryColor: color,
-				},
-			})
-		).unwrap();
+	const handleColorChange = async (teamId: number, color: string) => {
+		await teamApi.update(teamId, { primaryColor: color });
+		setTeam((prev) => prev ? { ...prev, primaryColor: color } : prev);
 		toast.success(t('teamManagement.toast.colorUpdated', { name: team.name }));
 	};
 

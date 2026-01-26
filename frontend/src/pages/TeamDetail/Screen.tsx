@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { fetchTeamById } from '@/store/slices/teamsSlice.ts';
-import { fetchPlayersByTeam, createPlayer, updatePlayer, deletePlayer } from '@/store/slices/playersSlice.ts';
-import type { Player } from '@types';
+import { teamApi, playerApi } from '@/services/api';
+import type { Player, Team } from '@types';
 
 import TeamHeader from './components/TeamHeader';
 import RosterTable from './components/RosterTable';
@@ -17,23 +15,30 @@ export default function TeamDetailScreen() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { canManageTeam } = useAuth();
-  const dispatch = useAppDispatch();
 
-  const { currentTeam: team, loading } = useAppSelector((state) => state.teams);
-  const { items: playersByTeamId } = useAppSelector((state) => state.players);
+  const [team, setTeam] = useState<Team | null>(null);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useDocumentTitle([team?.season?.league?.name, team?.season?.name, team?.name]);
 
   const [showPlayerModal, setShowPlayerModal] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
-  const players = id ? playersByTeamId[Number(id)] || [] : [];
-
   useEffect(() => {
     if (!id) return;
-    dispatch(fetchTeamById(id));
-    dispatch(fetchPlayersByTeam(id));
-  }, [dispatch, id]);
+    setLoading(true);
+    Promise.all([
+      teamApi.getById(id),
+      playerApi.getByTeam(id)
+    ])
+      .then(([teamRes, playersRes]) => {
+        setTeam(teamRes.data);
+        setPlayers(playersRes.data);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   const openAddPlayer = () => {
     setEditingPlayer(null);
@@ -54,9 +59,11 @@ export default function TeamDetailScreen() {
     };
 
     if (editingPlayer) {
-      await dispatch(updatePlayer({ id: editingPlayer.id, data: playerData }));
+      const res = await playerApi.update(editingPlayer.id, playerData);
+      setPlayers((prev) => prev.map((p) => (p.id === editingPlayer.id ? res.data : p)));
     } else {
-      await dispatch(createPlayer({ teamId: team.id, data: playerData }));
+      const res = await playerApi.create(team.id, playerData);
+      setPlayers((prev) => [...prev, res.data]);
     }
     setShowPlayerModal(false);
   };
@@ -64,7 +71,8 @@ export default function TeamDetailScreen() {
   const handleDeletePlayer = async (playerId: number) => {
     if (!confirm(t('teamDetail.confirm.deletePlayer'))) return;
     if (!team) return;
-    dispatch(deletePlayer({ id: playerId, teamId: team.id }));
+    await playerApi.delete(playerId);
+    setPlayers((prev) => prev.filter((p) => p.id !== playerId));
   };
 
   if (loading && !team) {

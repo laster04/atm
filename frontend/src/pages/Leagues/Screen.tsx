@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchLeagues } from '../../store/slices/leaguesSlice';
+import { leagueApi } from '../../services/api';
+import type { League } from '@types';
 
 import LeagueFilters, { type FilterValue } from './components/LeagueFilters';
 import LeagueCard from './components/LeagueCard';
 
 export default function LeaguesScreen() {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const [filter, setFilter] = useState<FilterValue>('all');
-
-  const { items: leagues, loading } = useAppSelector((state) => state.leagues);
+  const [leagues, setLeagues] = useState<League[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchLeagues());
-  }, [dispatch]);
+    setLoading(true);
+    leagueApi.getAll()
+      .then((res) => setLeagues(res.data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredLeagues = filter === 'all'
     ? leagues

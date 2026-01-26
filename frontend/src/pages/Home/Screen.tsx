@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { fetchSeasons } from '../../store/slices/seasonsSlice';
-import { fetchMyTeams } from '../../store/slices/teamsSlice';
+import { seasonApi, teamApi } from '../../services/api';
+import type { Season, Team } from '@types';
 
 import FeaturesSection from './components/FeaturesSection';
 import MyTeamsSection from './components/MyTeamsSection';
@@ -13,24 +12,30 @@ import ActiveSeasonsSection from './components/ActiveSeasonsSection';
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { user, isTeamManager } = useAuth();
-  const dispatch = useAppDispatch();
 
   useDocumentTitle();
 
-  const { items: seasons, loading: seasonsLoading } = useAppSelector((state) => state.seasons);
-  const { myTeams } = useAppSelector((state) => state.teams);
+  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [myTeams, setMyTeams] = useState<Team[]>([]);
+  const [seasonsLoading, setSeasonsLoading] = useState(false);
 
   const activeSeasons = seasons.filter((s) => s.status === 'ACTIVE').slice(0, 3);
 
   useEffect(() => {
-    dispatch(fetchSeasons());
-  }, [dispatch]);
+    setSeasonsLoading(true);
+    seasonApi.getAll()
+      .then((res) => setSeasons(res.data))
+      .catch((err) => console.error(err))
+      .finally(() => setSeasonsLoading(false));
+  }, []);
 
   useEffect(() => {
     if (isTeamManager()) {
-      dispatch(fetchMyTeams());
+      teamApi.getMyTeams()
+        .then((res) => setMyTeams(res.data))
+        .catch((err) => console.error(err));
     }
-  }, [dispatch, user, isTeamManager]);
+  }, [user, isTeamManager]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

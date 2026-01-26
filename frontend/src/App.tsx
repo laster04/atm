@@ -17,7 +17,7 @@ import SeasonDetail from './pages/SeasonDetail';
 import TeamDetail from './pages/TeamDetail';
 import TeamManagerDashboard from './pages/TeamManager';
 import Detail from '@/pages/TeamManager/Detail.tsx';
-import Admin from './pages/Admin';
+import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, TeamsPage, PlayersPage, GamesPage } from './pages/Admin';
 import './index.css';
 import { Toaster } from "@components/base/toaster.tsx";
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
@@ -46,7 +46,15 @@ function App() {
                   <Route path="/teams/:id" element={<TeamDetail />} />
                   <Route path="/my-teams" element={<TeamManagerDashboard />} />
                   <Route path="/team-management/:id" element={<Detail />} />
-                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminIndex />} />
+                    <Route path="users" element={<UsersPage />} />
+                    <Route path="leagues" element={<LeaguesPage />} />
+                    <Route path="seasons" element={<SeasonsPage />} />
+                    <Route path="teams" element={<TeamsPage />} />
+                    <Route path="players" element={<PlayersPage />} />
+                    <Route path="games" element={<GamesPage />} />
+                  </Route>
                   <Route path="/game-statistic/:id" element={<GameStatistic />} />
                 </Routes>
               </main>

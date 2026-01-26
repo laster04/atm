@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
 import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Edit, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Edit, Plus, Trash2, Users } from 'lucide-react';
 
 import { formatDateLocale } from '@/utils/date';
 import type { Season, League } from '@types';
@@ -21,6 +22,7 @@ interface SeasonsTableProps {
 
 export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingSeason, setEditingSeason] = useState<Season | null>(null);
 
@@ -90,7 +92,6 @@ export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdat
 							<TableHead>{t('admin.tabs.season.th-startDate')}</TableHead>
 							<TableHead>{t('admin.tabs.season.th-endDate')}</TableHead>
 							<TableHead>{t('admin.tabs.season.th-status')}</TableHead>
-							<TableHead>{t('admin.tabs.season.th-manager')}</TableHead>
 							<TableHead>{t('admin.tabs.season.th-teams-c')}</TableHead>
 							<TableHead className="text-right">{t('admin.tabs.season.th-actions')}</TableHead>
 						</TableRow>
@@ -105,10 +106,25 @@ export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdat
 								<TableCell>
 									<Badge variant="secondary">{t(`seasons.status.${season.status}`)}</Badge>
 								</TableCell>
-								<TableCell>{season.manager?.name || '-'}</TableCell>
 								<TableCell>{season._count?.teams || 0}</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-1">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => navigate(`/admin/teams?seasonId=${season.id}`)}
+											title={t('admin.tabs.season.goToTeams')}
+										>
+											<Users className="size-4" />
+										</Button>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => navigate(`/admin/games?seasonId=${season.id}`)}
+											title={t('admin.tabs.season.goToGames')}
+										>
+											<Calendar className="size-4" />
+										</Button>
 										<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(season)}>
 											<Edit className="size-4" />
 										</Button>

@@ -1,23 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
-import { fetchMyTeams } from '@/store/slices/teamsSlice.ts';
+import { teamApi } from '@/services/api';
+import type { Team } from '@types';
 
 import TeamCard from './components/TeamCard';
 
 export default function Screen(): React.JSX.Element {
   const { t } = useTranslation();
   const { isTeamManager } = useAuth();
-  const dispatch = useAppDispatch();
-
-  const { myTeams, loading } = useAppSelector((state) => state.teams);
+  const [myTeams, setMyTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isTeamManager()) {
-      dispatch(fetchMyTeams());
+      setLoading(true);
+      teamApi.getMyTeams()
+        .then((res) => setMyTeams(res.data))
+        .catch((err) => console.error(err))
+        .finally(() => setLoading(false));
     }
-  }, [dispatch, isTeamManager]);
+  }, [isTeamManager]);
 
   if (!isTeamManager()) {
     return (
