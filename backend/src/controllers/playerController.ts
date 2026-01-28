@@ -159,3 +159,83 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
     res.status(500).json({ error: 'Failed to delete player' });
   }
 };
+
+export const movePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { targetTeamId } = req.body;
+
+    if (!targetTeamId) {
+      res.status(400).json({ error: 'Target team ID is required' });
+      return;
+    }
+
+    // Get player with current team and season/league info
+    const player = await prisma.player.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        team: {
+          include: {
+            season: {
+              include: { league: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!player) {
+      res.status(404).json({ error: 'Player not found' });
+      return;
+    }
+
+    // Get target team with season/league info
+    const targetTeam = await prisma.team.findUnique({
+      where: { id: parseInt(targetTeamId) },
+      include: {
+        season: {
+          include: { league: true }
+        }
+      }
+    });
+
+    if (!targetTeam) {
+      res.status(404).json({ error: 'Target team not found' });
+      return;
+    }
+
+    // Check authorization for SEASON_MANAGER
+    if (req.user!.role === 'SEASON_MANAGER') {
+      const sourceLeagueManagerId = player.team.season.league.managerId;
+      const targetLeagueManagerId = targetTeam.season.league.managerId;
+
+      // SEASON_MANAGER can only move players within leagues they manage
+      if (sourceLeagueManagerId !== req.user!.id || targetLeagueManagerId !== req.user!.id) {
+        res.status(403).json({ error: 'Not authorized to move players between these teams' });
+        return;
+      }
+    }
+
+    // Prevent moving to the same team
+    if (player.teamId === parseInt(targetTeamId)) {
+      res.status(400).json({ error: 'Player is already on this team' });
+      return;
+    }
+
+    // Move the player
+    const updatedPlayer = await prisma.player.update({
+      where: { id: parseInt(id) },
+      data: { teamId: parseInt(targetTeamId) },
+      include: {
+        team: {
+          include: { season: true }
+        }
+      }
+    });
+
+    res.json(updatedPlayer);
+  } catch (error) {
+    console.error('Move player error:', error);
+    res.status(500).json({ error: 'Failed to move player' });
+  }
+};

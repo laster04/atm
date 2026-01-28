@@ -198,3 +198,69 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
     res.status(500).json({ error: 'Failed to delete statistic' });
   }
 };
+
+export const getTopScorersBySeason = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { seasonId } = req.params;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    // First get all game IDs for this season
+    const games = await prisma.game.findMany({
+      where: { seasonId: parseInt(seasonId) },
+      select: { id: true }
+    });
+    const gameIds = games.map(g => g.id);
+
+    // Get all game statistics for these games
+    const statistics = await prisma.gameStatistic.findMany({
+      where: {
+        gameId: { in: gameIds }
+      },
+      include: {
+        player: {
+          include: {
+            team: true
+          }
+        }
+      }
+    });
+
+    // Aggregate by player
+    const playerStats = new Map<number, {
+      player: typeof statistics[0]['player'];
+      goals: number;
+      assists: number;
+      gamesPlayed: number;
+    }>();
+
+    for (const stat of statistics) {
+      const existing = playerStats.get(stat.playerId);
+      if (existing) {
+        existing.goals += stat.goals || 0;
+        existing.assists += stat.assists || 0;
+        existing.gamesPlayed += 1;
+      } else {
+        playerStats.set(stat.playerId, {
+          player: stat.player,
+          goals: stat.goals || 0,
+          assists: stat.assists || 0,
+          gamesPlayed: 1
+        });
+      }
+    }
+
+    // Convert to array and sort by goals + assists (points)
+    const topScorers = Array.from(playerStats.values())
+      .map(ps => ({
+        ...ps,
+        points: ps.goals + ps.assists
+      }))
+      .sort((a, b) => b.points - a.points || b.goals - a.goals)
+      .slice(0, limit);
+
+    res.json(topScorers);
+  } catch (error) {
+    console.error('Get top scorers error:', error);
+    res.status(500).json({ error: 'Failed to fetch top scorers' });
+  }
+};
