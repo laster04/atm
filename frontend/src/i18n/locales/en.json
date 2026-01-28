@@ -151,7 +151,8 @@
       "overview": "Overview",
       "standings": "Standings",
       "schedule": "Schedule",
-      "teams": "Teams"
+      "teams": "Teams",
+      "players": "Players"
     },
     "overview": {
       "gamePlayed": "Games played",
@@ -169,6 +170,17 @@
       "goalsShort": "G",
       "assistsShort": "A",
       "pointsShort": "Pts"
+    },
+    "playersStats": {
+      "title": "Player Statistics",
+      "noStats": "No player statistics recorded yet.",
+      "rank": "#",
+      "player": "Player",
+      "team": "Team",
+      "gamesPlayed": "GP",
+      "goals": "G",
+      "assists": "A",
+      "points": "PTS"
     },
     "standings": {
       "rank": "#",

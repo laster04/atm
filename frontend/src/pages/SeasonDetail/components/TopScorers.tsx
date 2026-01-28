@@ -29,7 +29,6 @@ export default function TopScorers({ topScorers, loading }: TopScorersProps) {
   return (
     <div className="space-y-4">
       {topScorers.map((scorer, index) => (
-          <>
           <div
               key={scorer.player.id}
               className="flex items-center justify-between py-2 border-b last:border-0"
@@ -58,8 +57,6 @@ export default function TopScorers({ topScorers, loading }: TopScorersProps) {
             </div>
             <div className="text-xl font-medium">{scorer.points} pts</div>
           </div>
-
-          </>
       ))}
     </div>
   );

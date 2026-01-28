@@ -1,7 +1,7 @@
 import { JSX, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { seasonApi, gameApi } from '@/services/api';
+import { seasonApi, gameApi, gameStatisticApi, type TopScorer } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Season, Game, Standing } from '@/types';
 
@@ -10,14 +10,17 @@ import StandingsTable from './components/StandingsTable';
 import ScheduleList from './components/ScheduleList';
 import TeamsGrid from './components/TeamsGrid';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/base/tabs";
-import { BarChart3, Calendar, Trophy, Users } from "lucide-react";
+import { BarChart3, Calendar, Server, Trophy, Users } from "lucide-react";
+
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
+import PlayersStatsTable from "@/pages/SeasonDetail/components/PlayersStatsTable.tsx";
 
 export enum TabSeasonDetailType {
   OVERVIEW = 'overview',
   STANDINGS = 'standings',
   SCHEDULE = 'schedule',
   TEAMS = 'teams',
+  PLAYERS = 'players'
 }
 
 export default function SeasonDetailScreen() {
@@ -32,6 +35,7 @@ export default function SeasonDetailScreen() {
   const [season, setSeason] = useState<Season | null>(null);
   const [standings, setStandings] = useState<Standing[]>([]);
   const [games, setGames] = useState<Game[]>([]);
+  const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useDocumentTitle([season?.league?.name, season?.name]);
@@ -42,14 +46,16 @@ export default function SeasonDetailScreen() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [seasonRes, gamesRes, standingsRes] = await Promise.all([
+        const [seasonRes, gamesRes, standingsRes, topScorersRes] = await Promise.all([
           seasonApi.getById(id),
           gameApi.getBySeason(id),
           seasonApi.getStandings(id),
+            gameStatisticApi.getTopScorersBySeason(id, 20)
         ]);
         setSeason(seasonRes.data);
         setGames(gamesRes.data);
         setStandings(standingsRes.data);
+        setTopScorers(topScorersRes.data)
       } catch (error) {
         console.error('Failed to fetch season data:', error);
       } finally {
@@ -76,7 +82,8 @@ export default function SeasonDetailScreen() {
     { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} /> },
     { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
     { id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> },
-    { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Users className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
+    { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Server className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
+    { id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} /> },
   ];
 
   return (
@@ -86,7 +93,7 @@ export default function SeasonDetailScreen() {
       <main className="container mx-auto py-8">
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5">
             {tabs.map((tab) => (
                 <TabsTrigger value={tab.id} key={tab.id} className="flex items-center gap-2">
                   {tab.icon}

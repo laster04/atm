@@ -151,7 +151,8 @@
       "overview": "Přehled",
       "standings": "Tabulka",
       "schedule": "Rozpis",
-      "teams": "Tymy"
+      "teams": "Tymy",
+      "players": "Hráči"
     },
     "overview": {
       "gamePlayed": "Odehráno zápasů",
@@ -169,6 +170,17 @@
       "goalsShort": "G",
       "assistsShort": "A",
       "pointsShort": "B"
+    },
+    "playersStats": {
+      "title": "Statistiky hracu",
+      "noStats": "Zatim zadne statistiky hracu.",
+      "rank": "#",
+      "player": "Hrac",
+      "team": "Tym",
+      "gamesPlayed": "Z",
+      "goals": "G",
+      "assists": "A",
+      "points": "B"
     },
     "standings": {
       "rank": "#",
