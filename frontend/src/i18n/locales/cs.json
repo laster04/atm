@@ -163,8 +163,12 @@
       "avgGoalsPerGame": "Průměr gólů/zápas",
       "thisSeason": "Tato sezóna",
       "upcomingGames": "Nadcházející zápasy",
-      "topScorers": "Nejlepší střelci",
-      "leagueLeadersDescription": "Lídři ligy v bodech"
+      "topScorers": "Nejlepsi strelci",
+      "leagueLeadersDescription": "Lidri ligy v bodech",
+      "noTopScorers": "Zatim zadne zaznamenane statistiky.",
+      "goalsShort": "G",
+      "assistsShort": "A",
+      "pointsShort": "B"
     },
     "standings": {
       "rank": "#",
@@ -227,6 +231,32 @@
       "name": "Jmeno",
       "number": "Cislo",
       "position": "Pozice"
+    }
+  },
+  "playerDetail": {
+    "loading": "Nacitam hrace...",
+    "notFound": "Hrac nenalezen.",
+    "backTo": "Zpet na {{name}}",
+    "info": {
+      "title": "Informace o hraci",
+      "name": "Jmeno",
+      "number": "Cislo",
+      "position": "Pozice",
+      "bornYear": "Rocnik narozeni",
+      "note": "Poznamka"
+    },
+    "statistics": {
+      "title": "Statistiky",
+      "gamesPlayed": "Odehranych zapasu",
+      "goals": "Goly",
+      "assists": "Asistence",
+      "gameByGame": "Po zapasech",
+      "date": "Datum",
+      "game": "Zapas",
+      "noStatistics": "Zatim zadne zaznamenane statistiky."
+    },
+    "team": {
+      "title": "Aktualni tym"
     }
   },
   "myTeams": {
@@ -471,7 +501,14 @@
       "userPassword": "Heslo",
       "userRole": "Role",
       "userActive": "Aktivní",
-      "leaveBlankToKeep": "ponechte prázdné pro zachování"
+      "leaveBlankToKeep": "ponechte prázdné pro zachování",
+      "movePlayer": "Přesunout hráče",
+      "movePlayerDesc": "Přesunout {{playerName}} do jiného týmu",
+      "currentTeam": "Aktuální tým",
+      "targetSeason": "Cílová sezóna",
+      "targetTeam": "Cílový tým",
+      "noAvailableTeams": "V této sezóně nejsou dostupné žádné jiné týmy",
+      "movePlayerBtn": "Přesunout hráče"
     },
     "roles": {
       "ADMIN": "Administrator",
@@ -507,7 +544,8 @@
       "deleteUser": "Smazání uživatele selhalo",
       "generateSchedule": "Generování rozpisu selhalo",
       "deleteSeason": "Smazání sezóny selhalo",
-      "deleteTeam": "Smazání týmu selhalo"
+      "deleteTeam": "Smazání týmu selhalo",
+      "movePlayer": "Přesun hráče selhal"
     }
   },
   "language": {

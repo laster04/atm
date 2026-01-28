@@ -15,12 +15,14 @@ export default function PlayersPage() {
 
 	const [seasons, setSeasons] = useState<Season[]>([]);
 	const [teamsBySeason, setTeamsBySeason] = useState<Record<number, Team[]>>({});
+	const [allTeams, setAllTeams] = useState<Team[]>([]);
 	const [playersByTeam, setPlayersByTeam] = useState<Record<number, Player[]>>({});
 	const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
 	const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
 	const [error, setError] = useState('');
 
 	const teams = selectedSeason ? teamsBySeason[selectedSeason.id] || [] : [];
+	const canMovePlayer = isAdmin() || isSeasonManager();
 	const players = selectedTeamId ? playersByTeam[selectedTeamId] || [] : [];
 
 	useEffect(() => {
@@ -42,6 +44,24 @@ export default function PlayersPage() {
 			setSelectedSeason(seasons[0]);
 		}
 	}, [seasons, selectedSeason]);
+
+	// Fetch all teams for all seasons (needed for move player functionality)
+	useEffect(() => {
+		const fetchAllTeams = async () => {
+			if (seasons.length === 0) return;
+			try {
+				const teamsPromises = seasons.map((s) => teamApi.getBySeason(s.id));
+				const results = await Promise.all(teamsPromises);
+				const teams = results.flatMap((res) => res.data);
+				setAllTeams(teams);
+			} catch (err) {
+				console.error('Failed to fetch all teams:', err);
+			}
+		};
+		if (canMovePlayer) {
+			fetchAllTeams();
+		}
+	}, [seasons, canMovePlayer]);
 
 	useEffect(() => {
 		if (selectedSeason && !teamsBySeason[selectedSeason.id]) {
@@ -132,6 +152,30 @@ export default function PlayersPage() {
 		}
 	};
 
+	const handleMovePlayer = async (playerId: number, targetTeamId: number) => {
+		if (!selectedTeamId) return;
+		try {
+			await playerApi.move(playerId, targetTeamId);
+			// Remove player from current team's list
+			setPlayersByTeam((prev) => ({
+				...prev,
+				[selectedTeamId]: (prev[selectedTeamId] || []).filter((p) => p.id !== playerId)
+			}));
+			// If we have the target team's players cached, we should invalidate it
+			// to force a refresh when that team is selected
+			if (playersByTeam[targetTeamId]) {
+				setPlayersByTeam((prev) => {
+					const newState = { ...prev };
+					delete newState[targetTeamId];
+					return newState;
+				});
+			}
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('admin.errors.movePlayer'));
+		}
+	};
+
 	const handleSeasonChange = (seasonId: number) => {
 		const season = seasons.find((s) => s.id === seasonId);
 		if (season) {
@@ -150,6 +194,7 @@ export default function PlayersPage() {
 			<PlayersTable
 				players={players}
 				teams={teams}
+				allTeams={allTeams}
 				seasons={seasons}
 				selectedSeasonId={selectedSeason?.id || null}
 				selectedTeamId={selectedTeamId}
@@ -158,6 +203,8 @@ export default function PlayersPage() {
 				onCreatePlayer={handleCreatePlayer}
 				onUpdatePlayer={handleUpdatePlayer}
 				onDeletePlayer={handleDeletePlayer}
+				onMovePlayer={handleMovePlayer}
+				canMovePlayer={canMovePlayer}
 			/>
 		</div>
 	);

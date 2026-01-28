@@ -164,7 +164,11 @@
       "thisSeason": "This season",
       "upcomingGames": "Upcoming Games",
       "topScorers": "Top Scorers",
-      "leagueLeadersDescription": "League leaders in points"
+      "leagueLeadersDescription": "League leaders in points",
+      "noTopScorers": "No statistics recorded yet.",
+      "goalsShort": "G",
+      "assistsShort": "A",
+      "pointsShort": "Pts"
     },
     "standings": {
       "rank": "#",
@@ -227,6 +231,32 @@
       "name": "Name",
       "number": "Number",
       "position": "Position"
+    }
+  },
+  "playerDetail": {
+    "loading": "Loading player...",
+    "notFound": "Player not found.",
+    "backTo": "Back to {{name}}",
+    "info": {
+      "title": "Player Information",
+      "name": "Name",
+      "number": "Number",
+      "position": "Position",
+      "bornYear": "Birth Year",
+      "note": "Note"
+    },
+    "statistics": {
+      "title": "Statistics",
+      "gamesPlayed": "Games Played",
+      "goals": "Goals",
+      "assists": "Assists",
+      "gameByGame": "Game by Game",
+      "date": "Date",
+      "game": "Game",
+      "noStatistics": "No statistics recorded yet."
+    },
+    "team": {
+      "title": "Current Team"
     }
   },
   "myTeams": {
@@ -471,7 +501,14 @@
       "userPassword": "Password",
       "userRole": "Role",
       "userActive": "Active",
-      "leaveBlankToKeep": "leave blank to keep current"
+      "leaveBlankToKeep": "leave blank to keep current",
+      "movePlayer": "Move Player",
+      "movePlayerDesc": "Transfer {{playerName}} to another team",
+      "currentTeam": "Current Team",
+      "targetSeason": "Target Season",
+      "targetTeam": "Target Team",
+      "noAvailableTeams": "No other teams available in this season",
+      "movePlayerBtn": "Move Player"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -507,7 +544,8 @@
       "deleteUser": "Failed to delete user",
       "generateSchedule": "Failed to generate schedule",
       "deleteSeason": "Failed to delete season",
-      "deleteTeam": "Failed to delete team"
+      "deleteTeam": "Failed to delete team",
+      "movePlayer": "Failed to move player"
     }
   },
   "language": {

@@ -15,9 +15,10 @@ import LeagueDetail from './pages/LeagueDetail';
 import Seasons from './pages/Seasons';
 import SeasonDetail from './pages/SeasonDetail';
 import TeamDetail from './pages/TeamDetail';
+import PlayerDetail from './pages/PlayerDetail';
 import TeamManagerDashboard from './pages/TeamManager';
 import Detail from '@/pages/TeamManager/Detail.tsx';
-import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, TeamsPage, PlayersPage, GamesPage } from './pages/Admin';
+import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, TeamsPage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
 import './index.css';
 import { Toaster } from "@components/base/toaster.tsx";
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
@@ -44,6 +45,7 @@ function App() {
                   <Route path="/seasons" element={<Seasons />} />
                   <Route path="/seasons/:id" element={<SeasonDetail />} />
                   <Route path="/teams/:id" element={<TeamDetail />} />
+                  <Route path="/players/:id" element={<PlayerDetail />} />
                   <Route path="/my-teams" element={<TeamManagerDashboard />} />
                   <Route path="/team-management/:id" element={<Detail />} />
                   <Route path="/admin" element={<AdminLayout />}>
@@ -53,6 +55,7 @@ function App() {
                     <Route path="seasons" element={<SeasonsPage />} />
                     <Route path="teams" element={<TeamsPage />} />
                     <Route path="players" element={<PlayersPage />} />
+                    <Route path="players/:id" element={<PlayerDetailPage />} />
                     <Route path="games" element={<GamesPage />} />
                   </Route>
                   <Route path="/game-statistic/:id" element={<GameStatistic />} />

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Player } from '@types';
 
@@ -60,7 +61,11 @@ export default function RosterTable({
               {players.map((player) => (
                 <tr key={player.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm">{player.number || '-'}</td>
-                  <td className="px-4 py-3 font-medium">{player.name}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <Link to={`/players/${player.id}`} className="hover:text-blue-600">
+                      {player.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-500">{player.position || '-'}</td>
                   {canManage && (
                     <td className="px-4 py-3 text-right space-x-2">

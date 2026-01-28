@@ -1,18 +1,21 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Edit, Plus, Trash2 } from 'lucide-react';
+import { Edit, Plus, Trash2, ArrowRightLeft, Eye } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import type { Player, Team, Season } from '@types';
 import PlayerFormModal, { type PlayerFormData } from './PlayerFormModal.tsx';
+import MovePlayerModal from './MovePlayerModal.tsx';
 
 interface PlayersTableProps {
 	players: Player[];
 	teams: Team[];
+	allTeams: Team[];
 	seasons: Season[];
 	selectedSeasonId: number | null;
 	selectedTeamId: number | null;
@@ -21,11 +24,14 @@ interface PlayersTableProps {
 	onCreatePlayer?: (data: PlayerFormData) => void;
 	onUpdatePlayer?: (id: number, data: PlayerFormData) => void;
 	onDeletePlayer?: (id: number) => void;
+	onMovePlayer?: (playerId: number, targetTeamId: number) => void;
+	canMovePlayer?: boolean;
 }
 
 export default function PlayersTable({
 	players,
 	teams,
+	allTeams,
 	seasons,
 	selectedSeasonId,
 	selectedTeamId,
@@ -34,10 +40,14 @@ export default function PlayersTable({
 	onCreatePlayer,
 	onUpdatePlayer,
 	onDeletePlayer,
+	onMovePlayer,
+	canMovePlayer = false,
 }: PlayersTableProps) {
 	const { t } = useTranslation();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+	const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+	const [movingPlayer, setMovingPlayer] = useState<Player | null>(null);
 
 	const handleOpenCreate = () => {
 		setEditingPlayer(null);
@@ -61,6 +71,21 @@ export default function PlayersTable({
 			onCreatePlayer?.(data);
 		}
 		handleClose();
+	};
+
+	const handleOpenMove = (player: Player) => {
+		setMovingPlayer(player);
+		setIsMoveModalOpen(true);
+	};
+
+	const handleCloseMove = () => {
+		setIsMoveModalOpen(false);
+		setMovingPlayer(null);
+	};
+
+	const handleMoveSubmit = (playerId: number, targetTeamId: number) => {
+		onMovePlayer?.(playerId, targetTeamId);
+		handleCloseMove();
 	};
 
 	return (
@@ -144,16 +169,30 @@ export default function PlayersTable({
 						<TableBody>
 							{players.map((player) => (
 								<TableRow key={player.id}>
-									<TableCell className="font-medium">{player.name}</TableCell>
+									<TableCell className="font-medium">
+										<Link to={`/admin/players/${player.id}`} className="hover:text-blue-600">
+											{player.name}
+										</Link>
+									</TableCell>
 									<TableCell>{player.number || '-'}</TableCell>
 									<TableCell>{player.position || '-'}</TableCell>
 									<TableCell>{player.bornYear || '-'}</TableCell>
 									<TableCell>{player.note || '-'}</TableCell>
 									<TableCell className="text-right">
 										<div className="flex justify-end gap-1">
+											<Button variant="ghost" size="sm" asChild>
+												<Link to={`/admin/players/${player.id}`}>
+													<Eye className="size-4" />
+												</Link>
+											</Button>
 											<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(player)}>
 												<Edit className="size-4" />
 											</Button>
+											{canMovePlayer && (
+												<Button variant="ghost" size="sm" onClick={() => handleOpenMove(player)}>
+													<ArrowRightLeft className="size-4" />
+												</Button>
+											)}
 											<Button variant="ghost" size="sm" onClick={() => onDeletePlayer?.(player.id)}>
 												<Trash2 className="size-4 text-destructive" />
 											</Button>
@@ -165,6 +204,20 @@ export default function PlayersTable({
 					</Table>
 				)}
 			</CardContent>
+			<Dialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
+				<DialogContent>
+					{movingPlayer && selectedSeasonId && (
+						<MovePlayerModal
+							player={movingPlayer}
+							teams={allTeams}
+							seasons={seasons}
+							currentSeasonId={selectedSeasonId}
+							onSubmit={handleMoveSubmit}
+							onClose={handleCloseMove}
+						/>
+					)}
+				</DialogContent>
+			</Dialog>
 		</Card>
 	);
 }

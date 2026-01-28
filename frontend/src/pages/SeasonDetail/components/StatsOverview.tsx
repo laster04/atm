@@ -1,17 +1,31 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
 
 import { Calendar, Target, TrendingUp, Trophy } from 'lucide-react';
 import { Game, GameStatus, Standing } from "@types";
 import { useTranslation } from "react-i18next";
 import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
+import { gameStatisticApi, type TopScorer } from '@/services/api';
+import TopScorers from './TopScorers';
 
 interface StatsOverviewProps {
+	seasonId: number;
 	standings: Standing[];
 	games: Game[];
 }
 
-export function StatsOverview({ standings, games }: StatsOverviewProps) {
+export function StatsOverview({ seasonId, standings, games }: StatsOverviewProps) {
 	const { t } = useTranslation();
+	const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
+	const [loadingScorers, setLoadingScorers] = useState(true);
+
+	useEffect(() => {
+		setLoadingScorers(true);
+		gameStatisticApi.getTopScorersBySeason(seasonId, 5)
+			.then((res) => setTopScorers(res.data))
+			.catch((err) => console.error('Failed to fetch top scorers:', err))
+			.finally(() => setLoadingScorers(false));
+	}, [seasonId]);
 
 	const stats = [
 		{
@@ -75,7 +89,7 @@ export function StatsOverview({ standings, games }: StatsOverviewProps) {
 						<CardDescription>{t('seasonDetail.overview.leagueLeadersDescription')}</CardDescription>
 					</CardHeader>
 					<CardContent>
-
+						<TopScorers topScorers={topScorers} loading={loadingScorers} />
 					</CardContent>
 				</Card>
 			</div>
