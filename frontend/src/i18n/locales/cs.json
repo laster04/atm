@@ -232,7 +232,10 @@
       "title": "Zapasy",
       "upcoming": "NADCHAZEJICI",
       "recentResults": "POSLEDNI VYSLEDKY",
-      "noGames": "Zadne naplanovanene zapasy."
+      "noGames": "Zadne naplanovanene zapasy.",
+      "win": "V",
+      "loss": "P",
+      "draw": "R"
     },
     "confirm": {
       "deletePlayer": "Opravdu chcete smazat tohoto hrace?"
@@ -269,6 +272,10 @@
     },
     "team": {
       "title": "Aktualni tym"
+    },
+    "teamGames": {
+      "title": "Zapasy tymu",
+      "noGames": "Zadne naplanovane zapasy pro tento tym."
     }
   },
   "myTeams": {

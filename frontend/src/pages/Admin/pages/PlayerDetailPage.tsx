@@ -1,17 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Edit, ArrowRightLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, ArrowRightLeft, Trash2, Save, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { playerApi, gameStatisticApi, seasonApi, teamApi } from '@/services/api';
+import { playerApi, gameStatisticApi, seasonApi, teamApi, gameApi } from '@/services/api';
 import { Button } from '@components/base/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
 import { Dialog, DialogContent } from '@components/base/dialog';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table';
+import { Checkbox } from '@components/base/checkbox';
+import { Input } from '@components/base/input';
+import { Badge } from '@components/base/badge';
 import { formatGameDateTime } from '@/utils/date';
-import type { Player, GameStatistic, Season, Team } from '@types';
+import type { Player, GameStatistic, Season, Team, Game } from '@types';
 import PlayerFormModal, { type PlayerFormData } from '../components/players/PlayerFormModal';
 import MovePlayerModal from '../components/players/MovePlayerModal';
+
+interface GameStatForm {
+  gameId: number;
+  game: Game;
+  played: boolean;
+  goals: number;
+  assists: number;
+  existingStatId?: number;
+}
 
 export default function PlayerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +39,10 @@ export default function PlayerDetailPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+
+  // Team games state
+  const [teamGames, setTeamGames] = useState<GameStatForm[]>([]);
+  const [savingGames, setSavingGames] = useState(false);
 
   useDocumentTitle([t('admin.tabs.player.title'), player?.name]);
 
@@ -61,6 +78,56 @@ export default function PlayerDetailPage() {
     }
   }, [player?.team?.seasonId, seasons]);
 
+  // Load team games for the season
+  useEffect(() => {
+    if (!player?.team?.seasonId || !player?.teamId) return;
+
+    const loadTeamGames = async () => {
+      try {
+        const gamesRes = await gameApi.getBySeason(player.team!.seasonId);
+        const allGames = gamesRes.data;
+
+        // Filter games where the player's team is home or away
+        const teamGamesList = allGames.filter(
+          (game) => game.homeTeamId === player.teamId || game.awayTeamId === player.teamId
+        );
+
+        // Create a map of existing statistics by gameId
+        const statsMap = new Map<number, GameStatistic>();
+        statistics.forEach((stat) => {
+          if (stat.gameId) statsMap.set(stat.gameId, stat);
+        });
+
+        // Build form data for each game
+        const gamesForms: GameStatForm[] = teamGamesList
+          .sort((a, b) => {
+            // Sort by date, games without date come last
+            if (!a.date && !b.date) return 0;
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+          })
+          .map((game) => {
+            const existingStat = statsMap.get(game.id);
+            return {
+              gameId: game.id,
+              game,
+              played: !!existingStat,
+              goals: existingStat?.goals ?? 0,
+              assists: existingStat?.assists ?? 0,
+              existingStatId: existingStat?.id,
+            };
+          });
+
+        setTeamGames(gamesForms);
+      } catch (error) {
+        console.error('Failed to load team games:', error);
+      }
+    };
+
+    loadTeamGames();
+  }, [player?.team?.seasonId, player?.teamId, statistics]);
+
   const handleUpdatePlayer = async (data: PlayerFormData) => {
     if (!player) return;
     try {
@@ -91,6 +158,89 @@ export default function PlayerDetailPage() {
     } catch (err) {
       console.error('Failed to delete player:', err);
     }
+  };
+
+  // Update a single game stat field
+  const updateGameStat = (
+    gameId: number,
+    field: keyof GameStatForm,
+    value: boolean | number
+  ) => {
+    setTeamGames((prev) =>
+      prev.map((stat) =>
+        stat.gameId === gameId ? { ...stat, [field]: value } : stat
+      )
+    );
+  };
+
+  // Save all game statistics
+  const handleSaveGameStats = async () => {
+    if (!player) return;
+
+    setSavingGames(true);
+    try {
+      for (const stat of teamGames) {
+        if (stat.played) {
+          // Player participated - create or update
+          if (stat.existingStatId) {
+            await gameStatisticApi.update(stat.existingStatId, {
+              goals: stat.goals,
+              assists: stat.assists,
+            });
+          } else {
+            await gameStatisticApi.create(stat.gameId, {
+              playerId: player.id,
+              goals: stat.goals,
+              assists: stat.assists,
+            });
+          }
+        } else if (stat.existingStatId) {
+          // Player didn't participate but has existing stat - delete it
+          await gameStatisticApi.delete(stat.existingStatId);
+        }
+      }
+
+      toast.success(t('gameStatistic.saveSuccess', 'Statistics saved successfully'));
+
+      // Refresh statistics to get updated IDs
+      const statsRes = await gameStatisticApi.getByPlayer(player.id);
+      setStatistics(statsRes.data);
+    } catch (error) {
+      toast.error(t('gameStatistic.saveError', 'Failed to save statistics'));
+    } finally {
+      setSavingGames(false);
+    }
+  };
+
+  // Get opponent team name for a game
+  const getOpponent = (game: Game): string => {
+    if (!player) return '';
+    if (game.homeTeamId === player.teamId) {
+      return game.awayTeam?.name ?? t('common.unknown', 'Unknown');
+    }
+    return game.homeTeam?.name ?? t('common.unknown', 'Unknown');
+  };
+
+  // Check if team is playing home
+  const isHomeGame = (game: Game): boolean => {
+    return game.homeTeamId === player?.teamId;
+  };
+
+  // Get game result display
+  const getGameResult = (game: Game): { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' } | null => {
+    if (game.status !== 'COMPLETED' || game.homeScore == null || game.awayScore == null) {
+      return null;
+    }
+    const isHome = isHomeGame(game);
+    const teamScore = isHome ? game.homeScore : game.awayScore;
+    const opponentScore = isHome ? game.awayScore : game.homeScore;
+
+    if (teamScore > opponentScore) {
+      return { text: t('teamDetail.games.win', 'W'), variant: 'default' };
+    } else if (teamScore < opponentScore) {
+      return { text: t('teamDetail.games.loss', 'L'), variant: 'destructive' };
+    }
+    return { text: t('teamDetail.games.draw', 'D'), variant: 'secondary' };
   };
 
   if (loading && !player) {
@@ -250,6 +400,119 @@ export default function PlayerDetailPage() {
               ) : (
                 <p className="text-muted-foreground text-center py-4">
                   {t('playerDetail.statistics.noStatistics')}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Team Games - Edit Statistics */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>{t('playerDetail.teamGames.title', 'Team Games')}</CardTitle>
+                <Button onClick={handleSaveGameStats} disabled={savingGames} size="sm">
+                  {savingGames ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  {t('common.save')}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {teamGames.length > 0 ? (
+                <div className="space-y-2">
+                  {teamGames.map((stat) => {
+                    const result = getGameResult(stat.game);
+                    return (
+                      <div
+                        key={stat.gameId}
+                        className="flex items-center gap-3 py-3 px-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        {/* Played checkbox */}
+                        <Checkbox
+                          id={`played-${stat.gameId}`}
+                          checked={stat.played}
+                          onCheckedChange={(checked) =>
+                            updateGameStat(stat.gameId, 'played', !!checked)
+                          }
+                        />
+
+                        {/* Game info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {isHomeGame(stat.game) ? 'vs' : '@'} {getOpponent(stat.game)}
+                            </span>
+                            {result && (
+                              <Badge variant={result.variant} className="text-xs">
+                                {result.text}
+                              </Badge>
+                            )}
+                            {stat.game.status === 'SCHEDULED' && (
+                              <Badge variant="outline" className="text-xs">
+                                {t('admin.tabs.game.status.SCHEDULED', 'Scheduled')}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {stat.game.date
+                              ? formatGameDateTime(stat.game.date, i18n.language)
+                              : t('admin.tabs.game.noDate', 'Date TBD')}
+                            {stat.game.round && (
+                              <span className="ml-2">
+                                • {t('admin.tabs.game.round', { round: stat.game.round })}
+                              </span>
+                            )}
+                          </div>
+                          {stat.game.status === 'COMPLETED' && stat.game.homeScore != null && (
+                            <div className="text-sm text-muted-foreground">
+                              {stat.game.homeTeam?.name} {stat.game.homeScore} - {stat.game.awayScore} {stat.game.awayTeam?.name}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Goals input */}
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs text-muted-foreground mb-1">
+                            {t('playerDetail.statistics.goals')}
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={stat.goals}
+                            onChange={(e) =>
+                              updateGameStat(stat.gameId, 'goals', parseInt(e.target.value) || 0)
+                            }
+                            disabled={!stat.played}
+                            className="w-16 text-center"
+                          />
+                        </div>
+
+                        {/* Assists input */}
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs text-muted-foreground mb-1">
+                            {t('playerDetail.statistics.assists')}
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={stat.assists}
+                            onChange={(e) =>
+                              updateGameStat(stat.gameId, 'assists', parseInt(e.target.value) || 0)
+                            }
+                            disabled={!stat.played}
+                            className="w-16 text-center"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  {t('playerDetail.teamGames.noGames', 'No games scheduled for this team.')}
                 </p>
               )}
             </CardContent>

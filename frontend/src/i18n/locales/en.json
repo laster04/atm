@@ -232,7 +232,10 @@
       "title": "Games",
       "upcoming": "UPCOMING",
       "recentResults": "RECENT RESULTS",
-      "noGames": "No games scheduled."
+      "noGames": "No games scheduled.",
+      "win": "W",
+      "loss": "L",
+      "draw": "D"
     },
     "confirm": {
       "deletePlayer": "Are you sure you want to delete this player?"
@@ -269,6 +272,10 @@
     },
     "team": {
       "title": "Current Team"
+    },
+    "teamGames": {
+      "title": "Team Games",
+      "noGames": "No games scheduled for this team."
     }
   },
   "myTeams": {
