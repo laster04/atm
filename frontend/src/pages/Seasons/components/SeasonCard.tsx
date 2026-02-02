@@ -25,7 +25,7 @@ export default function SeasonCard({ season }: SeasonCardProps) {
 
   return (
     <Link
-      to={`/seasons/${season.id}`}
+      to={`/season-detail/${season.id}`}
       className="block bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow"
     >
       <div className="flex justify-between items-start mb-2">

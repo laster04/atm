@@ -16,8 +16,7 @@ import Seasons from './pages/Seasons';
 import SeasonDetail from './pages/SeasonDetail';
 import TeamDetail from './pages/TeamDetail';
 import PlayerDetail from './pages/PlayerDetail';
-import TeamManagerDashboard from './pages/TeamManager';
-import Detail from '@/pages/TeamManager/Detail.tsx';
+import { TeamManagerLayout, TeamManagerIndex, MyTeamsPage, TeamDetailPage } from './pages/TeamManager';
 import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, TeamsPage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
 import './index.css';
 import { Toaster } from "@components/base/toaster.tsx";
@@ -43,11 +42,14 @@ function App() {
                   <Route path="/leagues" element={<Leagues />} />
                   <Route path="/leagues/:id" element={<LeagueDetail />} />
                   <Route path="/seasons" element={<Seasons />} />
-                  <Route path="/seasons/:id" element={<SeasonDetail />} />
+                  <Route path="/season-detail/:id" element={<SeasonDetail />} />
                   <Route path="/teams/:id" element={<TeamDetail />} />
                   <Route path="/players/:id" element={<PlayerDetail />} />
-                  <Route path="/my-teams" element={<TeamManagerDashboard />} />
-                  <Route path="/team-management/:id" element={<Detail />} />
+                  <Route path="/team-management" element={<TeamManagerLayout />}>
+                    <Route index element={<TeamManagerIndex />} />
+                    <Route path="my-teams" element={<MyTeamsPage />} />
+                    <Route path=":id" element={<TeamDetailPage />} />
+                  </Route>
                   <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminIndex />} />
                     <Route path="users" element={<UsersPage />} />

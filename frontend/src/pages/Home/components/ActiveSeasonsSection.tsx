@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Season } from '@types';
+import { Button } from "@components/base/button";
+import { ArrowRight } from "lucide-react";
 
 interface ActiveSeasonsSectionProps {
   seasons: Season[];
@@ -32,7 +34,7 @@ export default function ActiveSeasonsSection({ seasons, loading }: ActiveSeasons
         {seasons.map((season) => (
           <Link
             key={season.id}
-            to={`/seasons/${season.id}`}
+            to={`/season-detail/${season.id}`}
             className="block bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow"
           >
             <h3 className="font-semibold text-lg">{season.name}</h3>
@@ -44,8 +46,14 @@ export default function ActiveSeasonsSection({ seasons, loading }: ActiveSeasons
         ))}
       </div>
       <div className="text-center mt-6">
-        <Link to="/seasons" className="text-blue-600 hover:text-blue-800 font-medium">
-          {t('home.viewAllSeasons')} →
+        <Link to="/seasons" className="font-medium">
+            <Button
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                size="lg"
+            >
+                {t('home.viewAllSeasons')}
+                <ArrowRight className="size-4 ml-2" />
+            </Button>
         </Link>
       </div>
     </div>

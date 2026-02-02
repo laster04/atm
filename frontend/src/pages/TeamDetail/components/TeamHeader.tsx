@@ -12,7 +12,7 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
   return (
     <>
       <div className="mb-6">
-        <Link to={`/seasons/${team.season?.id}`} className="text-blue-600 hover:underline">
+        <Link to={`/season-detail/${team.season?.id}`} className="text-blue-600 hover:underline">
           ← {t('teamDetail.backTo', { name: team.season?.name })}
         </Link>
       </div>

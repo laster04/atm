@@ -111,7 +111,7 @@ export default function Navbar() {
 										<>
 											{isTeamManager() && (
 												<DropdownMenuItem>
-													<Link to="/my-teams" >
+													<Link to="/team-management" >
 														{t('nav.myTeams')}
 													</Link>
 												</DropdownMenuItem>

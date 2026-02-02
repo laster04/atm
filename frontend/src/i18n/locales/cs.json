@@ -18,7 +18,7 @@
     "tagline": "Vaše centrální místo pro všechny sportovní ligy a sezóny",
     "leagues": "Ligy",
     "seasons": "Sezony",
-    "myTeams": "Moje Tymy",
+    "myTeams": "Moje Týmy",
     "mySeasons": "Moje Sezony",
     "admin": "Administrace",
     "login": "Prihlasit",
@@ -43,7 +43,8 @@
       }
     },
     "activeSeasons": "Aktivni Sezony",
-    "viewAllSeasons": "Zobrazit vsechny sezony",
+    "viewAllSeasons": "Zobrazit všechny sezony",
+    "viewAllLeagues": "Zobrazit všechny ligy",
     "noActiveSeasons": "Zatim zadne aktivni sezony.",
     "myTeams": "Moje Tymy"
   },
@@ -285,6 +286,11 @@
     "noTeams": "Zatim nespravujete zadne tymy."
   },
   "teamManagement": {
+    "title": "Správa týmů",
+    "tabs": {
+      "title": "Správa týmů",
+      "myTeams": "Moje týmy"
+    },
     "back": "Zpět",
     "toast": {
       "colorUpdated": "Barva pro {{name}} byla aktualizována!"

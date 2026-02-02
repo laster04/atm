@@ -44,6 +44,7 @@
     },
     "activeSeasons": "Active Seasons",
     "viewAllSeasons": "View all seasons",
+    "viewAllLeagues": "View all leagues",
     "noActiveSeasons": "No active seasons yet.",
     "myTeams": "My Teams"
   },
@@ -285,6 +286,11 @@
     "noTeams": "You are not managing any teams yet."
   },
   "teamManagement": {
+    "title": "Team Management",
+    "tabs": {
+      "title": "Team Management",
+      "myTeams": "My Teams"
+    },
     "back": "Back",
     "toast": {
       "colorUpdated": "Color for {{name}} updated!"

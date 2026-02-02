@@ -43,7 +43,12 @@ export default function PlayersStatsTable({ topScorers }: PlayersStatsTableProps
 					</TableHeader>
 					<TableBody>
 						{topScorers.map((topScorer, index) => (
-							<TableRow key={topScorer.player.id}>
+							<TableRow key={topScorer.player.id}
+									  style={{
+										  backgroundColor: `${topScorer.player.team?.primaryColor}08`,
+										  borderLeft: `4px solid ${topScorer.player.team?.primaryColor}`
+									  }}
+							>
 								<TableCell className="text-center font-medium">
 									{index < 3 ? (
 										<span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
@@ -58,14 +63,25 @@ export default function PlayersStatsTable({ topScorers }: PlayersStatsTableProps
 									)}
 								</TableCell>
 								<TableCell>
-									<Link to={`/players/${topScorer.player.id}`} className="flex items-center gap-2 hover:text-blue-600">
+									<Link to={`/players/${topScorer.player.id}`} className="flex items-center gap-2 ">
 										<span className="font-medium">{topScorer.player.name}</span>
 										{topScorer.player.number && (
 											<span className="text-xs text-muted-foreground">#{topScorer.player.number}</span>
 										)}
 									</Link>
 								</TableCell>
-								<TableCell className="text-center">{topScorer.player.team?.name || '-'}</TableCell>
+								<TableCell className="text-center">
+									<div className="flex items-center gap-3">
+										<Link to={`/teams/${topScorer.player.team?.id}`}
+											  className="font-medium hover:text-gray-400">
+											{topScorer.player.team?.name || '-'}
+										</Link>
+										<div
+											className="size-3 rounded-full flex-shrink-0"
+											style={{ backgroundColor: topScorer.player.team?.primaryColor ?? undefined }}
+										/>
+									</div>
+								</TableCell>
 								<TableCell className="text-center">{topScorer.gamesPlayed}</TableCell>
 								<TableCell className="text-center">{topScorer.goals}</TableCell>
 								<TableCell className="text-center">{topScorer.assists}</TableCell>
