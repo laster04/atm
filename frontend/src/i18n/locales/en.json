@@ -15,7 +15,7 @@
   },
   "nav": {
     "brand": "Sport Scheduler",
-    "tagline": "Your central hub for all sports leagues and seasons",
+    "tagline": "Season & Team Management",
     "leagues": "Leagues",
     "seasons": "Seasons",
     "myTeams": "My Teams",
@@ -23,7 +23,9 @@
     "admin": "Admin",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "menu": "Menu",
+    "loggedInAs": "Logged in as"
   },
   "home": {
     "title": "Sport Season Scheduler",
@@ -292,6 +294,34 @@
       "myTeams": "My Teams"
     },
     "back": "Back",
+    "pwa": {
+      "wins": "Wins",
+      "losses": "Losses",
+      "points": "Points",
+      "upcomingGames": "Upcoming Games",
+      "viewAll": "View All",
+      "home": "Home",
+      "away": "Away",
+      "quickActions": "Quick Actions",
+      "addPlayer": "Add New Player",
+      "manageRoster": "Manage Roster",
+      "teamRoster": "Team Roster",
+      "add": "Add",
+      "teamSettings": "Team Settings",
+      "customizeBranding": "Customize team branding",
+      "teamInfo": "Team Information",
+      "teamName": "Team Name",
+      "season": "Season",
+      "manager": "Manager",
+      "seasonRecord": "Season Record",
+      "totalPoints": "Total Points",
+      "tabs": {
+        "overview": "Overview",
+        "roster": "Roster",
+        "schedule": "Schedule",
+        "settings": "Settings"
+      }
+    },
     "toast": {
       "colorUpdated": "Color for {{name}} updated!"
     },

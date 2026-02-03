@@ -74,89 +74,81 @@ export default function TeamColorPicker({
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent>
-				<div className="flex items-center gap-6">
-					<div className="flex-1 space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="team-color">{t('teamManagement.branding.primaryColor')}</Label>
-							<div className="flex items-center gap-4">
-								<Input
-									id="team-color"
-									type="color"
-									value={localColor ?? '#000000'}
-									onChange={(e) => handleColorChange(e.target.value)}
-									className="w-24 h-12 cursor-pointer"
-								/>
-								<div className="flex-1">
-									<Input
-										type="text"
-										value={localColor ?? ''}
-										onChange={(e) => handleColorChange(e.target.value)}
-										className="font-mono"
-										placeholder="#000000"
-									/>
-								</div>
-							</div>
-							<p className="text-sm text-muted-foreground">
-								{t('teamManagement.branding.colorUsageExplanation', { name: teamName })}
-							</p>
-						</div>
-
-						<div className="space-y-2">
-							<Label>{t('teamManagement.branding.quickPresets')}</Label>
-							<div className="flex gap-2 flex-wrap">
-								{colorPresets.map((preset) => (
-									<button
-										key={preset.key}
-										onClick={() => handleColorChange(preset.color)}
-										className="flex items-center gap-2 px-3 py-2 rounded-lg border hover:bg-accent transition-colors"
-										title={t(`teamManagement.branding.colors.${preset.key}`)}
-									>
-										<div
-											className="size-6 rounded border"
-											style={{ backgroundColor: preset.color }}
-										/>
-										<span className="text-sm">
-											{t(`teamManagement.branding.colors.${preset.key}`)}
-										</span>
-									</button>
-								))}
-							</div>
+			<CardContent className="space-y-4">
+				<div className="space-y-3">
+					<Label htmlFor="team-color">{t('teamManagement.branding.primaryColor')}</Label>
+					<div className="flex items-center gap-3">
+						<Input
+							id="team-color"
+							type="color"
+							value={localColor ?? '#000000'}
+							onChange={(e) => handleColorChange(e.target.value)}
+							className="w-24 h-12 cursor-pointer"
+						/>
+						<div className="flex-1">
+							<Input
+								type="text"
+								value={localColor ?? ''}
+								onChange={(e) => handleColorChange(e.target.value)}
+								className="font-mono"
+								placeholder="#000000"
+							/>
 						</div>
 					</div>
 
-					<div className="w-64 space-y-4">
-						<div className="text-sm font-medium">{t('teamManagement.branding.livePreview')}</div>
-						<div className="border rounded-lg p-4 space-y-3">
-							<div className="text-xs text-muted-foreground mb-2">
-								{t('teamManagement.branding.standingsRow')}
-							</div>
+					{/* Color Presets */}
+					<div>
+						<Label className="text-xs mb-2 block">{t('teamManagement.branding.quickPresets')}</Label>
+						<div className="grid grid-cols-4 gap-2">
+							{colorPresets.map((preset) => (
+								<button
+									key={preset.key}
+									onClick={() => handleColorChange(preset.color)}
+									className="flex flex-col items-center gap-1 p-2 rounded-lg border hover:bg-accent active:scale-95 transition-all"
+								>
+									<div
+										className="size-10 rounded-full border-2 border-white shadow-md"
+										style={{ backgroundColor: preset.color }}
+									/>
+									<span className="text-xs"> {t(`teamManagement.branding.colors.${preset.key}`)} </span>
+								</button>
+							))}
+						</div>
+					</div>
+				</div>
+				<div className="rounded-lg">
+					<div className="text-xs font-medium mb-2">
+						{t('teamManagement.branding.livePreview')}
+					</div>
+					<div className="border rounded-lg p-4 space-y-3">
+						<div className="text-xs text-muted-foreground mb-2">
+							{t('teamManagement.branding.standingsRow')}
+						</div>
+						<div
+							className="flex items-center gap-3 p-2 rounded"
+							style={{ backgroundColor: `${localColor ?? ''}15` }}
+						>
 							<div
-								className="flex items-center gap-3 p-2 rounded"
-								style={{ backgroundColor: `${localColor ?? ''}15` }}
-							>
+								className="size-3 rounded-full"
+								style={{ backgroundColor: localColor ?? undefined }}
+							/>
+							<span className="text-sm font-medium">{teamName}</span>
+							<span className="text-sm ml-auto">{points} pts</span>
+						</div>
+
+						<div className="text-xs text-muted-foreground mb-2 mt-4">
+							{t('teamManagement.branding.gameCard')}
+						</div>
+						<div className="border rounded p-2 space-y-1">
+							<div className="flex items-center gap-2">
 								<div
-									className="size-3 rounded-full"
+									className="size-2 rounded-full"
 									style={{ backgroundColor: localColor ?? undefined }}
 								/>
 								<span className="text-sm font-medium">{teamName}</span>
-								<span className="text-sm ml-auto">{points} pts</span>
 							</div>
-
-							<div className="text-xs text-muted-foreground mb-2 mt-4">
-								{t('teamManagement.branding.gameCard')}
-							</div>
-							<div className="border rounded p-2 space-y-1">
-								<div className="flex items-center gap-2">
-									<div
-										className="size-2 rounded-full"
-										style={{ backgroundColor: localColor ?? undefined }}
-									/>
-									<span className="text-sm font-medium">{teamName}</span>
-								</div>
-								<div className="text-xs text-muted-foreground">
-									{t('teamManagement.branding.vsOpponent')}
-								</div>
+							<div className="text-xs text-muted-foreground">
+								{t('teamManagement.branding.vsOpponent')}
 							</div>
 						</div>
 					</div>
