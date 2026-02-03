@@ -15,7 +15,7 @@
   },
   "nav": {
     "brand": "Sportovni Planovac",
-    "tagline": "Vaše centrální místo pro všechny sportovní ligy a sezóny",
+    "tagline": "Správa sezón a týmů",
     "leagues": "Ligy",
     "seasons": "Sezony",
     "myTeams": "Moje Týmy",
@@ -23,7 +23,9 @@
     "admin": "Administrace",
     "login": "Prihlasit",
     "register": "Registrovat",
-    "logout": "Odhlasit"
+    "logout": "Odhlasit",
+    "menu": "Menu",
+    "loggedInAs": "Přihlášen jako"
   },
   "home": {
     "title": "Planovac Sportovnich Sezon",
@@ -292,6 +294,34 @@
       "myTeams": "Moje týmy"
     },
     "back": "Zpět",
+    "pwa": {
+      "wins": "Výhry",
+      "losses": "Prohry",
+      "points": "Body",
+      "upcomingGames": "Nadcházející zápasy",
+      "viewAll": "Zobrazit vše",
+      "home": "Doma",
+      "away": "Venku",
+      "quickActions": "Rychlé akce",
+      "addPlayer": "Přidat hráče",
+      "manageRoster": "Spravovat soupisku",
+      "teamRoster": "Soupiska týmu",
+      "add": "Přidat",
+      "teamSettings": "Nastavení týmu",
+      "customizeBranding": "Přizpůsobit značku týmu",
+      "teamInfo": "Informace o týmu",
+      "teamName": "Název týmu",
+      "season": "Sezóna",
+      "manager": "Manažer",
+      "seasonRecord": "Bilance sezóny",
+      "totalPoints": "Celkem bodů",
+      "tabs": {
+        "overview": "Přehled",
+        "roster": "Soupiska",
+        "schedule": "Rozpis",
+        "settings": "Nastavení"
+      }
+    },
     "toast": {
       "colorUpdated": "Barva pro {{name}} byla aktualizována!"
     },

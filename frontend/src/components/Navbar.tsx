@@ -61,7 +61,7 @@ export default function Navbar() {
 									ATM - Amateur Team Manager
 								</h1>
 								<p className="text-xs text-muted-foreground">
-									Season & Team Management
+									{t('nav.tagline')}
 								</p>
 							</div>
 						</div>
@@ -74,7 +74,7 @@ export default function Navbar() {
 											<UserCircle className="size-5" />
 										) : <></>}
 										<div className="sm:block text-left">
-											<div className="text-sm font-medium">MENU</div>
+											<div className="text-sm font-medium">{t('nav.menu')}</div>
 											{user ? (
 												<div className="text-xs text-muted-foreground">{user.name}</div>
 											) : <></>}
@@ -86,9 +86,9 @@ export default function Navbar() {
 										<>
 											<DropdownMenuLabel>
 												<div className="flex flex-col space-y-1">
-													<p className="text-sm font-medium">Logged in as</p>
+													<p className="text-sm font-medium">{t('nav.loggedInAs')}</p>
 													<Badge variant={getRoleBadgeVariant(user?.role)} className="w-fit">
-														aasdf
+														{user?.role ? t(`admin.roles.${user.role}`) : ''}
 													</Badge>
 												</div>
 											</DropdownMenuLabel>

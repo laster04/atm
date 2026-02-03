@@ -1,26 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Award, Target, TrendingUp } from 'lucide-react';
+import {
+	ArrowLeft,
+	Home,
+	Users,
+	BarChart3,
+	Settings,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { teamApi, playerApi, seasonApi } from '@/services/api';
-import { Button } from '@components/base/button.tsx';
+import { Button } from '@components/base/button';
 import type { Player, Standing, Team } from '@types';
-import RosterTable from '../TeamDetail/components/RosterTable';
-import GamesList from '../TeamDetail/components/GamesList';
 import PlayerFormModal, { type PlayerFormData } from '../TeamDetail/components/PlayerFormModal';
-import TeamColorPicker from './components/TeamColorPicker';
-import { Card, CardTitle, CardHeader, CardDescription, CardContent } from "@/components/base/card";
+import OverviewTab from './components/OverviewTab';
+import RosterTab from './components/RosterTab';
+import ScheduleTab from './components/ScheduleTab';
+import SettingsTab from './components/SettingsTab';
+
+type TabType = 'overview' | 'roster' | 'schedule' | 'settings';
 
 export default function Detail() {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { canManageTeam, isAdmin } = useAuth();
-	const [standing, setStanding] = useState<Standing | undefined>();
+	const { canManageTeam } = useAuth();
 
+	const [activeTab, setActiveTab] = useState<TabType>('overview');
 	const [team, setTeam] = useState<Team | null>(null);
 	const [players, setPlayers] = useState<Player[]>([]);
+	const [standing, setStanding] = useState<Standing | undefined>();
 	const [loading, setLoading] = useState(false);
 	const [localColor, setLocalColor] = useState<string | null | undefined>(null);
 
@@ -53,7 +62,6 @@ export default function Detail() {
 				console.error('Failed to fetch season data:', error);
 			}
 		};
-
 		fetchData();
 	}, [team]);
 
@@ -85,30 +93,23 @@ export default function Detail() {
 		setShowPlayerModal(false);
 	};
 
-	const handleDeletePlayer = async (playerId: number) => {
-		if (!confirm(t('teamDetail.confirm.deletePlayer'))) return;
-		if (!team) return;
-		await playerApi.delete(playerId);
-		setPlayers((prev) => prev.filter((p) => p.id !== playerId));
-	};
-
 	const handleBack = () => {
-		if (isAdmin()) {
-			navigate('/admin');
-		} else {
-			navigate('/team-management/my-teams');
-		}
+		navigate('/team-management/my-teams');
 	};
 
 	if (loading && !team) {
 		return (
-			<div className="max-w-7xl mx-auto px-4 py-8 text-center">{t('teamDetail.loading')}</div>
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">{t('teamDetail.loading')}</div>
+			</div>
 		);
 	}
 
 	if (!team) {
 		return (
-			<div className="max-w-7xl mx-auto px-4 py-8 text-center">{t('teamDetail.notFound')}</div>
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">{t('teamDetail.notFound')}</div>
+			</div>
 		);
 	}
 
@@ -116,89 +117,103 @@ export default function Detail() {
 
 	if (!canManage) {
 		return (
-			<div className="max-w-7xl mx-auto px-4 py-8 text-center">
-				<h1 className="text-2xl font-bold text-red-600">{t('myTeams.accessDenied')}</h1>
-				<p className="text-gray-600 mt-2">{t('myTeams.noPrivileges')}</p>
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center">
+					<h1 className="text-2xl font-bold text-red-600">{t('myTeams.accessDenied')}</h1>
+					<p className="text-gray-600 mt-2">{t('myTeams.noPrivileges')}</p>
+				</div>
 			</div>
 		);
 	}
 
-	const stats = [
-		{
-			title: t('teamManagement.stats.teamRecord'),
-			value: standing ? `${standing.wins}-${standing.losses}-${standing?.draws}` : '',
-			icon: Award
-		},
-		{
-			title: t('teamManagement.stats.totalPoints'),
-			value: standing ? standing.points.toString() : '',
-			icon: TrendingUp
-		},
-		{ title: t('teamManagement.stats.leagueRank'), value: 'TODO:', icon: Target },
+	const tabs = [
+		{ id: 'overview' as TabType, icon: Home, label: t('teamManagement.pwa.tabs.overview') },
+		{ id: 'roster' as TabType, icon: Users, label: t('teamManagement.pwa.tabs.roster') },
+		{ id: 'schedule' as TabType, icon: BarChart3, label: t('teamManagement.pwa.tabs.schedule') },
+		{ id: 'settings' as TabType, icon: Settings, label: t('teamManagement.pwa.tabs.settings') },
 	];
 
 	return (
-		<div className="space-y-6">
-			<Button variant="ghost" onClick={handleBack} className="mb-1">
-				<ArrowLeft className="size-4 mr-2"/>
-				{t('teamManagement.back')}
-			</Button>
-			<Card className="bg-gradient-to-r text-white" style={{ backgroundColor: localColor ?? undefined }}>
-				<CardHeader>
-					<div className="flex items-center justify-between">
-						<div className="flex-1">
-							<CardTitle className="text-2xl">{team.name}</CardTitle>
-							<CardDescription className="text-blue-100">
-								{team.season && (
-									team.season.name
-								)}
-								{team.manager && (
-									<p className="text-sm mt-1">
-										{t('teamDetail.manager', { name: team.manager.name })}
-									</p>
-								)}
-							</CardDescription>
-						</div>
-						<div className="ml-4">
-
+		<div className="min-h-screen bg-background -mx-2 -my-3">
+			{/* Mobile Header */}
+			<div
+				className="sticky top-0 z-10 text-white border-b shadow-md"
+				style={{ backgroundColor: localColor || '#003E7E' }}
+			>
+				<div className="px-4 py-3">
+					<div className="flex items-center gap-3">
+						<Button
+							variant="ghost"
+							size="sm"
+							className="text-white hover:bg-white/20 -ml-2"
+							onClick={handleBack}
+						>
+							<ArrowLeft className="size-5" />
+						</Button>
+						<div className="flex-1 min-w-0">
+							<h1 className="text-lg font-bold truncate">{team.name}</h1>
+							{team.season && (
+								<p className="text-sm opacity-80 truncate">{team.season.name}</p>
+							)}
 						</div>
 					</div>
-				</CardHeader>
-			</Card>
-
-			<div className="grid gap-4 md:grid-cols-3">
-				{stats.map((stat) => (
-					<Card key={stat.title}>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm">{stat.title}</CardTitle>
-							<stat.icon className="size-4 text-muted-foreground"/>
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-medium">{stat.value}</div>
-						</CardContent>
-					</Card>
-				))}
-			</div>
-				<TeamColorPicker
-				teamId={team.id}
-				teamName={team.name}
-				initialColor={team.primaryColor}
-				points={standing?.points}
-				onColorChange={setLocalColor}
-			/>
-
-			<div className="grid lg:grid-cols-2 gap-6">
-				<RosterTable
-					players={players.length > 0 ? players : team.players || []}
-					canManage={canManage}
-					onAddPlayer={openAddPlayer}
-					onEditPlayer={openEditPlayer}
-					onDeletePlayer={handleDeletePlayer}
-				/>
-
-				<GamesList games={team.games || []} teamId={team.id}/>
+				</div>
 			</div>
 
+			{/* Content Area */}
+			<div className="px-4 py-4">
+				{activeTab === 'overview' && (
+					<OverviewTab
+						team={team}
+						standing={standing}
+						onTabChange={setActiveTab}
+						onAddPlayer={openAddPlayer}
+					/>
+				)}
+				{activeTab === 'roster' && (
+					<RosterTab
+						players={players}
+						teamColor={localColor}
+						onAddPlayer={openAddPlayer}
+						onEditPlayer={openEditPlayer}
+					/>
+				)}
+				{activeTab === 'schedule' && (
+					<ScheduleTab
+						games={team.games || []}
+						teamId={team.id}
+					/>
+				)}
+				{activeTab === 'settings' && (
+					<SettingsTab
+						team={team}
+						standing={standing}
+						onColorChange={setLocalColor}
+					/>
+				)}
+			</div>
+
+			{/* Bottom Navigation */}
+			<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20">
+				<div className="grid grid-cols-4 h-16">
+					{tabs.map((tab) => (
+						<button
+							key={tab.id}
+							onClick={() => setActiveTab(tab.id)}
+							className={`flex flex-col items-center justify-center gap-1 transition-colors ${
+								activeTab === tab.id
+									? 'text-primary'
+									: 'text-muted-foreground'
+							}`}
+						>
+							<tab.icon className="size-5" />
+							<span className="text-xs font-medium">{tab.label}</span>
+						</button>
+					))}
+				</div>
+			</div>
+
+			{/* Add/Edit Player Modal */}
 			{showPlayerModal && (
 				<PlayerFormModal
 					player={editingPlayer}

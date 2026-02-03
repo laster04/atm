@@ -1,8 +1,6 @@
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
-import { cn } from '@/components/utils';
 
 export default function TeamManagerLayout() {
 	const { isTeamManager } = useAuth();
@@ -17,45 +15,7 @@ export default function TeamManagerLayout() {
 		);
 	}
 
-	const tabs = [
-		{ to: '/team-management/my-teams', label: t('teamManagement.tabs.myTeams') },
-	];
-
-	return (
-		<div className="space-y-6">
-			<h1 className="text-3xl font-bold mb-6">{t('teamManagement.title')}</h1>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>{t('teamManagement.tabs.title')}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<nav className="flex space-x-1 border-b border-gray-200 mb-4">
-						{tabs.map((tab) => (
-							<NavLink
-								key={tab.to}
-								to={tab.to}
-								className={({ isActive }) =>
-									cn(
-										'px-4 py-2 text-sm font-medium rounded-t-md transition-colors',
-										'hover:bg-gray-100',
-										isActive
-											? 'bg-gray-100 text-gray-900 border-b-2 border-primary'
-											: 'text-gray-500'
-									)
-								}
-							>
-								{tab.label}
-							</NavLink>
-						))}
-					</nav>
-					<div className="mt-4">
-						<Outlet />
-					</div>
-				</CardContent>
-			</Card>
-		</div>
-	);
+	return <Outlet />;
 }
 
 export function TeamManagerIndex() {
