@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './store';
@@ -22,48 +22,58 @@ import './index.css';
 import { Toaster } from "@components/base/toaster.tsx";
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 
+function AppContent() {
+  const location = useLocation();
+  const isManagerRoute = location.pathname.startsWith('/admin') ||
+                         location.pathname.startsWith('/team-management');
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {!isManagerRoute && <Navbar />}
+      <Toaster />
+      <main className={isManagerRoute ? '' : 'container mx-auto px-2 py-3'}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/activate/:token" element={<Activate />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/leagues" element={<Leagues />} />
+          <Route path="/leagues/:id" element={<LeagueDetail />} />
+          <Route path="/seasons" element={<Seasons />} />
+          <Route path="/season-detail/:id" element={<SeasonDetail />} />
+          <Route path="/teams/:id" element={<TeamDetail />} />
+          <Route path="/players/:id" element={<PlayerDetail />} />
+          <Route path="/team-management" element={<TeamManagerLayout />}>
+            <Route index element={<TeamManagerIndex />} />
+            <Route path="my-teams" element={<MyTeamsPage />} />
+            <Route path=":id" element={<TeamDetailPage />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminIndex />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="leagues" element={<LeaguesPage />} />
+            <Route path="seasons" element={<SeasonsPage />} />
+            <Route path="teams" element={<TeamsPage />} />
+            <Route path="players" element={<PlayersPage />} />
+            <Route path="players/:id" element={<PlayerDetailPage />} />
+            <Route path="games" element={<GamesPage />} />
+          </Route>
+          <Route path="/game-statistic/:id" element={<GameStatistic />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <AuthProvider>
           <BrowserRouter>
-            <div className="min-h-screen bg-gray-100">
-              <Navbar />
-              <Toaster />
-              <main className="container mx-auto px-2 py-3">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/activate/:token" element={<Activate />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password/:token" element={<ResetPassword />} />
-                  <Route path="/leagues" element={<Leagues />} />
-                  <Route path="/leagues/:id" element={<LeagueDetail />} />
-                  <Route path="/seasons" element={<Seasons />} />
-                  <Route path="/season-detail/:id" element={<SeasonDetail />} />
-                  <Route path="/teams/:id" element={<TeamDetail />} />
-                  <Route path="/players/:id" element={<PlayerDetail />} />
-                  <Route path="/team-management" element={<TeamManagerLayout />}>
-                    <Route index element={<TeamManagerIndex />} />
-                    <Route path="my-teams" element={<MyTeamsPage />} />
-                    <Route path=":id" element={<TeamDetailPage />} />
-                  </Route>
-                  <Route path="/admin" element={<AdminLayout />}>
-                    <Route index element={<AdminIndex />} />
-                    <Route path="users" element={<UsersPage />} />
-                    <Route path="leagues" element={<LeaguesPage />} />
-                    <Route path="seasons" element={<SeasonsPage />} />
-                    <Route path="teams" element={<TeamsPage />} />
-                    <Route path="players" element={<PlayersPage />} />
-                    <Route path="players/:id" element={<PlayerDetailPage />} />
-                    <Route path="games" element={<GamesPage />} />
-                  </Route>
-                  <Route path="/game-statistic/:id" element={<GameStatistic />} />
-                </Routes>
-              </main>
-            </div>
+            <AppContent />
           </BrowserRouter>
         </AuthProvider>
       </PersistGate>
