@@ -202,7 +202,6 @@ export default function GameStatsPage() {
 		);
 	}
 
-	const teamIdNum = parseInt(teamId!);
 	const myTeam = isHomeTeam ? game.homeTeam : game.awayTeam;
 	const opponentTeam = isHomeTeam ? game.awayTeam : game.homeTeam;
 	const myScore = isHomeTeam ? game.homeScore : game.awayScore;
