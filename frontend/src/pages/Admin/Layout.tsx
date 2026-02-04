@@ -1,8 +1,9 @@
 import { NavLink, Outlet, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
+import { Card, CardContent } from '@components/base/card';
 import { cn } from '@/components/utils';
+import ManagerHeader from '@/components/ManagerHeader';
 
 export default function AdminLayout() {
 	const { isAdmin, isSeasonManager } = useAuth();
@@ -27,38 +28,41 @@ export default function AdminLayout() {
 	];
 
 	return (
-		<div className="space-y-6">
-			<h1 className="text-3xl font-bold mb-6">{t('admin.title')}</h1>
+		<div className="min-h-screen bg-background">
+			<ManagerHeader
+				title={t('admin.title')}
+				subtitle={t('admin.tabs.title')}
+				backTo="/"
+			/>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>{t('admin.tabs.title')}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<nav className="flex space-x-1 border-b border-gray-200 mb-4">
-						{tabs.map((tab) => (
-							<NavLink
-								key={tab.to}
-								to={tab.to}
-								className={({ isActive }) =>
-									cn(
-										'px-4 py-2 text-sm font-medium rounded-t-md transition-colors',
-										'hover:bg-gray-100',
-										isActive
-											? 'bg-gray-100 text-gray-900 border-b-2 border-primary'
-											: 'text-gray-500'
-									)
-								}
-							>
-								{tab.label}
-							</NavLink>
-						))}
-					</nav>
-					<div className="mt-4">
-						<Outlet />
-					</div>
-				</CardContent>
-			</Card>
+			<div className="container mx-auto px-4 py-4">
+				<Card>
+					<CardContent className="pt-6">
+						<nav className="flex space-x-1 border-b border-gray-200 mb-4 overflow-x-auto">
+							{tabs.map((tab) => (
+								<NavLink
+									key={tab.to}
+									to={tab.to}
+									className={({ isActive }) =>
+										cn(
+											'px-4 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap',
+											'hover:bg-gray-100',
+											isActive
+												? 'bg-gray-100 text-gray-900 border-b-2 border-primary'
+												: 'text-gray-500'
+										)
+									}
+								>
+									{tab.label}
+								</NavLink>
+							))}
+						</nav>
+						<div className="mt-4">
+							<Outlet />
+						</div>
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }

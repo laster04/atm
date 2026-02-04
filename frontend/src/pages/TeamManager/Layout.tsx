@@ -1,10 +1,12 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
+import ManagerHeader from '@/components/ManagerHeader';
 
 export default function TeamManagerLayout() {
 	const { isTeamManager } = useAuth();
 	const { t } = useTranslation();
+	const location = useLocation();
 
 	if (!isTeamManager()) {
 		return (
@@ -15,7 +17,23 @@ export default function TeamManagerLayout() {
 		);
 	}
 
-	return <Outlet />;
+	// Don't show header on team detail page (it has its own header)
+	const isTeamDetailPage = /^\/team-management\/\d+/.test(location.pathname);
+
+	return (
+		<div className="min-h-screen bg-background">
+			{!isTeamDetailPage && (
+				<ManagerHeader
+					title={t('teamManagement.title')}
+					subtitle={t('teamManagement.tabs.myTeams')}
+					backTo="/"
+				/>
+			)}
+			<div className={isTeamDetailPage ? '' : 'container mx-auto px-4 py-4'}>
+				<Outlet />
+			</div>
+		</div>
+	);
 }
 
 export function TeamManagerIndex() {

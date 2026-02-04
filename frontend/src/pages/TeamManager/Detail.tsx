@@ -12,7 +12,6 @@ import { useAuth } from '../../context/AuthContext';
 import { teamApi, playerApi, seasonApi } from '@/services/api';
 import { Button } from '@components/base/button';
 import type { Player, Standing, Team } from '@types';
-import PlayerFormModal, { type PlayerFormData } from '../TeamDetail/components/PlayerFormModal';
 import OverviewTab from './components/OverviewTab';
 import RosterTab from './components/RosterTab';
 import ScheduleTab from './components/ScheduleTab';
@@ -32,9 +31,6 @@ export default function Detail() {
 	const [standing, setStanding] = useState<Standing | undefined>();
 	const [loading, setLoading] = useState(false);
 	const [localColor, setLocalColor] = useState<string | null | undefined>(null);
-
-	const [showPlayerModal, setShowPlayerModal] = useState(false);
-	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
 	useEffect(() => {
 		if (!id) return;
@@ -64,34 +60,6 @@ export default function Detail() {
 		};
 		fetchData();
 	}, [team]);
-
-	const openAddPlayer = () => {
-		setEditingPlayer(null);
-		setShowPlayerModal(true);
-	};
-
-	const openEditPlayer = (player: Player) => {
-		setEditingPlayer(player);
-		setShowPlayerModal(true);
-	};
-
-	const handleSavePlayer = async (data: PlayerFormData) => {
-		if (!team) return;
-		const playerData = {
-			name: data.name,
-			number: data.number ? parseInt(data.number) : undefined,
-			position: data.position || undefined,
-		};
-
-		if (editingPlayer) {
-			const res = await playerApi.update(editingPlayer.id, playerData);
-			setPlayers((prev) => prev.map((p) => (p.id === editingPlayer.id ? res.data : p)));
-		} else {
-			const res = await playerApi.create(team.id, playerData);
-			setPlayers((prev) => [...prev, res.data]);
-		}
-		setShowPlayerModal(false);
-	};
 
 	const handleBack = () => {
 		navigate('/team-management/my-teams');
@@ -167,15 +135,13 @@ export default function Detail() {
 						team={team}
 						standing={standing}
 						onTabChange={setActiveTab}
-						onAddPlayer={openAddPlayer}
 					/>
 				)}
 				{activeTab === 'roster' && (
 					<RosterTab
 						players={players}
+						teamId={team.id}
 						teamColor={localColor}
-						onAddPlayer={openAddPlayer}
-						onEditPlayer={openEditPlayer}
 					/>
 				)}
 				{activeTab === 'schedule' && (
@@ -212,15 +178,6 @@ export default function Detail() {
 					))}
 				</div>
 			</div>
-
-			{/* Add/Edit Player Modal */}
-			{showPlayerModal && (
-				<PlayerFormModal
-					player={editingPlayer}
-					onSubmit={handleSavePlayer}
-					onClose={() => setShowPlayerModal(false)}
-				/>
-			)}
 		</div>
 	);
 }

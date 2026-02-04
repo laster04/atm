@@ -210,7 +210,8 @@
       "todaysSchedule": "Dnešní program",
       "todaysGamesDescription": "Zápasy naplánované na dnes",
       "upcomingGames": "Nadcházející zápasy",
-      "upcomingGamesDescription": "Program na příštích pár dní"
+      "upcomingGamesDescription": "Program na příštích pár dní",
+      "pastGames": "Odehrané zápasy"
     },
     "teams": {
       "noTeams": "V teto sezone zatim zadne tymy.",
@@ -298,7 +299,11 @@
       "wins": "Výhry",
       "losses": "Prohry",
       "points": "Body",
+      "win": "V",
+      "draw": "R",
+      "loss": "P",
       "upcomingGames": "Nadcházející zápasy",
+      "pastGames": "Odehrané zápasy",
       "viewAll": "Zobrazit vše",
       "home": "Doma",
       "away": "Venku",
@@ -321,6 +326,40 @@
         "schedule": "Rozpis",
         "settings": "Nastavení"
       }
+    },
+    "gameStats": {
+      "playerStats": "Statistiky hráčů",
+      "goals": "Góly",
+      "assists": "Asistence",
+      "noPlayers": "V tomto týmu nejsou žádní hráči",
+      "fetchError": "Nepodařilo se načíst data zápasu",
+      "saveSuccess": "Statistiky byly úspěšně uloženy",
+      "saveError": "Nepodařilo se uložit statistiky",
+      "notFound": "Zápas nenalezen",
+      "notYourGame": "Tento zápas nepatří vašemu týmu"
+    },
+    "playerDetail": {
+      "addPlayer": "Přidat hráče",
+      "editPlayer": "Upravit hráče",
+      "name": "Jméno",
+      "number": "Číslo",
+      "position": "Pozice",
+      "bornYear": "Rok narození",
+      "note": "Poznámka",
+      "born": "Narozen",
+      "goals": "Góly",
+      "assists": "Asistence",
+      "gamesPlayed": "Zápasy",
+      "gameHistory": "Historie zápasů",
+      "noGames": "Zatím žádné odehrané zápasy",
+      "notFound": "Hráč nenalezen",
+      "fetchError": "Nepodařilo se načíst data hráče",
+      "createSuccess": "Hráč byl úspěšně vytvořen",
+      "saveSuccess": "Hráč byl úspěšně uložen",
+      "saveError": "Nepodařilo se uložit hráče",
+      "deleteSuccess": "Hráč byl úspěšně smazán",
+      "deleteError": "Nepodařilo se smazat hráče",
+      "confirmDelete": "Opravdu chcete smazat tohoto hráče?"
     },
     "toast": {
       "colorUpdated": "Barva pro {{name}} byla aktualizována!"

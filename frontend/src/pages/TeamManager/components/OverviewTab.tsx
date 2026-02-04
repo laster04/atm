@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Plus, Users } from 'lucide-react';
 import { Button } from '@components/base/button';
 import { Badge } from '@components/base/badge';
@@ -9,16 +10,15 @@ interface OverviewTabProps {
 	team: Team;
 	standing?: Standing;
 	onTabChange: (tab: 'roster' | 'schedule') => void;
-	onAddPlayer: () => void;
 }
 
 export default function OverviewTab({
 	team,
 	standing,
 	onTabChange,
-	onAddPlayer,
 }: OverviewTabProps) {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 
 	const upcomingGames = (team.games || [])
 		.filter((g: Game) => g.status === 'SCHEDULED')
@@ -119,7 +119,7 @@ export default function OverviewTab({
 				<CardContent className="space-y-2">
 					<Button
 						className="w-full justify-start h-12"
-						onClick={onAddPlayer}
+						onClick={() => navigate(`/team-management/${team.id}/player/new`)}
 					>
 						<Plus className="size-4 mr-2" />
 						{t('teamManagement.pwa.addPlayer')}
