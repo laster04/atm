@@ -210,7 +210,8 @@
       "todaysSchedule": "Today's Schedule",
       "todaysGamesDescription": "Games scheduled for today",
       "upcomingGames": "Upcoming Games",
-      "upcomingGamesDescription": "Schedule for the next few days"
+      "upcomingGamesDescription": "Schedule for the next few days",
+      "pastGames": "Played Games"
     },
     "teams": {
       "noTeams": "No teams in this season yet.",
@@ -298,7 +299,11 @@
       "wins": "Wins",
       "losses": "Losses",
       "points": "Points",
+      "win": "W",
+      "draw": "D",
+      "loss": "L",
       "upcomingGames": "Upcoming Games",
+      "pastGames": "Played Games",
       "viewAll": "View All",
       "home": "Home",
       "away": "Away",
@@ -321,6 +326,40 @@
         "schedule": "Schedule",
         "settings": "Settings"
       }
+    },
+    "gameStats": {
+      "playerStats": "Player Statistics",
+      "goals": "Goals",
+      "assists": "Assists",
+      "noPlayers": "No players in this team",
+      "fetchError": "Failed to load game data",
+      "saveSuccess": "Statistics saved successfully",
+      "saveError": "Failed to save statistics",
+      "notFound": "Game not found",
+      "notYourGame": "This game does not belong to your team"
+    },
+    "playerDetail": {
+      "addPlayer": "Add Player",
+      "editPlayer": "Edit Player",
+      "name": "Name",
+      "number": "Number",
+      "position": "Position",
+      "bornYear": "Birth Year",
+      "note": "Note",
+      "born": "Born",
+      "goals": "Goals",
+      "assists": "Assists",
+      "gamesPlayed": "Games",
+      "gameHistory": "Game History",
+      "noGames": "No games played yet",
+      "notFound": "Player not found",
+      "fetchError": "Failed to load player data",
+      "createSuccess": "Player created successfully",
+      "saveSuccess": "Player saved successfully",
+      "saveError": "Failed to save player",
+      "deleteSuccess": "Player deleted successfully",
+      "deleteError": "Failed to delete player",
+      "confirmDelete": "Are you sure you want to delete this player?"
     },
     "toast": {
       "colorUpdated": "Color for {{name}} updated!"
