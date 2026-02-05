@@ -306,6 +306,12 @@ export interface UpdateTeamRequest {
   primaryColor?: string;
 }
 
+export interface InviteManagerRequest {
+  email: string;
+  name: string;
+  locale?: string;
+}
+
 // Response types
 export interface TeamRef {
   id: number;

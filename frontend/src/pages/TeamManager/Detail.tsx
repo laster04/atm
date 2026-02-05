@@ -23,7 +23,7 @@ export default function Detail() {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { canManageTeam } = useAuth();
+	const { isAdmin, canManageTeam } = useAuth();
 
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
 	const [team, setTeam] = useState<Team | null>(null);
@@ -62,8 +62,19 @@ export default function Detail() {
 	}, [team]);
 
 	const handleBack = () => {
-		navigate('/team-management/my-teams');
+		if (isAdmin()) {
+			navigate('/admin/teams')
+		} else {
+			navigate('/team-management/my-teams');
+		}
 	};
+
+	const tabs = [
+		{ id: 'overview' as TabType, icon: Home, label: t('teamManagement.pwa.tabs.overview') },
+		{ id: 'roster' as TabType, icon: Users, label: t('teamManagement.pwa.tabs.roster') },
+		{ id: 'schedule' as TabType, icon: BarChart3, label: t('teamManagement.pwa.tabs.schedule') },
+		{ id: 'settings' as TabType, icon: Settings, label: t('teamManagement.pwa.tabs.settings') },
+	];
 
 	if (loading && !team) {
 		return (
@@ -72,6 +83,7 @@ export default function Detail() {
 			</div>
 		);
 	}
+	let pageContent ;
 
 	if (!team) {
 		return (
@@ -84,7 +96,7 @@ export default function Detail() {
 	const canManage = canManageTeam(team.managerId);
 
 	if (!canManage) {
-		return (
+		pageContent = (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="text-center">
 					<h1 className="text-2xl font-bold text-red-600">{t('myTeams.accessDenied')}</h1>
@@ -92,14 +104,63 @@ export default function Detail() {
 				</div>
 			</div>
 		);
-	}
+	} else {
+		pageContent = (
+			<>
+			{/* Content Area */}
+		<div className="px-4 py-4">
+			{activeTab === 'overview' && (
+				<OverviewTab
+					team={team}
+					standing={standing}
+					onTabChange={setActiveTab}
+				/>
+			)}
+			{activeTab === 'roster' && (
+				<RosterTab
+					players={players}
+					teamId={team.id}
+					teamColor={localColor}
+				/>
+			)}
+			{activeTab === 'schedule' && (
+				<ScheduleTab
+					games={team.games || []}
+					teamId={team.id}
+				/>
+			)}
+			{activeTab === 'settings' && (
+				<SettingsTab
+					team={team}
+					standing={standing}
+					onColorChange={setLocalColor}
+					onTeamUpdate={setTeam}
+				/>
+			)}
+		</div>
 
-	const tabs = [
-		{ id: 'overview' as TabType, icon: Home, label: t('teamManagement.pwa.tabs.overview') },
-		{ id: 'roster' as TabType, icon: Users, label: t('teamManagement.pwa.tabs.roster') },
-		{ id: 'schedule' as TabType, icon: BarChart3, label: t('teamManagement.pwa.tabs.schedule') },
-		{ id: 'settings' as TabType, icon: Settings, label: t('teamManagement.pwa.tabs.settings') },
-	];
+		{/* Bottom Navigation */}
+		<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20">
+			<div className="grid grid-cols-4 h-16">
+				{tabs.map((tab) => (
+					<button
+						key={tab.id}
+						onClick={() => setActiveTab(tab.id)}
+						className={`flex flex-col items-center justify-center gap-1 transition-colors ${
+							activeTab === tab.id
+								? 'text-primary'
+								: 'text-muted-foreground'
+						}`}
+					>
+						<tab.icon className="size-5" />
+						<span className="text-xs font-medium">{tab.label}</span>
+					</button>
+				))}
+			</div>
+		</div>
+			</>
+		)
+	}
 
 	return (
 		<div className="min-h-screen bg-background -mx-2 -my-3">
@@ -127,57 +188,7 @@ export default function Detail() {
 					</div>
 				</div>
 			</div>
-
-			{/* Content Area */}
-			<div className="px-4 py-4">
-				{activeTab === 'overview' && (
-					<OverviewTab
-						team={team}
-						standing={standing}
-						onTabChange={setActiveTab}
-					/>
-				)}
-				{activeTab === 'roster' && (
-					<RosterTab
-						players={players}
-						teamId={team.id}
-						teamColor={localColor}
-					/>
-				)}
-				{activeTab === 'schedule' && (
-					<ScheduleTab
-						games={team.games || []}
-						teamId={team.id}
-					/>
-				)}
-				{activeTab === 'settings' && (
-					<SettingsTab
-						team={team}
-						standing={standing}
-						onColorChange={setLocalColor}
-					/>
-				)}
-			</div>
-
-			{/* Bottom Navigation */}
-			<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20">
-				<div className="grid grid-cols-4 h-16">
-					{tabs.map((tab) => (
-						<button
-							key={tab.id}
-							onClick={() => setActiveTab(tab.id)}
-							className={`flex flex-col items-center justify-center gap-1 transition-colors ${
-								activeTab === tab.id
-									? 'text-primary'
-									: 'text-muted-foreground'
-							}`}
-						>
-							<tab.icon className="size-5" />
-							<span className="text-xs font-medium">{tab.label}</span>
-						</button>
-					))}
-				</div>
-			</div>
+			{pageContent}
 		</div>
 	);
 }

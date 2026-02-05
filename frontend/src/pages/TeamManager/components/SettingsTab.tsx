@@ -1,20 +1,28 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardTitle, CardHeader, CardContent } from '@/components/base/card';
+import { Button } from '@components/base/button';
+import { useAuth } from '@/context/AuthContext';
 import TeamColorPicker from './TeamColorPicker';
+import InviteManagerModal from './InviteManagerModal';
 import type { Standing, Team } from '@types';
 
 interface SettingsTabProps {
 	team: Team;
 	standing?: Standing;
 	onColorChange: (color: string | null) => void;
+	onTeamUpdate: (team: Team) => void;
 }
 
 export default function SettingsTab({
 	team,
 	standing,
 	onColorChange,
+	onTeamUpdate,
 }: SettingsTabProps) {
 	const { t } = useTranslation();
+	const { isAdmin } = useAuth();
+	const [showInviteModal, setShowInviteModal] = useState(false);
 
 	return (
 		<div className="space-y-4 pb-20">
@@ -55,14 +63,14 @@ export default function SettingsTab({
 							<span className="text-sm font-medium">{team.season.name}</span>
 						</div>
 					)}
-					{team.manager && (
-						<div className="flex justify-between py-2 border-b">
-							<span className="text-sm text-muted-foreground">
-								{t('teamManagement.pwa.manager')}
-							</span>
-							<span className="text-sm font-medium">{team.manager.name}</span>
-						</div>
-					)}
+					<div className="flex justify-between items-center py-2 border-b">
+						<span className="text-sm text-muted-foreground">
+							{t('teamManagement.pwa.manager')}
+						</span>
+						<span className="text-sm font-medium">
+							{team.manager?.name || '-'}
+						</span>
+					</div>
 					<div className="flex justify-between py-2 border-b">
 						<span className="text-sm text-muted-foreground">
 							{t('teamManagement.pwa.seasonRecord')}
@@ -79,6 +87,39 @@ export default function SettingsTab({
 					</div>
 				</CardContent>
 			</Card>
+
+			{/* Invite Manager - Admin only */}
+			{isAdmin() && (
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-base">
+							{t('teamDetail.inviteManager.title')}
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-muted-foreground mb-3">
+							{t('teamDetail.inviteManager.description')}
+						</p>
+						<Button
+							onClick={() => setShowInviteModal(true)}
+							className="bg-orange-500 hover:bg-orange-600"
+						>
+							{t('teamDetail.inviteManager.button')}
+						</Button>
+					</CardContent>
+				</Card>
+			)}
+
+			{showInviteModal && (
+				<InviteManagerModal
+					teamId={team.id}
+					onSuccess={(updatedTeam) => {
+						onTeamUpdate(updatedTeam);
+						setShowInviteModal(false);
+					}}
+					onClose={() => setShowInviteModal(false)}
+				/>
+			)}
 		</div>
 	);
 }

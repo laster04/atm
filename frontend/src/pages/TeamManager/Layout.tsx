@@ -4,11 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import ManagerHeader from '@/components/ManagerHeader';
 
 export default function TeamManagerLayout() {
-	const { isTeamManager } = useAuth();
+	const { isTeamManager, isAdmin } = useAuth();
 	const { t } = useTranslation();
 	const location = useLocation();
 
-	if (!isTeamManager()) {
+	if (!isAdmin() && !isTeamManager()) {
 		return (
 			<div className="max-w-7xl mx-auto px-4 py-8 text-center">
 				<h1 className="text-2xl font-bold text-red-600">{t('myTeams.accessDenied')}</h1>

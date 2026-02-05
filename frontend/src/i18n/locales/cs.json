@@ -250,6 +250,18 @@
       "name": "Jmeno",
       "number": "Cislo",
       "position": "Pozice"
+    },
+    "inviteManager": {
+      "button": "Pozvat manažera",
+      "title": "Pozvat manažera týmu",
+      "description": "Zadejte email a jméno osoby, kterou chcete pozvat jako manažera tohoto tymu. Obdrží email s odkazem pro nastavení hesla.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "manazer@atm.cz",
+      "nameLabel": "Jméno",
+      "namePlaceholder": "Jan Novak",
+      "submit": "Odeslat pozvanku",
+      "sending": "Odesílam...",
+      "error": "Nepodařilo se pozvat manažera"
     }
   },
   "playerDetail": {

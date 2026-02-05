@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
+import emailService from '../services/emailService.js';
 import {
   AuthRequest,
   CreateTeamRequest,
   UpdateTeamRequest,
+  InviteManagerRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
@@ -219,5 +223,88 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
   } catch (error) {
     console.error('Delete team error:', error);
     res.status(500).json({ error: 'Failed to delete team' });
+  }
+};
+
+export const inviteManager = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { email, name, locale } = req.body as InviteManagerRequest;
+
+    if (!email || !name) {
+      res.status(400).json({ error: 'Email and name are required' });
+      return;
+    }
+
+    const team = await prisma.team.findUnique({ where: { id: parseInt(id) } });
+    if (!team) {
+      res.status(404).json({ error: 'Team not found' });
+      return;
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      res.status(400).json({ error: 'A user with this email already exists' });
+      return;
+    }
+
+    // Create user with random password and password reset token
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date();
+    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1);
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        role: 'TEAM_MANAGER',
+        active: true,
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+        passwordResetToken: resetToken,
+        passwordResetTokenExpiresAt: resetTokenExpiry,
+      },
+      select: { id: true, email: true, name: true, role: true },
+    });
+
+    // Assign as team manager
+    const updatedTeam = await prisma.team.update({
+      where: { id: parseInt(id) },
+      data: { managerId: newUser.id },
+      include: {
+        season: {
+          include: {
+            league: { select: { id: true, name: true, sportType: true } }
+          }
+        },
+        players: { orderBy: { number: 'asc' } },
+        manager: { select: { id: true, name: true, email: true } },
+        homeGames: {
+          include: { awayTeam: { select: { id: true, name: true } } },
+          orderBy: { date: 'asc' }
+        },
+        awayGames: {
+          include: { homeTeam: { select: { id: true, name: true } } },
+          orderBy: { date: 'asc' }
+        }
+      }
+    });
+
+    // Send invitation email
+    emailService.sendManagerInviteEmail(email, name, team.name, resetToken, locale).catch((err) => {
+      console.error('Failed to send manager invite email:', err);
+    });
+
+    const allGames = [...updatedTeam.homeGames, ...updatedTeam.awayGames].sort(
+      (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
+    );
+
+    res.status(201).json({ ...updatedTeam, games: allGames });
+  } catch (error) {
+    console.error('Invite manager error:', error);
+    res.status(500).json({ error: 'Failed to invite manager' });
   }
 };
