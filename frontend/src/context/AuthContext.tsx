@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authApi } from '../services/api';
-import { Role } from '../types';
-import type { User, AuthContextType } from '../types';
+import { Role } from '@types';
+import type { User, AuthContextType } from '@types';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -42,8 +42,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (email: string, password: string, name: string) => {
     const res = await authApi.register({ email, password, name });
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data;
   };
@@ -79,6 +77,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
+  console.log('isAdmin', context?.isAdmin());
+  console.log('canManage', context?.canManageTeam());
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

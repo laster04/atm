@@ -5,7 +5,8 @@ import {
   getTeamById,
   createTeam,
   updateTeam,
-  deleteTeam
+  deleteTeam,
+  inviteManager
 } from '../controllers/teamController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
@@ -18,5 +19,6 @@ router.get('/:id', getTeamById);
 router.post('/season/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), createTeam);
 router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), updateTeam);
 router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), deleteTeam);
+router.post('/:id/invite-manager', authenticate, authorize('ADMIN'), inviteManager);
 
 export default router;

@@ -250,6 +250,18 @@
       "name": "Name",
       "number": "Number",
       "position": "Position"
+    },
+    "inviteManager": {
+      "button": "Invite Manager",
+      "title": "Invite Team Manager",
+      "description": "Enter the email and name of the person you want to invite as manager of this team. They will receive an email with a link to set their password.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "manager@atm.com",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "submit": "Send Invitation",
+      "sending": "Sending...",
+      "error": "Failed to invite manager"
     }
   },
   "playerDetail": {

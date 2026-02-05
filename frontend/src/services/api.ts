@@ -83,7 +83,9 @@ export const teamApi = {
   create: (seasonId: string | number, data: Partial<Team>) =>
     api.post<Team>(`/teams/season/${seasonId}`, data),
   update: (id: string | number, data: Partial<Team>) => api.put<Team>(`/teams/${id}`, data),
-  delete: (id: string | number) => api.delete(`/teams/${id}`)
+  delete: (id: string | number) => api.delete(`/teams/${id}`),
+  inviteManager: (teamId: string | number, data: { email: string; name: string; locale?: string }) =>
+    api.post<Team>(`/teams/${teamId}/invite-manager`, data),
 };
 
 export const playerApi = {
