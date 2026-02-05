@@ -77,8 +77,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-  console.log('isAdmin', context?.isAdmin());
-  console.log('canManage', context?.canManageTeam());
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
