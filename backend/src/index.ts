@@ -21,19 +21,27 @@ const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
   : null;
 
-const corsOptions = {
-  origin: allowedOrigins
-    ? (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    : '*',
+app.use(cors({
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (server-to-server, curl, etc.)
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    // If no allowed origins configured, allow all
+    if (!allowedOrigins) {
+      callback(null, true);
+      return;
+    }
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(null, false);
+    }
+  },
   credentials: true,
-};
-app.use(cors(corsOptions));
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
