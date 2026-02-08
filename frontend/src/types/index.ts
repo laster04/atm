@@ -157,3 +157,11 @@ export interface AuthContextType {
   isTeamManager: () => boolean;
   canManageTeam: (teamManagerId?: number | null) => boolean;
 }
+
+export interface TopScorer {
+  player: Player;
+  goals: number;
+  assists: number;
+  gamesPlayed: number;
+  points: number;
+}

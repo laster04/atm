@@ -398,6 +398,69 @@ describe('Game Statistics CRUD', () => {
     });
   });
 
+  describe('GET /api/game-statistics/season/:seasonId/team/:teamId', () => {
+    it('should return scorers for team in particular season', async () => {
+      const res = await request(app)
+          .get(`/api/game-statistics/season/${seasonId}/team/${teamId}`)
+          .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThanOrEqual(1);
+
+      for (const entry of res.body) {
+        expect(entry).toHaveProperty('player');
+        expect(entry).toHaveProperty('goals');
+        expect(entry).toHaveProperty('assists');
+        expect(entry).toHaveProperty('gamesPlayed');
+        expect(entry).toHaveProperty('points');
+      }
+    });
+
+    it('should only include players belonging to the requested team', async () => {
+      const res = await request(app)
+          .get(`/api/game-statistics/season/${seasonId}/team/${teamId}`)
+          .expect(200);
+
+      const playerIds = res.body.map((e: { player: { id: number } }) => e.player.id);
+      expect(playerIds).toContain(playerId);
+      expect(playerIds).not.toContain(playerId2);
+
+      // Every returned player should belong to the requested team
+      for (const entry of res.body) {
+        expect(entry.player.teamId).toBe(teamId);
+      }
+    });
+
+    it('should sort by points descending', async () => {
+      const res = await request(app)
+          .get(`/api/game-statistics/season/${seasonId}/team/${teamId}`)
+          .expect(200);
+
+      for (let i = 0; i < res.body.length - 1; i++) {
+        expect(res.body[i].points).toBeGreaterThanOrEqual(res.body[i + 1].points);
+      }
+    });
+
+    it('should return empty array for team with no games in season', async () => {
+      // Create a team in the season but with no games
+      const lonelyTeamRes = await request(app)
+          .post(`/api/teams/season/${seasonId}`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ name: `Lonely Team ${Date.now()}` });
+      const lonelyTeamId = lonelyTeamRes.body.id;
+
+      const res = await request(app)
+          .get(`/api/game-statistics/season/${seasonId}/team/${lonelyTeamId}`)
+          .expect(200);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(0);
+
+      // Clean up
+      await prisma.team.delete({ where: { id: lonelyTeamId } }).catch(() => {});
+    });
+  });
+
   describe('DELETE /api/game-statistics/:id', () => {
     it('should delete a statistic', async () => {
       const res = await request(app)

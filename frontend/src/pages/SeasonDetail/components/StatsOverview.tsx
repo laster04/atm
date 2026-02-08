@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
 
 import { Calendar, Target, TrendingUp, Trophy } from 'lucide-react';
-import { Game, GameStatus, Standing } from "@types";
+import { Game, GameStatus, Standing, TopScorer } from "@types";
 import { useTranslation } from "react-i18next";
 import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
-import { gameStatisticApi, type TopScorer } from '@/services/api';
+import { gameStatisticApi } from '@/services/api';
 import TopScorers from './TopScorers';
 
 interface StatsOverviewProps {

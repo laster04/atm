@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { TopScorer } from '@/services/api';
+import { TopScorer } from "@types";
 
 interface TopScorersProps {
   topScorers: TopScorer[];
