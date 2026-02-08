@@ -36,8 +36,8 @@ export default function TeamDetailScreen() {
   }, [id]);
 
   useEffect(() => {
-    if (!team) return;
-    gameStatisticApi.getScorersBySeasonAndTeam(team?.season?.id, team.id)
+    if (!team?.season) return;
+    gameStatisticApi.getScorersBySeasonAndTeam(team.season.id, team.id)
         .then((res) => {
           setTopScorers(res.data)
         })
