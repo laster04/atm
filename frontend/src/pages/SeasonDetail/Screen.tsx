@@ -1,9 +1,9 @@
 import { JSX, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { seasonApi, gameApi, gameStatisticApi, type TopScorer } from '@/services/api';
+import { seasonApi, gameApi, gameStatisticApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import type { Season, Game, Standing } from '@/types';
+import type { Season, Game, Standing, TopScorer } from '@/types';
 
 import SeasonHeader from './components/SeasonHeader';
 import StandingsTable from './components/StandingsTable';

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardTitle, CardHeader } from "@/components/base/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/base/table";
-import type { TopScorer } from '@/services/api';
+import { TopScorer } from "@types";
 
 interface PlayersStatsTableProps {
 	topScorers: TopScorer[];

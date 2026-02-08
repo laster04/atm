@@ -20,7 +20,11 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
           </Button>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
+      <div className="bg-white p-6 rounded-lg shadow mb-6"
+           style={{
+               backgroundColor: `${team?.primaryColor}35`,
+               borderLeft: `4px solid ${team?.primaryColor}`
+           }}>
         <h1 className="text-3xl font-bold mb-2">{team.name}</h1>
         <p className="text-gray-600">
           {team.season?.name} · {team.season?.league?.name || '-'}
