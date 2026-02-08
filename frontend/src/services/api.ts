@@ -86,6 +86,12 @@ export const teamApi = {
   delete: (id: string | number) => api.delete(`/teams/${id}`),
   inviteManager: (teamId: string | number, data: { email: string; name: string; locale?: string }) =>
     api.post<Team>(`/teams/${teamId}/invite-manager`, data),
+  addToSeason: (teamId: string | number, seasonId: string | number) =>
+    api.post(`/teams/${teamId}/seasons/${seasonId}`),
+  removeFromSeason: (teamId: string | number, seasonId: string | number) =>
+    api.delete(`/teams/${teamId}/seasons/${seasonId}`),
+  getAvailableForSeason: (seasonId: string | number) =>
+    api.get<Team[]>(`/teams/available/${seasonId}`),
 };
 
 export const playerApi = {

@@ -15,7 +15,7 @@ export const getAllSeasons = async (req: Request, res: Response): Promise<void> 
     const seasons = await prisma.season.findMany({
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
-        _count: { select: { teams: true, games: true } }
+        _count: { select: { seasonTeams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
@@ -32,7 +32,7 @@ export const getMySeasons = async (req: AuthRequest, res: Response): Promise<voi
       where: { league: { managerId: req.user!.id } },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
-        _count: { select: { teams: true, games: true } }
+        _count: { select: { seasonTeams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
@@ -50,10 +50,14 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
       where: { id: parseInt(id) },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
-        teams: {
+        seasonTeams: {
           include: {
-            _count: { select: { players: true } },
-            manager: { select: { id: true, name: true, email: true } }
+            team: {
+              include: {
+                _count: { select: { players: true } },
+                manager: { select: { id: true, name: true, email: true } }
+              }
+            }
           }
         },
         _count: { select: { games: true } }
@@ -65,7 +69,10 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    res.json(season);
+    // Map seasonTeams to flat teams array for backward compatibility
+    const { seasonTeams, ...seasonData } = season;
+    const teams = seasonTeams.map(st => st.team);
+    res.json({ ...seasonData, teams });
   } catch (error) {
     console.error('Get season error:', error);
     res.status(500).json({ error: 'Failed to fetch season' });
@@ -104,7 +111,7 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
       },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
-        _count: { select: { teams: true, games: true } }
+        _count: { select: { seasonTeams: true, games: true } }
       }
     });
 
@@ -156,7 +163,7 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
       },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
-        _count: { select: { teams: true, games: true } }
+        _count: { select: { seasonTeams: true, games: true } }
       }
     });
 
@@ -218,10 +225,11 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const teams = await prisma.team.findMany({
+    const seasonTeams = await prisma.seasonTeam.findMany({
       where: { seasonId },
-      select: { id: true, name: true, logo: true, primaryColor: true }
+      include: { team: { select: { id: true, name: true, logo: true, primaryColor: true } } }
     });
+    const teams = seasonTeams.map(st => st.team);
 
     const games = await prisma.game.findMany({
       where: { seasonId, status: 'COMPLETED' }
@@ -295,20 +303,23 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const team = await prisma.team.findFirst({
-      where: { id: teamIdNum, seasonId },
-      select: { id: true, name: true, logo: true }
+    const seasonTeamEntry = await prisma.seasonTeam.findUnique({
+      where: { seasonId_teamId: { seasonId, teamId: teamIdNum } },
+      include: { team: { select: { id: true, name: true, logo: true } } }
     });
 
-    if (!team) {
+    if (!seasonTeamEntry) {
       res.status(404).json({ error: 'Team not found in this season' });
       return;
     }
 
-    const allTeams = await prisma.team.findMany({
+    const team = seasonTeamEntry.team;
+
+    const allSeasonTeams = await prisma.seasonTeam.findMany({
       where: { seasonId },
-      select: { id: true, name: true, logo: true }
+      include: { team: { select: { id: true, name: true, logo: true } } }
     });
+    const allTeams = allSeasonTeams.map(st => st.team);
 
     const games = await prisma.game.findMany({
       where: { seasonId, status: 'COMPLETED' }
@@ -393,7 +404,7 @@ export const getSeasonsByLeague = async (req: Request, res: Response): Promise<v
       where: { leagueId: parseInt(leagueId) },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
-        _count: { select: { teams: true, games: true } }
+        _count: { select: { seasonTeams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });

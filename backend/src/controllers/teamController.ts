@@ -16,9 +16,13 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
     const teams = await prisma.team.findMany({
       where: { managerId: req.user!.id },
       include: {
-        season: {
+        seasonTeams: {
           include: {
-            league: { select: { id: true, name: true, sportType: true } }
+            season: {
+              include: {
+                league: { select: { id: true, name: true, sportType: true } }
+              }
+            }
           }
         },
         _count: { select: { players: true } },
@@ -26,7 +30,17 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
       },
       orderBy: { name: 'asc' }
     });
-    res.json(teams);
+
+    // Map to include a convenience `season` field (most recent active or first season)
+    const teamsWithSeason = teams.map(team => {
+      const activeSeason = team.seasonTeams
+        .map(st => st.season)
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        .find(s => s.status === 'ACTIVE') || team.seasonTeams[0]?.season || null;
+      return { ...team, season: activeSeason };
+    });
+
+    res.json(teamsWithSeason);
   } catch (error) {
     console.error('Get my teams error:', error);
     res.status(500).json({ error: 'Failed to fetch teams' });
@@ -37,7 +51,7 @@ export const getTeamsBySeasonId = async (req: Request, res: Response): Promise<v
   try {
     const { seasonId } = req.params;
     const teams = await prisma.team.findMany({
-      where: { seasonId: parseInt(seasonId) },
+      where: { seasonTeams: { some: { seasonId: parseInt(seasonId) } } },
       include: {
         _count: { select: { players: true } },
         manager: { select: { id: true, name: true, email: true } }
@@ -57,9 +71,13 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
     const team = await prisma.team.findUnique({
       where: { id: parseInt(id) },
       include: {
-        season: {
+        seasonTeams: {
           include: {
-            league: { select: { id: true, name: true, sportType: true } }
+            season: {
+              include: {
+                league: { select: { id: true, name: true, sportType: true } }
+              }
+            }
           }
         },
         players: { orderBy: { number: 'asc' } },
@@ -88,7 +106,13 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
       (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
     );
 
-    res.json({ ...team, games: allGames });
+    // Add convenience `season` field (most recent active or first)
+    const activeSeason = team.seasonTeams
+      .map(st => st.season)
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+      .find(s => s.status === 'ACTIVE') || team.seasonTeams[0]?.season || null;
+
+    res.json({ ...team, games: allGames, season: activeSeason });
   } catch (error) {
     console.error('Get team error:', error);
     res.status(500).json({ error: 'Failed to fetch team' });
@@ -120,16 +144,27 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const team = await prisma.team.create({
-      data: {
-        name,
-        logo,
-        seasonId: parseInt(seasonId),
-        managerId: managerId ? parseInt(managerId) : null
-      },
-      include: {
-        manager: { select: { id: true, name: true, email: true } }
-      }
+    // Create team and SeasonTeam association in a transaction
+    const team = await prisma.$transaction(async (tx) => {
+      const newTeam = await tx.team.create({
+        data: {
+          name,
+          logo,
+          managerId: managerId ? parseInt(managerId) : null
+        },
+        include: {
+          manager: { select: { id: true, name: true, email: true } }
+        }
+      });
+
+      await tx.seasonTeam.create({
+        data: {
+          seasonId: parseInt(seasonId),
+          teamId: newTeam.id
+        }
+      });
+
+      return newTeam;
     });
 
     res.status(201).json(team);
@@ -150,7 +185,13 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
 
     const existingTeam = await prisma.team.findUnique({
       where: { id: parseInt(id) },
-      include: { season: { include: { league: { select: { managerId: true } } } } }
+      include: {
+        seasonTeams: {
+          include: {
+            season: { include: { league: { select: { managerId: true } } } }
+          }
+        }
+      }
     });
 
     if (!existingTeam) {
@@ -159,9 +200,14 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     // Season managers can only update teams in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && existingTeam.season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to update this team' });
-      return;
+    if (req.user!.role === 'SEASON_MANAGER') {
+      const hasAccess = existingTeam.seasonTeams.some(
+        st => st.season.league.managerId === req.user!.id
+      );
+      if (!hasAccess) {
+        res.status(403).json({ error: 'Not authorized to update this team' });
+        return;
+      }
     }
 
     // Team managers can only update their own teams
@@ -190,7 +236,7 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
-      res.status(400).json({ error: 'Team name already exists in this season' });
+      res.status(400).json({ error: 'Team name already exists' });
       return;
     }
     console.error('Update team error:', error);
@@ -204,7 +250,13 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
 
     const team = await prisma.team.findUnique({
       where: { id: parseInt(id) },
-      include: { season: { include: { league: { select: { managerId: true } } } } }
+      include: {
+        seasonTeams: {
+          include: {
+            season: { include: { league: { select: { managerId: true } } } }
+          }
+        }
+      }
     });
 
     if (!team) {
@@ -213,9 +265,14 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     // Season managers can only delete teams in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && team.season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to delete this team' });
-      return;
+    if (req.user!.role === 'SEASON_MANAGER') {
+      const hasAccess = team.seasonTeams.some(
+        st => st.season.league.managerId === req.user!.id
+      );
+      if (!hasAccess) {
+        res.status(403).json({ error: 'Not authorized to delete this team' });
+        return;
+      }
     }
 
     await prisma.team.delete({ where: { id: parseInt(id) } });
@@ -223,6 +280,132 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
   } catch (error) {
     console.error('Delete team error:', error);
     res.status(500).json({ error: 'Failed to delete team' });
+  }
+};
+
+export const addTeamToSeason = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id, seasonId } = req.params;
+
+    const team = await prisma.team.findUnique({ where: { id: parseInt(id) } });
+    if (!team) {
+      res.status(404).json({ error: 'Team not found' });
+      return;
+    }
+
+    const season = await prisma.season.findUnique({
+      where: { id: parseInt(seasonId) },
+      include: { league: { select: { managerId: true } } }
+    });
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to add teams to this season' });
+      return;
+    }
+
+    await prisma.seasonTeam.create({
+      data: {
+        seasonId: parseInt(seasonId),
+        teamId: parseInt(id)
+      }
+    });
+
+    res.status(201).json({ message: 'Team added to season successfully' });
+  } catch (error) {
+    if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
+      res.status(400).json({ error: 'Team is already in this season' });
+      return;
+    }
+    console.error('Add team to season error:', error);
+    res.status(500).json({ error: 'Failed to add team to season' });
+  }
+};
+
+export const removeTeamFromSeason = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id, seasonId } = req.params;
+
+    const seasonTeam = await prisma.seasonTeam.findUnique({
+      where: {
+        seasonId_teamId: {
+          seasonId: parseInt(seasonId),
+          teamId: parseInt(id)
+        }
+      },
+      include: {
+        season: { include: { league: { select: { managerId: true } } } }
+      }
+    });
+
+    if (!seasonTeam) {
+      res.status(404).json({ error: 'Team is not in this season' });
+      return;
+    }
+
+    if (req.user!.role === 'SEASON_MANAGER' && seasonTeam.season.league.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to remove teams from this season' });
+      return;
+    }
+
+    // Delete related games for this team in this season
+    await prisma.$transaction(async (tx) => {
+      await tx.game.deleteMany({
+        where: {
+          seasonId: parseInt(seasonId),
+          OR: [
+            { homeTeamId: parseInt(id) },
+            { awayTeamId: parseInt(id) }
+          ]
+        }
+      });
+
+      await tx.seasonTeam.delete({
+        where: {
+          seasonId_teamId: {
+            seasonId: parseInt(seasonId),
+            teamId: parseInt(id)
+          }
+        }
+      });
+    });
+
+    res.json({ message: 'Team removed from season successfully' });
+  } catch (error) {
+    console.error('Remove team from season error:', error);
+    res.status(500).json({ error: 'Failed to remove team from season' });
+  }
+};
+
+export const getTeamsAvailableForSeason = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { seasonId } = req.params;
+
+    const season = await prisma.season.findUnique({ where: { id: parseInt(seasonId) } });
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+
+    // Get teams that are NOT already in this season
+    const teams = await prisma.team.findMany({
+      where: {
+        seasonTeams: { none: { seasonId: parseInt(seasonId) } }
+      },
+      include: {
+        _count: { select: { players: true } },
+        manager: { select: { id: true, name: true, email: true } }
+      },
+      orderBy: { name: 'asc' }
+    });
+
+    res.json(teams);
+  } catch (error) {
+    console.error('Get available teams error:', error);
+    res.status(500).json({ error: 'Failed to fetch available teams' });
   }
 };
 
@@ -275,9 +458,13 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       where: { id: parseInt(id) },
       data: { managerId: newUser.id },
       include: {
-        season: {
+        seasonTeams: {
           include: {
-            league: { select: { id: true, name: true, sportType: true } }
+            season: {
+              include: {
+                league: { select: { id: true, name: true, sportType: true } }
+              }
+            }
           }
         },
         players: { orderBy: { number: 'asc' } },
@@ -302,7 +489,13 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
     );
 
-    res.status(201).json({ ...updatedTeam, games: allGames });
+    // Add convenience `season` field
+    const activeSeason = updatedTeam.seasonTeams
+      .map(st => st.season)
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+      .find(s => s.status === 'ACTIVE') || updatedTeam.seasonTeams[0]?.season || null;
+
+    res.status(201).json({ ...updatedTeam, games: allGames, season: activeSeason });
   } catch (error) {
     console.error('Invite manager error:', error);
     res.status(500).json({ error: 'Failed to invite manager' });

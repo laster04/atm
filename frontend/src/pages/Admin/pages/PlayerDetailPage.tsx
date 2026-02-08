@@ -65,7 +65,7 @@ export default function PlayerDetailPage() {
 
   // Load all teams when player is loaded (for move modal)
   useEffect(() => {
-    if (!player?.team?.seasonId) return;
+    if (!player?.team?.season?.id) return;
     // Load teams from all seasons for the move modal
     const loadTeams = async () => {
       const teamsPromises = seasons.map(s => teamApi.getBySeason(s.id));
@@ -76,15 +76,15 @@ export default function PlayerDetailPage() {
     if (seasons.length > 0) {
       loadTeams();
     }
-  }, [player?.team?.seasonId, seasons]);
+  }, [player?.team?.season?.id, seasons]);
 
   // Load team games for the season
   useEffect(() => {
-    if (!player?.team?.seasonId || !player?.teamId) return;
+    if (!player?.team?.season?.id || !player?.teamId) return;
 
     const loadTeamGames = async () => {
       try {
-        const gamesRes = await gameApi.getBySeason(player.team!.seasonId);
+        const gamesRes = await gameApi.getBySeason(player.team!.season!.id);
         const allGames = gamesRes.data;
 
         // Filter games where the player's team is home or away
@@ -126,7 +126,7 @@ export default function PlayerDetailPage() {
     };
 
     loadTeamGames();
-  }, [player?.team?.seasonId, player?.teamId, statistics]);
+  }, [player?.team?.season?.id, player?.teamId, statistics]);
 
   const handleUpdatePlayer = async (data: PlayerFormData) => {
     if (!player) return;
@@ -573,12 +573,12 @@ export default function PlayerDetailPage() {
       {/* Move Modal */}
       <Dialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
         <DialogContent>
-          {player.team?.seasonId && (
+          {player.team?.season?.id && (
             <MovePlayerModal
               player={player}
               teams={allTeams}
               seasons={seasons}
-              currentSeasonId={player.team.seasonId}
+              currentSeasonId={player.team.season.id}
               onSubmit={handleMovePlayer}
               onClose={() => setIsMoveModalOpen(false)}
             />

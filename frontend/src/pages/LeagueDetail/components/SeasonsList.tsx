@@ -48,7 +48,7 @@ export default function SeasonsList({ seasons }: SeasonsListProps) {
           </p>
           <div className="mt-3 pt-3 border-t flex justify-between text-sm text-gray-500">
             <span>
-              {season._count?.teams || 0} {t('common.teams')}
+              {season._count?.seasonTeams ?? season._count?.teams ?? 0} {t('common.teams')}
             </span>
             <span>
               {season._count?.games || 0} {t('common.games')}

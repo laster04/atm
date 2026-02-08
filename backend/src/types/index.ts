@@ -190,7 +190,7 @@ export interface SeasonInLeague {
   updatedAt: Date;
   leagueId: number;
   _count: {
-    teams: number;
+    seasonTeams: number;
     games: number;
   };
 }
@@ -240,7 +240,7 @@ export interface SeasonListItem {
   leagueId: number;
   league: LeagueRef;
   _count: {
-    teams: number;
+    seasonTeams: number;
     games: number;
   };
 }
@@ -252,7 +252,6 @@ export interface TeamInSeason {
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  seasonId: number;
   managerId: number | null;
   manager: ManagerRef | null;
   _count: {
@@ -320,22 +319,10 @@ export interface TeamRef {
   primaryColor?: string | null;
 }
 
-export interface TeamListItem {
+export interface SeasonTeamRef {
   id: number;
-  name: string;
-  logo: string | null;
-  primaryColor: string | null;
-  createdAt: Date;
-  updatedAt: Date;
   seasonId: number;
-  managerId: number | null;
-  manager: ManagerRef | null;
-  _count: {
-    players: number;
-  };
-}
-
-export interface TeamWithSeason extends TeamListItem {
+  teamId: number;
   season: {
     id: number;
     name: string;
@@ -347,6 +334,24 @@ export interface TeamWithSeason extends TeamListItem {
     leagueId: number;
     league: LeagueRef;
   };
+}
+
+export interface TeamListItem {
+  id: number;
+  name: string;
+  logo: string | null;
+  primaryColor: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  managerId: number | null;
+  manager: ManagerRef | null;
+  _count: {
+    players: number;
+  };
+}
+
+export interface TeamWithSeason extends TeamListItem {
+  seasonTeams: SeasonTeamRef[];
 }
 
 export interface GameForTeam {
@@ -368,19 +373,8 @@ export interface TeamDetail {
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  seasonId: number;
   managerId: number | null;
-  season: {
-    id: number;
-    name: string;
-    startDate: Date;
-    endDate: Date;
-    status: SeasonStatus;
-    createdAt: Date;
-    updatedAt: Date;
-    leagueId: number;
-    league: LeagueRef;
-  };
+  seasonTeams: SeasonTeamRef[];
   manager: ManagerRef | null;
   players: PlayerResponse[];
   games: GameForTeam[];
@@ -393,7 +387,6 @@ export interface TeamResponse {
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  seasonId: number;
   managerId: number | null;
   manager: ManagerRef | null;
 }

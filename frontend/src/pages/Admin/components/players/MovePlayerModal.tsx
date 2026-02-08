@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Button } from '@components/base/button';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { teamApi } from '@/services/api';
 import type { Player, Team, Season } from '@types';
 
 interface MovePlayerModalProps {
@@ -26,10 +27,24 @@ export default function MovePlayerModal({
 	const { t } = useTranslation();
 	const [selectedSeasonId, setSelectedSeasonId] = useState<number>(currentSeasonId);
 	const [selectedTeamId, setSelectedTeamId] = useState<number | ''>('');
+	const [seasonTeams, setSeasonTeams] = useState<Team[]>(teams);
 
-	// Filter teams for the selected season, excluding the player's current team
-	const availableTeams = teams.filter(
-		(team) => team.seasonId === selectedSeasonId && team.id !== player.teamId
+	// Load teams for the selected season
+	useEffect(() => {
+		const loadTeams = async () => {
+			try {
+				const res = await teamApi.getBySeason(selectedSeasonId);
+				setSeasonTeams(res.data);
+			} catch (error) {
+				console.error('Failed to load teams:', error);
+			}
+		};
+		loadTeams();
+	}, [selectedSeasonId]);
+
+	// Filter out the player's current team
+	const availableTeams = seasonTeams.filter(
+		(team) => team.id !== player.teamId
 	);
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -52,7 +67,7 @@ export default function MovePlayerModal({
 					<div className="space-y-2">
 						<Label>{t('admin.modal.currentTeam')}</Label>
 						<p className="text-sm text-muted-foreground">
-							{teams.find((t) => t.id === player.teamId)?.name || '-'}
+							{seasonTeams.find((t) => t.id === player.teamId)?.name || player.team?.name || '-'}
 						</p>
 					</div>
 					<div className="space-y-2">

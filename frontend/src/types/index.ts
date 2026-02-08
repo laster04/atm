@@ -73,7 +73,8 @@ export interface Season {
   league?: LeagueRef;
   teams?: Team[];
   _count?: {
-    teams: number;
+    seasonTeams?: number;
+    teams?: number;
     games: number;
   };
 }
@@ -83,9 +84,9 @@ export interface Team {
   name: string;
   logo?: string | null;
   primaryColor?: string | null;
-  seasonId: number;
   managerId?: number | null;
   season?: Season;
+  seasonTeams?: { id: number; seasonId: number; teamId: number; season: Season }[];
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   players?: Player[];
   homeGames?: Game[];

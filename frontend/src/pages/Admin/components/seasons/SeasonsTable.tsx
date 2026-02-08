@@ -106,7 +106,7 @@ export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdat
 								<TableCell>
 									<Badge variant="secondary">{t(`seasons.status.${season.status}`)}</Badge>
 								</TableCell>
-								<TableCell>{season._count?.teams || 0}</TableCell>
+								<TableCell>{season._count?.seasonTeams ?? season._count?.teams ?? 0}</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-1">
 										<Button

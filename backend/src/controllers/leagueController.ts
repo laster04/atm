@@ -48,7 +48,7 @@ export const getLeagueById = async (req: Request, res: Response): Promise<void> 
       include: {
         seasons: {
           include: {
-            _count: { select: { teams: true, games: true } }
+            _count: { select: { seasonTeams: true, games: true } }
           },
           orderBy: { startDate: 'desc' }
         },

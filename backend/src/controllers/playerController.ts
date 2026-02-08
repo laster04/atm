@@ -28,7 +28,13 @@ export const getPlayerById = async (req: Request, res: Response): Promise<void> 
       where: { id: parseInt(id) },
       include: {
         team: {
-          include: { season: true }
+          include: {
+            seasonTeams: {
+              include: {
+                season: true
+              }
+            }
+          }
         }
       }
     });
@@ -38,7 +44,16 @@ export const getPlayerById = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    res.json(player);
+    // Add convenience `season` field on team for backward compat
+    const activeSeason = player.team.seasonTeams
+      .map(st => st.season)
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+      .find(s => s.status === 'ACTIVE') || player.team.seasonTeams[0]?.season || null;
+
+    res.json({
+      ...player,
+      team: { ...player.team, season: activeSeason }
+    });
   } catch (error) {
     console.error('Get player error:', error);
     res.status(500).json({ error: 'Failed to fetch player' });
@@ -176,8 +191,10 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
       include: {
         team: {
           include: {
-            season: {
-              include: { league: true }
+            seasonTeams: {
+              include: {
+                season: { include: { league: true } }
+              }
             }
           }
         }
@@ -193,8 +210,10 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
     const targetTeam = await prisma.team.findUnique({
       where: { id: parseInt(targetTeamId) },
       include: {
-        season: {
-          include: { league: true }
+        seasonTeams: {
+          include: {
+            season: { include: { league: true } }
+          }
         }
       }
     });
@@ -206,11 +225,11 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
 
     // Check authorization for SEASON_MANAGER
     if (req.user!.role === 'SEASON_MANAGER') {
-      const sourceLeagueManagerId = player.team.season.league.managerId;
-      const targetLeagueManagerId = targetTeam.season.league.managerId;
+      const sourceLeagueManagerIds = player.team.seasonTeams.map(st => st.season.league.managerId);
+      const targetLeagueManagerIds = targetTeam.seasonTeams.map(st => st.season.league.managerId);
 
       // SEASON_MANAGER can only move players within leagues they manage
-      if (sourceLeagueManagerId !== req.user!.id || targetLeagueManagerId !== req.user!.id) {
+      if (!sourceLeagueManagerIds.includes(req.user!.id) || !targetLeagueManagerIds.includes(req.user!.id)) {
         res.status(403).json({ error: 'Not authorized to move players between these teams' });
         return;
       }
@@ -228,12 +247,25 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
       data: { teamId: parseInt(targetTeamId) },
       include: {
         team: {
-          include: { season: true }
+          include: {
+            seasonTeams: {
+              include: { season: true }
+            }
+          }
         }
       }
     });
 
-    res.json(updatedPlayer);
+    // Add convenience `season` field
+    const activeSeason = updatedPlayer.team.seasonTeams
+      .map(st => st.season)
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+      .find(s => s.status === 'ACTIVE') || updatedPlayer.team.seasonTeams[0]?.season || null;
+
+    res.json({
+      ...updatedPlayer,
+      team: { ...updatedPlayer.team, season: activeSeason }
+    });
   } catch (error) {
     console.error('Move player error:', error);
     res.status(500).json({ error: 'Failed to move player' });

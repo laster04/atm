@@ -91,10 +91,23 @@ model Season {
   leagueId Int    @map("league_id")
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
 
-  teams Team[]
-  games Game[]
+  seasonTeams SeasonTeam[]
+  games       Game[]
 
   @@map("seasons")
+}
+
+model SeasonTeam {
+  id        Int      @id @default(autoincrement())
+  seasonId  Int      @map("season_id")
+  teamId    Int      @map("team_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, teamId])
+  @@map("season_teams")
 }
 
 model Team {
@@ -105,17 +118,14 @@ model Team {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  seasonId Int    @map("season_id")
-  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
-
   managerId Int?  @map("manager_id")
   manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
-  players   Player[]
-  homeGames Game[]   @relation("HomeTeam")
-  awayGames Game[]   @relation("AwayTeam")
+  seasonTeams SeasonTeam[]
+  players     Player[]
+  homeGames   Game[]       @relation("HomeTeam")
+  awayGames   Game[]       @relation("AwayTeam")
 
-  @@unique([name, seasonId])
   @@map("teams")
 }
 
@@ -151,10 +161,10 @@ model Game {
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
   homeTeamId Int             @map("home_team_id")
-  homeTeam   Team            @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  homeTeam   Team            @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
 
   awayTeamId Int             @map("away_team_id")
-  awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+  awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
   statistic  GameStatistic[] @relation("GameStatistic")
 
   @@map("games")

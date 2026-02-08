@@ -110,8 +110,16 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    // Check if player's team is participating in this game
-    if (player.team.seasonId !== game.seasonId) {
+    // Check if player's team is in this game's season
+    const teamInSeason = await prisma.seasonTeam.findUnique({
+      where: {
+        seasonId_teamId: {
+          seasonId: game.seasonId,
+          teamId: player.teamId
+        }
+      }
+    });
+    if (!teamInSeason) {
       res.status(400).json({ error: 'Player does not belong to a team in this game\'s season' });
       return;
     }

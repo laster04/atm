@@ -38,7 +38,7 @@ export default function SeasonCard({ season }: SeasonCardProps) {
       </p>
       <div className="mt-3 pt-3 border-t flex justify-between text-sm text-gray-500">
         <span>
-          {season._count?.teams} {t('common.teams')}
+          {season._count?.seasonTeams ?? season._count?.teams ?? 0} {t('common.teams')}
         </span>
         <span>
           {season._count?.games} {t('common.games')}

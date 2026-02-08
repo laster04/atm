@@ -84,6 +84,18 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
     const awayTeamIdNum = typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId;
     const roundNum = round ? (typeof round === 'string' ? parseInt(round) : round) : null;
 
+    // Validate both teams are in this season
+    const teamsInSeason = await prisma.seasonTeam.findMany({
+      where: {
+        seasonId: parseInt(seasonId),
+        teamId: { in: [homeTeamIdNum, awayTeamIdNum] }
+      }
+    });
+    if (teamsInSeason.length < 2) {
+      res.status(400).json({ error: 'Both teams must be part of this season' });
+      return;
+    }
+
     const game = await prisma.game.create({
       data: {
         seasonId: parseInt(seasonId),
@@ -191,7 +203,10 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
 
     const season = await prisma.season.findUnique({
       where: { id: parseInt(seasonId) },
-      include: { teams: true, league: { select: { managerId: true } } }
+      include: {
+        seasonTeams: { include: { team: true } },
+        league: { select: { managerId: true } }
+      }
     });
 
     if (!season) {
@@ -205,7 +220,7 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    const teams = season.teams;
+    const teams = season.seasonTeams.map(st => st.team);
     if (teams.length < 2) {
       res.status(400).json({ error: 'Need at least 2 teams to generate schedule' });
       return;
