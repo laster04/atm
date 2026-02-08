@@ -272,3 +272,13 @@ export const getTopScorersBySeason = async (req: Request, res: Response): Promis
     res.status(500).json({ error: 'Failed to fetch top scorers' });
   }
 };
+
+export const getScorersBySeasonAndTeam = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { seasonId, teamId } = req.params;
+
+  } catch (error) {
+    console.error('Get top scorers error:', error);
+    res.status(500).json({ error: 'Failed to fetch top scorers' });
+  }
+}
