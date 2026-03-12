@@ -179,3 +179,39 @@
         line-height: 1.5;
     }
 }
+
+@layer components {
+    /* Team Card */
+    .team-card {
+        @apply block bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 cursor-pointer;
+    }
+
+    .team-card-title {
+        @apply font-semibold text-lg mb-2;
+    }
+
+    .team-card-season {
+        @apply text-muted-foreground mb-2;
+    }
+
+    .team-card-count {
+        @apply text-sm text-muted-foreground;
+    }
+
+    /* Player Row */
+    .player-row-item {
+        @apply w-full flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors text-left;
+    }
+
+    .player-number-badge {
+        @apply w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0;
+    }
+
+    .player-row-name {
+        @apply font-medium text-sm truncate;
+    }
+
+    .player-row-position {
+        @apply text-xs text-muted-foreground;
+    }
+}

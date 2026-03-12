@@ -38,25 +38,25 @@ export default function RosterTab({
 			<CardContent className="space-y-3">
 				{players.length > 0 ? (
 					players.map((player) => (
-						<div
+						<button
 							key={player.id}
-							className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+							className="player-row-item"
 							onClick={() => navigate(`/team-management/${teamId}/player/${player.id}`)}
 						>
 							<div
-								className="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+								className="player-number-badge"
 								style={{ backgroundColor: teamColor || '#003E7E' }}
 							>
 								{player.number || '?'}
 							</div>
-							<div className="flex-1 min-w-0">
-								<div className="font-medium text-sm truncate">{player.name}</div>
-								<div className="text-xs text-muted-foreground">
+							<div className="flex-1 min-w-0 text-left">
+								<div className="player-row-name">{player.name}</div>
+								<div className="player-row-position">
 									{player.position || '-'}
 								</div>
 							</div>
-							<ChevronRight className="h-4 w-4 text-muted-foreground" />
-						</div>
+							<ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+						</button>
 					))
 				) : (
 					<div className="text-center text-muted-foreground py-4">
