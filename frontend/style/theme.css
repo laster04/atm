@@ -613,4 +613,139 @@
     .scale-98 {
         @apply scale-95;
     }
+
+    /* Schedule Tab Styles */
+    .schedule-container {
+        @apply w-full mb-8;
+    }
+
+    .schedule-section {
+        @apply mb-8;
+    }
+
+    .schedule-section-header {
+        @apply mb-6;
+    }
+
+    .schedule-section-title {
+        @apply text-2xl font-bold text-foreground;
+    }
+
+    .schedule-section-subtitle {
+        @apply text-sm text-muted-foreground mt-2;
+    }
+
+    .games-list {
+        @apply space-y-3;
+    }
+
+    /* Game Card Base */
+    .game-card {
+        @apply w-full p-4 bg-card border border-border rounded-lg shadow-sm transition-all duration-200 text-left group relative;
+    }
+
+    .game-card:active {
+        @apply scale-95;
+    }
+
+    /* Upcoming Game Card */
+    .game-card-upcoming {
+        @apply hover:shadow-md hover:border-primary/50;
+    }
+
+    .game-card-upcoming:hover {
+        @apply bg-muted/20;
+    }
+
+    /* Completed Game Card */
+    .game-card-completed {
+        @apply cursor-pointer hover:shadow-md hover:border-primary/50 flex flex-col relative pr-12;
+    }
+
+    .game-card-completed:hover {
+        @apply bg-muted/20;
+    }
+
+    /* Game Card Header */
+    .game-card-header {
+        @apply flex items-start justify-between mb-3;
+    }
+
+    /* Game Opponent */
+    .game-opponent {
+        @apply flex items-center gap-3;
+    }
+
+    .game-opponent-name {
+        @apply text-lg font-semibold text-foreground group-hover:text-primary transition-colors;
+    }
+
+    /* Game Badges */
+    .game-location-badge {
+        @apply text-xs font-semibold px-3 py-1;
+    }
+
+    .game-result-badge {
+        @apply text-xs font-semibold px-3 py-1;
+    }
+
+    .game-result-win {
+        @apply bg-green-100 text-green-800 hover:bg-green-200;
+    }
+
+    .game-result-draw {
+        @apply bg-amber-100 text-amber-800 hover:bg-amber-200;
+    }
+
+    .game-result-loss {
+        @apply bg-red-100 text-red-800 hover:bg-red-200;
+    }
+
+    /* Game Score Display */
+    .game-score-display {
+        @apply flex items-center gap-2;
+    }
+
+    .game-final-score {
+        @apply text-3xl font-bold text-foreground;
+    }
+
+    .game-score-separator {
+        @apply text-2xl font-bold text-muted-foreground;
+    }
+
+    /* Game Card Meta */
+    .game-card-meta {
+        @apply flex flex-wrap gap-3 text-xs text-muted-foreground;
+    }
+
+    .game-date {
+        @apply inline-flex items-center gap-1;
+    }
+
+    .game-location {
+        @apply inline-flex items-center gap-1;
+    }
+
+    /* Game Card Icon */
+    .game-card-icon {
+        @apply h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors absolute top-4 right-4;
+    }
+
+    /* Schedule Empty State */
+    .schedule-empty-state {
+        @apply flex flex-col items-center justify-center py-12 px-6 bg-muted/20 rounded-lg border-2 border-dashed border-border;
+    }
+
+    .empty-icon {
+        @apply text-5xl mb-3;
+    }
+
+    .empty-message {
+        @apply text-base text-foreground font-medium;
+    }
+
+    .empty-submessage {
+        @apply text-sm text-muted-foreground mt-1;
+    }
 }
