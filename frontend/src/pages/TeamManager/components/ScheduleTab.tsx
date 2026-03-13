@@ -27,28 +27,26 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 		});
 	return (
 		<>
-			<Card>
+			<Card className="schedule-card">
 				<CardHeader className="pb-3">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-base">
-							{t('teamManagement.pwa.upcomingGames')}
-						</CardTitle>
-					</div>
+					<CardTitle className="text-base">
+						{t('teamManagement.pwa.upcomingGames')}
+					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-3">
 					{upcomingGames.length > 0 ? (
 						upcomingGames.map((game: Game) => (
 							<div
 								key={game.id}
-								className="flex items-center gap-3 p-3 border rounded-lg"
+								className="game-item game-item-upcoming"
 							>
 								<div className="flex-1">
-									<div className="font-medium text-sm">
+									<div className="game-item-title">
 										{game.homeTeamId === teamId
 											? `vs ${game.awayTeam?.name}`
 											: `@ ${game.homeTeam?.name}`}
 									</div>
-									<div className="text-xs text-muted-foreground">
+									<div className="game-item-meta">
 										{game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
 										{game.location && ` • ${game.location}`}
 									</div>
@@ -65,13 +63,11 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 					)}
 				</CardContent>
 			</Card>
-			<Card className="mt-3 mb-8">
+			<Card className="schedule-card mt-4 mb-8">
 				<CardHeader className="pb-3">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-base">
-							{t('teamManagement.pwa.pastGames')}
-						</CardTitle>
-					</div>
+					<CardTitle className="text-base">
+						{t('teamManagement.pwa.pastGames')}
+					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-3">
 					{completedGames.length > 0 ? (
@@ -84,25 +80,25 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 							const isDraw = hasScore && teamScore === opponentScore;
 
 							return (
-								<div
+								<button
 									key={game.id}
-									className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+									className="game-item game-item-completed"
 									onClick={() => navigate(`/team-management/${teamId}/game/${game.id}`)}
 								>
-									<div className="flex-1">
-										<div className="font-medium text-sm">
+									<div className="flex-1 text-left">
+										<div className="game-item-title">
 											{isHome
 												? `vs ${game.awayTeam?.name}`
 												: `@ ${game.homeTeam?.name}`}
 										</div>
-										<div className="text-xs text-muted-foreground">
+										<div className="game-item-meta">
 											{game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
 											{game.location && ` • ${game.location}`}
 										</div>
 									</div>
 									{hasScore && (
 										<div className="flex items-center gap-2">
-											<span className="font-bold text-lg">
+											<span className="game-score">
 												{teamScore} : {opponentScore}
 											</span>
 											<Badge
@@ -113,8 +109,8 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 											</Badge>
 										</div>
 									)}
-									<ChevronRight className="h-4 w-4 text-muted-foreground" />
-								</div>
+									<ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+								</button>
 							);
 						})
 					) : (

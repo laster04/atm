@@ -138,44 +138,62 @@
     }
 
     h1 {
-        font-size: var(--text-2xl);
-        font-weight: var(--font-weight-medium);
-        line-height: 1.5;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
     }
 
     h2 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-weight-medium);
-        line-height: 1.5;
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
     }
 
     h3 {
-        font-size: var(--text-lg);
-        font-weight: var(--font-weight-medium);
-        line-height: 1.5;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.4;
     }
 
     h4 {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-medium);
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    h5 {
+        font-size: 1.125rem;
+        font-weight: 600;
         line-height: 1.5;
     }
 
+    h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    p {
+        line-height: 1.6;
+    }
+
     label {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-medium);
+        font-size: 0.875rem;
+        font-weight: 600;
         line-height: 1.5;
     }
 
     button {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-medium);
+        font-size: 0.875rem;
+        font-weight: 600;
         line-height: 1.5;
     }
 
     input {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-normal);
+        font-size: 0.875rem;
+        font-weight: 400;
         line-height: 1.5;
     }
 }
@@ -213,5 +231,286 @@
 
     .player-row-position {
         @apply text-xs text-muted-foreground;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        @apply bg-gradient-to-br;
+    }
+
+    .stat-card-wins {
+        @apply from-green-50 to-green-100 border-green-200;
+    }
+
+    .stat-card-losses {
+        @apply from-red-50 to-red-100 border-red-200;
+    }
+
+    .stat-card-points {
+        @apply from-primary/10 to-primary/20 border-primary/30;
+    }
+
+    .stat-value {
+        @apply text-2xl font-bold;
+    }
+
+    .stat-value-wins {
+        @apply text-green-900;
+    }
+
+    .stat-value-losses {
+        @apply text-red-900;
+    }
+
+    .stat-value-points {
+        @apply text-foreground;
+    }
+
+    .stat-label {
+        @apply text-xs mt-1;
+    }
+
+    .stat-label-wins {
+        @apply text-green-700;
+    }
+
+    .stat-label-losses {
+        @apply text-red-700;
+    }
+
+    .stat-label-points {
+        @apply text-muted-foreground;
+    }
+
+    /* Game Items */
+    .game-item {
+        @apply w-full flex items-center gap-3 p-3 border rounded-lg transition-colors;
+    }
+
+    .game-item-upcoming {
+        @apply cursor-default;
+    }
+
+    .game-item-completed {
+        @apply cursor-pointer hover:bg-muted/50 text-left;
+    }
+
+    .game-item-title {
+        @apply font-medium text-sm;
+    }
+
+    .game-item-meta {
+        @apply text-xs text-muted-foreground;
+    }
+
+    .game-score {
+        @apply font-bold text-lg;
+    }
+
+    /* Schedule Card */
+    .schedule-card {
+        @apply shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    /* Settings */
+    .settings-header {
+        @apply mb-4;
+    }
+
+    .settings-title {
+        @apply text-lg font-medium;
+    }
+
+    .settings-subtitle {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .settings-card {
+        @apply shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    .settings-row {
+        @apply flex justify-between py-3 border-b;
+    }
+
+    .settings-row-last {
+        @apply border-b-0;
+    }
+
+    .settings-row-label {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .settings-row-value {
+        @apply text-sm font-medium;
+    }
+
+    /* Enhanced Card Styles */
+    /* Card base: these override the default card styles from components */
+    .card {
+        @apply bg-card text-card-foreground rounded-lg border border-border shadow-sm hover:shadow-md transition-all duration-200;
+    }
+
+    .card-header {
+        @apply flex flex-col space-y-1.5 p-6 border-b border-border;
+    }
+
+    .card-title {
+        @apply text-base font-semibold leading-none tracking-tight;
+    }
+
+    .card-description {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .card-content {
+        @apply p-6;
+    }
+
+    .card-footer {
+        @apply flex items-center p-6 pt-0;
+    }
+
+    /* Overview Cards */
+    .overview-card {
+        @apply shadow-sm hover:shadow-md transition-all duration-200;
+    }
+
+    .game-preview-item {
+        @apply flex items-center gap-3 p-4 border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors;
+    }
+
+    .game-preview-title {
+        @apply font-medium text-sm;
+    }
+
+    .game-preview-meta {
+        @apply text-xs text-muted-foreground mt-1;
+    }
+
+    .quick-action-button {
+        @apply w-full justify-start h-12 transition-all duration-200 hover:bg-opacity-90;
+    }
+
+    /* Typography Utilities */
+    .text-display-lg {
+        @apply text-4xl font-bold leading-tight;
+    }
+
+    .text-display-md {
+        @apply text-3xl font-bold leading-tight;
+    }
+
+    .text-display-sm {
+        @apply text-2xl font-bold leading-tight;
+    }
+
+    .text-heading-lg {
+        @apply text-2xl font-semibold;
+    }
+
+    .text-heading-md {
+        @apply text-xl font-semibold;
+    }
+
+    .text-heading-sm {
+        @apply text-lg font-semibold;
+    }
+
+    .text-body-lg {
+        @apply text-base font-normal;
+    }
+
+    .text-body-md {
+        @apply text-sm font-normal;
+    }
+
+    .text-body-sm {
+        @apply text-xs font-normal;
+    }
+
+    .text-label-lg {
+        @apply text-base font-semibold;
+    }
+
+    .text-label-md {
+        @apply text-sm font-semibold;
+    }
+
+    .text-label-sm {
+        @apply text-xs font-semibold uppercase tracking-wide;
+    }
+
+    /* Hover & Transition States */
+    .interactive-element {
+        @apply transition-all duration-200;
+    }
+
+    .interactive-element:hover {
+        @apply transform scale-105;
+    }
+
+    .button-interactive {
+        @apply transition-all duration-200;
+    }
+
+    .button-interactive:hover {
+        @apply shadow-md;
+    }
+
+    .button-interactive:active {
+        @apply scale-95;
+    }
+
+    .card-interactive {
+        @apply cursor-pointer transition-all duration-200;
+    }
+
+    .card-interactive:hover {
+        @apply shadow-lg border-primary/50;
+    }
+
+    .link-interactive {
+        @apply transition-colors duration-200;
+    }
+
+    .link-interactive:hover {
+        @apply text-primary underline;
+    }
+
+    /* Smooth Transitions */
+    .transition-smooth {
+        @apply transition-all duration-300 ease-in-out;
+    }
+
+    .transition-fast {
+        @apply transition-all duration-150 ease-in-out;
+    }
+
+    .transition-slow {
+        @apply transition-all duration-500 ease-in-out;
+    }
+
+    /* Focus States */
+    .focus-ring {
+        @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    }
+
+    .focus-ring-inset {
+        @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset;
+    }
+
+    /* Teams Grid */
+    .teams-grid-container {
+        @apply w-full;
+    }
+
+    .teams-grid {
+        @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        @apply bg-card rounded-lg shadow-sm p-8 text-center text-muted-foreground border border-border;
     }
 }

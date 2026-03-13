@@ -28,32 +28,32 @@ export default function OverviewTab({
 		<div className="space-y-4 pb-20">
 			{/* Quick Stats */}
 			<div className="grid grid-cols-3 gap-3">
-				<Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+				<Card className="stat-card stat-card-wins">
 					<CardContent className="p-4 text-center">
-						<div className="text-2xl font-bold text-green-900">
+						<div className="stat-value stat-value-wins">
 							{standing?.wins ?? 0}
 						</div>
-						<div className="text-xs text-green-700 mt-1">
+						<div className="stat-label stat-label-wins">
 							{t('teamManagement.pwa.wins')}
 						</div>
 					</CardContent>
 				</Card>
-				<Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+				<Card className="stat-card stat-card-losses">
 					<CardContent className="p-4 text-center">
-						<div className="text-2xl font-bold text-red-900">
+						<div className="stat-value stat-value-losses">
 							{standing?.losses ?? 0}
 						</div>
-						<div className="text-xs text-red-700 mt-1">
+						<div className="stat-label stat-label-losses">
 							{t('teamManagement.pwa.losses')}
 						</div>
 					</CardContent>
 				</Card>
-				<Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/30">
+				<Card className="stat-card stat-card-points">
 					<CardContent className="p-4 text-center">
-						<div className="text-2xl font-bold">
+						<div className="stat-value stat-value-points">
 							{standing?.points ?? 0}
 						</div>
-						<div className="text-xs text-muted-foreground mt-1">
+						<div className="stat-label stat-label-points">
 							{t('teamManagement.pwa.points')}
 						</div>
 					</CardContent>
@@ -61,7 +61,7 @@ export default function OverviewTab({
 			</div>
 
 			{/* Upcoming Games */}
-			<Card>
+			<Card className="overview-card">
 				<CardHeader className="pb-3">
 					<div className="flex items-center justify-between">
 						<CardTitle className="text-base">
@@ -83,15 +83,15 @@ export default function OverviewTab({
 						upcomingGames.map((game: Game) => (
 							<div
 								key={game.id}
-								className="flex items-center gap-3 p-3 border rounded-lg"
+								className="game-preview-item"
 							>
 								<div className="flex-1">
-									<div className="font-medium text-sm">
+									<div className="game-preview-title">
 										{game.homeTeamId === team.id
 											? `vs ${game.awayTeam?.name}`
 											: `@ ${game.homeTeam?.name}`}
 									</div>
-									<div className="text-xs text-muted-foreground">
+									<div className="game-preview-meta">
 										{game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
 										{game.location && ` • ${game.location}`}
 									</div>
@@ -110,7 +110,7 @@ export default function OverviewTab({
 			</Card>
 
 			{/* Quick Actions */}
-			<Card>
+			<Card className="overview-card">
 				<CardHeader className="pb-3">
 					<CardTitle className="text-base">
 						{t('teamManagement.pwa.quickActions')}
@@ -118,7 +118,7 @@ export default function OverviewTab({
 				</CardHeader>
 				<CardContent className="space-y-2">
 					<Button
-						className="w-full justify-start h-12"
+						className="quick-action-button"
 						onClick={() => navigate(`/team-management/${team.id}/player/new`)}
 					>
 						<Plus className="size-4 mr-2" />
@@ -126,7 +126,7 @@ export default function OverviewTab({
 					</Button>
 					<Button
 						variant="outline"
-						className="w-full justify-start h-12"
+						className="quick-action-button"
 						onClick={() => onTabChange('roster')}
 					>
 						<Users className="size-4 mr-2" />
