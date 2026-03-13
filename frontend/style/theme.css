@@ -513,4 +513,104 @@
     .empty-state {
         @apply bg-card rounded-lg shadow-sm p-8 text-center text-muted-foreground border border-border;
     }
+
+    /* Roster Tab Styles */
+    .roster-container {
+        @apply w-full mb-8;
+    }
+
+    .roster-header {
+        @apply flex items-center justify-between mb-6;
+    }
+
+    .roster-header-content {
+        @apply flex-1;
+    }
+
+    .roster-title {
+        @apply text-2xl font-bold text-foreground;
+    }
+
+    .roster-subtitle {
+        @apply text-sm text-muted-foreground mt-2;
+    }
+
+    .roster-add-button {
+        @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
+    }
+
+    .roster-list {
+        @apply space-y-3;
+    }
+
+    /* Player Card */
+    .player-card {
+        @apply w-full flex items-center justify-between p-4 bg-card border-l-4 rounded-lg border border-border shadow-sm hover:shadow-md transition-all duration-200 text-left cursor-pointer group;
+    }
+
+    .player-card:hover {
+        @apply bg-muted/30 border-primary/50;
+    }
+
+    .player-card:active {
+        @apply scale-98;
+    }
+
+    .player-card-left {
+        @apply flex items-center gap-4 flex-1 min-w-0;
+    }
+
+    .player-number-badge {
+        @apply w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-md;
+    }
+
+    .player-card-info {
+        @apply flex-1 min-w-0;
+    }
+
+    .player-card-name {
+        @apply font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors;
+    }
+
+    .player-card-position {
+        @apply text-xs text-muted-foreground mt-1 truncate;
+    }
+
+    .player-card-icon {
+        @apply h-5 w-5 text-muted-foreground group-hover:text-primary flex-shrink-0 transition-colors;
+    }
+
+    /* Roster Empty State */
+    .roster-empty-state {
+        @apply flex flex-col items-center justify-center py-12 px-6 bg-muted/20 rounded-lg border border-dashed border-border;
+    }
+
+    .roster-empty-icon {
+        @apply text-5xl mb-3;
+    }
+
+    .roster-empty-text {
+        @apply text-base text-muted-foreground mb-4 font-medium;
+    }
+
+    .roster-empty-button {
+        @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Transform utilities */
+    .scale-98 {
+        @apply scale-95;
+    }
 }

@@ -20,50 +20,68 @@ export default function RosterTab({
 	const navigate = useNavigate();
 
 	return (
-		<Card className="mb-8">
-			<CardHeader className="pb-3">
-				<div className="flex items-center justify-between">
-					<div>
-						<CardTitle className="text-base">{t('teamManagement.pwa.teamRoster')}</CardTitle>
-						<p className="text-sm text-muted-foreground mt-1">
-							{players.length} {t('common.players')}
-						</p>
-					</div>
-					<Button size="sm" onClick={() => navigate(`/team-management/${teamId}/player/new`)}>
-						<Plus className="size-4 mr-2" />
-						{t('teamManagement.pwa.add')}
-					</Button>
+		<div className="roster-container">
+			<div className="roster-header">
+				<div className="roster-header-content">
+					<h2 className="roster-title">{t('teamManagement.pwa.teamRoster')}</h2>
+					<p className="roster-subtitle">
+						{players.length} {t('common.players')}
+					</p>
 				</div>
-			</CardHeader>
-			<CardContent className="space-y-3">
+				<Button
+					className="roster-add-button"
+					onClick={() => navigate(`/team-management/${teamId}/player/new`)}
+				>
+					<Plus className="size-4 mr-2" />
+					{t('teamManagement.pwa.add')}
+				</Button>
+			</div>
+
+			<div className="roster-list">
 				{players.length > 0 ? (
-					players.map((player) => (
+					players.map((player, index) => (
 						<button
 							key={player.id}
-							className="player-row-item"
+							className="player-card"
 							onClick={() => navigate(`/team-management/${teamId}/player/${player.id}`)}
+							style={{
+								borderLeftColor: teamColor || '#003E7E',
+								animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards`
+							}}
 						>
-							<div
-								className="player-number-badge"
-								style={{ backgroundColor: teamColor || '#003E7E' }}
-							>
-								{player.number || '?'}
-							</div>
-							<div className="flex-1 min-w-0 text-left">
-								<div className="player-row-name">{player.name}</div>
-								<div className="player-row-position">
-									{player.position || '-'}
+							<div className="player-card-left">
+								<div
+									className="player-number-badge"
+									style={{ backgroundColor: teamColor || '#003E7E' }}
+								>
+									{player.number || '?'}
+								</div>
+								<div className="player-card-info">
+									<h3 className="player-card-name">{player.name}</h3>
+									<p className="player-card-position">
+										{player.position || 'Not specified'}
+									</p>
 								</div>
 							</div>
-							<ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+							<ChevronRight className="player-card-icon" />
 						</button>
 					))
 				) : (
-					<div className="text-center text-muted-foreground py-4">
-						{t('teamDetail.noPlayers')}
+					<div className="roster-empty-state">
+						<div className="roster-empty-icon">👥</div>
+						<p className="roster-empty-text">
+							{t('teamDetail.noPlayers')}
+						</p>
+						<Button
+							className="roster-empty-button"
+							onClick={() => navigate(`/team-management/${teamId}/player/new`)}
+						>
+							<Plus className="size-4 mr-2" />
+							{t('teamManagement.pwa.addPlayer')}
+						</Button>
 					</div>
 				)}
-			</CardContent>
-		</Card>
+			</div>
+		</div>
 	);
 }
