@@ -515,86 +515,141 @@
     }
 
     /* Roster Tab Styles */
-    .roster-container {
-        @apply w-full mb-8;
+    .roster-wrapper {
+        @apply w-full;
     }
 
-    .roster-header {
+    .roster-top-bar {
         @apply flex items-center justify-between mb-6;
     }
 
-    .roster-header-content {
-        @apply flex-1;
-    }
-
-    .roster-title {
+    .roster-main-title {
         @apply text-2xl font-bold text-foreground;
     }
 
-    .roster-subtitle {
-        @apply text-sm text-muted-foreground mt-2;
+    .roster-count-badge {
+        @apply text-sm text-muted-foreground mt-1 font-medium;
     }
 
-    .roster-add-button {
+    .add-player-btn {
         @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
     }
 
-    .roster-list {
-        @apply space-y-3;
+    /* Players Table */
+    .players-table {
+        @apply w-full border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow;
     }
 
-    /* Player Card */
-    .player-card {
-        @apply w-full flex items-center justify-between p-4 bg-card border-l-4 rounded-lg border border-border shadow-sm hover:shadow-md transition-all duration-200 text-left cursor-pointer group;
+    .table-header-row {
+        @apply grid gap-0 px-4 py-3 bg-muted/50 border-b border-border font-semibold text-sm text-foreground sticky top-0 z-10;
+        grid-template-columns: 60px 1fr 120px 50px;
     }
 
-    .player-card:hover {
-        @apply bg-muted/30 border-primary/50;
+    .table-body {
+        @apply divide-y divide-border bg-card;
     }
 
-    .player-card:active {
+    .table-row {
+        @apply grid gap-0 px-4 py-4 text-left cursor-pointer transition-all duration-200 hover:bg-muted/30 group text-sm;
+        grid-template-columns: 60px 1fr 120px 50px;
+    }
+
+    .table-row:active {
         @apply scale-98;
     }
 
-    .player-card-left {
-        @apply flex items-center gap-4 flex-1 min-w-0;
+    .table-col {
+        @apply flex items-center overflow-hidden;
     }
 
-    .player-number-badge {
-        @apply w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-md;
+    .table-col-number {
+        @apply justify-center font-bold text-white rounded-md text-base;
     }
 
-    .player-card-info {
-        @apply flex-1 min-w-0;
+    .table-col-name {
+        @apply px-4 truncate;
     }
 
-    .player-card-name {
-        @apply font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors;
+    .table-col-position {
+        @apply px-2 text-muted-foreground text-xs;
     }
 
-    .player-card-position {
-        @apply text-xs text-muted-foreground mt-1 truncate;
+    .table-col-action {
+        @apply justify-end pr-2 opacity-0 group-hover:opacity-100 transition-opacity;
     }
 
-    .player-card-icon {
-        @apply h-5 w-5 text-muted-foreground group-hover:text-primary flex-shrink-0 transition-colors;
+    .player-name-text {
+        @apply font-semibold text-foreground truncate group-hover:text-primary transition-colors;
+    }
+
+    .player-position-text {
+        @apply text-muted-foreground truncate;
+    }
+
+    .action-icon {
+        @apply w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors;
     }
 
     /* Roster Empty State */
-    .roster-empty-state {
-        @apply flex flex-col items-center justify-center py-12 px-6 bg-muted/20 rounded-lg border border-dashed border-border;
+    .roster-empty {
+        @apply flex flex-col items-center justify-center py-16 px-6 bg-muted/10 rounded-lg border border-dashed border-border;
     }
 
-    .roster-empty-icon {
-        @apply text-5xl mb-3;
+    .empty-illustration {
+        @apply text-6xl mb-4;
     }
 
-    .roster-empty-text {
-        @apply text-base text-muted-foreground mb-4 font-medium;
+    .empty-title {
+        @apply text-lg font-semibold text-foreground mb-2;
     }
 
-    .roster-empty-button {
+    .empty-subtitle {
+        @apply text-sm text-muted-foreground mb-6;
+    }
+
+    .empty-action-btn {
         @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
+    }
+
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .table-header-row {
+            @apply hidden;
+        }
+
+        .table-row {
+            @apply grid gap-3 px-4 py-4 rounded-lg bg-muted/5 border border-border mb-3;
+            grid-template-columns: auto 1fr;
+        }
+
+        .table-body {
+            @apply divide-y-0 bg-transparent;
+        }
+
+        .table-col {
+            @apply flex items-center;
+        }
+
+        .table-col-number {
+            @apply w-10 h-10 justify-center rounded-full text-base font-bold text-white;
+            grid-column: 1;
+            grid-row: 1 / 3;
+        }
+
+        .table-col-name {
+            @apply px-3 grid-column-2;
+            grid-column: 2;
+        }
+
+        .table-col-position {
+            @apply px-3 text-xs;
+            grid-column: 2;
+        }
+
+        .table-col-action {
+            @apply justify-end pr-3;
+            grid-column: 2;
+        }
     }
 
     /* Animations */

@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Plus } from 'lucide-react';
+import { Edit3, Plus } from 'lucide-react';
 import { Button } from '@components/base/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/base/card';
 import type { Player } from '@types';
 
 interface RosterTabProps {
@@ -20,16 +19,17 @@ export default function RosterTab({
 	const navigate = useNavigate();
 
 	return (
-		<div className="roster-container">
-			<div className="roster-header">
-				<div className="roster-header-content">
-					<h2 className="roster-title">{t('teamManagement.pwa.teamRoster')}</h2>
-					<p className="roster-subtitle">
-						{players.length} {t('common.players')}
+		<div className="roster-wrapper pb-8">
+			{/* Header */}
+			<div className="roster-top-bar">
+				<div>
+					<h2 className="roster-main-title">{t('teamManagement.pwa.teamRoster')}</h2>
+					<p className="roster-count-badge">
+						{players.length} {players.length === 1 ? 'Player' : t('common.players')}
 					</p>
 				</div>
 				<Button
-					className="roster-add-button"
+					className="add-player-btn"
 					onClick={() => navigate(`/team-management/${teamId}/player/new`)}
 				>
 					<Plus className="size-4 mr-2" />
@@ -37,51 +37,61 @@ export default function RosterTab({
 				</Button>
 			</div>
 
-			<div className="roster-list">
-				{players.length > 0 ? (
-					players.map((player, index) => (
-						<button
-							key={player.id}
-							className="player-card"
-							onClick={() => navigate(`/team-management/${teamId}/player/${player.id}`)}
-							style={{
-								borderLeftColor: teamColor || '#003E7E',
-								animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards`
-							}}
-						>
-							<div className="player-card-left">
+			{/* Players List */}
+			{players.length > 0 ? (
+				<div className="players-table">
+					{/* Table Header */}
+					<div className="table-header-row">
+						<div className="table-col table-col-number">#</div>
+						<div className="table-col table-col-name">{t('common.name')}</div>
+						<div className="table-col table-col-position">{t('teamManagement.pwa.position')}</div>
+						<div className="table-col table-col-action"></div>
+					</div>
+
+					{/* Table Body */}
+					<div className="table-body">
+						{players.map((player, index) => (
+							<button
+								key={player.id}
+								className="table-row"
+								onClick={() => navigate(`/team-management/${teamId}/player/${player.id}`)}
+								style={{ animation: `slideIn 0.3s ease-out ${index * 0.04}s backwards` }}
+							>
 								<div
-									className="player-number-badge"
+									className="table-col table-col-number"
 									style={{ backgroundColor: teamColor || '#003E7E' }}
 								>
-									{player.number || '?'}
+									{player.number || '-'}
 								</div>
-								<div className="player-card-info">
-									<h3 className="player-card-name">{player.name}</h3>
-									<p className="player-card-position">
-										{player.position || 'Not specified'}
-									</p>
+								<div className="table-col table-col-name">
+									<span className="player-name-text">{player.name}</span>
 								</div>
-							</div>
-							<ChevronRight className="player-card-icon" />
-						</button>
-					))
-				) : (
-					<div className="roster-empty-state">
-						<div className="roster-empty-icon">👥</div>
-						<p className="roster-empty-text">
-							{t('teamDetail.noPlayers')}
-						</p>
-						<Button
-							className="roster-empty-button"
-							onClick={() => navigate(`/team-management/${teamId}/player/new`)}
-						>
-							<Plus className="size-4 mr-2" />
-							{t('teamManagement.pwa.addPlayer')}
-						</Button>
+								<div className="table-col table-col-position">
+									<span className="player-position-text">
+										{player.position || '-'}
+									</span>
+								</div>
+								<div className="table-col table-col-action">
+									<Edit3 className="action-icon" />
+								</div>
+							</button>
+						))}
 					</div>
-				)}
-			</div>
+				</div>
+			) : (
+				<div className="roster-empty">
+					<div className="empty-illustration">👥</div>
+					<p className="empty-title">{t('teamDetail.noPlayers')}</p>
+					<p className="empty-subtitle">Start building your team</p>
+					<Button
+						className="empty-action-btn"
+						onClick={() => navigate(`/team-management/${teamId}/player/new`)}
+					>
+						<Plus className="size-4 mr-1" />
+						{t('teamManagement.pwa.addPlayer')}
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 }
