@@ -1,13 +1,17 @@
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent } from '@components/base/card';
 import { cn } from '@/components/utils';
 import ManagerHeader from '@/components/ManagerHeader';
+import { Menu, X } from 'lucide-react';
 
 export default function AdminLayout() {
 	const { isAdmin, isSeasonManager } = useAuth();
 	const { t } = useTranslation();
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const location = useLocation();
 
 	if (!isAdmin() && !isSeasonManager()) {
 		return (
@@ -27,6 +31,10 @@ export default function AdminLayout() {
 		{ to: '/admin/games', label: t('admin.tabs.game.title') },
 	];
 
+	const handleTabClick = () => {
+		setMobileMenuOpen(false);
+	};
+
 	return (
 		<div className="min-h-screen bg-background">
 			<ManagerHeader
@@ -36,20 +44,33 @@ export default function AdminLayout() {
 			/>
 
 			<div className="container mx-auto px-4 py-4">
-				<Card>
-					<CardContent className="pt-6">
-						<nav className="flex space-x-1 border-b border-gray-200 mb-4 overflow-x-auto">
+				<Card className="admin-card">
+					<CardContent className="admin-card-content">
+						{/* Mobile Menu Button */}
+						<div className="admin-mobile-menu-btn lg:hidden mb-3">
+							<button
+								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+								className="admin-menu-toggle"
+								aria-label="Toggle menu"
+							>
+								{mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+							</button>
+						</div>
+
+						{/* Navigation */}
+						<nav className={cn(
+							'admin-nav',
+							mobileMenuOpen ? 'admin-nav-mobile-open' : 'admin-nav-mobile-closed'
+						)}>
 							{tabs.map((tab) => (
 								<NavLink
 									key={tab.to}
 									to={tab.to}
+									onClick={handleTabClick}
 									className={({ isActive }) =>
 										cn(
-											'px-4 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap',
-											'hover:bg-gray-100',
-											isActive
-												? 'bg-gray-100 text-gray-900 border-b-2 border-primary'
-												: 'text-gray-500'
+											'admin-nav-link',
+											isActive ? 'admin-nav-link-active' : 'admin-nav-link-inactive'
 										)
 									}
 								>
@@ -57,7 +78,9 @@ export default function AdminLayout() {
 								</NavLink>
 							))}
 						</nav>
-						<div className="mt-4">
+
+						{/* Page Content */}
+						<div className="admin-page-content">
 							<Outlet />
 						</div>
 					</CardContent>
