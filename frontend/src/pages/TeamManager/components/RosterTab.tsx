@@ -53,7 +53,7 @@ export default function RosterTab({
 						{players.map((player, index) => (
 							<button
 								key={player.id}
-								className="table-row"
+								className="table-row group"
 								onClick={() => navigate(`/team-management/${teamId}/player/${player.id}`)}
 								style={{ animation: `slideIn 0.3s ease-out ${index * 0.04}s backwards` }}
 							>

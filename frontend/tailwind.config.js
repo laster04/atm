@@ -27,7 +27,7 @@ export default {
           foreground: 'var(--secondary-foreground)',
         },
         muted: {
-          DEFAULT: 'var(--muted)',
+          DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
           foreground: 'var(--muted-foreground)',
         },
         accent: {
