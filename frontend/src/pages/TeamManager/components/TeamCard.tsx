@@ -15,7 +15,7 @@ export default function TeamCard({ team }: TeamCardProps) {
       className="team-card"
       style={{
         backgroundColor: `${team.primaryColor}08`,
-        borderLeftColor: team.primaryColor
+        borderLeft: `4px solid ${team.primaryColor}`
       }}
     >
       <h2 className="team-card-title">{team.name}</h2>

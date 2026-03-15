@@ -1,5 +1,4 @@
 import type { Game } from '@types';
-import { Card, CardContent, CardHeader, CardTitle } from "@components/base/card.tsx";
 import { Badge } from "@components/base/badge.tsx";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +38,7 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 						upcomingGames.map((game: Game, index) => (
 							<div
 								key={game.id}
-								className="game-card game-card-upcoming"
+								className="game-card game-card-upcoming group"
 								style={{ animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards` }}
 							>
 								<div className="game-card-header">
@@ -94,7 +93,7 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 							return (
 								<button
 									key={game.id}
-									className="game-card game-card-completed"
+									className="game-card game-card-completed group"
 									onClick={() => navigate(`/team-management/${teamId}/game/${game.id}`)}
 									style={{ animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards` }}
 								>
