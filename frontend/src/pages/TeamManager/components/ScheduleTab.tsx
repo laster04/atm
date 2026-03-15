@@ -26,107 +26,121 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 			return new Date(b.date).getTime() - new Date(a.date).getTime();
 		});
 	return (
-		<>
-			<Card>
-				<CardHeader className="pb-3">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-base">
-							{t('teamManagement.pwa.upcomingGames')}
-						</CardTitle>
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-3">
+		<div className="schedule-container">
+			{/* Upcoming Games Section */}
+			<section className="schedule-section">
+				<div className="schedule-section-header">
+					<h2 className="schedule-section-title">📅 {t('teamManagement.pwa.upcomingGames')}</h2>
+					<p className="schedule-section-subtitle">{upcomingGames.length} games scheduled</p>
+				</div>
+
+				<div className="games-list">
 					{upcomingGames.length > 0 ? (
-						upcomingGames.map((game: Game) => (
+						upcomingGames.map((game: Game, index) => (
 							<div
 								key={game.id}
-								className="flex items-center gap-3 p-3 border rounded-lg"
+								className="game-card game-card-upcoming"
+								style={{ animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards` }}
 							>
-								<div className="flex-1">
-									<div className="font-medium text-sm">
-										{game.homeTeamId === teamId
-											? `vs ${game.awayTeam?.name}`
-											: `@ ${game.homeTeam?.name}`}
-									</div>
-									<div className="text-xs text-muted-foreground">
-										{game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
-										{game.location && ` • ${game.location}`}
+								<div className="game-card-header">
+									<div className="game-opponent">
+										<h3 className="game-opponent-name">
+											{game.homeTeamId === teamId
+												? `vs ${game.awayTeam?.name}`
+												: `@ ${game.homeTeam?.name}`}
+										</h3>
+										<Badge className="game-location-badge" variant={game.homeTeamId === teamId ? 'default' : 'outline'}>
+											{game.homeTeamId === teamId ? t('teamManagement.pwa.home') : t('teamManagement.pwa.away')}
+										</Badge>
 									</div>
 								</div>
-								<Badge variant={game.homeTeamId === teamId ? 'default' : 'outline'}>
-									{game.homeTeamId === teamId ? t('teamManagement.pwa.home') : t('teamManagement.pwa.away')}
-								</Badge>
+
+								<div className="game-card-meta">
+									<span className="game-date">
+										📍 {game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
+									</span>
+									{game.location && <span className="game-location">🏟️ {game.location}</span>}
+								</div>
 							</div>
 						))
 					) : (
-						<div className="text-center text-muted-foreground py-4">
-							{t('teamDetail.games.noGames')}
+						<div className="schedule-empty-state">
+							<div className="empty-icon">🎯</div>
+							<p className="empty-message">{t('teamDetail.games.noGames')}</p>
+							<p className="empty-submessage">No upcoming games scheduled</p>
 						</div>
 					)}
-				</CardContent>
-			</Card>
-			<Card className="mt-3 mb-8">
-				<CardHeader className="pb-3">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-base">
-							{t('teamManagement.pwa.pastGames')}
-						</CardTitle>
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-3">
+				</div>
+			</section>
+
+			{/* Completed Games Section */}
+			<section className="schedule-section mt-8">
+				<div className="schedule-section-header">
+					<h2 className="schedule-section-title">🏆 {t('teamManagement.pwa.pastGames')}</h2>
+					<p className="schedule-section-subtitle">{completedGames.length} games played</p>
+				</div>
+
+				<div className="games-list">
 					{completedGames.length > 0 ? (
-						completedGames.map((game: Game) => {
+						completedGames.map((game: Game, index) => {
 							const isHome = game.homeTeamId === teamId;
 							const teamScore = isHome ? game.homeScore : game.awayScore;
 							const opponentScore = isHome ? game.awayScore : game.homeScore;
 							const hasScore = teamScore != null && opponentScore != null;
 							const isWin = hasScore && teamScore > opponentScore;
 							const isDraw = hasScore && teamScore === opponentScore;
+							const resultColor = isWin ? 'win' : isDraw ? 'draw' : 'loss';
 
 							return (
-								<div
+								<button
 									key={game.id}
-									className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+									className="game-card game-card-completed"
 									onClick={() => navigate(`/team-management/${teamId}/game/${game.id}`)}
+									style={{ animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards` }}
 								>
-									<div className="flex-1">
-										<div className="font-medium text-sm">
-											{isHome
-												? `vs ${game.awayTeam?.name}`
-												: `@ ${game.homeTeam?.name}`}
+									<div className="game-card-header">
+										<div className="game-opponent">
+											<h3 className="game-opponent-name">
+												{isHome
+													? `vs ${game.awayTeam?.name}`
+													: `@ ${game.homeTeam?.name}`}
+											</h3>
+											{hasScore && (
+												<Badge className={`game-result-badge game-result-${resultColor}`}>
+													{isWin ? t('teamManagement.pwa.win') : isDraw ? t('teamManagement.pwa.draw') : t('teamManagement.pwa.loss')}
+												</Badge>
+											)}
 										</div>
-										<div className="text-xs text-muted-foreground">
-											{game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
-											{game.location && ` • ${game.location}`}
-										</div>
+
+										{hasScore && (
+											<div className="game-score-display">
+												<span className="game-final-score">{teamScore}</span>
+												<span className="game-score-separator">:</span>
+												<span className="game-final-score">{opponentScore}</span>
+											</div>
+										)}
 									</div>
-									{hasScore && (
-										<div className="flex items-center gap-2">
-											<span className="font-bold text-lg">
-												{teamScore} : {opponentScore}
-											</span>
-											<Badge
-												variant={isWin ? 'default' : isDraw ? 'secondary' : 'destructive'}
-												className={isWin ? 'bg-green-600 hover:bg-green-700' : ''}
-											>
-												{isWin ? t('teamManagement.pwa.win') : isDraw ? t('teamManagement.pwa.draw') : t('teamManagement.pwa.loss')}
-											</Badge>
-										</div>
-									)}
-									<ChevronRight className="h-4 w-4 text-muted-foreground" />
-								</div>
+
+									<div className="game-card-meta">
+										<span className="game-date">
+											📍 {game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
+										</span>
+										{game.location && <span className="game-location">🏟️ {game.location}</span>}
+									</div>
+
+									<ChevronRight className="game-card-icon" />
+								</button>
 							);
 						})
 					) : (
-						<div className="text-center text-muted-foreground py-4">
-							{t('teamDetail.games.noGames')}
+						<div className="schedule-empty-state">
+							<div className="empty-icon">📊</div>
+							<p className="empty-message">{t('teamDetail.games.noGames')}</p>
+							<p className="empty-submessage">No completed games yet</p>
 						</div>
 					)}
-				</CardContent>
-			</Card>
-		</>
-		// <div className="pb-20">
-		// 	<GamesList games={games} teamId={teamId} />
-		// </div>
+				</div>
+			</section>
+		</div>
 	);
 }

@@ -83,7 +83,6 @@ export default function Detail() {
 			</div>
 		);
 	}
-	let pageContent ;
 
 	if (!team) {
 		return (
@@ -96,7 +95,7 @@ export default function Detail() {
 	const canManage = canManageTeam(team.managerId);
 
 	if (!canManage) {
-		pageContent = (
+		return (
 			<div className="min-h-screen flex items-center justify-center">
 				<div className="text-center">
 					<h1 className="text-2xl font-bold text-red-600">{t('myTeams.accessDenied')}</h1>
@@ -104,69 +103,13 @@ export default function Detail() {
 				</div>
 			</div>
 		);
-	} else {
-		pageContent = (
-			<>
-			{/* Content Area */}
-		<div className="px-4 py-4">
-			{activeTab === 'overview' && (
-				<OverviewTab
-					team={team}
-					standing={standing}
-					onTabChange={setActiveTab}
-				/>
-			)}
-			{activeTab === 'roster' && (
-				<RosterTab
-					players={players}
-					teamId={team.id}
-					teamColor={localColor}
-				/>
-			)}
-			{activeTab === 'schedule' && (
-				<ScheduleTab
-					games={team.games || []}
-					teamId={team.id}
-				/>
-			)}
-			{activeTab === 'settings' && (
-				<SettingsTab
-					team={team}
-					standing={standing}
-					onColorChange={setLocalColor}
-					onTeamUpdate={setTeam}
-				/>
-			)}
-		</div>
-
-		{/* Bottom Navigation */}
-		<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20">
-			<div className="grid grid-cols-4 h-16">
-				{tabs.map((tab) => (
-					<button
-						key={tab.id}
-						onClick={() => setActiveTab(tab.id)}
-						className={`flex flex-col items-center justify-center gap-1 transition-colors ${
-							activeTab === tab.id
-								? 'text-primary'
-								: 'text-muted-foreground'
-						}`}
-					>
-						<tab.icon className="size-5" />
-						<span className="text-xs font-medium">{tab.label}</span>
-					</button>
-				))}
-			</div>
-		</div>
-			</>
-		)
 	}
 
 	return (
-		<div className="min-h-screen bg-background -mx-2 -my-3">
-			{/* Mobile Header */}
+		<div className="min-h-screen bg-background flex flex-col lg:flex-row">
+			{/* Mobile/Tablet Header */}
 			<div
-				className="sticky top-0 z-10 text-white border-b shadow-md"
+				className="sticky top-0 z-10 text-white border-b shadow-md lg:hidden"
 				style={{ backgroundColor: localColor || '#003E7E' }}
 			>
 				<div className="px-4 py-3">
@@ -188,7 +131,116 @@ export default function Detail() {
 					</div>
 				</div>
 			</div>
-			{pageContent}
+
+			{/* Desktop Sidebar */}
+			<div
+				className="hidden lg:flex lg:flex-col lg:w-64 text-white border-r shadow-sm"
+				style={{ backgroundColor: localColor || '#003E7E' }}
+			>
+				<div className="p-6 border-b border-white/20">
+					<Button
+						variant="ghost"
+						size="sm"
+						className="text-white hover:bg-white/20 -ml-2 mb-4"
+						onClick={handleBack}
+					>
+						<ArrowLeft className="size-5 mr-2" />
+						Back
+					</Button>
+					<h1 className="text-2xl font-bold">{team.name}</h1>
+					{team.season && (
+						<p className="text-sm opacity-80 mt-2">{team.season.name}</p>
+					)}
+				</div>
+
+				{/* Desktop Navigation */}
+				<nav className="flex-1 p-4 space-y-2">
+					{tabs.map((tab) => (
+						<button
+							key={tab.id}
+							onClick={() => setActiveTab(tab.id)}
+							className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+								activeTab === tab.id
+									? 'bg-white/20 text-white'
+									: 'text-white/80 hover:bg-white/10'
+							}`}
+						>
+							<tab.icon className="size-5" />
+							<span className="font-medium">{tab.label}</span>
+						</button>
+					))}
+				</nav>
+			</div>
+
+			{/* Main Content */}
+			<div className="flex-1 flex flex-col">
+				{/* Desktop Header - Visible only on desktop */}
+				<div className="hidden lg:block border-b bg-card">
+					<div className="px-6 py-4">
+						<h2 className="text-xl font-semibold text-foreground">
+							{activeTab === 'overview' && 'Overview'}
+							{activeTab === 'roster' && 'Team Roster'}
+							{activeTab === 'schedule' && 'Schedule'}
+							{activeTab === 'settings' && 'Settings'}
+						</h2>
+					</div>
+				</div>
+
+				{/* Content Area */}
+				<div className="flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
+					{activeTab === 'overview' && (
+						<OverviewTab
+							team={team}
+							standing={standing}
+							onTabChange={setActiveTab}
+						/>
+					)}
+					{activeTab === 'roster' && (
+						<RosterTab
+							players={players}
+							teamId={team.id}
+							teamColor={localColor}
+						/>
+					)}
+					{activeTab === 'schedule' && (
+						<ScheduleTab
+							games={team.games || []}
+							teamId={team.id}
+						/>
+					)}
+					{activeTab === 'settings' && (
+						<SettingsTab
+							team={team}
+							standing={standing}
+							onColorChange={setLocalColor}
+							onTeamUpdate={setTeam}
+						/>
+					)}
+				</div>
+
+				{/* Mobile Bottom Navigation */}
+				<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20 lg:hidden">
+					<div className="grid grid-cols-4 h-16">
+						{tabs.map((tab) => (
+							<button
+								key={tab.id}
+								onClick={() => setActiveTab(tab.id)}
+								className={`flex flex-col items-center justify-center gap-1 transition-colors ${
+									activeTab === tab.id
+										? 'text-primary'
+										: 'text-muted-foreground'
+								}`}
+							>
+								<tab.icon className="size-5" />
+								<span className="text-xs font-medium">{tab.label}</span>
+							</button>
+						))}
+					</div>
+				</div>
+
+				{/* Mobile Content Padding */}
+				<div className="h-16 lg:hidden" />
+			</div>
 		</div>
 	);
 }

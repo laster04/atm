@@ -26,9 +26,9 @@ export default function SettingsTab({
 
 	return (
 		<div className="space-y-4 pb-20">
-			<div className="mb-4">
-				<h3 className="text-lg font-medium">{t('teamManagement.pwa.teamSettings')}</h3>
-				<p className="text-sm text-muted-foreground">
+			<div className="settings-header">
+				<h3 className="settings-title">{t('teamManagement.pwa.teamSettings')}</h3>
+				<p className="settings-subtitle">
 					{t('teamManagement.pwa.customizeBranding')}
 				</p>
 			</div>
@@ -42,55 +42,55 @@ export default function SettingsTab({
 			/>
 
 			{/* Team Info */}
-			<Card>
+			<Card className="settings-card">
 				<CardHeader>
 					<CardTitle className="text-base">
 						{t('teamManagement.pwa.teamInfo')}
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-3">
-					<div className="flex justify-between py-2 border-b">
-						<span className="text-sm text-muted-foreground">
+					<div className="settings-row">
+						<span className="settings-row-label">
 							{t('teamManagement.pwa.teamName')}
 						</span>
-						<span className="text-sm font-medium">{team.name}</span>
+						<span className="settings-row-value">{team.name}</span>
 					</div>
 					{team.season && (
-						<div className="flex justify-between py-2 border-b">
-							<span className="text-sm text-muted-foreground">
+						<div className="settings-row">
+							<span className="settings-row-label">
 								{t('teamManagement.pwa.season')}
 							</span>
-							<span className="text-sm font-medium">{team.season.name}</span>
+							<span className="settings-row-value">{team.season.name}</span>
 						</div>
 					)}
-					<div className="flex justify-between items-center py-2 border-b">
-						<span className="text-sm text-muted-foreground">
+					<div className="settings-row">
+						<span className="settings-row-label">
 							{t('teamManagement.pwa.manager')}
 						</span>
-						<span className="text-sm font-medium">
+						<span className="settings-row-value">
 							{team.manager?.name || '-'}
 						</span>
 					</div>
-					<div className="flex justify-between py-2 border-b">
-						<span className="text-sm text-muted-foreground">
+					<div className="settings-row">
+						<span className="settings-row-label">
 							{t('teamManagement.pwa.seasonRecord')}
 						</span>
-						<span className="text-sm font-medium">
+						<span className="settings-row-value">
 							{standing ? `${standing.wins}-${standing.losses}-${standing.draws}` : '-'}
 						</span>
 					</div>
-					<div className="flex justify-between py-2">
-						<span className="text-sm text-muted-foreground">
+					<div className="settings-row settings-row-last">
+						<span className="settings-row-label">
 							{t('teamManagement.pwa.totalPoints')}
 						</span>
-						<span className="text-sm font-medium">{standing?.points ?? 0}</span>
+						<span className="settings-row-value">{standing?.points ?? 0}</span>
 					</div>
 				</CardContent>
 			</Card>
 
 			{/* Invite Manager - Admin only */}
 			{isAdmin() && (
-				<Card>
+				<Card className="settings-card">
 					<CardHeader>
 						<CardTitle className="text-base">
 							{t('teamDetail.inviteManager.title')}

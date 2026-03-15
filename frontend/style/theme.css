@@ -138,44 +138,870 @@
     }
 
     h1 {
-        font-size: var(--text-2xl);
-        font-weight: var(--font-weight-medium);
-        line-height: 1.5;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
     }
 
     h2 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-weight-medium);
-        line-height: 1.5;
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
     }
 
     h3 {
-        font-size: var(--text-lg);
-        font-weight: var(--font-weight-medium);
-        line-height: 1.5;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.4;
     }
 
     h4 {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-medium);
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    h5 {
+        font-size: 1.125rem;
+        font-weight: 600;
         line-height: 1.5;
     }
 
+    h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    p {
+        line-height: 1.6;
+    }
+
     label {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-medium);
+        font-size: 0.875rem;
+        font-weight: 600;
         line-height: 1.5;
     }
 
     button {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-medium);
+        font-size: 0.875rem;
+        font-weight: 600;
         line-height: 1.5;
     }
 
     input {
-        font-size: var(--text-base);
-        font-weight: var(--font-weight-normal);
+        font-size: 0.875rem;
+        font-weight: 400;
         line-height: 1.5;
+    }
+}
+
+@layer components {
+    /* Team Card */
+    .team-card {
+        @apply block bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border-l-4 cursor-pointer;
+    }
+
+    .team-card-title {
+        @apply font-semibold text-lg mb-2;
+    }
+
+    .team-card-season {
+        @apply text-muted-foreground mb-2;
+    }
+
+    .team-card-count {
+        @apply text-sm text-muted-foreground;
+    }
+
+    /* Player Row */
+    .player-row-item {
+        @apply w-full flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors text-left;
+    }
+
+    .player-number-badge {
+        @apply w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0;
+    }
+
+    .player-row-name {
+        @apply font-medium text-sm truncate;
+    }
+
+    .player-row-position {
+        @apply text-xs text-muted-foreground;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        @apply bg-gradient-to-br;
+    }
+
+    .stat-card-wins {
+        @apply from-green-50 to-green-100 border-green-200;
+    }
+
+    .stat-card-losses {
+        @apply from-red-50 to-red-100 border-red-200;
+    }
+
+    .stat-card-points {
+        @apply from-primary/10 to-primary/20 border-primary/30;
+    }
+
+    .stat-value {
+        @apply text-2xl font-bold;
+    }
+
+    .stat-value-wins {
+        @apply text-green-900;
+    }
+
+    .stat-value-losses {
+        @apply text-red-900;
+    }
+
+    .stat-value-points {
+        @apply text-foreground;
+    }
+
+    .stat-label {
+        @apply text-xs mt-1;
+    }
+
+    .stat-label-wins {
+        @apply text-green-700;
+    }
+
+    .stat-label-losses {
+        @apply text-red-700;
+    }
+
+    .stat-label-points {
+        @apply text-muted-foreground;
+    }
+
+    /* Game Items */
+    .game-item {
+        @apply w-full flex items-center gap-3 p-3 border rounded-lg transition-colors;
+    }
+
+    .game-item-upcoming {
+        @apply cursor-default;
+    }
+
+    .game-item-completed {
+        @apply cursor-pointer hover:bg-muted/50 text-left;
+    }
+
+    .game-item-title {
+        @apply font-medium text-sm;
+    }
+
+    .game-item-meta {
+        @apply text-xs text-muted-foreground;
+    }
+
+    .game-score {
+        @apply font-bold text-lg;
+    }
+
+    /* Schedule Card */
+    .schedule-card {
+        @apply shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    /* Settings */
+    .settings-header {
+        @apply mb-4;
+    }
+
+    .settings-title {
+        @apply text-lg font-medium;
+    }
+
+    .settings-subtitle {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .settings-card {
+        @apply shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    .settings-row {
+        @apply flex justify-between py-3 border-b;
+    }
+
+    .settings-row-last {
+        @apply border-b-0;
+    }
+
+    .settings-row-label {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .settings-row-value {
+        @apply text-sm font-medium;
+    }
+
+    /* Responsive Settings */
+    @media (max-width: 768px) {
+        .settings-title {
+            @apply text-lg font-semibold;
+        }
+
+        .settings-subtitle {
+            @apply text-xs text-muted-foreground;
+        }
+
+        .settings-row {
+            @apply flex justify-between py-2 border-b;
+        }
+
+        .settings-row-label {
+            @apply text-xs text-muted-foreground;
+        }
+
+        .settings-row-value {
+            @apply text-xs font-medium text-right;
+        }
+    }
+
+    /* Enhanced Card Styles */
+    /* Card base: these override the default card styles from components */
+    .card {
+        @apply bg-card text-card-foreground rounded-lg border border-border shadow-sm hover:shadow-md transition-all duration-200;
+    }
+
+    .card-header {
+        @apply flex flex-col space-y-1.5 p-6 border-b border-border;
+    }
+
+    .card-title {
+        @apply text-base font-semibold leading-none tracking-tight;
+    }
+
+    .card-description {
+        @apply text-sm text-muted-foreground;
+    }
+
+    .card-content {
+        @apply p-6;
+    }
+
+    .card-footer {
+        @apply flex items-center p-6 pt-0;
+    }
+
+    /* Overview Cards */
+    .overview-card {
+        @apply shadow-sm hover:shadow-md transition-all duration-200;
+    }
+
+    .game-preview-item {
+        @apply flex items-center gap-3 p-4 border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors;
+    }
+
+    .game-preview-title {
+        @apply font-medium text-sm;
+    }
+
+    .game-preview-meta {
+        @apply text-xs text-muted-foreground mt-1;
+    }
+
+    .quick-action-button {
+        @apply w-full justify-start h-12 transition-all duration-200 hover:bg-opacity-90;
+    }
+
+    /* Responsive Overview Cards */
+    @media (max-width: 768px) {
+        .stat-card {
+            @apply bg-gradient-to-br;
+        }
+
+        .stat-value {
+            @apply text-xl font-bold;
+        }
+
+        .stat-label {
+            @apply text-xs mt-1;
+        }
+
+        .overview-card {
+            @apply shadow-sm hover:shadow-md transition-all duration-200;
+        }
+
+        .game-preview-item {
+            @apply flex items-center gap-3 p-3 border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors;
+        }
+
+        .quick-action-button {
+            @apply w-full justify-start h-10 text-sm;
+        }
+    }
+
+    /* Typography Utilities */
+    .text-display-lg {
+        @apply text-4xl font-bold leading-tight;
+    }
+
+    .text-display-md {
+        @apply text-3xl font-bold leading-tight;
+    }
+
+    .text-display-sm {
+        @apply text-2xl font-bold leading-tight;
+    }
+
+    .text-heading-lg {
+        @apply text-2xl font-semibold;
+    }
+
+    .text-heading-md {
+        @apply text-xl font-semibold;
+    }
+
+    .text-heading-sm {
+        @apply text-lg font-semibold;
+    }
+
+    .text-body-lg {
+        @apply text-base font-normal;
+    }
+
+    .text-body-md {
+        @apply text-sm font-normal;
+    }
+
+    .text-body-sm {
+        @apply text-xs font-normal;
+    }
+
+    .text-label-lg {
+        @apply text-base font-semibold;
+    }
+
+    .text-label-md {
+        @apply text-sm font-semibold;
+    }
+
+    .text-label-sm {
+        @apply text-xs font-semibold uppercase tracking-wide;
+    }
+
+    /* Hover & Transition States */
+    .interactive-element {
+        @apply transition-all duration-200;
+    }
+
+    .interactive-element:hover {
+        @apply transform scale-105;
+    }
+
+    .button-interactive {
+        @apply transition-all duration-200;
+    }
+
+    .button-interactive:hover {
+        @apply shadow-md;
+    }
+
+    .button-interactive:active {
+        @apply scale-95;
+    }
+
+    .card-interactive {
+        @apply cursor-pointer transition-all duration-200;
+    }
+
+    .card-interactive:hover {
+        @apply shadow-lg border-primary/50;
+    }
+
+    .link-interactive {
+        @apply transition-colors duration-200;
+    }
+
+    .link-interactive:hover {
+        @apply text-primary underline;
+    }
+
+    /* Smooth Transitions */
+    .transition-smooth {
+        @apply transition-all duration-300 ease-in-out;
+    }
+
+    .transition-fast {
+        @apply transition-all duration-150 ease-in-out;
+    }
+
+    .transition-slow {
+        @apply transition-all duration-500 ease-in-out;
+    }
+
+    /* Focus States */
+    .focus-ring {
+        @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    }
+
+    .focus-ring-inset {
+        @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset;
+    }
+
+    /* Teams Grid */
+    .teams-grid-container {
+        @apply w-full;
+    }
+
+    .teams-grid {
+        @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        @apply bg-card rounded-lg shadow-sm p-8 text-center text-muted-foreground border border-border;
+    }
+
+    /* Roster Tab Styles */
+    .roster-wrapper {
+        @apply w-full;
+    }
+
+    .roster-top-bar {
+        @apply flex items-center justify-between mb-6;
+    }
+
+    .roster-main-title {
+        @apply text-2xl font-bold text-foreground;
+    }
+
+    .roster-count-badge {
+        @apply text-sm text-muted-foreground mt-1 font-medium;
+    }
+
+    .add-player-btn {
+        @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
+    }
+
+    /* Players Table */
+    .players-table {
+        @apply w-full border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    .table-header-row {
+        @apply grid gap-0 px-4 py-3 bg-muted/50 border-b border-border font-semibold text-sm text-foreground sticky top-0 z-10;
+        grid-template-columns: 60px 1fr 120px 50px;
+    }
+
+    .table-body {
+        @apply divide-y divide-border bg-card;
+    }
+
+    .table-row {
+        @apply grid gap-0 px-4 py-4 text-left cursor-pointer transition-all duration-200 hover:bg-muted/30 group text-sm;
+        grid-template-columns: 60px 1fr 120px 50px;
+    }
+
+    .table-row:active {
+        @apply scale-98;
+    }
+
+    .table-col {
+        @apply flex items-center overflow-hidden;
+    }
+
+    .table-col-number {
+        @apply justify-center font-bold text-white rounded-md text-base;
+    }
+
+    .table-col-name {
+        @apply px-4 truncate;
+    }
+
+    .table-col-position {
+        @apply px-2 text-muted-foreground text-xs;
+    }
+
+    .table-col-action {
+        @apply justify-end pr-2 opacity-0 group-hover:opacity-100 transition-opacity;
+    }
+
+    .player-name-text {
+        @apply font-semibold text-foreground truncate group-hover:text-primary transition-colors;
+    }
+
+    .player-position-text {
+        @apply text-muted-foreground truncate;
+    }
+
+    .action-icon {
+        @apply w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors;
+    }
+
+    /* Roster Empty State */
+    .roster-empty {
+        @apply flex flex-col items-center justify-center py-16 px-6 bg-muted/10 rounded-lg border border-dashed border-border;
+    }
+
+    .empty-illustration {
+        @apply text-6xl mb-4;
+    }
+
+    .empty-title {
+        @apply text-lg font-semibold text-foreground mb-2;
+    }
+
+    .empty-subtitle {
+        @apply text-sm text-muted-foreground mb-6;
+    }
+
+    .empty-action-btn {
+        @apply bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
+    }
+
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .table-header-row {
+            @apply hidden;
+        }
+
+        .table-row {
+            @apply grid gap-3 px-4 py-4 rounded-lg bg-muted/5 border border-border mb-3;
+            grid-template-columns: auto 1fr;
+        }
+
+        .table-body {
+            @apply divide-y-0 bg-transparent;
+        }
+
+        .table-col {
+            @apply flex items-center;
+        }
+
+        .table-col-number {
+            @apply w-10 h-10 justify-center rounded-full text-base font-bold text-white;
+            grid-column: 1;
+            grid-row: 1 / 3;
+        }
+
+        .table-col-name {
+            @apply px-3 grid-column-2;
+            grid-column: 2;
+        }
+
+        .table-col-position {
+            @apply px-3 text-xs;
+            grid-column: 2;
+        }
+
+        .table-col-action {
+            @apply justify-end pr-3;
+            grid-column: 2;
+        }
+    }
+
+    /* Responsive Team Card */
+    @media (max-width: 640px) {
+        .team-card {
+            @apply p-4;
+        }
+
+        .team-card-title {
+            @apply text-base;
+        }
+
+        .team-card-season {
+            @apply text-xs;
+        }
+
+        .team-card-count {
+            @apply text-xs;
+        }
+    }
+
+    /* Responsive Headers */
+    @media (max-width: 768px) {
+        .roster-main-title {
+            @apply text-xl font-bold;
+        }
+
+        .roster-count-badge {
+            @apply text-xs;
+        }
+
+        .add-player-btn {
+            @apply px-3 py-2 text-sm;
+        }
+
+        .table-header-row {
+            @apply text-xs py-2 px-2;
+        }
+
+        .table-row {
+            @apply px-2 py-3 text-xs;
+        }
+
+        .action-icon {
+            @apply w-4 h-4;
+        }
+
+        .schedule-section-title {
+            @apply text-xl;
+        }
+
+        .schedule-section-subtitle {
+            @apply text-xs;
+        }
+
+        .game-card-header {
+            @apply flex-col gap-2 mb-2;
+        }
+
+        .game-opponent {
+            @apply w-full;
+        }
+
+        .game-opponent-name {
+            @apply text-base;
+        }
+
+        .game-final-score {
+            @apply text-2xl;
+        }
+    }
+
+    /* Tablet Optimizations */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .teams-grid {
+            @apply grid md:grid-cols-2 gap-6;
+        }
+
+        .roster-main-title {
+            @apply text-xl;
+        }
+
+        .schedule-section-title {
+            @apply text-xl;
+        }
+    }
+
+    /* Improved Touch Targets */
+    @media (max-width: 768px) {
+        .table-row {
+            @apply min-h-14;
+        }
+
+        .game-card {
+            @apply min-h-20;
+        }
+
+        .player-card {
+            @apply min-h-16;
+        }
+
+        .button {
+            @apply min-h-10;
+        }
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Transform utilities */
+    .scale-98 {
+        @apply scale-95;
+    }
+
+    /* Schedule Tab Styles */
+    .schedule-container {
+        @apply w-full mb-8;
+    }
+
+    .schedule-section {
+        @apply mb-8;
+    }
+
+    .schedule-section-header {
+        @apply mb-6;
+    }
+
+    .schedule-section-title {
+        @apply text-2xl font-bold text-foreground;
+    }
+
+    .schedule-section-subtitle {
+        @apply text-sm text-muted-foreground mt-2;
+    }
+
+    .games-list {
+        @apply space-y-3;
+    }
+
+    /* Game Card Base */
+    .game-card {
+        @apply w-full p-4 bg-card border border-border rounded-lg shadow-sm transition-all duration-200 text-left group relative;
+    }
+
+    .game-card:active {
+        @apply scale-95;
+    }
+
+    /* Upcoming Game Card */
+    .game-card-upcoming {
+        @apply hover:shadow-md hover:border-primary/50;
+    }
+
+    .game-card-upcoming:hover {
+        @apply bg-muted/20;
+    }
+
+    /* Completed Game Card */
+    .game-card-completed {
+        @apply cursor-pointer hover:shadow-md hover:border-primary/50 flex flex-col relative pr-12;
+    }
+
+    .game-card-completed:hover {
+        @apply bg-muted/20;
+    }
+
+    /* Game Card Header */
+    .game-card-header {
+        @apply flex items-start justify-between mb-3 gap-3;
+    }
+
+    /* Game Opponent */
+    .game-opponent {
+        @apply flex items-center gap-3 flex-wrap;
+    }
+
+    .game-opponent-name {
+        @apply text-lg font-semibold text-foreground group-hover:text-primary transition-colors;
+    }
+
+    /* Game Badges */
+    .game-location-badge {
+        @apply text-xs font-semibold px-3 py-1;
+    }
+
+    .game-result-badge {
+        @apply text-xs font-semibold px-3 py-1;
+    }
+
+    .game-result-win {
+        @apply bg-green-100 text-green-800 hover:bg-green-200;
+    }
+
+    .game-result-draw {
+        @apply bg-amber-100 text-amber-800 hover:bg-amber-200;
+    }
+
+    .game-result-loss {
+        @apply bg-red-100 text-red-800 hover:bg-red-200;
+    }
+
+    /* Game Score Display */
+    .game-score-display {
+        @apply flex items-center gap-2;
+    }
+
+    .game-final-score {
+        @apply text-3xl font-bold text-foreground;
+    }
+
+    .game-score-separator {
+        @apply text-2xl font-bold text-muted-foreground;
+    }
+
+    /* Game Card Meta */
+    .game-card-meta {
+        @apply flex flex-wrap gap-3 text-xs text-muted-foreground;
+    }
+
+    .game-date {
+        @apply inline-flex items-center gap-1;
+    }
+
+    .game-location {
+        @apply inline-flex items-center gap-1;
+    }
+
+    /* Game Card Icon */
+    .game-card-icon {
+        @apply h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors absolute top-4 right-4;
+    }
+
+    /* Schedule Empty State */
+    .schedule-empty-state {
+        @apply flex flex-col items-center justify-center py-12 px-6 bg-muted/20 rounded-lg border-2 border-dashed border-border;
+    }
+
+    .empty-icon {
+        @apply text-5xl mb-3;
+    }
+
+    .empty-message {
+        @apply text-base text-foreground font-medium;
+    }
+
+    .empty-submessage {
+        @apply text-sm text-muted-foreground mt-1;
+    }
+
+    /* Responsive Schedule */
+    @media (max-width: 640px) {
+        .schedule-section-title {
+            @apply text-xl font-bold;
+        }
+
+        .game-card {
+            @apply p-3;
+        }
+
+        .game-opponent-name {
+            @apply text-base;
+        }
+
+        .game-final-score {
+            @apply text-2xl;
+        }
+
+        .game-score-separator {
+            @apply text-xl;
+        }
+
+        .game-card-header {
+            @apply flex-col gap-2;
+        }
+
+        .game-opponent {
+            @apply w-full justify-between;
+        }
+
+        .game-score-display {
+            @apply self-start;
+        }
+
+        .game-card-meta {
+            @apply flex-col gap-1;
+        }
+
+        .schedule-empty-state {
+            @apply py-8 px-4;
+        }
+
+        .empty-icon {
+            @apply text-4xl;
+        }
     }
 }

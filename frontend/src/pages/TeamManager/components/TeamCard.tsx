@@ -12,15 +12,15 @@ export default function TeamCard({ team }: TeamCardProps) {
   return (
     <Link
       to={`/team-management/${team.id}`}
-      className="block bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow border-l-4"
+      className="team-card"
       style={{
         backgroundColor: `${team.primaryColor}08`,
-        borderLeft: `4px solid ${team.primaryColor}`
+        borderLeftColor: team.primaryColor
       }}
     >
-      <h2 className="font-semibold text-xl mb-2">{team.name}</h2>
-      <p className="text-gray-600 mb-2">{team.season?.name}</p>
-      <p className="text-sm text-gray-500">
+      <h2 className="team-card-title">{team.name}</h2>
+      <p className="team-card-season">{team.season?.name}</p>
+      <p className="team-card-count">
         {team._count?.players} {t('common.players')}
       </p>
     </Link>
