@@ -685,6 +685,322 @@
         }
     }
 
+    /* Admin Layout Styles */
+    .admin-card {
+        @apply shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    .admin-card-content {
+        @apply pt-4 lg:pt-6;
+    }
+
+    .admin-mobile-menu-btn {
+        @apply flex justify-between items-center;
+    }
+
+    .admin-menu-toggle {
+        @apply p-2 rounded-lg hover:bg-muted transition-colors;
+    }
+
+    /* Admin Navigation */
+    .admin-nav {
+        @apply hidden lg:flex space-x-1 border-b border-border mb-4 overflow-x-auto;
+    }
+
+    .admin-nav-mobile-open {
+        @apply flex flex-col space-y-1 gap-0 mb-4 border-none lg:flex lg:flex-row lg:space-y-0 lg:border-b lg:border-border;
+    }
+
+    .admin-nav-mobile-closed {
+        @apply hidden lg:flex lg:space-x-1 lg:border-b lg:border-border lg:mb-4 lg:overflow-x-auto;
+    }
+
+    .admin-nav-link {
+        @apply px-4 py-2 text-sm font-medium rounded-t-md transition-all whitespace-nowrap;
+    }
+
+    .admin-nav-link-active {
+        @apply bg-muted text-foreground border-b-2 border-primary;
+    }
+
+    .admin-nav-link-inactive {
+        @apply text-muted-foreground hover:bg-muted/50;
+    }
+
+    .admin-page-content {
+        @apply mt-4;
+    }
+
+    /* Admin Tables Responsive */
+    .admin-table {
+        @apply w-full border-collapse overflow-x-auto;
+    }
+
+    @media (max-width: 768px) {
+        .admin-nav {
+            @apply flex flex-col border-b border-border mb-4;
+        }
+
+        .admin-nav-link {
+            @apply px-3 py-2 text-xs;
+        }
+
+        .admin-page-content {
+            @apply mt-3;
+        }
+    }
+
+    /* Admin Form Responsive */
+    .admin-form {
+        @apply w-full;
+    }
+
+    .admin-form-row {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+    }
+
+    .admin-form-row-full {
+        @apply grid grid-cols-1 gap-4;
+    }
+
+    /* Admin Table Wrapper */
+    .admin-table-wrapper {
+        @apply w-full overflow-x-auto rounded-lg border border-border;
+    }
+
+    @media (max-width: 768px) {
+        .admin-table-wrapper {
+            @apply border-0 space-y-3;
+        }
+
+        .admin-table {
+            @apply block space-y-3;
+        }
+    }
+
+    /* Admin Card List (for mobile table fallback) */
+    .admin-card-list {
+        @apply space-y-3;
+    }
+
+    .admin-card-item {
+        @apply p-4 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all;
+    }
+
+    @media (min-width: 769px) {
+        .admin-card-item {
+            @apply hidden;
+        }
+    }
+
+    /* Admin Dialog Responsive */
+    .admin-dialog {
+        @apply max-w-lg;
+    }
+
+    @media (max-width: 640px) {
+        .admin-dialog {
+            @apply max-w-sm mx-4;
+        }
+    }
+
+    /* Admin Buttons Group */
+    .admin-button-group {
+        @apply flex gap-2 flex-wrap;
+    }
+
+    @media (max-width: 768px) {
+        .admin-button-group {
+            @apply flex-col;
+        }
+
+        .admin-button-group button {
+            @apply w-full;
+        }
+    }
+
+    /* Admin Filters Responsive */
+    .admin-filters {
+        @apply flex items-center gap-4 flex-wrap mb-4;
+    }
+
+    .admin-filters-input {
+        @apply relative flex-1 min-w-[200px];
+    }
+
+    .admin-filter-select {
+        @apply flex-1 min-w-[150px];
+    }
+
+    @media (max-width: 768px) {
+        .admin-filters {
+            @apply flex-col gap-3;
+        }
+
+        .admin-filters-input {
+            @apply w-full min-w-full;
+        }
+
+        .admin-filter-select {
+            @apply w-full min-w-full;
+        }
+    }
+
+    /* Admin Table Header/Footer */
+    .admin-table-header {
+        @apply flex items-center justify-between mb-4 flex-wrap gap-3;
+    }
+
+    .admin-table-footer {
+        @apply flex items-center justify-between mt-4 flex-wrap gap-3;
+    }
+
+    @media (max-width: 768px) {
+        .admin-table-header {
+            @apply flex-col gap-3;
+        }
+
+        .admin-table-footer {
+            @apply flex-col gap-3;
+        }
+
+        .admin-table-header > * {
+            @apply w-full;
+        }
+
+        .admin-table-footer > * {
+            @apply w-full;
+        }
+    }
+
+    /* Admin List Items (Mobile Table Alternative) */
+    .admin-list-item {
+        @apply flex items-center justify-between p-3 bg-card border border-border rounded-lg hover:bg-muted/30 transition-colors;
+    }
+
+    .admin-list-item-main {
+        @apply flex-1 min-w-0;
+    }
+
+    .admin-list-item-actions {
+        @apply flex gap-2 ml-3 flex-shrink-0;
+    }
+
+    @media (max-width: 768px) {
+        .admin-list-item {
+            @apply flex-col items-start gap-3;
+        }
+
+        .admin-list-item-actions {
+            @apply w-full ml-0 justify-start;
+        }
+    }
+
+    /* Admin Modal Responsive */
+    .admin-modal-header {
+        @apply text-lg lg:text-xl font-semibold;
+    }
+
+    .admin-modal-body {
+        @apply space-y-4;
+    }
+
+    .admin-modal-footer {
+        @apply flex gap-2 justify-end flex-wrap mt-6;
+    }
+
+    @media (max-width: 640px) {
+        .admin-modal-footer {
+            @apply flex-col;
+        }
+
+        .admin-modal-footer button {
+            @apply w-full;
+        }
+    }
+
+    /* Admin Page Header */
+    .admin-page-header {
+        @apply mb-6;
+    }
+
+    .admin-page-title {
+        @apply text-2xl lg:text-3xl font-bold text-foreground;
+    }
+
+    .admin-page-subtitle {
+        @apply text-sm text-muted-foreground mt-2;
+    }
+
+    @media (max-width: 768px) {
+        .admin-page-title {
+            @apply text-xl;
+        }
+
+        .admin-page-subtitle {
+            @apply text-xs;
+        }
+    }
+
+    /* Admin Grid Layouts */
+    .admin-grid-2 {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+    }
+
+    .admin-grid-3 {
+        @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+    }
+
+    .admin-grid-4 {
+        @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+    }
+
+    /* Admin Stats Cards */
+    .admin-stat-card {
+        @apply p-4 bg-card border border-border rounded-lg shadow-sm;
+    }
+
+    .admin-stat-value {
+        @apply text-2xl lg:text-3xl font-bold text-foreground;
+    }
+
+    .admin-stat-label {
+        @apply text-xs lg:text-sm text-muted-foreground mt-2;
+    }
+
+    @media (max-width: 768px) {
+        .admin-stat-value {
+            @apply text-xl;
+        }
+
+        .admin-stat-label {
+            @apply text-xs;
+        }
+    }
+
+    /* Admin Action Buttons */
+    .admin-action-btn {
+        @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm;
+    }
+
+    .admin-action-btn-primary {
+        @apply bg-primary text-primary-foreground hover:bg-primary/90;
+    }
+
+    .admin-action-btn-secondary {
+        @apply bg-muted text-muted-foreground hover:bg-muted/80;
+    }
+
+    .admin-action-btn-danger {
+        @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+    }
+
+    @media (max-width: 768px) {
+        .admin-action-btn {
+            @apply px-2 py-1 text-xs;
+        }
+    }
+
     /* Animations */
     @keyframes slideIn {
         from {
