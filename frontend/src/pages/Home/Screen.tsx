@@ -5,9 +5,11 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { seasonApi, teamApi } from '@/services/api.ts';
 import type { Season, Team } from '@types';
 
-// import FeaturesSection from './components/FeaturesSection';
 import MyTeamsSection from './components/MyTeamsSection';
 import ActiveSeasonsSection from './components/ActiveSeasonsSection';
+import ApplicationInfoSection from './components/ApplicationInfoSection';
+import SetupOptionsSection from './components/SetupOptionsSection';
+import PricingSection from './components/PricingSection';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -46,9 +48,13 @@ export default function HomeScreen() {
 
       {isTeamManager() && <MyTeamsSection teams={myTeams} />}
 
-      {/*<FeaturesSection />*/}
-
       <ActiveSeasonsSection seasons={activeSeasons} loading={seasonsLoading} />
+
+      <ApplicationInfoSection />
+
+      <SetupOptionsSection />
+
+      <PricingSection />
     </div>
   );
 }
