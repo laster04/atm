@@ -345,6 +345,29 @@
         @apply text-sm font-medium;
     }
 
+    /* Responsive Settings */
+    @media (max-width: 768px) {
+        .settings-title {
+            @apply text-lg font-semibold;
+        }
+
+        .settings-subtitle {
+            @apply text-xs text-muted-foreground;
+        }
+
+        .settings-row {
+            @apply flex justify-between py-2 border-b;
+        }
+
+        .settings-row-label {
+            @apply text-xs text-muted-foreground;
+        }
+
+        .settings-row-value {
+            @apply text-xs font-medium text-right;
+        }
+    }
+
     /* Enhanced Card Styles */
     /* Card base: these override the default card styles from components */
     .card {
@@ -390,6 +413,33 @@
 
     .quick-action-button {
         @apply w-full justify-start h-12 transition-all duration-200 hover:bg-opacity-90;
+    }
+
+    /* Responsive Overview Cards */
+    @media (max-width: 768px) {
+        .stat-card {
+            @apply bg-gradient-to-br;
+        }
+
+        .stat-value {
+            @apply text-xl font-bold;
+        }
+
+        .stat-label {
+            @apply text-xs mt-1;
+        }
+
+        .overview-card {
+            @apply shadow-sm hover:shadow-md transition-all duration-200;
+        }
+
+        .game-preview-item {
+            @apply flex items-center gap-3 p-3 border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors;
+        }
+
+        .quick-action-button {
+            @apply w-full justify-start h-10 text-sm;
+        }
     }
 
     /* Typography Utilities */
@@ -652,6 +702,110 @@
         }
     }
 
+    /* Responsive Team Card */
+    @media (max-width: 640px) {
+        .team-card {
+            @apply p-4;
+        }
+
+        .team-card-title {
+            @apply text-base;
+        }
+
+        .team-card-season {
+            @apply text-xs;
+        }
+
+        .team-card-count {
+            @apply text-xs;
+        }
+    }
+
+    /* Responsive Headers */
+    @media (max-width: 768px) {
+        .roster-main-title {
+            @apply text-xl font-bold;
+        }
+
+        .roster-count-badge {
+            @apply text-xs;
+        }
+
+        .add-player-btn {
+            @apply px-3 py-2 text-sm;
+        }
+
+        .table-header-row {
+            @apply text-xs py-2 px-2;
+        }
+
+        .table-row {
+            @apply px-2 py-3 text-xs;
+        }
+
+        .action-icon {
+            @apply w-4 h-4;
+        }
+
+        .schedule-section-title {
+            @apply text-xl;
+        }
+
+        .schedule-section-subtitle {
+            @apply text-xs;
+        }
+
+        .game-card-header {
+            @apply flex-col gap-2 mb-2;
+        }
+
+        .game-opponent {
+            @apply w-full;
+        }
+
+        .game-opponent-name {
+            @apply text-base;
+        }
+
+        .game-final-score {
+            @apply text-2xl;
+        }
+    }
+
+    /* Tablet Optimizations */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .teams-grid {
+            @apply grid md:grid-cols-2 gap-6;
+        }
+
+        .roster-main-title {
+            @apply text-xl;
+        }
+
+        .schedule-section-title {
+            @apply text-xl;
+        }
+    }
+
+    /* Improved Touch Targets */
+    @media (max-width: 768px) {
+        .table-row {
+            @apply min-h-14;
+        }
+
+        .game-card {
+            @apply min-h-20;
+        }
+
+        .player-card {
+            @apply min-h-16;
+        }
+
+        .button {
+            @apply min-h-10;
+        }
+    }
+
     /* Animations */
     @keyframes slideIn {
         from {
@@ -723,12 +877,12 @@
 
     /* Game Card Header */
     .game-card-header {
-        @apply flex items-start justify-between mb-3;
+        @apply flex items-start justify-between mb-3 gap-3;
     }
 
     /* Game Opponent */
     .game-opponent {
-        @apply flex items-center gap-3;
+        @apply flex items-center gap-3 flex-wrap;
     }
 
     .game-opponent-name {
@@ -802,5 +956,52 @@
 
     .empty-submessage {
         @apply text-sm text-muted-foreground mt-1;
+    }
+
+    /* Responsive Schedule */
+    @media (max-width: 640px) {
+        .schedule-section-title {
+            @apply text-xl font-bold;
+        }
+
+        .game-card {
+            @apply p-3;
+        }
+
+        .game-opponent-name {
+            @apply text-base;
+        }
+
+        .game-final-score {
+            @apply text-2xl;
+        }
+
+        .game-score-separator {
+            @apply text-xl;
+        }
+
+        .game-card-header {
+            @apply flex-col gap-2;
+        }
+
+        .game-opponent {
+            @apply w-full justify-between;
+        }
+
+        .game-score-display {
+            @apply self-start;
+        }
+
+        .game-card-meta {
+            @apply flex-col gap-1;
+        }
+
+        .schedule-empty-state {
+            @apply py-8 px-4;
+        }
+
+        .empty-icon {
+            @apply text-4xl;
+        }
     }
 }
