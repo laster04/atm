@@ -48,7 +48,107 @@
     "viewAllSeasons": "View all seasons",
     "viewAllLeagues": "View all leagues",
     "noActiveSeasons": "No active seasons yet.",
-    "myTeams": "My Teams"
+    "myTeams": "My Teams",
+    "appInfo": {
+      "title": "Why Choose Sport Season Scheduler?",
+      "description": "A comprehensive platform designed to simplify sports league management. From league setup to game scheduling and performance tracking, we have everything you need.",
+      "features": {
+        "leagueManagement": {
+          "title": "League Management",
+          "description": "Create and manage multiple seasons with teams, players, and schedules effortlessly."
+        },
+        "autoScheduling": {
+          "title": "Auto Scheduling",
+          "description": "Generate round-robin schedules automatically with just a few clicks. Save hours of planning."
+        },
+        "liveStandings": {
+          "title": "Live Standings",
+          "description": "Track standings in real-time as game results are entered and updated."
+        },
+        "teamManagement": {
+          "title": "Team Management",
+          "description": "Manage team rosters, assign managers, and track team performance metrics."
+        },
+        "playerTracking": {
+          "title": "Player Tracking",
+          "description": "Record individual player statistics, goals, assists, and performance history."
+        },
+        "performance": {
+          "title": "Performance Analytics",
+          "description": "Comprehensive analytics and reports for teams and individual players."
+        }
+      }
+    },
+    "setupOptions": {
+      "title": "Get Started Today",
+      "description": "Configure your league exactly the way you want. Our flexible setup options give you complete control.",
+      "leagueConfiguration": {
+        "title": "League Configuration",
+        "description": "Set up league rules, scoring systems, and competition formats to match your sport."
+      },
+      "teamManagement": {
+        "title": "Team Management",
+        "description": "Add teams, assign managers, and configure team properties for your season."
+      },
+      "gameScheduling": {
+        "title": "Game Scheduling",
+        "description": "Create custom schedules or auto-generate round-robin schedules automatically."
+      },
+      "playerManagement": {
+        "title": "Player Management",
+        "description": "Manage player rosters, track statistics, and maintain comprehensive player records."
+      },
+      "reporting": {
+        "title": "Reporting & Analytics",
+        "description": "Generate detailed reports on standings, statistics, and team performance."
+      },
+      "permissions": {
+        "title": "User Roles & Permissions",
+        "description": "Control access with admin, manager, and viewer roles for different users."
+      }
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "description": "Choose the plan that works best for your league. No hidden fees, cancel anytime.",
+      "mostPopular": "Most Popular",
+      "tiers": {
+        "free": {
+          "name": "Free",
+          "price": "$0/month",
+          "description": "Perfect for small leagues and getting started",
+          "cta": "Get Started",
+          "feature1": "Up to 2 seasons",
+          "feature2": "Up to 20 teams total",
+          "feature3": "Basic scheduling",
+          "feature4": "Community support"
+        },
+        "pro": {
+          "name": "Professional",
+          "price": "$29/month",
+          "description": "For growing leagues and active managers",
+          "cta": "Start Free Trial",
+          "feature1": "Unlimited seasons",
+          "feature2": "Unlimited teams",
+          "feature3": "Advanced scheduling with auto-generation",
+          "feature4": "Comprehensive analytics",
+          "feature5": "Priority email support",
+          "feature6": "Custom branding options"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price": "Custom",
+          "description": "For large organizations and federations",
+          "cta": "Contact Sales",
+          "feature1": "Everything in Pro",
+          "feature2": "Dedicated account manager",
+          "feature3": "API access",
+          "feature4": "Custom integrations",
+          "feature5": "Advanced reporting",
+          "feature6": "Phone & email support",
+          "feature7": "White-label options"
+        }
+      }
+    }
   },
   "auth": {
     "login": {

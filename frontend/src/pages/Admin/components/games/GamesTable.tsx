@@ -229,7 +229,7 @@ export default function GamesTable({
 												<TableCell className="text-right">
 													<div className="flex justify-end gap-1">
 														<Button variant="ghost" size="sm"
-																onClick={() => navigate(`/game-statistic/${game.id}`)}
+																onClick={() => navigate(`/team-management/game-statistic/${game.id}`)}
 																title={t('admin.tabs.statistics.title')}>
 															<BarChart3 className="size-4" />
 														</Button>

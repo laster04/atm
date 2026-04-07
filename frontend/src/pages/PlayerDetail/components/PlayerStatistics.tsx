@@ -62,7 +62,7 @@ export default function PlayerStatistics({
                     </td>
                     <td className="py-2">
                       <Link
-                        to={`/game-statistic/${stat.game?.id}`}
+                        to={`/team-management/game-statistic/${stat.game?.id}`}
                         className="hover:text-blue-600"
                       >
                         {stat.game?.homeTeam?.name} vs {stat.game?.awayTeam?.name}

@@ -18,9 +18,9 @@ import TeamDetail from './pages/TeamDetail';
 import PlayerDetail from './pages/PlayerDetail';
 import { TeamManagerLayout, TeamManagerIndex, MyTeamsPage, TeamDetailPage, GameStatsPage, TeamManagerPlayerDetailPage } from './pages/TeamManager';
 import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, TeamsPage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
+import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 import './index.css';
 import { Toaster } from "@components/base/toaster.tsx";
-import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 
 function AppContent() {
   const location = useLocation();
@@ -51,6 +51,7 @@ function AppContent() {
             <Route path=":id" element={<TeamDetailPage />} />
             <Route path=":id/game/:gameId" element={<GameStatsPage />} />
             <Route path=":id/player/:playerId" element={<TeamManagerPlayerDetailPage />} />
+            <Route path="game-statistic/:id" element={<GameStatistic />} />
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminIndex />} />
@@ -62,7 +63,6 @@ function AppContent() {
             <Route path="players/:id" element={<PlayerDetailPage />} />
             <Route path="games" element={<GamesPage />} />
           </Route>
-          <Route path="/game-statistic/:id" element={<GameStatistic />} />
         </Routes>
       </main>
     </div>

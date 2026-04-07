@@ -120,8 +120,8 @@ export interface Game {
   homeTeamId: number;
   awayTeamId: number;
   season?: Season;
-  homeTeam?: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
-  awayTeam?: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+  homeTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
+  awayTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
 }
 
 export interface Standing {

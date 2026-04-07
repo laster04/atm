@@ -26,8 +26,7 @@ interface PlayerStatForm {
 export default function GameStatisticPage(): React.JSX.Element {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
-	const { isAdmin, isSeasonManager } = useAuth();
-	const canEdit = isAdmin() || isSeasonManager();
+	const { isAdmin, isSeasonManager, canManageTeam } = useAuth();
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [game, setGame] = useState<Game | null>(null);
@@ -109,12 +108,19 @@ export default function GameStatisticPage(): React.JSX.Element {
 		));
 	};
 
+	const canEditFull = isAdmin() || isSeasonManager();
+	const canEditHome = canEditFull || canManageTeam(game?.homeTeam?.managerId);
+	const canEditAway = canEditFull || canManageTeam(game?.awayTeam?.managerId);
+
 	const handleSubmit = async () => {
 		if (!id) return;
 
 		setSaving(true);
 		try {
-			const allStats = [...homeTeamStats, ...awayTeamStats];
+			const allStats = [
+				...(canEditHome ? homeTeamStats : []),
+				...(canEditAway ? awayTeamStats : []),
+			];
 
 			for (const stat of allStats) {
 				if (stat.played) {
@@ -159,15 +165,16 @@ export default function GameStatisticPage(): React.JSX.Element {
 		}
 	};
 
-	const renderPlayerRow = (stat: PlayerStatForm, team: 'home' | 'away') => (
+	const renderPlayerRow = (stat: PlayerStatForm, team: 'home' | 'away', canEditTeam: boolean) => (
 		<div key={stat.playerId} className="flex items-center gap-3 py-2 border-b last:border-b-0">
 			<Checkbox
 				id={`played-${stat.playerId}`}
 				checked={stat.played}
 				onCheckedChange={(checked) => updatePlayerStat(team, stat.playerId, 'played', !!checked)}
+				disabled={!canEditTeam}
 			/>
 			<div className="flex-1 min-w-0">
-				<Label htmlFor={`played-${stat.playerId}`} className="cursor-pointer">
+				<Label htmlFor={`played-${stat.playerId}`} className={canEditTeam ? 'cursor-pointer' : 'cursor-default'}>
 					{stat.playerNumber && (
 						<span className="text-muted-foreground mr-2">#{stat.playerNumber}</span>
 					)}
@@ -184,7 +191,7 @@ export default function GameStatisticPage(): React.JSX.Element {
 						min={0}
 						value={stat.goals}
 						onChange={(e) => updatePlayerStat(team, stat.playerId, 'goals', parseInt(e.target.value) || 0)}
-						disabled={!stat.played}
+						disabled={!stat.played || !canEditTeam}
 						className="w-16 text-center"
 					/>
 				</div>
@@ -197,7 +204,7 @@ export default function GameStatisticPage(): React.JSX.Element {
 						min={0}
 						value={stat.assists}
 						onChange={(e) => updatePlayerStat(team, stat.playerId, 'assists', parseInt(e.target.value) || 0)}
-						disabled={!stat.played}
+						disabled={!stat.played || !canEditTeam}
 						className="w-16 text-center"
 					/>
 				</div>
@@ -221,7 +228,7 @@ export default function GameStatisticPage(): React.JSX.Element {
 		);
 	}
 
-	if (!canEdit) {
+	if (!canEditHome && !canEditAway) {
 		return (
 			<div className="max-w-7xl mx-auto px-4 py-8 text-center">
 				{t('common.unauthorized', 'You are not authorized to access this page')}
@@ -298,7 +305,7 @@ export default function GameStatisticPage(): React.JSX.Element {
 									</p>
 								) : (
 									<div className="space-y-1">
-										{homeTeamStats.map(stat => renderPlayerRow(stat, 'home'))}
+										{homeTeamStats.map(stat => renderPlayerRow(stat, 'home', canEditHome))}
 									</div>
 								)}
 							</CardContent>
@@ -321,7 +328,7 @@ export default function GameStatisticPage(): React.JSX.Element {
 									</p>
 								) : (
 									<div className="space-y-1">
-										{awayTeamStats.map(stat => renderPlayerRow(stat, 'away'))}
+										{awayTeamStats.map(stat => renderPlayerRow(stat, 'away', canEditAway))}
 									</div>
 								)}
 							</CardContent>

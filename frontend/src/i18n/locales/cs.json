@@ -48,7 +48,107 @@
     "viewAllSeasons": "Zobrazit všechny sezony",
     "viewAllLeagues": "Zobrazit všechny ligy",
     "noActiveSeasons": "Zatim zadne aktivni sezony.",
-    "myTeams": "Moje Tymy"
+    "myTeams": "Moje Tymy",
+    "appInfo": {
+      "title": "Proč si vybrat Sport Season Scheduler?",
+      "description": "Komplexní platforma navržená pro zjednodušení správy sportovních lig. Od nastavení ligy přes plánování zápasů až po sledování výkonu - máme vše, co potřebujete.",
+      "features": {
+        "leagueManagement": {
+          "title": "Správa ligy",
+          "description": "Bez námahy vytvářejte a spravujte více sezón s týmy, hráči a rozpisy."
+        },
+        "autoScheduling": {
+          "title": "Automatické plánování",
+          "description": "Generujte rozpisy každý s každým automaticky na pár kliknutí. Ušetřete hodiny plánování."
+        },
+        "liveStandings": {
+          "title": "Živé tabulky",
+          "description": "Sledujte tabulky v reálném čase s přidáváním výsledků zápasů."
+        },
+        "teamManagement": {
+          "title": "Správa týmů",
+          "description": "Spravujte soupiske týmů, přidělujte manažery a sledujte metriky výkonu týmů."
+        },
+        "playerTracking": {
+          "title": "Sledování hráčů",
+          "description": "Zaznamenávejte statistiky jednotlivých hráčů, góly, asistence a historii výkonu."
+        },
+        "performance": {
+          "title": "Analýza výkonu",
+          "description": "Komplexní analýzy a zprávy pro týmy a jednotlivé hráče."
+        }
+      }
+    },
+    "setupOptions": {
+      "title": "Začněte dnes",
+      "description": "Konfigurujte svou ligu přesně tak, jak chcete. Naše flexibilní možnosti nastavení vám dávají úplnou kontrolu.",
+      "leagueConfiguration": {
+        "title": "Konfigurace ligy",
+        "description": "Nastavte pravidla ligy, bodovací systémy a formáty soutěží, které odpovídají vašemu sportu."
+      },
+      "teamManagement": {
+        "title": "Správa týmů",
+        "description": "Přidávejte týmy, přidělujte manažery a konfigurujte vlastnosti týmu pro vaši sezónu."
+      },
+      "gameScheduling": {
+        "title": "Plánování zápasů",
+        "description": "Vytvářejte vlastní rozpisy nebo automaticky generujte rozpisy každý s každým."
+      },
+      "playerManagement": {
+        "title": "Správa hráčů",
+        "description": "Spravujte soupiske hráčů, sledujte statistiky a vedите komplexní evidence hráčů."
+      },
+      "reporting": {
+        "title": "Hlášení a analýzy",
+        "description": "Generujte podrobné zprávy o tabulkách, statistikách a výkonu týmů."
+      },
+      "permissions": {
+        "title": "Role a oprávnění uživatelů",
+        "description": "Kontrolujte přístup s rolemi admin, manažer a diváka pro různé uživatele."
+      }
+    },
+    "pricing": {
+      "title": "Jednoduché a transparentní ceny",
+      "description": "Zvolte si plán, který je pro vaši ligu nejlepší. Žádné skryté poplatky, zrušit lze kdykoliv.",
+      "mostPopular": "Nejoblíbenější",
+      "tiers": {
+        "free": {
+          "name": "Zdarma",
+          "price": "0 Kč/měsíc",
+          "description": "Ideální pro malé ligy a začátek",
+          "cta": "Začít",
+          "feature1": "Až 2 sezóny",
+          "feature2": "Až 20 týmů celkem",
+          "feature3": "Základní plánování",
+          "feature4": "Podpora komunity"
+        },
+        "pro": {
+          "name": "Profesionál",
+          "price": "299 Kč/měsíc",
+          "description": "Pro rostoucí ligy a aktivní manažery",
+          "cta": "Zkušební verze zdarma",
+          "feature1": "Neomezené sezóny",
+          "feature2": "Neomezené týmy",
+          "feature3": "Pokročilé plánování s automatickou generací",
+          "feature4": "Komplexní analýzy",
+          "feature5": "Přednostní podpora e-mailem",
+          "feature6": "Možnosti vlastního značení"
+        },
+        "enterprise": {
+          "name": "Podnikatelský",
+          "price": "Individuální",
+          "description": "Pro velké organizace a federace",
+          "cta": "Kontaktovat obchod",
+          "feature1": "Vše z Profesionálního plánu",
+          "feature2": "Dedikovaný správce účtu",
+          "feature3": "Přístup k API",
+          "feature4": "Vlastní integrace",
+          "feature5": "Pokročilé hlášení",
+          "feature6": "Telefonická a e-mailová podpora",
+          "feature7": "Možnosti white-label"
+        }
+      }
+    }
   },
   "auth": {
     "login": {
