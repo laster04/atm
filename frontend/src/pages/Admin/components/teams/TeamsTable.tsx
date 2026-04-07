@@ -65,7 +65,7 @@ export default function TeamsTable({
 		<Card>
 			<CardHeader>
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-					<FormControl size="small" sx={{ minWidth: '100%', sm: { minWidth: 200 } }}>
+					<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
 						<InputLabel id="team-season-filter-label">{t('admin.tabs.team.filterBySeason')}</InputLabel>
 						<Select
 							labelId="team-season-filter-label"

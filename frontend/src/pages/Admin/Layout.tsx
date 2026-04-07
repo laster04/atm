@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -11,7 +11,6 @@ export default function AdminLayout() {
 	const { isAdmin, isSeasonManager } = useAuth();
 	const { t } = useTranslation();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const location = useLocation();
 
 	if (!isAdmin() && !isSeasonManager()) {
 		return (

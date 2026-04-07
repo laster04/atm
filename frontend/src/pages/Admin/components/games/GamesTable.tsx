@@ -113,7 +113,7 @@ export default function GamesTable({
 		<Card>
 			<CardHeader>
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-					<FormControl size="small" sx={{ minWidth: '100%', sm: { minWidth: 200 } }}>
+					<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
 						<InputLabel id="game-season-filter-label">{t('admin.tabs.game.filterBySeason')}</InputLabel>
 						<Select
 							labelId="game-season-filter-label"

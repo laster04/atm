@@ -93,7 +93,7 @@ export default function PlayersTable({
 			<CardHeader>
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
 					<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 flex-1">
-						<FormControl size="small" sx={{ minWidth: '100%', sm: { minWidth: 200 } }}>
+						<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
 							<InputLabel id="player-season-filter-label">{t('admin.tabs.player.filterBySeason')}</InputLabel>
 							<Select
 								labelId="player-season-filter-label"
