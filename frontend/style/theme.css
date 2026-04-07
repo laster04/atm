@@ -440,7 +440,13 @@
 
     /* Empty State */
     .empty-state {
-        @apply bg-card rounded-lg shadow-sm p-8 text-center text-muted-foreground border border-border;
+        @apply bg-card rounded-lg shadow-sm p-6 sm:p-8 text-center text-muted-foreground border border-border;
+    }
+
+    @media (max-width: 640px) {
+        .empty-state {
+            @apply p-4;
+        }
     }
 
     /* Roster Tab Styles */
@@ -470,7 +476,7 @@
     }
 
     .table-header-row {
-        @apply grid gap-0 px-4 py-3 bg-muted/50 border-b border-border font-semibold text-sm text-foreground sticky top-0 z-10;
+        @apply grid gap-0 px-3 sm:px-4 py-2.5 sm:py-3 bg-muted/50 border-b border-border font-semibold text-xs sm:text-sm text-foreground sticky top-0 z-10;
         grid-template-columns: 60px 1fr 120px 50px;
     }
 
@@ -479,7 +485,7 @@
     }
 
     .table-row {
-        @apply grid gap-0 px-4 py-4 text-left cursor-pointer transition-all duration-200 hover:bg-muted/30 text-sm;
+        @apply grid gap-0 px-3 sm:px-4 py-3 sm:py-4 text-left cursor-pointer transition-all duration-200 hover:bg-muted/30 text-sm;
         grid-template-columns: 60px 1fr 120px 50px;
     }
 
@@ -496,7 +502,7 @@
     }
 
     .table-col-name {
-        @apply px-4 truncate;
+        @apply px-3 sm:px-4 truncate;
     }
 
     .table-col-position {
@@ -504,7 +510,13 @@
     }
 
     .table-col-action {
-        @apply justify-end pr-2 opacity-0 group-hover:opacity-100 transition-opacity;
+        @apply justify-end pr-2 opacity-100 transition-opacity;
+    }
+
+    @media (min-width: 769px) {
+        .table-col-action {
+            @apply opacity-0 group-hover:opacity-100;
+        }
     }
 
     .player-name-text {
@@ -521,23 +533,23 @@
 
     /* Roster Empty State */
     .roster-empty {
-        @apply flex flex-col items-center justify-center py-16 px-6 bg-muted/10 rounded-lg border border-dashed border-border;
+        @apply flex flex-col items-center justify-center py-12 sm:py-16 px-4 sm:px-6 bg-muted/10 rounded-lg border border-dashed border-border;
     }
 
     .empty-illustration {
-        @apply text-6xl mb-4;
+        @apply text-5xl sm:text-6xl mb-3 sm:mb-4;
     }
 
     .empty-title {
-        @apply text-lg font-semibold text-foreground mb-2;
+        @apply text-base sm:text-lg font-semibold text-foreground mb-2;
     }
 
     .empty-subtitle {
-        @apply text-sm text-muted-foreground mb-6;
+        @apply text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6;
     }
 
     .empty-action-btn {
-        @apply bg-primary hover:opacity-90 text-primary-foreground font-semibold px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-2;
+        @apply bg-primary hover:opacity-90 text-primary-foreground font-semibold px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg transition-all duration-200 flex items-center gap-2 min-h-10;
     }
 
     /* Responsive Table */
@@ -547,7 +559,7 @@
         }
 
         .table-row {
-            @apply grid gap-3 px-4 py-4 rounded-lg bg-muted/5 border border-border mb-3;
+            @apply grid gap-3 px-3 py-3.5 rounded-lg bg-muted/5 border border-border mb-3;
             grid-template-columns: auto 1fr;
         }
 
@@ -568,6 +580,7 @@
         .table-col-name {
             @apply px-3;
             grid-column: 2;
+            @apply text-sm;
         }
 
         .table-col-position {
@@ -576,8 +589,26 @@
         }
 
         .table-col-action {
-            @apply justify-end pr-3;
+            @apply justify-end pr-3 opacity-100;
             grid-column: 2;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .table-row {
+            @apply gap-2 px-2.5 py-3;
+        }
+
+        .table-col-name {
+            @apply px-2 text-xs;
+        }
+
+        .table-col-position {
+            @apply px-2 text-xs;
+        }
+
+        .table-col-action {
+            @apply pr-2 gap-0.5;
         }
     }
 
@@ -694,25 +725,9 @@
         @apply pt-4 lg:pt-6;
     }
 
-    .admin-mobile-menu-btn {
-        @apply flex justify-between items-center;
-    }
-
-    .admin-menu-toggle {
-        @apply p-2 rounded-lg hover:bg-muted transition-colors;
-    }
-
     /* Admin Navigation */
     .admin-nav {
         @apply hidden lg:flex space-x-1 border-b border-border mb-4 overflow-x-auto;
-    }
-
-    .admin-nav-mobile-open {
-        @apply flex flex-col space-y-1 gap-0 mb-4 border-none lg:flex lg:flex-row lg:space-y-0 lg:border-b lg:border-border;
-    }
-
-    .admin-nav-mobile-closed {
-        @apply hidden lg:flex lg:space-x-1 lg:border-b lg:border-border lg:mb-4 lg:overflow-x-auto;
     }
 
     .admin-nav-link {
@@ -737,14 +752,6 @@
     }
 
     @media (max-width: 768px) {
-        .admin-nav {
-            @apply flex flex-col border-b border-border mb-4;
-        }
-
-        .admin-nav-link {
-            @apply px-3 py-2 text-xs;
-        }
-
         .admin-page-content {
             @apply mt-3;
         }
@@ -784,7 +791,7 @@
     }
 
     .admin-card-item {
-        @apply p-4 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all;
+        @apply p-3 sm:p-4 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all;
     }
 
     @media (min-width: 769px) {
@@ -811,25 +818,36 @@
 
     @media (max-width: 768px) {
         .admin-button-group {
-            @apply flex-col;
+            @apply flex-col gap-2;
         }
 
         .admin-button-group button {
-            @apply w-full;
+            @apply w-full min-h-10;
+        }
+    }
+
+    /* Improved touch targets for mobile */
+    .admin-action-btn {
+        @apply min-h-10 min-w-10;
+    }
+
+    @media (max-width: 768px) {
+        .admin-action-btn {
+            @apply min-h-11 px-3.5 py-2.5;
         }
     }
 
     /* Admin Filters Responsive */
     .admin-filters {
-        @apply flex items-center gap-4 flex-wrap mb-4;
+        @apply flex items-center gap-3 sm:gap-4 flex-wrap mb-4;
     }
 
     .admin-filters-input {
-        @apply relative flex-1 min-w-[200px];
+        @apply relative flex-1 min-w-[180px] sm:min-w-[200px];
     }
 
     .admin-filter-select {
-        @apply flex-1 min-w-[150px];
+        @apply flex-1 min-w-[140px] sm:min-w-[150px];
     }
 
     @media (max-width: 768px) {
@@ -848,20 +866,20 @@
 
     /* Admin Table Header/Footer */
     .admin-table-header {
-        @apply flex items-center justify-between mb-4 flex-wrap gap-3;
+        @apply flex items-center justify-between mb-4 gap-2 sm:gap-3 flex-wrap;
     }
 
     .admin-table-footer {
-        @apply flex items-center justify-between mt-4 flex-wrap gap-3;
+        @apply flex items-center justify-between mt-4 gap-2 sm:gap-3 flex-wrap;
     }
 
     @media (max-width: 768px) {
         .admin-table-header {
-            @apply flex-col gap-3;
+            @apply flex-col items-stretch gap-3;
         }
 
         .admin-table-footer {
-            @apply flex-col gap-3;
+            @apply flex-col items-stretch gap-3;
         }
 
         .admin-table-header > * {
@@ -870,6 +888,25 @@
 
         .admin-table-footer > * {
             @apply w-full;
+        }
+    }
+
+    /* Card header improvements */
+    .card-header {
+        @apply flex flex-col space-y-1.5 p-4 sm:p-6 border-b border-border;
+    }
+
+    .card-content {
+        @apply p-4 sm:p-6;
+    }
+
+    @media (max-width: 640px) {
+        .card-header {
+            @apply p-3;
+        }
+
+        .card-content {
+            @apply p-3;
         }
     }
 
@@ -898,11 +935,11 @@
 
     /* Admin Modal Responsive */
     .admin-modal-header {
-        @apply text-lg lg:text-xl font-semibold;
+        @apply text-base sm:text-lg lg:text-xl font-semibold;
     }
 
     .admin-modal-body {
-        @apply space-y-4;
+        @apply space-y-3 sm:space-y-4;
     }
 
     .admin-modal-footer {
@@ -911,30 +948,104 @@
 
     @media (max-width: 640px) {
         .admin-modal-footer {
-            @apply flex-col;
+            @apply flex-col gap-2;
         }
 
         .admin-modal-footer button {
-            @apply w-full;
+            @apply w-full min-h-10;
+        }
+    }
+
+    /* Dialog/Modal base styles */
+    [data-slot="dialog-content"] {
+        @apply p-4 sm:p-6;
+    }
+
+    [data-slot="dialog-header"] {
+        @apply gap-2 mb-2;
+    }
+
+    [data-slot="dialog-title"] {
+        @apply text-base sm:text-lg font-semibold;
+    }
+
+    [data-slot="dialog-description"] {
+        @apply text-xs sm:text-sm text-muted-foreground;
+    }
+
+    [data-slot="dialog-footer"] {
+        @apply gap-2 mt-6;
+    }
+
+    @media (max-width: 640px) {
+        [data-slot="dialog-content"] {
+            @apply p-3;
+        }
+
+        [data-slot="dialog-close"] {
+            @apply top-3 right-3;
+        }
+    }
+
+    /* Form field improvements */
+    .form-field {
+        @apply space-y-2;
+    }
+
+    .form-input-group {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4;
+    }
+
+    @media (max-width: 768px) {
+        .form-input-group {
+            @apply grid-cols-1 gap-3;
+        }
+    }
+
+    /* Input and form controls */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    input[type="number"],
+    textarea,
+    select {
+        @apply min-h-10 px-3 py-2.5 sm:py-2 rounded-lg border border-border transition-all duration-200;
+        @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    }
+
+    @media (max-width: 768px) {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="number"],
+        textarea,
+        select {
+            @apply text-base; /* Prevent zoom on iOS */
         }
     }
 
     /* Admin Page Header */
     .admin-page-header {
-        @apply mb-6;
+        @apply mb-4 sm:mb-6;
     }
 
     .admin-page-title {
-        @apply text-2xl lg:text-3xl font-bold text-foreground;
+        @apply text-xl sm:text-2xl lg:text-3xl font-bold text-foreground;
     }
 
     .admin-page-subtitle {
-        @apply text-sm text-muted-foreground mt-2;
+        @apply text-xs sm:text-sm text-muted-foreground mt-2;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
+        .admin-page-header {
+            @apply mb-3;
+        }
+
         .admin-page-title {
-            @apply text-xl;
+            @apply text-lg;
         }
 
         .admin-page-subtitle {
@@ -980,7 +1091,7 @@
 
     /* Admin Action Buttons */
     .admin-action-btn {
-        @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm;
+        @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm min-h-9;
     }
 
     .admin-action-btn-primary {
@@ -997,7 +1108,18 @@
 
     @media (max-width: 768px) {
         .admin-action-btn {
-            @apply px-2 py-1 text-xs;
+            @apply px-3 py-2.5 text-sm min-h-10;
+        }
+    }
+
+    /* Base button improvements for touch targets */
+    button {
+        @apply min-h-9 transition-all duration-200;
+    }
+
+    @media (max-width: 768px) {
+        button {
+            @apply min-h-10;
         }
     }
 

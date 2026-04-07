@@ -64,8 +64,8 @@ export default function TeamsTable({
 	return (
 		<Card>
 			<CardHeader>
-				<div className="flex items-center justify-between gap-4">
-					<FormControl size="small" sx={{ minWidth: 200 }}>
+				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+					<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
 						<InputLabel id="team-season-filter-label">{t('admin.tabs.team.filterBySeason')}</InputLabel>
 						<Select
 							labelId="team-season-filter-label"
@@ -82,7 +82,7 @@ export default function TeamsTable({
 					</FormControl>
 					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 						<DialogTrigger asChild>
-							<Button onClick={handleOpenCreate} disabled={!selectedSeasonId}>
+							<Button onClick={handleOpenCreate} disabled={!selectedSeasonId} className="w-full sm:w-auto">
 								<Plus className="size-4 mr-2" />
 								{t('admin.tabs.team.addTeam')}
 							</Button>
