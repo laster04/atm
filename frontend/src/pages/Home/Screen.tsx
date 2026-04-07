@@ -7,9 +7,9 @@ import type { Season, Team } from '@types';
 
 import MyTeamsSection from './components/MyTeamsSection';
 import ActiveSeasonsSection from './components/ActiveSeasonsSection';
-import ApplicationInfoSection from './components/ApplicationInfoSection';
-import SetupOptionsSection from './components/SetupOptionsSection';
-import PricingSection from './components/PricingSection';
+// import ApplicationInfoSection from './components/ApplicationInfoSection';
+// import SetupOptionsSection from './components/SetupOptionsSection';
+// import PricingSection from './components/PricingSection';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -50,11 +50,11 @@ export default function HomeScreen() {
 
       <ActiveSeasonsSection seasons={activeSeasons} loading={seasonsLoading} />
 
-      <ApplicationInfoSection />
+      {/*<ApplicationInfoSection />*/}
 
-      <SetupOptionsSection />
+      {/*<SetupOptionsSection />*/}
 
-      <PricingSection />
+      {/*<PricingSection />*/}
     </div>
   );
 }
