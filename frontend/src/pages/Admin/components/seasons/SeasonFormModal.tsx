@@ -49,13 +49,13 @@ export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: 
 				</DialogDescription>
 			</DialogHeader>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
-				<div className="space-y-4 pt-4">
+				<div className="space-y-3 sm:space-y-4 pt-4">
 					<div className="space-y-2">
 						<Label>{t('admin.modal.name')}</Label>
 						<Input
 							type="text"
 							{...form.register('name', { required: true })}
-							className="w-full px-3 py-2 border rounded"
+							className="w-full px-3 py-2.5 sm:py-2 border rounded"
 							required
 						/>
 					</div>
@@ -80,13 +80,13 @@ export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: 
 							</Select>
 						</FormControl>
 					</div>
-					<div className="grid grid-cols-2 gap-4">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 						<div className="space-y-2">
 							<Label>{t('admin.modal.startDate')}</Label>
 							<Input
 								type="date"
 								{...form.register('startDate', { required: true })}
-								className="w-full px-3 py-2 border rounded"
+								className="w-full px-3 py-2.5 sm:py-2 border rounded"
 								required
 							/>
 						</div>
@@ -95,7 +95,7 @@ export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: 
 							<Input
 								type="date"
 								{...form.register('endDate', { required: true })}
-								className="w-full px-3 py-2 border rounded"
+								className="w-full px-3 py-2.5 sm:py-2 border rounded"
 								required
 							/>
 						</div>
@@ -121,12 +121,12 @@ export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: 
 					</div>
 				</div>
 
-				<div className="flex gap-2 pt-4">
-					<Button className="flex-1" type="submit">
-						{isEditing ? t('common.save') : t('common.create')}
-					</Button>
-					<Button onClick={onClose} variant="outline">
+				<div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4 sm:justify-end">
+					<Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
 						{t('common.cancel')}
+					</Button>
+					<Button className="w-full sm:w-auto" type="submit">
+						{isEditing ? t('common.save') : t('common.create')}
 					</Button>
 				</div>
 			</form>

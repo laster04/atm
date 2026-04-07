@@ -91,9 +91,9 @@ export default function PlayersTable({
 	return (
 		<Card>
 			<CardHeader>
-				<div className="flex items-center justify-between gap-4 flex-wrap">
-					<div className="flex gap-4">
-						<FormControl size="small" sx={{ minWidth: 200 }}>
+				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+					<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 flex-1">
+						<FormControl size="small" sx={{ minWidth: '100%', sm: { minWidth: 200 } }}>
 							<InputLabel id="player-season-filter-label">{t('admin.tabs.player.filterBySeason')}</InputLabel>
 							<Select
 								labelId="player-season-filter-label"
@@ -108,7 +108,7 @@ export default function PlayersTable({
 								))}
 							</Select>
 						</FormControl>
-						<FormControl size="small" sx={{ minWidth: 200 }} disabled={!selectedSeasonId}>
+						<FormControl size="small" sx={{ minWidth: '100%', sm: { minWidth: 200 } }} disabled={!selectedSeasonId}>
 							<InputLabel id="player-team-filter-label">{t('admin.tabs.player.filterByTeam')}</InputLabel>
 							<Select
 								labelId="player-team-filter-label"
@@ -126,7 +126,7 @@ export default function PlayersTable({
 					</div>
 					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 						<DialogTrigger asChild>
-							<Button onClick={handleOpenCreate} disabled={!selectedTeamId}>
+							<Button onClick={handleOpenCreate} disabled={!selectedTeamId} className="w-full sm:w-auto">
 								<Plus className="size-4 mr-2" />
 								{t('admin.tabs.player.addPlayer')}
 							</Button>

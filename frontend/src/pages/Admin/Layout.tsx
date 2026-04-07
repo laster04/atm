@@ -43,15 +43,16 @@ export default function AdminLayout() {
 				backTo="/"
 			/>
 
-			<div className="container mx-auto px-4 py-4">
+			<div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
 				<Card className="admin-card">
-					<CardContent className="admin-card-content">
+					<CardContent className="admin-card-content p-3 sm:p-6">
 						{/* Mobile Menu Button */}
-						<div className="admin-mobile-menu-btn lg:hidden mb-3">
+						<div className="lg:hidden mb-4">
 							<button
 								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-								className="admin-menu-toggle"
+								className="p-2.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
 								aria-label="Toggle menu"
+								aria-expanded={mobileMenuOpen}
 							>
 								{mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
 							</button>
@@ -59,8 +60,10 @@ export default function AdminLayout() {
 
 						{/* Navigation */}
 						<nav className={cn(
-							'admin-nav',
-							mobileMenuOpen ? 'admin-nav-mobile-open' : 'admin-nav-mobile-closed'
+							'transition-all duration-200 ease-in-out',
+							mobileMenuOpen
+								? 'flex flex-col space-y-1 mb-4 gap-0 border-none'
+								: 'hidden lg:flex lg:space-x-1 lg:border-b lg:border-border lg:mb-4 lg:overflow-x-auto'
 						)}>
 							{tabs.map((tab) => (
 								<NavLink
@@ -69,8 +72,10 @@ export default function AdminLayout() {
 									onClick={handleTabClick}
 									className={({ isActive }) =>
 										cn(
-											'admin-nav-link',
-											isActive ? 'admin-nav-link-active' : 'admin-nav-link-inactive'
+											'px-3.5 py-2.5 text-sm font-medium rounded-lg transition-all whitespace-nowrap lg:rounded-t-md lg:px-4 lg:py-2',
+											isActive
+												? 'bg-muted text-foreground border-b-2 border-primary lg:border-b-2'
+												: 'text-muted-foreground hover:bg-muted/50'
 										)
 									}
 								>
@@ -80,7 +85,7 @@ export default function AdminLayout() {
 						</nav>
 
 						{/* Page Content */}
-						<div className="admin-page-content">
+						<div className="admin-page-content mt-4 sm:mt-6">
 							<Outlet />
 						</div>
 					</CardContent>

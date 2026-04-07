@@ -112,8 +112,8 @@ export default function GamesTable({
 	return (
 		<Card>
 			<CardHeader>
-				<div className="flex items-center justify-between gap-4 flex-wrap">
-					<FormControl size="small" sx={{ minWidth: 200 }}>
+				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+					<FormControl size="small" sx={{ minWidth: '100%', sm: { minWidth: 200 } }}>
 						<InputLabel id="game-season-filter-label">{t('admin.tabs.game.filterBySeason')}</InputLabel>
 						<Select
 							labelId="game-season-filter-label"
@@ -128,13 +128,14 @@ export default function GamesTable({
 							))}
 						</Select>
 					</FormControl>
-					<div className="flex gap-2">
+					<div className="flex flex-col sm:flex-row gap-2">
 						<Dialog open={isGenerateModalOpen} onOpenChange={setIsGenerateModalOpen}>
 							<DialogTrigger asChild>
 								<Button
 									variant="outline"
 									onClick={() => setIsGenerateModalOpen(true)}
 									disabled={!selectedSeasonId || teams.length < 2 || seasons.find(s => s.id === selectedSeasonId)?.status !== SeasonStatus.DRAFT}
+									className="w-full sm:w-auto"
 								>
 									<Calendar className="size-4 mr-2" />
 									{t('admin.tabs.game.generateSchedule')}
@@ -150,7 +151,7 @@ export default function GamesTable({
 						</Dialog>
 						<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 							<DialogTrigger asChild>
-								<Button onClick={handleOpenCreate} disabled={!selectedSeasonId || teams.length < 2}>
+								<Button onClick={handleOpenCreate} disabled={!selectedSeasonId || teams.length < 2} className="w-full sm:w-auto">
 									<Plus className="size-4 mr-2" />
 									{t('admin.tabs.game.addGame')}
 								</Button>
