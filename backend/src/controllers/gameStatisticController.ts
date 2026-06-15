@@ -2,15 +2,15 @@ import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import {
 	AuthRequest,
-	CreateGameStatisticRequest,
-	UpdateGameStatisticRequest,
+	CreateHockeyGameStatisticRequest,
+	UpdateHockeyGameStatisticRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
 export const getStatisticsByGameId = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
-		const statistics = await prisma.gameStatistic.findMany({
+		const statistics = await prisma.hockeyGameStatistic.findMany({
 			where: { gameId: parseInt(gameId) },
 			include: {
 				player: {
@@ -32,7 +32,7 @@ export const getStatisticsByGameId = async (req: Request, res: Response): Promis
 export const getStatisticsByPlayerId = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { playerId } = req.params;
-		const statistics = await prisma.gameStatistic.findMany({
+		const statistics = await prisma.hockeyGameStatistic.findMany({
 			where: { playerId: parseInt(playerId) },
 			include: {
 				game: {
@@ -54,7 +54,7 @@ export const getStatisticsByPlayerId = async (req: Request, res: Response): Prom
 export const getStatisticById = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { id } = req.params;
-		const statistic = await prisma.gameStatistic.findUnique({
+		const statistic = await prisma.hockeyGameStatistic.findUnique({
 			where: { id: parseInt(id) },
 			include: {
 				player: {
@@ -85,7 +85,7 @@ export const getStatisticById = async (req: Request, res: Response): Promise<voi
 export const createStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
-		const { playerId, goals, assists } = req.body as CreateGameStatisticRequest;
+		const { playerId, goals, assists } = req.body as CreateHockeyGameStatisticRequest;
 
 		if (!playerId) {
 			res.status(400).json({ error: 'Player ID is required' });
@@ -130,7 +130,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 
 		// Check if statistic already exists for this player in this game
-		const existingStatistic = await prisma.gameStatistic.findFirst({
+		const existingStatistic = await prisma.hockeyGameStatistic.findFirst({
 			where: {
 				gameId: parseInt(gameId),
 				playerId: parseInt(String(playerId))
@@ -141,7 +141,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		const statistic = await prisma.gameStatistic.create({
+		const statistic = await prisma.hockeyGameStatistic.create({
 			data: {
 				gameId: parseInt(gameId),
 				playerId: parseInt(String(playerId)),
@@ -165,9 +165,9 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 export const updateStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { id } = req.params;
-		const { goals, assists } = req.body as UpdateGameStatisticRequest;
+		const { goals, assists } = req.body as UpdateHockeyGameStatisticRequest;
 
-		const statistic = await prisma.gameStatistic.update({
+		const statistic = await prisma.hockeyGameStatistic.update({
 			where: { id: parseInt(id) },
 			data: {
 				...(goals !== undefined && { goals }),
@@ -195,7 +195,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 	try {
 		const { id } = req.params;
 
-		await prisma.gameStatistic.delete({ where: { id: parseInt(id) } });
+		await prisma.hockeyGameStatistic.delete({ where: { id: parseInt(id) } });
 		res.json({ message: 'Statistic deleted successfully' });
 	} catch (error) {
 		if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
@@ -214,12 +214,12 @@ async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?:
 	});
 	const gameIds = games.map(g => g.id);
 
-	const statisticFilter: Prisma.GameStatisticWhereInput = { gameId: { in: gameIds } };
+	const statisticFilter: Prisma.HockeyGameStatisticWhereInput = { gameId: { in: gameIds } };
 	if (options?.teamId) {
 		statisticFilter.player = { teamId: options.teamId };
 	}
 
-	const statistics = await prisma.gameStatistic.findMany({
+	const statistics = await prisma.hockeyGameStatistic.findMany({
 		where: statisticFilter,
 		include: {
 			player: {

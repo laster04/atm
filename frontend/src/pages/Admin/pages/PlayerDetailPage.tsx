@@ -13,7 +13,7 @@ import { Checkbox } from '@components/base/checkbox';
 import { Input } from '@components/base/input';
 import { Badge } from '@components/base/badge';
 import { formatGameDateTime } from '@/utils/date';
-import type { Player, GameStatistic, Season, Team, Game } from '@types';
+import type { Player, HockeyGameStatistic, Season, Team, Game } from '@types';
 import PlayerFormModal, { type PlayerFormData } from '../components/players/PlayerFormModal';
 import MovePlayerModal from '../components/players/MovePlayerModal';
 
@@ -32,7 +32,7 @@ export default function PlayerDetailPage() {
   const { t, i18n } = useTranslation();
 
   const [player, setPlayer] = useState<Player | null>(null);
-  const [statistics, setStatistics] = useState<GameStatistic[]>([]);
+  const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
@@ -93,7 +93,7 @@ export default function PlayerDetailPage() {
         );
 
         // Create a map of existing statistics by gameId
-        const statsMap = new Map<number, GameStatistic>();
+        const statsMap = new Map<number, HockeyGameStatistic>();
         statistics.forEach((stat) => {
           if (stat.gameId) statsMap.set(stat.gameId, stat);
         });

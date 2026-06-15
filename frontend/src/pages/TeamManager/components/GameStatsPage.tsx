@@ -11,7 +11,7 @@ import { Input } from "@components/base/input.tsx";
 import { Checkbox } from "@components/base/checkbox.tsx";
 import { Label } from "@components/base/label.tsx";
 import { Badge } from "@components/base/badge.tsx";
-import { Game, Player, GameStatistic } from "@types";
+import { Game, Player, HockeyGameStatistic } from "@types";
 
 interface PlayerStatForm {
 	playerId: number;
@@ -59,7 +59,7 @@ export default function GameStatsPage() {
 				}
 
 				const existingStats = existingStatsResp.data;
-				const statsMap = new Map<number, GameStatistic>();
+				const statsMap = new Map<number, HockeyGameStatistic>();
 				existingStats.forEach(stat => statsMap.set(stat.playerId, stat));
 
 				// Fetch players only for the managed team
@@ -126,7 +126,7 @@ export default function GameStatsPage() {
 
 			// Refresh data to get updated IDs
 			const existingStatsResp = await gameStatisticApi.getByGame(gameId);
-			const statsMap = new Map<number, GameStatistic>();
+			const statsMap = new Map<number, HockeyGameStatistic>();
 			existingStatsResp.data.forEach(stat => statsMap.set(stat.playerId, stat));
 
 			setTeamStats(prev => prev.map(stat => ({
@@ -245,14 +245,32 @@ export default function GameStatsPage() {
 						{game.location && ` • ${game.location}`}
 					</div>
 					{game.status === 'COMPLETED' && myScore != null && opponentScore != null && (
-						<div className="flex items-center gap-2 mt-2">
-							<span className="text-2xl font-bold">{myScore} : {opponentScore}</span>
-							<Badge
-								variant={myScore > opponentScore ? 'default' : myScore === opponentScore ? 'secondary' : 'destructive'}
-								className={myScore > opponentScore ? 'bg-green-600' : ''}
-							>
-								{myScore > opponentScore ? t('teamManagement.pwa.win') : myScore === opponentScore ? t('teamManagement.pwa.draw') : t('teamManagement.pwa.loss')}
-							</Badge>
+						<div className="mt-2">
+							<div className="flex items-center gap-2">
+								<span className="text-2xl font-bold">{myScore} : {opponentScore}</span>
+								<Badge
+									variant={myScore > opponentScore ? 'default' : myScore === opponentScore ? 'secondary' : 'destructive'}
+									className={myScore > opponentScore ? 'bg-green-600' : ''}
+								>
+									{myScore > opponentScore ? t('teamManagement.pwa.win') : myScore === opponentScore ? t('teamManagement.pwa.draw') : t('teamManagement.pwa.loss')}
+								</Badge>
+							</div>
+							{(() => {
+								const p1my = isHomeTeam ? game.period1HomeScore : game.period1AwayScore;
+								const p1opp = isHomeTeam ? game.period1AwayScore : game.period1HomeScore;
+								const p2my = isHomeTeam ? game.period2HomeScore : game.period2AwayScore;
+								const p2opp = isHomeTeam ? game.period2AwayScore : game.period2HomeScore;
+								const p3my = isHomeTeam ? game.period3HomeScore : game.period3AwayScore;
+								const p3opp = isHomeTeam ? game.period3AwayScore : game.period3HomeScore;
+								if (p1my == null && p2my == null && p3my == null) return null;
+								return (
+									<div className="flex gap-3 text-sm text-muted-foreground mt-1">
+										{p1my != null && <span>P1: {p1my}-{p1opp}</span>}
+										{p2my != null && <span>P2: {p2my}-{p2opp}</span>}
+										{p3my != null && <span>P3: {p3my}-{p3opp}</span>}
+									</div>
+								);
+							})()}
 						</div>
 					)}
 				</CardHeader>

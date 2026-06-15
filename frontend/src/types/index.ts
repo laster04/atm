@@ -114,6 +114,12 @@ export interface Game {
   location?: string | null;
   homeScore?: number | null;
   awayScore?: number | null;
+  period1HomeScore?: number | null;
+  period1AwayScore?: number | null;
+  period2HomeScore?: number | null;
+  period2AwayScore?: number | null;
+  period3HomeScore?: number | null;
+  period3AwayScore?: number | null;
   status: GameStatus;
   round?: number | null;
   seasonId: number;
@@ -136,7 +142,7 @@ export interface Standing {
   points: number;
 }
 
-export interface GameStatistic {
+export interface HockeyGameStatistic {
   id: number;
   playerId: number;
   gameId: number;

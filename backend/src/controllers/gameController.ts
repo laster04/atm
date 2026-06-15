@@ -121,7 +121,14 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
 export const updateGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { homeTeamId, awayTeamId, date, location, homeScore, awayScore, status, round } = req.body as UpdateGameRequest;
+    const {
+      homeTeamId, awayTeamId, date, location,
+      homeScore, awayScore,
+      period1HomeScore, period1AwayScore,
+      period2HomeScore, period2AwayScore,
+      period3HomeScore, period3AwayScore,
+      status, round
+    } = req.body as UpdateGameRequest;
 
     const existingGame = await prisma.game.findUnique({
       where: { id: parseInt(id) },
@@ -152,6 +159,12 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         ...(location !== undefined && { location }),
         ...(homeScore !== undefined && { homeScore: homeScore !== null ? homeScore : null }),
         ...(awayScore !== undefined && { awayScore: awayScore !== null ? awayScore : null }),
+        ...(period1HomeScore !== undefined && { period1HomeScore: period1HomeScore !== null ? period1HomeScore : null }),
+        ...(period1AwayScore !== undefined && { period1AwayScore: period1AwayScore !== null ? period1AwayScore : null }),
+        ...(period2HomeScore !== undefined && { period2HomeScore: period2HomeScore !== null ? period2HomeScore : null }),
+        ...(period2AwayScore !== undefined && { period2AwayScore: period2AwayScore !== null ? period2AwayScore : null }),
+        ...(period3HomeScore !== undefined && { period3HomeScore: period3HomeScore !== null ? period3HomeScore : null }),
+        ...(period3AwayScore !== undefined && { period3AwayScore: period3AwayScore !== null ? period3AwayScore : null }),
         ...(status && { status }),
         ...(roundNum !== undefined && { round: roundNum })
       },

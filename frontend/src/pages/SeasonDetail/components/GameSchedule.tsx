@@ -62,14 +62,23 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 									</div>
 								</div>
 
-								<div className="flex items-center gap-3 px-4">
+								<div className="flex flex-col items-center gap-1 px-4">
 									{game.status === 'SCHEDULED' ? (
 										<span className="text-2xl font-medium text-muted-foreground"> vs </span>
 									) : (
 										<>
-											<span className="text-sm sm:text-3xl font-medium">{game.awayScore}</span>
-											<span className="text-sm sm:text-xl text-muted-foreground">-</span>
-											<span className="text-sm sm:text-3xl font-medium">{game.homeScore}</span>
+											<div className="flex items-center gap-3">
+												<span className="text-sm sm:text-3xl font-medium">{game.awayScore}</span>
+												<span className="text-sm sm:text-xl text-muted-foreground">-</span>
+												<span className="text-sm sm:text-3xl font-medium">{game.homeScore}</span>
+											</div>
+											{(game.period1AwayScore != null || game.period2AwayScore != null || game.period3AwayScore != null) && (
+												<div className="flex gap-3 text-xs text-muted-foreground">
+													{game.period1AwayScore != null && <span>P1: {game.period1AwayScore}-{game.period1HomeScore}</span>}
+													{game.period2AwayScore != null && <span>P2: {game.period2AwayScore}-{game.period2HomeScore}</span>}
+													{game.period3AwayScore != null && <span>P3: {game.period3AwayScore}-{game.period3HomeScore}</span>}
+												</div>
+											)}
 										</>
 									)}
 								</div>

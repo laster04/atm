@@ -458,6 +458,12 @@ export interface UpdateGameRequest {
   location?: string;
   homeScore?: number | null;
   awayScore?: number | null;
+  period1HomeScore?: number | null;
+  period1AwayScore?: number | null;
+  period2HomeScore?: number | null;
+  period2AwayScore?: number | null;
+  period3HomeScore?: number | null;
+  period3AwayScore?: number | null;
   status?: GameStatus;
   round?: string | number | null;
 }
@@ -508,23 +514,23 @@ export interface GenerateScheduleResponse {
 }
 
 // ============================================================================
-// GAME STATISTIC TYPES
+// HOCKEY GAME STATISTIC TYPES
 // ============================================================================
 
 // Request bodies
-export interface CreateGameStatisticRequest {
+export interface CreateHockeyGameStatisticRequest {
   playerId: string | number;
   goals?: number | null;
   assists?: number | null;
 }
 
-export interface UpdateGameStatisticRequest {
+export interface UpdateHockeyGameStatisticRequest {
   goals?: number | null;
   assists?: number | null;
 }
 
 // Response types
-export interface GameStatisticResponse {
+export interface HockeyGameStatisticResponse {
   id: number;
   playerId: number;
   gameId: number;

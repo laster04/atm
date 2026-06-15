@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@components/ba
 import { Input } from "@components/base/input.tsx";
 import { Label } from "@components/base/label.tsx";
 import { Textarea } from "@components/base/textarea.tsx";
-import type { Player, Team, GameStatistic } from "@types";
+import type { Player, Team, HockeyGameStatistic } from "@types";
 
 export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
@@ -24,7 +24,7 @@ export default function PlayerDetailPage() {
 	const [saving, setSaving] = useState(false);
 	const [team, setTeam] = useState<Team | null>(null);
 	const [player, setPlayer] = useState<Player | null>(null);
-	const [statistics, setStatistics] = useState<GameStatistic[]>([]);
+	const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
 	const [showEditModal, setShowEditModal] = useState(isNew);
 	const [formData, setFormData] = useState({
 		name: '',

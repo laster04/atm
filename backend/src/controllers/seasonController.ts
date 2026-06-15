@@ -10,7 +10,7 @@ import {
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
-export const getAllSeasons = async (req: Request, res: Response): Promise<void> => {
+export const getAllSeasons = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const seasons = await prisma.season.findMany({
       include: {
@@ -19,7 +19,16 @@ export const getAllSeasons = async (req: Request, res: Response): Promise<void> 
       },
       orderBy: { startDate: 'desc' }
     });
-    res.json(seasons);
+
+    // Filter out DRAFT seasons unless the user is ADMIN or the manager of that season's league
+    const filtered = seasons.filter((season) => {
+      if (season.status !== 'DRAFT') return true;
+      if (!req.user) return false;
+      if (req.user.role === 'ADMIN') return true;
+      return season.league.managerId != null && season.league.managerId === req.user.id;
+    });
+
+    res.json(filtered);
   } catch (error) {
     console.error('Get seasons error:', error);
     res.status(500).json({ error: 'Failed to fetch seasons' });
@@ -390,7 +399,7 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const getSeasonsByLeague = async (req: Request, res: Response): Promise<void> => {
+export const getSeasonsByLeague = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { leagueId } = req.params;
 
@@ -408,7 +417,16 @@ export const getSeasonsByLeague = async (req: Request, res: Response): Promise<v
       },
       orderBy: { startDate: 'desc' }
     });
-    res.json(seasons);
+
+    // Filter out DRAFT seasons unless the user is ADMIN or the manager of this league
+    const filtered = seasons.filter((season) => {
+      if (season.status !== 'DRAFT') return true;
+      if (!req.user) return false;
+      if (req.user.role === 'ADMIN') return true;
+      return league.managerId != null && league.managerId === req.user.id;
+    });
+
+    res.json(filtered);
   } catch (error) {
     console.error('Get seasons by league error:', error);
     res.status(500).json({ error: 'Failed to fetch seasons' });

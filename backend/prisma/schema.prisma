@@ -141,7 +141,7 @@ model Player {
 
   teamId    Int             @map("team_id")
   team      Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  statistic GameStatistic[] @relation("PlayerStatistic")
+  statistic HockeyGameStatistic[] @relation("PlayerStatistic")
 
   @@map("players")
 }
@@ -150,9 +150,15 @@ model Game {
   id        Int        @id @default(autoincrement())
   date      DateTime?
   location  String?
-  homeScore Int?       @map("home_score")
-  awayScore Int?       @map("away_score")
-  status    GameStatus @default(SCHEDULED)
+  homeScore        Int?       @map("home_score")
+  awayScore        Int?       @map("away_score")
+  period1HomeScore Int?       @map("period1_home_score")
+  period1AwayScore Int?       @map("period1_away_score")
+  period2HomeScore Int?       @map("period2_home_score")
+  period2AwayScore Int?       @map("period2_away_score")
+  period3HomeScore Int?       @map("period3_home_score")
+  period3AwayScore Int?       @map("period3_away_score")
+  status           GameStatus @default(SCHEDULED)
   round     Int?
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -165,12 +171,12 @@ model Game {
 
   awayTeamId Int             @map("away_team_id")
   awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
-  statistic  GameStatistic[] @relation("GameStatistic")
+  statistic  HockeyGameStatistic[] @relation("GameStatistic")
 
   @@map("games")
 }
 
-model GameStatistic {
+model HockeyGameStatistic {
   id       Int    @id @default(autoincrement())
   playerId Int    @map("player_id")
   player   Player @relation("PlayerStatistic", fields: [playerId], references: [id], onDelete: Cascade)
@@ -180,5 +186,5 @@ model GameStatistic {
   assists  Int?
 
   @@unique([playerId, gameId])
-  @@map("game_statistics")
+  @@map("hockey_game_statistics")
 }

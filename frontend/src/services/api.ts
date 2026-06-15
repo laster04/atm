@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, League, Season, Team, Player, Game, Standing, GameStatistic, TopScorer } from '@types';
+import type { User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer } from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -119,17 +119,17 @@ export const gameApi = {
 };
 
 export const gameStatisticApi = {
-  getByGame: (gameId: string | number) => api.get<GameStatistic[]>(`/game-statistics/game/${gameId}`),
-  getByPlayer: (playerId: string | number) => api.get<GameStatistic[]>(`/game-statistics/player/${playerId}`),
-  getById: (id: string | number) => api.get<GameStatistic>(`/game-statistics/${id}`),
+  getByGame: (gameId: string | number) => api.get<HockeyGameStatistic[]>(`/game-statistics/game/${gameId}`),
+  getByPlayer: (playerId: string | number) => api.get<HockeyGameStatistic[]>(`/game-statistics/player/${playerId}`),
+  getById: (id: string | number) => api.get<HockeyGameStatistic>(`/game-statistics/${id}`),
   getTopScorersBySeason: (seasonId: string | number, limit?: number) =>
     api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/top`, { params: { limit } }),
   getScorersBySeasonAndTeam: (seasonId: string | number, teamId: string | number) =>
       api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/team/${teamId}`),
   create: (gameId: string | number, data: { playerId: number; goals?: number | null; assists?: number | null }) =>
-    api.post<GameStatistic>(`/game-statistics/game/${gameId}`, data),
+    api.post<HockeyGameStatistic>(`/game-statistics/game/${gameId}`, data),
   update: (id: string | number, data: { goals?: number | null; assists?: number | null }) =>
-    api.put<GameStatistic>(`/game-statistics/${id}`, data),
+    api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
   delete: (id: string | number) => api.delete(`/game-statistics/${id}`)
 };
 

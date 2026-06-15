@@ -10,13 +10,13 @@ import {
   getSeasonStandings,
   getTeamStanding
 } from '../controllers/seasonController.js';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/', getAllSeasons);
+router.get('/', optionalAuth, getAllSeasons);
 router.get('/my', authenticate, getMySeasons);
-router.get('/league/:leagueId', getSeasonsByLeague);
+router.get('/league/:leagueId', optionalAuth, getSeasonsByLeague);
 router.get('/:id', getSeasonById);
 router.get('/:id/standings', getSeasonStandings);
 router.get('/:id/standings/:teamId', getTeamStanding);

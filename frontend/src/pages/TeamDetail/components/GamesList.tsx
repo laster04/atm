@@ -71,9 +71,27 @@ export default function GamesList({ games, teamId }: GamesListProps) {
                           {isHome ? game.awayTeam?.name : game.homeTeam?.name}
                         </span>
                       </div>
-                      <span className="font-bold">
-                        {teamScore} - {oppScore}
-                      </span>
+                      <div className="text-right">
+                        <span className="font-bold">
+                          {teamScore} - {oppScore}
+                        </span>
+                        {isHome
+                          ? (game.period1HomeScore != null || game.period2HomeScore != null || game.period3HomeScore != null) && (
+                            <div className="flex gap-2 text-xs text-gray-400 justify-end">
+                              {game.period1HomeScore != null && <span>P1: {game.period1HomeScore}-{game.period1AwayScore}</span>}
+                              {game.period2HomeScore != null && <span>P2: {game.period2HomeScore}-{game.period2AwayScore}</span>}
+                              {game.period3HomeScore != null && <span>P3: {game.period3HomeScore}-{game.period3AwayScore}</span>}
+                            </div>
+                          )
+                          : (game.period1AwayScore != null || game.period2AwayScore != null || game.period3AwayScore != null) && (
+                            <div className="flex gap-2 text-xs text-gray-400 justify-end">
+                              {game.period1AwayScore != null && <span>P1: {game.period1AwayScore}-{game.period1HomeScore}</span>}
+                              {game.period2AwayScore != null && <span>P2: {game.period2AwayScore}-{game.period2HomeScore}</span>}
+                              {game.period3AwayScore != null && <span>P3: {game.period3AwayScore}-{game.period3HomeScore}</span>}
+                            </div>
+                          )
+                        }
+                      </div>
                     </div>
                   </div>
                 );

@@ -97,7 +97,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   // Delete in dependency order
-  if (gameId) await prisma.gameStatistic.deleteMany({ where: { gameId } }).catch(() => {});
+  if (gameId) await prisma.hockeyGameStatistic.deleteMany({ where: { gameId } }).catch(() => {});
   if (gameId) await prisma.game.delete({ where: { id: gameId } }).catch(() => {});
   if (seasonId) await prisma.game.deleteMany({ where: { seasonId } }).catch(() => {});
   if (playerId) await prisma.player.delete({ where: { id: playerId } }).catch(() => {});

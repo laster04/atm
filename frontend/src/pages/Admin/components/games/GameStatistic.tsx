@@ -11,7 +11,18 @@ import { Button } from "@components/base/button.tsx";
 import { Input } from "@components/base/input.tsx";
 import { Checkbox } from "@components/base/checkbox.tsx";
 import { Label } from "@components/base/label.tsx";
-import { Game, Player, GameStatistic } from "@types";
+import { Game, Player, HockeyGameStatistic } from "@types";
+
+interface PeriodScores {
+	homeScore: number | null;
+	awayScore: number | null;
+	period1HomeScore: number | null;
+	period1AwayScore: number | null;
+	period2HomeScore: number | null;
+	period2AwayScore: number | null;
+	period3HomeScore: number | null;
+	period3AwayScore: number | null;
+}
 
 interface PlayerStatForm {
 	playerId: number;
@@ -23,13 +34,23 @@ interface PlayerStatForm {
 	existingStatId?: number;
 }
 
-export default function GameStatisticPage(): React.JSX.Element {
+export default function HockeyGameStatisticPage(): React.JSX.Element {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
 	const { isAdmin, isSeasonManager, canManageTeam } = useAuth();
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [game, setGame] = useState<Game | null>(null);
+	const [periodScores, setPeriodScores] = useState<PeriodScores>({
+		homeScore: null,
+		awayScore: null,
+		period1HomeScore: null,
+		period1AwayScore: null,
+		period2HomeScore: null,
+		period2AwayScore: null,
+		period3HomeScore: null,
+		period3AwayScore: null,
+	});
 	const [homeTeamStats, setHomeTeamStats] = useState<PlayerStatForm[]>([]);
 	const [awayTeamStats, setAwayTeamStats] = useState<PlayerStatForm[]>([]);
 
@@ -46,9 +67,19 @@ export default function GameStatisticPage(): React.JSX.Element {
 
 				const gameData = gameResp.data;
 				setGame(gameData);
+				setPeriodScores({
+					homeScore: gameData.homeScore ?? null,
+					awayScore: gameData.awayScore ?? null,
+					period1HomeScore: gameData.period1HomeScore ?? null,
+					period1AwayScore: gameData.period1AwayScore ?? null,
+					period2HomeScore: gameData.period2HomeScore ?? null,
+					period2AwayScore: gameData.period2AwayScore ?? null,
+					period3HomeScore: gameData.period3HomeScore ?? null,
+					period3AwayScore: gameData.period3AwayScore ?? null,
+				});
 
 				const existingStats = existingStatsResp.data;
-				const statsMap = new Map<number, GameStatistic>();
+				const statsMap = new Map<number, HockeyGameStatistic>();
 				existingStats.forEach(stat => statsMap.set(stat.playerId, stat));
 
 				// Fetch players for both teams
@@ -117,6 +148,10 @@ export default function GameStatisticPage(): React.JSX.Element {
 
 		setSaving(true);
 		try {
+			if (canEditFull && game?.status !== 'SCHEDULED') {
+				await gameApi.update(id, periodScores);
+			}
+
 			const allStats = [
 				...(canEditHome ? homeTeamStats : []),
 				...(canEditAway ? awayTeamStats : []),
@@ -147,7 +182,7 @@ export default function GameStatisticPage(): React.JSX.Element {
 
 			// Refresh data to get updated IDs
 			const existingStatsResp = await gameStatisticApi.getByGame(id);
-			const statsMap = new Map<number, GameStatistic>();
+			const statsMap = new Map<number, HockeyGameStatistic>();
 			existingStatsResp.data.forEach(stat => statsMap.set(stat.playerId, stat));
 
 			setHomeTeamStats(prev => prev.map(stat => ({
@@ -253,15 +288,48 @@ export default function GameStatisticPage(): React.JSX.Element {
 									</div>
 								</div>
 
-								<div className="flex items-center gap-3 px-4">
-									{game.status === 'SCHEDULED' ? (
-										<span className="text-2xl font-medium text-muted-foreground">vs</span>
+								<div className="flex flex-col items-center gap-2 px-4">
+									{canEditFull ? (
+										<div className="grid grid-cols-[auto_1fr_auto_1fr] items-center gap-x-2 gap-y-1 text-xs">
+											<Label className="text-xs text-muted-foreground text-right whitespace-nowrap">{t('gameStatistic.total', 'Total')}</Label>
+											<Input type="number" min={0} value={periodScores.homeScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, homeScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+											<span className="text-muted-foreground text-center">-</span>
+											<Input type="number" min={0} value={periodScores.awayScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, awayScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+
+											<Label className="text-xs text-muted-foreground text-right whitespace-nowrap">{t('gameStatistic.period1', 'P1')}</Label>
+											<Input type="number" min={0} value={periodScores.period1HomeScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, period1HomeScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+											<span className="text-muted-foreground text-center">-</span>
+											<Input type="number" min={0} value={periodScores.period1AwayScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, period1AwayScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+
+											<Label className="text-xs text-muted-foreground text-right whitespace-nowrap">{t('gameStatistic.period2', 'P2')}</Label>
+											<Input type="number" min={0} value={periodScores.period2HomeScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, period2HomeScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+											<span className="text-muted-foreground text-center">-</span>
+											<Input type="number" min={0} value={periodScores.period2AwayScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, period2AwayScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+
+											<Label className="text-xs text-muted-foreground text-right whitespace-nowrap">{t('gameStatistic.period3', 'P3')}</Label>
+											<Input type="number" min={0} value={periodScores.period3HomeScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, period3HomeScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+											<span className="text-muted-foreground text-center">-</span>
+											<Input type="number" min={0} value={periodScores.period3AwayScore ?? ''} onChange={e => setPeriodScores(s => ({ ...s, period3AwayScore: e.target.value !== '' ? parseInt(e.target.value) : null }))} className="w-14 h-7 text-center text-sm px-1" />
+										</div>
 									) : (
-										<>
-											<span className="text-sm sm:text-3xl font-medium">{game.homeScore}</span>
-											<span className="text-sm sm:text-xl text-muted-foreground">-</span>
-											<span className="text-sm sm:text-3xl font-medium">{game.awayScore}</span>
-										</>
+										<div className="flex flex-col items-center gap-1">
+											<div className="flex items-center gap-3">
+												<span className="text-sm sm:text-3xl font-medium">{periodScores.homeScore ?? '-'}</span>
+												<span className="text-sm sm:text-xl text-muted-foreground">-</span>
+												<span className="text-sm sm:text-3xl font-medium">{periodScores.awayScore ?? '-'}</span>
+											</div>
+											{(periodScores.period1HomeScore != null || periodScores.period2HomeScore != null || periodScores.period3HomeScore != null) && (
+												<div className="flex gap-3 text-xs text-muted-foreground">
+													{([
+														['P1', periodScores.period1HomeScore, periodScores.period1AwayScore],
+														['P2', periodScores.period2HomeScore, periodScores.period2AwayScore],
+														['P3', periodScores.period3HomeScore, periodScores.period3AwayScore],
+													] as [string, number | null, number | null][]).map(([p, h, a]) => (
+														<span key={p}>{p}: {h ?? '-'} - {a ?? '-'}</span>
+													))}
+												</div>
+											)}
+										</div>
 									)}
 								</div>
 

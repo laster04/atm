@@ -14,6 +14,12 @@ interface GameFormData {
 	awayTeamId: number;
 	homeScore?: number | null;
 	awayScore?: number | null;
+	period1HomeScore?: number | null;
+	period1AwayScore?: number | null;
+	period2HomeScore?: number | null;
+	period2AwayScore?: number | null;
+	period3HomeScore?: number | null;
+	period3AwayScore?: number | null;
 	location?: string;
 	status: GameStatus;
 	round?: number | null;
@@ -36,6 +42,12 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 		awayTeamId: game?.awayTeamId || 0,
 		homeScore: game?.homeScore ?? null,
 		awayScore: game?.awayScore ?? null,
+		period1HomeScore: game?.period1HomeScore ?? null,
+		period1AwayScore: game?.period1AwayScore ?? null,
+		period2HomeScore: game?.period2HomeScore ?? null,
+		period2AwayScore: game?.period2AwayScore ?? null,
+		period3HomeScore: game?.period3HomeScore ?? null,
+		period3AwayScore: game?.period3AwayScore ?? null,
 		location: game?.location || '',
 		status: game?.status || GameStatus.SCHEDULED,
 		round: game?.round ?? null,
@@ -48,13 +60,22 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 	const watchHomeTeam = form.watch('homeTeamId');
 	const watchAwayTeam = form.watch('awayTeamId');
 
+	const toIntOrNull = (v: number | null | undefined) =>
+		v !== null && v !== undefined && !isNaN(Number(v)) ? Number(v) : null;
+
 	const handleFormSubmit = (data: GameFormData) => {
 		onSubmit({
 			...data,
 			homeTeamId: Number(data.homeTeamId),
 			awayTeamId: Number(data.awayTeamId),
-			homeScore: data.homeScore !== null && data.homeScore !== undefined ? Number(data.homeScore) : null,
-			awayScore: data.awayScore !== null && data.awayScore !== undefined ? Number(data.awayScore) : null,
+			homeScore: toIntOrNull(data.homeScore),
+			awayScore: toIntOrNull(data.awayScore),
+			period1HomeScore: toIntOrNull(data.period1HomeScore),
+			period1AwayScore: toIntOrNull(data.period1AwayScore),
+			period2HomeScore: toIntOrNull(data.period2HomeScore),
+			period2AwayScore: toIntOrNull(data.period2AwayScore),
+			period3HomeScore: toIntOrNull(data.period3HomeScore),
+			period3AwayScore: toIntOrNull(data.period3AwayScore),
 			round: data.round ? Number(data.round) : null,
 		});
 	};
@@ -163,22 +184,65 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 					</div>
 
 					{isEditing && (
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label>{t('admin.modal.homeScore')}</Label>
+						<div className="space-y-3">
+							<div className="grid grid-cols-[auto_1fr_1fr] items-center gap-x-3 gap-y-2">
+								<div />
+								<Label className="text-center text-xs text-muted-foreground">{t('admin.modal.homeScore')}</Label>
+								<Label className="text-center text-xs text-muted-foreground">{t('admin.modal.awayScore')}</Label>
+
+								<Label className="text-sm whitespace-nowrap">{t('admin.modal.totalScore', 'Total')}</Label>
 								<Input
 									type="number"
 									{...form.register('homeScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded"
+									className="w-full px-3 py-2 border rounded text-center"
 									min={0}
 								/>
-							</div>
-							<div className="space-y-2">
-								<Label>{t('admin.modal.awayScore')}</Label>
 								<Input
 									type="number"
 									{...form.register('awayScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded"
+									className="w-full px-3 py-2 border rounded text-center"
+									min={0}
+								/>
+
+								<Label className="text-sm whitespace-nowrap">{t('admin.modal.period1', 'Period 1')}</Label>
+								<Input
+									type="number"
+									{...form.register('period1HomeScore', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded text-center"
+									min={0}
+								/>
+								<Input
+									type="number"
+									{...form.register('period1AwayScore', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded text-center"
+									min={0}
+								/>
+
+								<Label className="text-sm whitespace-nowrap">{t('admin.modal.period2', 'Period 2')}</Label>
+								<Input
+									type="number"
+									{...form.register('period2HomeScore', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded text-center"
+									min={0}
+								/>
+								<Input
+									type="number"
+									{...form.register('period2AwayScore', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded text-center"
+									min={0}
+								/>
+
+								<Label className="text-sm whitespace-nowrap">{t('admin.modal.period3', 'Period 3')}</Label>
+								<Input
+									type="number"
+									{...form.register('period3HomeScore', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded text-center"
+									min={0}
+								/>
+								<Input
+									type="number"
+									{...form.register('period3AwayScore', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded text-center"
 									min={0}
 								/>
 							</div>

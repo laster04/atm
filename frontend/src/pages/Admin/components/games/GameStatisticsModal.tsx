@@ -6,10 +6,10 @@ import { Button } from '@components/base/button';
 import { Input } from '@/components/base/input';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { Plus, Trash2, Save } from 'lucide-react';
-import { Game, Player, GameStatistic } from '@types';
+import { Game, Player, HockeyGameStatistic } from '@types';
 import { gameStatisticApi, playerApi } from '@/services/api';
 
-interface GameStatisticsModalProps {
+interface HockeyGameStatisticsModalProps {
 	game: Game;
 	onClose: () => void;
 }
@@ -20,9 +20,9 @@ interface StatisticFormData {
 	assists: number | null;
 }
 
-export default function GameStatisticsModal({ game, onClose }: GameStatisticsModalProps) {
+export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameStatisticsModalProps) {
 	const { t } = useTranslation();
-	const [statistics, setStatistics] = useState<GameStatistic[]>([]);
+	const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
 	const [homePlayers, setHomePlayers] = useState<Player[]>([]);
 	const [awayPlayers, setAwayPlayers] = useState<Player[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -104,7 +104,7 @@ export default function GameStatisticsModal({ game, onClose }: GameStatisticsMod
 		}
 	};
 
-	const startEditing = (stat: GameStatistic) => {
+	const startEditing = (stat: HockeyGameStatistic) => {
 		setEditingId(stat.id);
 		setEditForm({ goals: stat.goals ?? null, assists: stat.assists ?? null });
 	};

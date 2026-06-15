@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { playerApi, gameStatisticApi } from '@/services/api';
-import type { Player, GameStatistic } from '@types';
+import type { Player, HockeyGameStatistic } from '@types';
 
 import PlayerHeader from './components/PlayerHeader';
 import PlayerInfo from './components/PlayerInfo';
@@ -15,7 +15,7 @@ export default function PlayerDetailScreen() {
   const { t } = useTranslation();
 
   const [player, setPlayer] = useState<Player | null>(null);
-  const [statistics, setStatistics] = useState<GameStatistic[]>([]);
+  const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
   const [loading, setLoading] = useState(false);
 
   useDocumentTitle([player?.name, player?.team?.name]);

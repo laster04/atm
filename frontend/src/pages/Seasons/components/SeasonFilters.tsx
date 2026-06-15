@@ -18,8 +18,8 @@ interface SeasonFiltersProps {
 }
 
 export default function SeasonFilters({ filter, onFilterChange }: SeasonFiltersProps) {
-  const { isAdmin, isSeasonManager } = useAuth();
   const { t } = useTranslation();
+  const { isAdmin, isSeasonManager } = useAuth();
 
   const filters: FilterValue[] = ['all', SeasonStatus.ACTIVE, SeasonStatus.COMPLETED];
   if (isAdmin() || isSeasonManager()) {

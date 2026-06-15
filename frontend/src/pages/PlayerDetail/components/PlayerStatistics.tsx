@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatGameDateTime } from '@/utils/date';
-import type { GameStatistic } from '@types';
+import type { HockeyGameStatistic } from '@types';
 
 interface PlayerStatisticsProps {
-  statistics: GameStatistic[];
+  statistics: HockeyGameStatistic[];
   totalGoals: number;
   totalAssists: number;
   gamesPlayed: number;

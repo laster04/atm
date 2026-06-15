@@ -112,10 +112,28 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 										</div>
 
 										{hasScore && (
-											<div className="game-score-display">
-												<span className="game-final-score">{teamScore}</span>
-												<span className="game-score-separator">:</span>
-												<span className="game-final-score">{opponentScore}</span>
+											<div className="text-right">
+												<div className="game-score-display">
+													<span className="game-final-score">{teamScore}</span>
+													<span className="game-score-separator">:</span>
+													<span className="game-final-score">{opponentScore}</span>
+												</div>
+												{(() => {
+													const p1team = isHome ? game.period1HomeScore : game.period1AwayScore;
+													const p1opp = isHome ? game.period1AwayScore : game.period1HomeScore;
+													const p2team = isHome ? game.period2HomeScore : game.period2AwayScore;
+													const p2opp = isHome ? game.period2AwayScore : game.period2HomeScore;
+													const p3team = isHome ? game.period3HomeScore : game.period3AwayScore;
+													const p3opp = isHome ? game.period3AwayScore : game.period3HomeScore;
+													if (p1team == null && p2team == null && p3team == null) return null;
+													return (
+														<div className="flex gap-2 text-xs text-gray-400 justify-end mt-1">
+															{p1team != null && <span>P1: {p1team}-{p1opp}</span>}
+															{p2team != null && <span>P2: {p2team}-{p2opp}</span>}
+															{p3team != null && <span>P3: {p3team}-{p3opp}</span>}
+														</div>
+													);
+												})()}
 											</div>
 										)}
 									</div>
