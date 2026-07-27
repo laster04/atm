@@ -1,5 +1,10 @@
 import axios from 'axios';
-import type { User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer } from '@types';
+import type {
+  User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
+  TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
+  TournamentGroup, TournamentGame, TournamentGameStatistic,
+  TournamentStanding, TournamentTopScorer,
+} from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -31,7 +36,7 @@ api.interceptors.response.use(
 );
 
 export const authApi = {
-  register: (data: { email: string; password: string; name: string }) =>
+  register: (data: { email: string; password: string; name: string; role?: string }) =>
     api.post<{ message: string; user: User; token: string }>('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post<{ user: User; token: string }>('/auth/login', data),
@@ -131,6 +136,110 @@ export const gameStatisticApi = {
   update: (id: string | number, data: { goals?: number | null; assists?: number | null }) =>
     api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
   delete: (id: string | number) => api.delete(`/game-statistics/${id}`)
+};
+
+// ── Tournament Series ───────────────────────────────────────
+export const tournamentSeriesApi = {
+  getAll: () => api.get<TournamentSeries[]>('/tournaments/series'),
+  getById: (id: string | number) => api.get<TournamentSeries>(`/tournaments/series/${id}`),
+  create: (data: Partial<TournamentSeries>) => api.post<TournamentSeries>('/tournaments/series', data),
+  update: (id: string | number, data: Partial<TournamentSeries>) =>
+    api.put<TournamentSeries>(`/tournaments/series/${id}`, data),
+  delete: (id: string | number) => api.delete(`/tournaments/series/${id}`),
+};
+
+// ── Tournament editions ─────────────────────────────────────
+export const tournamentApi = {
+  getBySeries: (seriesId: string | number) =>
+    api.get<Tournament[]>(`/tournaments/series/${seriesId}/tournaments`),
+  getById: (id: string | number) => api.get<Tournament>(`/tournaments/${id}`),
+  create: (seriesId: string | number, data: Partial<Tournament>) =>
+    api.post<Tournament>(`/tournaments/series/${seriesId}/tournaments`, data),
+  update: (id: string | number, data: Partial<Tournament>) =>
+    api.put<Tournament>(`/tournaments/${id}`, data),
+  delete: (id: string | number) => api.delete(`/tournaments/${id}`),
+  getStandings: (id: string | number, groupId?: number) =>
+    api.get<TournamentStanding[]>(`/tournaments/${id}/standings`, { params: groupId ? { groupId } : undefined }),
+  getTopScorers: (id: string | number, limit?: number) =>
+    api.get<TournamentTopScorer[]>(`/tournaments/${id}/scorers`, { params: { limit } }),
+};
+
+// ── Tournament Teams ────────────────────────────────────────
+export const tournamentTeamApi = {
+  getByTournament: (tournamentId: string | number) =>
+    api.get<TournamentTeam[]>(`/tournaments/${tournamentId}/teams`),
+  getById: (id: string | number) => api.get<TournamentTeam>(`/tournaments/teams/${id}`),
+  create: (tournamentId: string | number, data: Partial<TournamentTeam>) =>
+    api.post<TournamentTeam>(`/tournaments/${tournamentId}/teams`, data),
+  update: (id: string | number, data: Partial<TournamentTeam>) =>
+    api.put<TournamentTeam>(`/tournaments/teams/${id}`, data),
+  delete: (id: string | number) => api.delete(`/tournaments/teams/${id}`),
+};
+
+// ── Tournament Players ──────────────────────────────────────
+export const tournamentPlayerApi = {
+  getByTeam: (teamId: string | number) =>
+    api.get<TournamentPlayer[]>(`/tournaments/teams/${teamId}/players`),
+  create: (teamId: string | number, data: Partial<TournamentPlayer>) =>
+    api.post<TournamentPlayer>(`/tournaments/teams/${teamId}/players`, data),
+  update: (id: string | number, data: Partial<TournamentPlayer>) =>
+    api.put<TournamentPlayer>(`/tournaments/players/${id}`, data),
+  delete: (id: string | number) => api.delete(`/tournaments/players/${id}`),
+};
+
+// ── Tournament Groups ───────────────────────────────────────
+export const tournamentGroupApi = {
+  getByTournament: (tournamentId: string | number) =>
+    api.get<TournamentGroup[]>(`/tournaments/${tournamentId}/groups`),
+  getById: (id: string | number) => api.get<TournamentGroup>(`/tournaments/groups/${id}`),
+  create: (tournamentId: string | number, data: { name: string }) =>
+    api.post<TournamentGroup>(`/tournaments/${tournamentId}/groups`, data),
+  update: (id: string | number, data: { name: string }) =>
+    api.put<TournamentGroup>(`/tournaments/groups/${id}`, data),
+  delete: (id: string | number) => api.delete(`/tournaments/groups/${id}`),
+  assignTeam: (groupId: string | number, teamId: number) =>
+    api.post<TournamentGroup>(`/tournaments/groups/${groupId}/teams`, { teamId }),
+  removeTeam: (groupId: string | number, teamId: string | number) =>
+    api.delete(`/tournaments/groups/${groupId}/teams/${teamId}`),
+  generateTournamentSchedule: (tournamentId: string | number, data: {
+    startDate: string; startTime: string; endTime: string; slotDurationMinutes: number; locations: string[]; minRestGames?: number;
+  }) => api.post(`/tournaments/${tournamentId}/generate-schedule`, data),
+  deleteTournamentSchedule: (tournamentId: string | number) =>
+    api.delete(`/tournaments/${tournamentId}/schedule`),
+};
+
+// ── Tournament Playoffs ─────────────────────────────────────
+export const tournamentPlayoffApi = {
+  generate: (tournamentId: string | number, data: {
+    qualifiersPerGroup: number; startTime: string; slotDurationMinutes: number; location?: string;
+  }) => api.post<{ message: string }>(`/tournaments/${tournamentId}/generate-playoffs`, data),
+  deleteAll: (tournamentId: string | number) =>
+    api.delete(`/tournaments/${tournamentId}/playoffs`),
+};
+
+// ── Tournament Games ────────────────────────────────────────
+export const tournamentGameApi = {
+  getByTournament: (tournamentId: string | number, params?: { phase?: string; groupId?: number }) =>
+    api.get<TournamentGame[]>(`/tournaments/${tournamentId}/games`, { params }),
+  getById: (id: string | number) => api.get<TournamentGame>(`/tournaments/games/${id}`),
+  create: (tournamentId: string | number, data: Partial<TournamentGame>) =>
+    api.post<TournamentGame>(`/tournaments/${tournamentId}/games`, data),
+  update: (id: string | number, data: Partial<TournamentGame>) =>
+    api.put<TournamentGame>(`/tournaments/games/${id}`, data),
+  delete: (id: string | number) => api.delete(`/tournaments/games/${id}`),
+  getStatistics: (gameId: string | number) =>
+    api.get<TournamentGameStatistic[]>(`/tournaments/games/${gameId}/statistics`),
+  createStatistic: (
+    gameId: string | number,
+    data: { playerId: number; goals?: number | null; assists?: number | null }
+  ) => api.post<TournamentGameStatistic>(`/tournaments/games/${gameId}/statistics`, data),
+  updateStatistic: (
+    gameId: string | number,
+    statId: string | number,
+    data: { goals?: number | null; assists?: number | null }
+  ) => api.put<TournamentGameStatistic>(`/tournaments/games/${gameId}/statistics/${statId}`, data),
+  deleteStatistic: (gameId: string | number, statId: string | number) =>
+    api.delete(`/tournaments/games/${gameId}/statistics/${statId}`),
 };
 
 export default api;

@@ -13,6 +13,7 @@ import {
   UpdateUserRequest,
   GetUsersQuery,
   UserFilters,
+  Role,
 } from '../types/index.js';
 
 const generateActivationToken = (): string => {
@@ -27,12 +28,17 @@ const getActivationTokenExpiry = (): Date => {
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name } = req.body as RegisterRequest;
+    const { email, password, name, role: requestedRole } = req.body as RegisterRequest & { role?: string };
 
     if (!email || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
       return;
     }
+
+    const SELF_REGISTERABLE_ROLES: Role[] = ['TOURNAMENT_MANAGER'];
+    const role: Role = requestedRole && SELF_REGISTERABLE_ROLES.includes(requestedRole as Role)
+      ? (requestedRole as Role)
+      : 'VIEWER';
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -48,7 +54,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
         email,
         password: hashedPassword,
         name,
-        role: 'VIEWER',
+        role,
         emailVerified: false,
         activationToken,
         activationTokenExpiresAt: getActivationTokenExpiry(),

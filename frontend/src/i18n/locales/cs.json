@@ -720,6 +720,7 @@
       "ADMIN": "Administrator",
       "SEASON_MANAGER": "Manazer sezony",
       "TEAM_MANAGER": "Manazer tymu",
+      "TOURNAMENT_MANAGER": "Manazer turnaje",
       "VIEWER": "Divak"
     },
     "confirm": {
@@ -767,5 +768,296 @@
     "HANDBALL": "Házená",
     "FLOORBALL": "Florbal",
     "OTHER": "Ostatní"
+  },
+  "landing": {
+    "tagline": "Správa amatérského sportu jednoduše",
+    "nav": {
+      "tournaments": "Turnaje",
+      "seasons": "Sezóny",
+      "signIn": "Přihlásit se",
+      "getStarted": "Začít",
+      "dashboard": "Nástěnka"
+    },
+    "hero": {
+      "title": "Spravujte ligu.\nPořádejte turnaj.",
+      "subtitle": "Kompletní platforma pro amatérské sportovní organizace. Vytvářejte sezóny, spravujte týmy, plánujte zápasy, sledujte statistiky a pořádejte turnaje — vše na jednom místě.",
+      "ctaStarted": "Začít zdarma",
+      "ctaDashboard": "Přejít na nástěnku",
+      "ctaSignIn": "Přihlásit se",
+      "ctaTournaments": "Procházet turnaje"
+    },
+    "stats": {
+      "teams": "Týmy",
+      "teamsLabel": "snadno spravovány",
+      "schedules": "Rozvrhy",
+      "schedulesLabel": "automaticky generovány",
+      "stats": "Statistiky",
+      "statsLabel": "sledovány v reálném čase"
+    },
+    "tournamentCta": {
+      "title": "Pořádáte turnaj?",
+      "description": "Vytvářejte skupiny, generujte rozvrhy, spravujte play-off a sledujte střelce — vše pro plnohodnotný turnaj.",
+      "explore": "Procházet turnaje",
+      "register": "Registrovat se jako manažer turnaje",
+      "createAccount": "Vytvořit účet"
+    },
+    "footer": "Amateur Team Manager. Všechna práva vyhrazena."
+  },
+  "tm": {
+    "title": "Správa turnajů",
+    "accessDenied": "Přístup odepřen",
+    "noPrivileges": "Potřebujete oprávnění manažera turnaje.",
+    "common": {
+      "loading": "Načítání...",
+      "cancel": "Zrušit",
+      "save": "Uložit",
+      "saving": "Ukládám...",
+      "assign": "Přiřadit",
+      "tbd": "TBD",
+      "seed": "Nasazení {{n}}",
+      "home": "Domácí",
+      "away": "Hosté",
+      "viewPublic": "Zobrazit veřejnou stránku",
+      "editions": "ročníků",
+      "series": "Série"
+    },
+    "status": {
+      "SCHEDULED": "Naplánováno",
+      "IN_PROGRESS": "Probíhá",
+      "COMPLETED": "Dokončeno",
+      "POSTPONED": "Odloženo",
+      "CANCELLED": "Zrušeno"
+    },
+    "tournamentStatus": {
+      "DRAFT": "Koncept",
+      "REGISTRATION": "Registrace",
+      "GROUP_STAGE": "Skupinová fáze",
+      "PLAYOFF": "Playoff",
+      "COMPLETED": "Dokončeno"
+    },
+    "fields": {
+      "name": "Název",
+      "year": "Rok",
+      "status": "Stav",
+      "location": "Místo",
+      "startDate": "Datum začátku",
+      "endDate": "Datum konce",
+      "sportType": "Typ sportu",
+      "description": "Popis",
+      "logoUrl": "URL loga",
+      "country": "Země",
+      "primaryColor": "Primární barva",
+      "number": "Číslo dresu",
+      "bornYear": "Rok narození",
+      "position": "Pozice",
+      "phase": "Fáze",
+      "bracketSlot": "Pozice v pavouku",
+      "homeTeam": "Domácí tým",
+      "awayTeam": "Hostující tým",
+      "homeScore": "Skóre domácích",
+      "awayScore": "Skóre hostů",
+      "date": "Datum",
+      "team": "Tým",
+      "groupName": "Název skupiny"
+    },
+    "series": {
+      "title": "Série turnajů",
+      "newButton": "Nová série",
+      "empty": "Zatím žádné série. Vytvořte první turnajovou sérii.",
+      "deleteConfirm": "Smazat tuto sérii? Všechny turnaje uvnitř budou smazány.",
+      "modal": {
+        "createTitle": "Nová turnajová série",
+        "editTitle": "Upravit sérii"
+      },
+      "form": {
+        "namePlaceholder": "např. Městský hokejový pohár",
+        "sportType": {
+          "HOCKEY": "Hokej",
+          "OTHER": "Jiné"
+        }
+      },
+      "errors": {
+        "load": "Nepodařilo se načíst série",
+        "save": "Nepodařilo se uložit sérii",
+        "delete": "Nepodařilo se smazat sérii"
+      }
+    },
+    "seriesDetail": {
+      "notFound": "Série nebyla nalezena.",
+      "editions": "Ročníky",
+      "newEdition": "Nový ročník",
+      "empty": "Zatím žádné ročníky. Vytvořte první.",
+      "modal": {
+        "createTitle": "Nový ročník turnaje",
+        "editTitle": "Upravit ročník"
+      },
+      "form": {
+        "locationPlaceholder": "Město, země"
+      },
+      "errors": {
+        "load": "Nepodařilo se načíst",
+        "save": "Nepodařilo se uložit turnaj"
+      }
+    },
+    "tournament": {
+      "notFound": "Turnaj nebyl nalezen.",
+      "tabs": {
+        "teams": "Týmy",
+        "groups": "Skupiny",
+        "results": "Výsledky",
+        "playoff": "Playoff"
+      },
+      "teams": {
+        "addButton": "Přidat tým",
+        "empty": "Zatím žádné týmy.",
+        "noPlayers": "Žádní hráči. Klikněte + pro přidání.",
+        "addPlayerTitle": "Přidat hráče",
+        "deleteConfirm": "Smazat tento tým a všechny jeho hráče?",
+        "table": {
+          "number": "#",
+          "name": "Jméno",
+          "position": "Pozice",
+          "born": "Narozen"
+        },
+        "modal": {
+          "createTitle": "Přidat tým",
+          "editTitle": "Upravit tým"
+        },
+        "errors": {
+          "save": "Nepodařilo se uložit tým",
+          "delete": "Nepodařilo se smazat tým"
+        }
+      },
+      "players": {
+        "deleteConfirm": "Smazat tohoto hráče?",
+        "modal": {
+          "createTitle": "Přidat hráče",
+          "editTitle": "Upravit hráče"
+        },
+        "errors": {
+          "save": "Nepodařilo se uložit hráče",
+          "delete": "Nepodařilo se smazat hráče"
+        }
+      },
+      "groups": {
+        "addButton": "Přidat skupinu",
+        "empty": "Zatím žádné skupiny.",
+        "noTeams": "Žádné přiřazené týmy.",
+        "assignTeam": "Přiřadit tým",
+        "noAvailableTeams": "Všechny týmy jsou již přiřazeny do nějaké skupiny.",
+        "generateSchedule": "Generovat rozpis",
+        "deleteSchedule": "Smazat rozpis",
+        "deleteScheduleConfirm": "Smazat celý vygenerovaný rozpis skupinové fáze tohoto turnaje? Tuto akci nelze vrátit zpět.",
+        "deleteConfirm": "Smazat tuto skupinu?",
+        "schedule": {
+          "startDate": "Datum zahájení",
+          "startTime": "Denní čas zahájení",
+          "endTime": "Denní čas ukončení",
+          "slotDuration": "Délka slotu (minuty)",
+          "minRestGames": "Min. počet zápasů mezi zápasy týmu",
+          "locations": "Místa konání",
+          "locationsPlaceholder": "např. Aréna A, Aréna B"
+        },
+        "modal": {
+          "createTitle": "Přidat skupinu",
+          "editTitle": "Upravit skupinu",
+          "assignTitle": "Přiřadit týmy do skupiny",
+          "scheduleTitle": "Generovat rozpis turnaje"
+        },
+        "errors": {
+          "save": "Nepodařilo se uložit skupinu",
+          "delete": "Nepodařilo se smazat skupinu",
+          "generate": "Nepodařilo se generovat rozpis",
+          "deleteSchedule": "Nepodařilo se smazat rozpis",
+          "assign": "Nepodařilo se přiřadit tým",
+          "remove": "Nepodařilo se odebrat tým ze skupiny"
+        }
+      },
+      "results": {
+        "empty": "Zatím žádné skupinové zápasy. Vygenerujte rozpis na kartě Skupiny.",
+        "modal": {
+          "title": "Zadat výsledek"
+        },
+        "errors": {
+          "save": "Nepodařilo se uložit výsledek"
+        }
+      },
+      "playoff": {
+        "addButton": "Přidat zápas",
+        "empty": "Zatím žádné playoff zápasy.",
+        "deleteConfirm": "Smazat tento playoff zápas?",
+        "generatePlayoffs": "Vygenerovat playoff",
+        "deletePlayoffs": "Smazat playoff",
+        "deletePlayoffsConfirm": "Smazat celý vygenerovaný playoff pavouk pro tento turnaj? Tuto akci nelze vrátit zpět.",
+        "teamsUnknownHint": "Oba týmy musí být známé, než lze zapsat výsledek.",
+        "form": {
+          "qualifiersPerGroup": "Postupujících ze skupiny",
+          "startTime": "Denní čas zahájení",
+          "slotDuration": "Délka slotu (minuty)",
+          "location": "Místo konání (volitelné)"
+        },
+        "modal": {
+          "createTitle": "Přidat playoff zápas",
+          "editTitle": "Upravit playoff zápas",
+          "generateTitle": "Vygenerovat playoff pavouk"
+        },
+        "errors": {
+          "save": "Nepodařilo se uložit playoff zápas",
+          "delete": "Nepodařilo se smazat zápas",
+          "updateStatus": "Nepodařilo se aktualizovat stav",
+          "generate": "Nepodařilo se vygenerovat playoff",
+          "deletePlayoffs": "Nepodařilo se smazat playoff"
+        }
+      },
+      "errors": {
+        "load": "Nepodařilo se načíst data turnaje"
+      }
+    }
+  },
+  "tournamentDetail": {
+    "loading": "Načítání...",
+    "notFound": "Turnaj nebyl nalezen.",
+    "breadcrumb": "Turnaje",
+    "teamsCount": "{{count}} týmů",
+    "tabs": {
+      "groups": "Skupiny",
+      "schedule": "Rozpis skupiny",
+      "playoff": "Playoff",
+      "teams": "Týmy"
+    },
+    "groups": {
+      "empty": "Zatím žádné skupiny.",
+      "groupLabel": "Skupina {{name}}"
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Tým",
+      "played": "Z",
+      "won": "V",
+      "drawn": "R",
+      "lost": "P",
+      "goalsFor": "VG",
+      "goalsAgainst": "OG",
+      "goalDiff": "+/-",
+      "points": "B"
+    },
+    "schedule": {
+      "empty": "Zatím žádné skupinové zápasy.",
+      "groupLabel": "Skupina {{name}}"
+    },
+    "playoff": {
+      "title": "Playoff pavouk",
+      "empty": "Zatím žádné playoff zápasy.",
+      "phases": {
+        "ROUND_OF_16": "Osmifinále",
+        "QUARTER_FINAL": "Čtvrtfinále",
+        "SEMI_FINAL": "Semifinále",
+        "BRONZE": "O 3. místo",
+        "FINAL": "Finále"
+      }
+    },
+    "teams": {
+      "empty": "Zatím žádné týmy."
+    }
   }
 }

@@ -55,6 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAdmin = () => user?.role === Role.ADMIN;
   const isSeasonManager = () => user?.role === Role.SEASON_MANAGER;
   const isTeamManager = () => user?.role === Role.TEAM_MANAGER;
+  const isTournamentManager = () => user?.role === Role.TOURNAMENT_MANAGER;
   const canManageTeam = (teamManagerId?: number | null) =>
     isAdmin() || (isTeamManager() && user?.id === teamManagerId);
 
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAdmin,
       isSeasonManager,
       isTeamManager,
+      isTournamentManager,
       canManageTeam
     }}>
       {children}

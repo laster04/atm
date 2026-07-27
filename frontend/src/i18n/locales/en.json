@@ -720,6 +720,7 @@
       "ADMIN": "Admin",
       "SEASON_MANAGER": "Season Manager",
       "TEAM_MANAGER": "Team Manager",
+      "TOURNAMENT_MANAGER": "Tournament Manager",
       "VIEWER": "Viewer"
     },
     "confirm": {
@@ -767,5 +768,296 @@
     "HANDBALL": "Handball",
     "FLOORBALL": "Floorball",
     "OTHER": "Other"
+  },
+  "landing": {
+    "tagline": "Amateur sports management made simple",
+    "nav": {
+      "tournaments": "Tournaments",
+      "seasons": "Seasons",
+      "signIn": "Sign In",
+      "getStarted": "Get Started",
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "title": "Manage your league.\nRun your tournament.",
+      "subtitle": "All-in-one platform for amateur sports organizations. Create seasons, manage teams, schedule games, track stats, and run full tournaments — all in one place.",
+      "ctaStarted": "Get Started Free",
+      "ctaDashboard": "Go to Dashboard",
+      "ctaSignIn": "Sign In",
+      "ctaTournaments": "Browse Tournaments"
+    },
+    "stats": {
+      "teams": "Teams",
+      "teamsLabel": "managed with ease",
+      "schedules": "Schedules",
+      "schedulesLabel": "auto-generated",
+      "stats": "Stats",
+      "statsLabel": "tracked in real time"
+    },
+    "tournamentCta": {
+      "title": "Running a tournament?",
+      "description": "Create groups, generate round-robin schedules, manage playoff brackets, and track top scorers — everything you need for a full tournament.",
+      "explore": "Explore Tournaments",
+      "register": "Register as Tournament Manager",
+      "createAccount": "Create Account"
+    },
+    "footer": "Amateur Team Manager. All rights reserved."
+  },
+  "tm": {
+    "title": "Tournament Management",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need Tournament Manager privileges.",
+    "common": {
+      "loading": "Loading...",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "assign": "Assign",
+      "tbd": "TBD",
+      "seed": "Seed {{n}}",
+      "home": "Home",
+      "away": "Away",
+      "viewPublic": "View Public Page",
+      "editions": "editions",
+      "series": "Series"
+    },
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "POSTPONED": "Postponed",
+      "CANCELLED": "Cancelled"
+    },
+    "tournamentStatus": {
+      "DRAFT": "Draft",
+      "REGISTRATION": "Registration",
+      "GROUP_STAGE": "Group Stage",
+      "PLAYOFF": "Playoff",
+      "COMPLETED": "Completed"
+    },
+    "fields": {
+      "name": "Name",
+      "year": "Year",
+      "status": "Status",
+      "location": "Location",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "sportType": "Sport Type",
+      "description": "Description",
+      "logoUrl": "Logo URL",
+      "country": "Country",
+      "primaryColor": "Primary Color",
+      "number": "Jersey #",
+      "bornYear": "Born Year",
+      "position": "Position",
+      "phase": "Phase",
+      "bracketSlot": "Bracket Slot",
+      "homeTeam": "Home Team",
+      "awayTeam": "Away Team",
+      "homeScore": "Home Score",
+      "awayScore": "Away Score",
+      "date": "Date",
+      "team": "Team",
+      "groupName": "Group Name"
+    },
+    "series": {
+      "title": "Tournament Series",
+      "newButton": "New Series",
+      "empty": "No series yet. Create your first tournament series.",
+      "deleteConfirm": "Delete this series? All tournaments inside will be deleted.",
+      "modal": {
+        "createTitle": "New Tournament Series",
+        "editTitle": "Edit Series"
+      },
+      "form": {
+        "namePlaceholder": "e.g. City Hockey Cup",
+        "sportType": {
+          "HOCKEY": "Hockey",
+          "OTHER": "Other"
+        }
+      },
+      "errors": {
+        "load": "Failed to load series",
+        "save": "Failed to save series",
+        "delete": "Failed to delete series"
+      }
+    },
+    "seriesDetail": {
+      "notFound": "Series not found.",
+      "editions": "Editions",
+      "newEdition": "New Edition",
+      "empty": "No editions yet. Create the first one.",
+      "modal": {
+        "createTitle": "New Tournament Edition",
+        "editTitle": "Edit Edition"
+      },
+      "form": {
+        "locationPlaceholder": "City, Country"
+      },
+      "errors": {
+        "load": "Failed to load",
+        "save": "Failed to save tournament"
+      }
+    },
+    "tournament": {
+      "notFound": "Tournament not found.",
+      "tabs": {
+        "teams": "Teams",
+        "groups": "Groups",
+        "results": "Results",
+        "playoff": "Playoff"
+      },
+      "teams": {
+        "addButton": "Add Team",
+        "empty": "No teams yet.",
+        "noPlayers": "No players. Click + to add.",
+        "addPlayerTitle": "Add player",
+        "deleteConfirm": "Delete this team and all its players?",
+        "table": {
+          "number": "#",
+          "name": "Name",
+          "position": "Position",
+          "born": "Born"
+        },
+        "modal": {
+          "createTitle": "Add Team",
+          "editTitle": "Edit Team"
+        },
+        "errors": {
+          "save": "Failed to save team",
+          "delete": "Failed to delete team"
+        }
+      },
+      "players": {
+        "deleteConfirm": "Delete this player?",
+        "modal": {
+          "createTitle": "Add Player",
+          "editTitle": "Edit Player"
+        },
+        "errors": {
+          "save": "Failed to save player",
+          "delete": "Failed to delete player"
+        }
+      },
+      "groups": {
+        "addButton": "Add Group",
+        "empty": "No groups yet.",
+        "noTeams": "No teams assigned.",
+        "assignTeam": "Assign Team",
+        "noAvailableTeams": "All teams are already assigned to a group.",
+        "generateSchedule": "Generate Schedule",
+        "deleteSchedule": "Delete Schedule",
+        "deleteScheduleConfirm": "Delete the entire generated group-stage schedule for this tournament? This cannot be undone.",
+        "deleteConfirm": "Delete this group?",
+        "schedule": {
+          "startDate": "Start Date",
+          "startTime": "Daily Start Time",
+          "endTime": "Daily End Time",
+          "slotDuration": "Slot Duration (minutes)",
+          "minRestGames": "Min. Games Between a Team's Matches",
+          "locations": "Locations",
+          "locationsPlaceholder": "e.g. Arena A, Arena B"
+        },
+        "modal": {
+          "createTitle": "Add Group",
+          "editTitle": "Edit Group",
+          "assignTitle": "Assign Teams to Group",
+          "scheduleTitle": "Generate Tournament Schedule"
+        },
+        "errors": {
+          "save": "Failed to save group",
+          "delete": "Failed to delete group",
+          "generate": "Failed to generate schedule",
+          "deleteSchedule": "Failed to delete schedule",
+          "assign": "Failed to assign team",
+          "remove": "Failed to remove team from group"
+        }
+      },
+      "results": {
+        "empty": "No group games yet. Generate schedule in the Groups tab.",
+        "modal": {
+          "title": "Enter Result"
+        },
+        "errors": {
+          "save": "Failed to save result"
+        }
+      },
+      "playoff": {
+        "addButton": "Add Game",
+        "empty": "No playoff games yet.",
+        "deleteConfirm": "Delete this playoff game?",
+        "generatePlayoffs": "Generate Playoffs",
+        "deletePlayoffs": "Delete Playoffs",
+        "deletePlayoffsConfirm": "Delete the entire generated playoff bracket for this tournament? This cannot be undone.",
+        "teamsUnknownHint": "Both teams must be known before a result can be recorded.",
+        "form": {
+          "qualifiersPerGroup": "Qualifiers Per Group",
+          "startTime": "Daily Start Time",
+          "slotDuration": "Slot Duration (minutes)",
+          "location": "Location (optional)"
+        },
+        "modal": {
+          "createTitle": "Add Playoff Game",
+          "editTitle": "Edit Playoff Game",
+          "generateTitle": "Generate Playoff Bracket"
+        },
+        "errors": {
+          "save": "Failed to save playoff game",
+          "delete": "Failed to delete game",
+          "updateStatus": "Failed to update status",
+          "generate": "Failed to generate playoffs",
+          "deletePlayoffs": "Failed to delete playoffs"
+        }
+      },
+      "errors": {
+        "load": "Failed to load tournament data"
+      }
+    }
+  },
+  "tournamentDetail": {
+    "loading": "Loading...",
+    "notFound": "Tournament not found.",
+    "breadcrumb": "Tournaments",
+    "teamsCount": "{{count}} teams",
+    "tabs": {
+      "groups": "Groups",
+      "schedule": "Group Schedule",
+      "playoff": "Playoff",
+      "teams": "Teams"
+    },
+    "groups": {
+      "empty": "No groups yet.",
+      "groupLabel": "Group {{name}}"
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Team",
+      "played": "P",
+      "won": "W",
+      "drawn": "D",
+      "lost": "L",
+      "goalsFor": "GF",
+      "goalsAgainst": "GA",
+      "goalDiff": "+/-",
+      "points": "Pts"
+    },
+    "schedule": {
+      "empty": "No group games yet.",
+      "groupLabel": "Group {{name}}"
+    },
+    "playoff": {
+      "title": "Playoff Bracket",
+      "empty": "No playoff games yet.",
+      "phases": {
+        "ROUND_OF_16": "Round of 16",
+        "QUARTER_FINAL": "Quarter-Finals",
+        "SEMI_FINAL": "Semi-Finals",
+        "BRONZE": "Bronze Medal",
+        "FINAL": "Final"
+      }
+    },
+    "teams": {
+      "empty": "No teams yet."
+    }
   }
 }

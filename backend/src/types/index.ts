@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { Role, SeasonStatus, GameStatus, SportType } from '@prisma/client';
+import { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase } from '@prisma/client';
 
 // ============================================================================
 // AUTH TYPES
@@ -585,7 +585,143 @@ export interface UserFilters {
 }
 
 // ============================================================================
+// TOURNAMENT TYPES
+// ============================================================================
+
+// --- TournamentSeries ---
+export interface CreateTournamentSeriesRequest {
+  name: string;
+  sportType?: SportType;
+  logo?: string;
+  description?: string;
+  managerId?: number | null;
+}
+
+export interface UpdateTournamentSeriesRequest {
+  name?: string;
+  sportType?: SportType;
+  logo?: string | null;
+  description?: string | null;
+  managerId?: number | null;
+}
+
+// --- Tournament (edition) ---
+export interface CreateTournamentRequest {
+  name: string;
+  year?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  location?: string | null;
+}
+
+export interface UpdateTournamentRequest {
+  name?: string;
+  year?: number | null;
+  status?: TournamentStatus;
+  startDate?: string | null;
+  endDate?: string | null;
+  location?: string | null;
+}
+
+// --- TournamentTeam ---
+export interface CreateTournamentTeamRequest {
+  name: string;
+  logo?: string | null;
+  primaryColor?: string | null;
+  country?: string | null;
+}
+
+export interface UpdateTournamentTeamRequest {
+  name?: string;
+  logo?: string | null;
+  primaryColor?: string | null;
+  country?: string | null;
+}
+
+// --- TournamentPlayer ---
+export interface CreateTournamentPlayerRequest {
+  name: string;
+  number?: number | null;
+  position?: string | null;
+  bornYear?: number | null;
+  note?: string | null;
+}
+
+export interface UpdateTournamentPlayerRequest {
+  name?: string;
+  number?: number | null;
+  position?: string | null;
+  bornYear?: number | null;
+  note?: string | null;
+}
+
+// --- TournamentGroup ---
+export interface CreateTournamentGroupRequest {
+  name: string;
+}
+
+export interface UpdateTournamentGroupRequest {
+  name?: string;
+}
+
+export interface AssignTeamToGroupRequest {
+  teamId: number;
+}
+
+// --- TournamentGame ---
+export interface CreateTournamentGameRequest {
+  phase: TournamentGamePhase;
+  groupId?: number | null;
+  homeTeamId?: number | null;
+  awayTeamId?: number | null;
+  date?: string | null;
+  location?: string | null;
+  bracketSlot?: number | null;
+  note?: string | null;
+}
+
+export interface UpdateTournamentGameRequest {
+  homeTeamId?: number | null;
+  awayTeamId?: number | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  date?: string | null;
+  location?: string | null;
+  status?: GameStatus;
+  bracketSlot?: number | null;
+  note?: string | null;
+}
+
+export interface GenerateTournamentScheduleRequest {
+  startDate: string;
+  startTime: string;
+  endTime: string;
+  slotDurationMinutes: number;
+  locations: string[];
+  minRestGames?: number;
+}
+
+export interface GenerateTournamentPlayoffsRequest {
+  qualifiersPerGroup: number;
+  startTime: string;
+  slotDurationMinutes: number;
+  location?: string;
+}
+
+// --- TournamentGameStatistic ---
+export interface CreateTournamentGameStatisticRequest {
+  playerId: number;
+  goals?: number | null;
+  assists?: number | null;
+}
+
+export interface UpdateTournamentGameStatisticRequest {
+  goals?: number | null;
+  assists?: number | null;
+}
+
+// ============================================================================
 // RE-EXPORT PRISMA ENUMS FOR CONVENIENCE
 // ============================================================================
 
-export { Role, SeasonStatus, GameStatus, SportType };
+export { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase };

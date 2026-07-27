@@ -9,6 +9,7 @@ import teamRoutes from './routes/teams.js';
 import playerRoutes from './routes/players.js';
 import gameRoutes from './routes/games.js';
 import gameStatisticRoutes from './routes/gameStatistics.js';
+import tournamentRoutes from './routes/tournaments.js';
 
 dotenv.config();
 
@@ -51,6 +52,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/game-statistics', gameStatisticRoutes);
+app.use('/api/tournaments', tournamentRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

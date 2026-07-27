@@ -78,6 +78,7 @@ export default function UserFormModal({ user, onSubmit, onClose }: UserFormModal
 								<MenuItem value={Role.VIEWER}>{t('admin.roles.VIEWER')}</MenuItem>
 								<MenuItem value={Role.TEAM_MANAGER}>{t('admin.roles.TEAM_MANAGER')}</MenuItem>
 								<MenuItem value={Role.SEASON_MANAGER}>{t('admin.roles.SEASON_MANAGER')}</MenuItem>
+								<MenuItem value={Role.TOURNAMENT_MANAGER}>{t('admin.roles.TOURNAMENT_MANAGER')}</MenuItem>
 								<MenuItem value={Role.ADMIN}>{t('admin.roles.ADMIN')}</MenuItem>
 							</Select>
 						</FormControl>
