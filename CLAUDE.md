@@ -75,3 +75,11 @@ All routes prefixed with `/api`:
 - Backend: `.env` with `DATABASE_URL`, `JWT_SECRET`, `PORT`
 - Frontend: `VITE_API_URL` (defaults to `http://localhost:3001/api`)
 - Vite proxies `/api` to backend in development
+
+## i18n Rules
+
+Every user-visible string added to any component **must** be added to both locale files at the same time:
+- `frontend/src/i18n/locales/en.json` — English
+- `frontend/src/i18n/locales/cs.json` — Czech
+
+Never leave hardcoded English strings in JSX. Use `useTranslation` + `t('key')` for all UI text. No exceptions.

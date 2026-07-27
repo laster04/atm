@@ -12,6 +12,7 @@ enum Role {
   ADMIN
   SEASON_MANAGER
   TEAM_MANAGER
+  TOURNAMENT_MANAGER
   VIEWER
 }
 
@@ -56,8 +57,9 @@ model User {
   createdAt                   DateTime  @default(now()) @map("created_at")
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 
-  managedLeagues League[]
-  managedTeams   Team[]
+  managedLeagues          League[]
+  managedTeams            Team[]
+  managedTournamentSeries TournamentSeries[]
 
   @@map("users")
 }
@@ -187,4 +189,172 @@ model HockeyGameStatistic {
 
   @@unique([playerId, gameId])
   @@map("hockey_game_statistics")
+}
+
+// ============================================================
+// TOURNAMENT
+// ============================================================
+
+enum TournamentStatus {
+  DRAFT
+  REGISTRATION
+  GROUP_STAGE
+  PLAYOFF
+  COMPLETED
+}
+
+enum TournamentGamePhase {
+  GROUP
+  ROUND_OF_16
+  QUARTER_FINAL
+  SEMI_FINAL
+  BRONZE
+  FINAL
+}
+
+model TournamentSeries {
+  id          Int       @id @default(autoincrement())
+  name        String
+  sportType   SportType @default(OTHER) @map("sport_type")
+  logo        String?
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  managerId Int?  @map("manager_id")
+  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+
+  tournaments Tournament[]
+
+  @@map("tournament_series")
+}
+
+model Tournament {
+  id          Int               @id @default(autoincrement())
+  name        String
+  year        Int?
+  status      TournamentStatus  @default(DRAFT)
+  startDate   DateTime?         @map("start_date")
+  endDate     DateTime?         @map("end_date")
+  location    String?
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  seriesId    Int               @map("series_id")
+  series      TournamentSeries  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  teams       TournamentTeam[]
+  groups      TournamentGroup[]
+  games       TournamentGame[]
+
+  @@map("tournaments")
+}
+
+model TournamentTeam {
+  id           Int      @id @default(autoincrement())
+  name         String
+  logo         String?
+  primaryColor String?  @map("primary_color")
+  country      String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tournamentId Int        @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  players    TournamentPlayer[]
+  groupTeams TournamentGroupTeam[]
+  homeGames  TournamentGame[] @relation("TournamentHomeTeam")
+  awayGames  TournamentGame[] @relation("TournamentAwayTeam")
+
+  @@map("tournament_teams")
+}
+
+model TournamentPlayer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  number    Int?
+  position  String?
+  bornYear  Int?     @map("born_year")
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  teamId Int            @map("team_id")
+  team   TournamentTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  statistics TournamentGameStatistic[]
+
+  @@map("tournament_players")
+}
+
+model TournamentGroup {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  tournamentId Int        @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  teams TournamentGroupTeam[]
+  games TournamentGame[]
+
+  @@map("tournament_groups")
+}
+
+model TournamentGroupTeam {
+  groupId Int @map("group_id")
+  teamId  Int @map("team_id")
+
+  group TournamentGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  team  TournamentTeam  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, teamId])
+  @@map("tournament_group_teams")
+}
+
+model TournamentGame {
+  id           Int                 @id @default(autoincrement())
+  phase        TournamentGamePhase
+  homeScore    Int?                @map("home_score")
+  awayScore    Int?                @map("away_score")
+  date         DateTime?
+  location     String?
+  status       GameStatus          @default(SCHEDULED)
+  bracketSlot  Int?                @map("bracket_slot")
+  homeSeed     Int?                @map("home_seed")
+  awaySeed     Int?                @map("away_seed")
+  note         String?
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  tournamentId Int        @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  groupId Int?             @map("group_id")
+  group   TournamentGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  homeTeamId Int?            @map("home_team_id")
+  homeTeam   TournamentTeam? @relation("TournamentHomeTeam", fields: [homeTeamId], references: [id], onDelete: SetNull)
+
+  awayTeamId Int?            @map("away_team_id")
+  awayTeam   TournamentTeam? @relation("TournamentAwayTeam", fields: [awayTeamId], references: [id], onDelete: SetNull)
+
+  statistics TournamentGameStatistic[]
+
+  @@map("tournament_games")
+}
+
+model TournamentGameStatistic {
+  id       Int @id @default(autoincrement())
+  goals    Int?
+  assists  Int?
+
+  gameId   Int            @map("game_id")
+  game     TournamentGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  playerId Int              @map("player_id")
+  player   TournamentPlayer @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, playerId])
+  @@map("tournament_game_statistics")
 }

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { authApi } from '@/services/api';
 import { AxiosError } from 'axios';
-import { CheckCircle, Mail } from 'lucide-react';
+import { CheckCircle, Mail, Trophy } from 'lucide-react';
 
 interface RegisterFormData {
   name: string;
@@ -18,29 +18,23 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [searchParams] = useSearchParams();
 
-  const { register: registerField, handleSubmit, watch } = useForm<RegisterFormData>();
+  const { register: registerField, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>();
   const { t } = useTranslation();
+
+  const SELF_REGISTERABLE_ROLES = ['TOURNAMENT_MANAGER'];
+  const requestedRole = searchParams.get('role') ?? '';
+  const role = SELF_REGISTERABLE_ROLES.includes(requestedRole) ? requestedRole : undefined;
 
   const password = watch('password');
 
   const onSubmit = async (data: RegisterFormData) => {
     setError('');
-
-    if (data.password !== data.confirmPassword) {
-      setError(t('auth.register.passwordMismatch'));
-      return;
-    }
-
-    if (data.password.length < 6) {
-      setError(t('auth.register.passwordTooShort'));
-      return;
-    }
-
     setLoading(true);
 
     try {
-      await authApi.register({ email: data.email, password: data.password, name: data.name });
+      await authApi.register({ email: data.email, password: data.password, name: data.name, role });
       setRegisteredEmail(data.email);
       setSuccess(true);
     } catch (err) {
@@ -77,6 +71,13 @@ export default function RegisterForm() {
 
   return (
     <>
+      {role === 'TOURNAMENT_MANAGER' && (
+        <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-3 rounded-lg mb-4 text-sm font-medium">
+          <Trophy className="size-4 shrink-0" />
+          Registering as Tournament Manager
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
       )}
@@ -86,30 +87,33 @@ export default function RegisterForm() {
           <label className="block text-gray-700 mb-2">{t('auth.register.name')}</label>
           <input
             type="text"
-            {...registerField('name', { required: true })}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+            {...registerField('name', { required: 'Name is required' })}
+            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.name ? 'border-red-500' : ''}`}
           />
+          {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">{t('auth.register.email')}</label>
           <input
             type="email"
-            {...registerField('email', { required: true })}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+            {...registerField('email', { required: 'Email is required' })}
+            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : ''}`}
           />
+          {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
         </div>
 
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">{t('auth.register.password')}</label>
           <input
             type="password"
-            {...registerField('password', { required: true, minLength: 6 })}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+            {...registerField('password', {
+              required: 'Password is required',
+              minLength: { value: 6, message: t('auth.register.passwordTooShort') },
+            })}
+            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : ''}`}
           />
+          {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
         </div>
 
         <div className="mb-6">
@@ -117,12 +121,12 @@ export default function RegisterForm() {
           <input
             type="password"
             {...registerField('confirmPassword', {
-              required: true,
+              required: 'Please confirm your password',
               validate: (value) => value === password || t('auth.register.passwordMismatch'),
             })}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.confirmPassword ? 'border-red-500' : ''}`}
           />
+          {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword.message}</p>}
         </div>
 
         <button

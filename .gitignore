@@ -29,3 +29,13 @@ coverage/
 
 # Misc
 *.local
+
+# design-sync
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+frontend/.ds-compiled.css
+frontend/dist-ds/
+frontend/node_modules/frontend

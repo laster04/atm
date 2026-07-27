@@ -16,7 +16,7 @@ import { Role } from "@types";
 import logoImage from '../assets/logo-full.png';
 
 export default function Navbar() {
-	const { user, logout, isAdmin, isSeasonManager, isTeamManager } = useAuth();
+	const { user, logout, isAdmin, isSeasonManager, isTeamManager, isTournamentManager } = useAuth();
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 
@@ -42,6 +42,8 @@ export default function Navbar() {
 				return 'default' as const;
 			case Role.TEAM_MANAGER:
 				return 'secondary' as const;
+			case Role.TOURNAMENT_MANAGER:
+				return 'secondary' as const;
 			default:
 				return 'outline' as const;
 		}
@@ -53,7 +55,7 @@ export default function Navbar() {
 				<div className="container mx-auto px-4 py-6">
 					<div className="flex items-center justify-between">
 
-						<Link to="/">
+						<Link to="/dashboard">
 						<div className="flex items-center gap-4">
 							<img src={logoImage} alt="ATM - Amateur Team Manager" className="h-10" />
 							<div className="hidden sm:block border-l pl-4">
@@ -95,39 +97,37 @@ export default function Navbar() {
 											<DropdownMenuSeparator />
 										</>
 									) : <></>}
-									<DropdownMenuItem>
-										<Link to="/leagues" >
-											{t('nav.leagues')}
-										</Link>
+									<DropdownMenuItem asChild>
+										<Link to="/leagues">{t('nav.leagues')}</Link>
 									</DropdownMenuItem>
-									<DropdownMenuItem>
-										<Link to="/seasons" >
-											{t('nav.seasons')}
-										</Link>
+									<DropdownMenuItem asChild>
+										<Link to="/seasons">{t('nav.seasons')}</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link to="/tournaments">Tournaments</Link>
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
 
 									{user ? (
 										<>
 											{isTeamManager() && (
-												<DropdownMenuItem>
-													<Link to="/team-management" >
-														{t('nav.myTeams')}
-													</Link>
+												<DropdownMenuItem asChild>
+													<Link to="/team-management">{t('nav.myTeams')}</Link>
+												</DropdownMenuItem>
+											)}
+											{isTournamentManager() && (
+												<DropdownMenuItem asChild>
+													<Link to="/tournament-management">Manage Tournaments</Link>
 												</DropdownMenuItem>
 											)}
 											{isSeasonManager() && (
-												<DropdownMenuItem>
-													<Link to="/admin" >
-														{t('nav.mySeasons')}
-													</Link>
+												<DropdownMenuItem asChild>
+													<Link to="/admin">{t('nav.mySeasons')}</Link>
 												</DropdownMenuItem>
 											)}
 											{isAdmin() && (
-												<DropdownMenuItem>
-													<Link to="/admin" >
-														{t('nav.admin')}
-													</Link>
+												<DropdownMenuItem asChild>
+													<Link to="/admin">{t('nav.admin')}</Link>
 												</DropdownMenuItem>
 											)}
 											<DropdownMenuItem onClick={handleLogout}>
