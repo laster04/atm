@@ -18,7 +18,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const storedUser = localStorage.getItem('user');
 
     if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setLoading(false);
+        return;
+      }
       authApi.getMe()
         .then(res => setUser(res.data.user))
         .catch(() => {
