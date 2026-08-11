@@ -23,10 +23,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register'];
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((path) => error.config?.url?.includes(path));
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -66,6 +69,8 @@ export const leagueApi = {
   getById: (id: string | number) => api.get<League>(`/leagues/${id}`),
   create: (data: Partial<League>) => api.post<League>('/leagues', data),
   update: (id: string | number, data: Partial<League>) => api.put<League>(`/leagues/${id}`, data),
+  inviteManager: (id: string | number, data: { email: string; name: string; locale?: string }) =>
+    api.post<League>(`/leagues/${id}/invite-manager`, data),
   delete: (id: string | number) => api.delete(`/leagues/${id}`)
 };
 

@@ -4,22 +4,27 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Edit, Plus, Trash2 } from 'lucide-react';
+import { Edit, Plus, Trash2, UserPlus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 import type { League } from '@types';
 import LeagueFormModal, { type LeagueFormData } from './LeagueFormModal.tsx';
+import InviteLeagueManagerModal from './InviteLeagueManagerModal.tsx';
 
 interface LeaguesTableProps {
 	leagues: League[];
 	onCreateLeague?: (data: LeagueFormData) => void;
 	onUpdateLeague?: (id: number, data: LeagueFormData) => void;
 	onDeleteLeague?: (id: number) => void;
+	onInviteManager?: (league: League) => void;
 }
 
-export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, onDeleteLeague }: LeaguesTableProps) {
+export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, onDeleteLeague, onInviteManager }: LeaguesTableProps) {
 	const { t } = useTranslation();
+	const { isAdmin } = useAuth();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingLeague, setEditingLeague] = useState<League | null>(null);
+	const [invitingLeague, setInvitingLeague] = useState<League | null>(null);
 
 	const handleOpenCreate = () => {
 		setEditingLeague(null);
@@ -46,6 +51,7 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 	};
 
 	return (
+		<>
 		<Card>
 			<CardHeader>
 				<div className="flex items-center justify-end">
@@ -88,6 +94,11 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 								<TableCell>{league._count?.seasons || 0}</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-1">
+										{isAdmin() && (
+											<Button variant="ghost" size="sm" onClick={() => setInvitingLeague(league)}>
+												<UserPlus className="size-4" />
+											</Button>
+										)}
 										<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(league)}>
 											<Edit className="size-4" />
 										</Button>
@@ -102,5 +113,17 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 				</Table>
 			</CardContent>
 		</Card>
+
+		{invitingLeague && (
+			<InviteLeagueManagerModal
+				leagueId={invitingLeague.id}
+				onSuccess={(league) => {
+					onInviteManager?.(league);
+					setInvitingLeague(null);
+				}}
+				onClose={() => setInvitingLeague(null)}
+			/>
+		)}
+		</>
 	);
 }

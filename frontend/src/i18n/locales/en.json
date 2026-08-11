@@ -518,7 +518,18 @@
         "th-description": "Description",
         "th-manager": "Manager",
         "th-seasons-c": "Seasons",
-        "th-actions": "Actions"
+        "th-actions": "Actions",
+        "inviteManager": {
+          "title": "Invite Season Manager",
+          "description": "Enter the email and name of the person you want to invite as manager of this league. They will receive an email with a link to set their password.",
+          "emailLabel": "Email",
+          "emailPlaceholder": "manager@atm.com",
+          "nameLabel": "Name",
+          "namePlaceholder": "John Doe",
+          "submit": "Send Invitation",
+          "sending": "Sending...",
+          "error": "Failed to invite manager"
+        }
       },
       "user": {
         "title": "Users",

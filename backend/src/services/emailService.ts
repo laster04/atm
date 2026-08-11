@@ -246,6 +246,58 @@ class EmailService {
       html,
     });
   }
+
+  async sendLeagueManagerInviteEmail(
+    to: string,
+    name: string,
+    leagueName: string,
+    resetToken: string,
+    locale?: string
+  ): Promise<boolean> {
+    const resetLink = `${this.getAppUrl()}/reset-password/${resetToken}`;
+    const isCs = locale === 'cs';
+
+    const texts = isCs ? {
+      subject: `Byli jste pozváni ke správě ligy ${leagueName} v ATM`,
+      headerTitle: 'Pozvánka pro správce ligy',
+      greeting: `Dobrý den, ${name},`,
+      invited: `Byli jste pozváni jako správce ligy <strong>${leagueName}</strong> v ATM (Amateur Team Management).`,
+      setPassword: 'Pro začátek si prosím nastavte heslo kliknutím na tlačítko níže:',
+      buttonText: 'Nastavit heslo',
+      copyLink: 'Nebo zkopírujte a vložte tento odkaz do prohlížeče:',
+      expiry: 'Platnost tohoto odkazu vyprší za 1 hodinu.',
+      afterSetup: 'Po nastavení hesla se můžete přihlásit a začít spravovat svou ligu.',
+    } : {
+      subject: `You've been invited to manage ${leagueName} on ATM`,
+      headerTitle: 'League Manager Invitation',
+      greeting: `Hello ${name},`,
+      invited: `You have been invited as the manager of <strong>${leagueName}</strong> in ATM (Amateur Team Management).`,
+      setPassword: 'To get started, please set your password by clicking the button below:',
+      buttonText: 'Set My Password',
+      copyLink: 'Or copy and paste this link into your browser:',
+      expiry: 'This link will expire in 1 hour.',
+      afterSetup: 'Once you\'ve set your password, you can log in and start managing your league.',
+    };
+
+    const html = this.buildEmailHtml('#f97316', texts.headerTitle, `
+      <h2>${texts.greeting}</h2>
+      <p>${texts.invited}</p>
+      <p>${texts.setPassword}</p>
+      <p style="text-align: center;">
+        <a href="${resetLink}" class="button">${texts.buttonText}</a>
+      </p>
+      <p>${texts.copyLink}</p>
+      <p style="word-break: break-all; color: #f97316;">${resetLink}</p>
+      <p>${texts.expiry}</p>
+      <p>${texts.afterSetup}</p>
+    `);
+
+    return this.sendEmail({
+      to,
+      subject: texts.subject,
+      html,
+    });
+  }
 }
 
 export const emailService = new EmailService();

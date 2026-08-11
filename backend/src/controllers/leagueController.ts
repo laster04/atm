@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
+import emailService from '../services/emailService.js';
 import {
   AuthRequest,
   CreateLeagueRequest,
   UpdateLeagueRequest,
+  InviteManagerRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
@@ -171,5 +175,71 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
     }
     console.error('Delete league error:', error);
     res.status(500).json({ error: 'Failed to delete league' });
+  }
+};
+
+export const inviteManager = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { email, name, locale } = req.body as InviteManagerRequest;
+
+    if (!email || !name) {
+      res.status(400).json({ error: 'Email and name are required' });
+      return;
+    }
+
+    const league = await prisma.league.findUnique({ where: { id: parseInt(id) } });
+    if (!league) {
+      res.status(404).json({ error: 'League not found' });
+      return;
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      res.status(400).json({ error: 'A user with this email already exists' });
+      return;
+    }
+
+    // Create user with random password and password reset token
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date();
+    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1);
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        role: 'SEASON_MANAGER',
+        active: true,
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+        passwordResetToken: resetToken,
+        passwordResetTokenExpiresAt: resetTokenExpiry,
+      },
+      select: { id: true, email: true, name: true, role: true },
+    });
+
+    // Assign as league manager
+    const updatedLeague = await prisma.league.update({
+      where: { id: parseInt(id) },
+      data: { managerId: newUser.id },
+      include: {
+        _count: { select: { seasons: true } },
+        manager: { select: { id: true, name: true, email: true } }
+      }
+    });
+
+    // Send invitation email
+    emailService.sendLeagueManagerInviteEmail(email, name, league.name, resetToken, locale).catch((err) => {
+      console.error('Failed to send league manager invite email:', err);
+    });
+
+    res.status(201).json(updatedLeague);
+  } catch (error) {
+    console.error('Invite league manager error:', error);
+    res.status(500).json({ error: 'Failed to invite manager' });
   }
 };

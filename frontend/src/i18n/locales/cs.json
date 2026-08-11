@@ -518,7 +518,18 @@
         "th-description": "Popis",
         "th-manager": "Manazer",
         "th-seasons-c": "Sezon",
-        "th-actions": "Akce"
+        "th-actions": "Akce",
+        "inviteManager": {
+          "title": "Pozvat správce ligy",
+          "description": "Zadejte email a jméno osoby, kterou chcete pozvat jako správce této ligy. Obdrží email s odkazem pro nastavení hesla.",
+          "emailLabel": "Email",
+          "emailPlaceholder": "manazer@atm.cz",
+          "nameLabel": "Jméno",
+          "namePlaceholder": "Jan Novak",
+          "submit": "Odeslat pozvanku",
+          "sending": "Odesílam...",
+          "error": "Nepodařilo se pozvat správce"
+        }
       },
       "user": {
         "title": "Uživatelé",

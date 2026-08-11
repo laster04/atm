@@ -6,6 +6,7 @@ import {
   createLeague,
   updateLeague,
   deleteLeague,
+  inviteManager,
 } from '../controllers/leagueController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
@@ -22,5 +23,6 @@ router.get('/:id', getLeagueById);
 router.post('/', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createLeague);
 router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), updateLeague);
 router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteLeague);
+router.post('/:id/invite-manager', authenticate, authorize('ADMIN'), inviteManager);
 
 export default router;
