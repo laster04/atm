@@ -72,11 +72,34 @@ export async function computeGroupStandings(tournamentId: number, groupId: numbe
     }
   }
 
+  // Tennis breaks a points tie by head-to-head result rather than goal diff.
+  const headToHeadWinner = new Map<string, number>();
+  if (isTennis) {
+    for (const game of games) {
+      if (game.homeTeamId == null || game.awayTeamId == null) continue;
+      if (game.homeScore == null || game.awayScore == null) continue;
+      if (game.homeScore === game.awayScore) continue;
+      const winnerId = game.homeScore > game.awayScore ? game.homeTeamId : game.awayTeamId;
+      const key = [game.homeTeamId, game.awayTeamId].sort((x, y) => x - y).join('-');
+      headToHeadWinner.set(key, winnerId);
+    }
+  }
+
   return Array.from(statsMap.values())
     .map(s => ({
       ...s,
       team: teams.find(t => t.id === s.teamId)!,
       goalDiff: s.goalsFor - s.goalsAgainst,
     }))
-    .sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.goalsFor - a.goalsFor);
+    .sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (isTennis) {
+        const key = [a.teamId, b.teamId].sort((x, y) => x - y).join('-');
+        const winnerId = headToHeadWinner.get(key);
+        if (winnerId === a.teamId) return -1;
+        if (winnerId === b.teamId) return 1;
+        return 0;
+      }
+      return b.goalDiff - a.goalDiff || b.goalsFor - a.goalsFor;
+    });
 }
