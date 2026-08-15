@@ -14,10 +14,14 @@ export default function GroupCrossTable({ group, games, standings }: GroupCrossT
   const rankByTeamId = new Map(standings.map((s, i) => [s.teamId, i + 1]));
   const standingByTeamId = new Map(standings.map(s => [s.teamId, s]));
 
-  const cell = (homeId: number, awayId: number): string => {
-    const game = games.find(g => g.homeTeamId === homeId && g.awayTeamId === awayId);
-    if (!game || game.status !== 'COMPLETED') return '';
-    return `${game.homeScore}:${game.awayScore}`;
+  // Each pair is only ever played once (fixed home/away), so mirror the
+  // result into the reverse cell with scores swapped to the row team's side.
+  const cell = (rowId: number, colId: number): string => {
+    const direct = games.find(g => g.homeTeamId === rowId && g.awayTeamId === colId);
+    if (direct && direct.status === 'COMPLETED') return `${direct.homeScore}:${direct.awayScore}`;
+    const reverse = games.find(g => g.homeTeamId === colId && g.awayTeamId === rowId);
+    if (reverse && reverse.status === 'COMPLETED') return `${reverse.awayScore}:${reverse.homeScore}`;
+    return '';
   };
 
   return (
