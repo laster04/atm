@@ -15,9 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@components/base/dialog';
 import { Checkbox } from '@components/base/checkbox';
 import {
-  Plus, Pencil, Trash2, Users, ChevronDown, ChevronRight,
+  Plus, Pencil, Trash2,
   Trophy, RefreshCw,
 } from 'lucide-react';
+import TeamsPanel from '../components/TeamsPanel';
+import TennisTeamsPanel from '../components/TennisTeamsPanel';
 
 // ── helpers ─────────────────────────────────────────────────
 
@@ -176,7 +178,7 @@ export default function TournamentManagePage() {
   };
 
   const deleteTeam = async (tid: number) => {
-    if (!confirm(t('tm.tournament.teams.deleteConfirm'))) return;
+    if (!confirm(t('tm.tournament.teams.deleteConfirm', { context: tennisCtx }))) return;
     try { await tournamentTeamApi.delete(tid); setTeams(prev => prev.filter(t => t.id !== tid)); }
     catch { setError(t('tm.tournament.teams.errors.delete')); }
   };
@@ -253,6 +255,19 @@ export default function TournamentManagePage() {
         minRestGames: parseInt(scheduleForm.minRestGames) || 0,
       });
       setScheduleModal(false);
+      await load();
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setError(msg ?? t('tm.tournament.groups.errors.generate'));
+    }
+    finally { setSaving(false); }
+  };
+
+  const generateTennisSchedule = async () => {
+    if (!id) return;
+    setSaving(true); setError('');
+    try {
+      await tournamentGroupApi.generateTournamentSchedule(id, {});
       await load();
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
@@ -430,6 +445,7 @@ export default function TournamentManagePage() {
   if (!tournament) return <div className="text-center text-red-500 py-8">{t('tm.tournament.notFound')}</div>;
 
   const seriesId = tournament.seriesId;
+  const tennisCtx = tournament.series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
 
   return (
     <div className="space-y-4">
@@ -474,72 +490,34 @@ export default function TournamentManagePage() {
       {/* Tabs */}
       <Tabs defaultValue="teams">
         <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="teams">{t('tm.tournament.tabs.teams')} ({teams.length})</TabsTrigger>
+          <TabsTrigger value="teams">{t('tm.tournament.tabs.teams', { context: tennisCtx })} ({teams.length})</TabsTrigger>
           <TabsTrigger value="groups">{t('tm.tournament.tabs.groups')} ({groups.length})</TabsTrigger>
           <TabsTrigger value="results">{t('tm.tournament.tabs.results')} ({groupGames.length})</TabsTrigger>
           <TabsTrigger value="playoff">{t('tm.tournament.tabs.playoff')} ({playoffGames.length})</TabsTrigger>
         </TabsList>
 
         {/* ── TEAMS ─────────────────────────────────────────── */}
-        <TabsContent value="teams" className="mt-4 space-y-3">
-          <div className="flex justify-end">
-            <Button onClick={openTeamCreate} size="sm" className="gap-1"><Plus className="size-4" /> {t('tm.tournament.teams.addButton')}</Button>
-          </div>
-          {teams.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground border rounded-lg">{t('tm.tournament.teams.empty')}</div>
+        <TabsContent value="teams" className="mt-4">
+          {tennisCtx ? (
+            <TennisTeamsPanel
+              teams={teams}
+              openTeamCreate={openTeamCreate}
+              openTeamEdit={openTeamEdit}
+              deleteTeam={deleteTeam}
+            />
           ) : (
-            <div className="divide-y border rounded-lg">
-              {teams.map(team => (
-                <div key={team.id}>
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    {team.primaryColor ? (
-                      <div className="size-8 rounded-full shrink-0" style={{ backgroundColor: team.primaryColor }} />
-                    ) : (
-                      <div className="size-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <Users className="size-4 text-muted-foreground" />
-                      </div>
-                    )}
-                    <button className="flex-1 text-left min-w-0" onClick={() => toggleTeam(team.id)}>
-                      <div className="font-medium">{team.name}</div>
-                      {team.country && <div className="text-xs text-muted-foreground">{team.country}</div>}
-                    </button>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button variant="ghost" size="sm" onClick={() => openPlayerCreate(team.id)} title={t('tm.tournament.teams.addPlayerTitle')}><Plus className="size-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => openTeamEdit(team)}><Pencil className="size-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => deleteTeam(team.id)} className="text-red-500 hover:text-red-700"><Trash2 className="size-4" /></Button>
-                      <button onClick={() => toggleTeam(team.id)} className="p-1 text-muted-foreground">
-                        {expandedTeam === team.id ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  {expandedTeam === team.id && (
-                    <div className="bg-muted/30 px-6 pb-3">
-                      {(teamPlayers[team.id] ?? []).length === 0 ? (
-                        <p className="text-sm text-muted-foreground py-2">{t('tm.tournament.teams.noPlayers')}</p>
-                      ) : (
-                        <table className="w-full text-sm mt-2">
-                          <thead><tr className="text-muted-foreground text-xs"><th className="text-left py-1 w-8">{t('tm.tournament.teams.table.number')}</th><th className="text-left py-1">{t('tm.tournament.teams.table.name')}</th><th className="text-left py-1">{t('tm.tournament.teams.table.position')}</th><th className="text-left py-1">{t('tm.tournament.teams.table.born')}</th><th /></tr></thead>
-                          <tbody>
-                            {(teamPlayers[team.id] ?? []).map(p => (
-                              <tr key={p.id} className="border-t border-muted">
-                                <td className="py-1.5 text-muted-foreground">{p.number ?? '-'}</td>
-                                <td className="py-1.5 font-medium">{p.name}</td>
-                                <td className="py-1.5 text-muted-foreground">{p.position ?? '-'}</td>
-                                <td className="py-1.5 text-muted-foreground">{p.bornYear ?? '-'}</td>
-                                <td className="py-1.5 text-right">
-                                  <Button variant="ghost" size="sm" onClick={() => openPlayerEdit(p)}><Pencil className="size-3" /></Button>
-                                  <Button variant="ghost" size="sm" onClick={() => deletePlayer(p.id, team.id)} className="text-red-500"><Trash2 className="size-3" /></Button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <TeamsPanel
+              teams={teams}
+              expandedTeam={expandedTeam}
+              teamPlayers={teamPlayers}
+              toggleTeam={toggleTeam}
+              openTeamCreate={openTeamCreate}
+              openTeamEdit={openTeamEdit}
+              deleteTeam={deleteTeam}
+              openPlayerCreate={openPlayerCreate}
+              openPlayerEdit={openPlayerEdit}
+              deletePlayer={deletePlayer}
+            />
           )}
         </TabsContent>
 
@@ -547,7 +525,7 @@ export default function TournamentManagePage() {
         <TabsContent value="groups" className="mt-4 space-y-3">
           <div className="flex justify-end gap-2">
             {groupGames.length === 0 ? (
-              <Button variant="outline" size="sm" className="gap-1" onClick={openScheduleModal} disabled={saving}>
+              <Button variant="outline" size="sm" className="gap-1" onClick={tennisCtx ? generateTennisSchedule : openScheduleModal} disabled={saving}>
                 <RefreshCw className="size-3" /> {t('tm.tournament.groups.generateSchedule')}
               </Button>
             ) : tournament?.status === 'DRAFT' ? (
@@ -567,14 +545,14 @@ export default function TournamentManagePage() {
                     <h3 className="font-semibold text-base">Group {g.name}</h3>
                     <div className="flex gap-1">
                       <Button variant="outline" size="sm" className="gap-1" onClick={() => openAssign(g.id)}>
-                        <Plus className="size-3" /> {t('tm.tournament.groups.assignTeam')}
+                        <Plus className="size-3" /> {t('tm.tournament.groups.assignTeam', { context: tennisCtx })}
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => openGroupEdit(g)}><Pencil className="size-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => deleteGroup(g.id)} className="text-red-500"><Trash2 className="size-4" /></Button>
                     </div>
                   </div>
                   {(!g.teams || g.teams.length === 0) ? (
-                    <p className="text-sm text-muted-foreground">{t('tm.tournament.groups.noTeams')}</p>
+                    <p className="text-sm text-muted-foreground">{t('tm.tournament.groups.noTeams', { context: tennisCtx })}</p>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {g.teams.map(({ team }) => (
@@ -701,7 +679,7 @@ export default function TournamentManagePage() {
       {/* Team modal */}
       <Dialog open={teamModal} onOpenChange={setTeamModal}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{editingTeam ? t('tm.tournament.teams.modal.editTitle') : t('tm.tournament.teams.modal.createTitle')}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingTeam ? t('tm.tournament.teams.modal.editTitle', { context: tennisCtx }) : t('tm.tournament.teams.modal.createTitle', { context: tennisCtx })}</DialogTitle></DialogHeader>
           <div className="space-y-3 mt-2">
             <Field label={`${t('tm.fields.name')} *`}><input className={inp} value={teamForm.name} onChange={e => setTeamForm(f => ({ ...f, name: e.target.value }))} placeholder="Team name" /></Field>
             <Field label={t('tm.fields.country')}><input className={inp} value={teamForm.country} onChange={e => setTeamForm(f => ({ ...f, country: e.target.value }))} placeholder="Czech Republic" /></Field>
@@ -753,7 +731,7 @@ export default function TournamentManagePage() {
         <DialogContent>
           <DialogHeader><DialogTitle>{t('tm.tournament.groups.modal.assignTitle')}</DialogTitle></DialogHeader>
           <div className="space-y-3 mt-2">
-            <Field label={t('tm.fields.team')}>
+            <Field label={t('tm.fields.team', { context: tennisCtx })}>
               {(() => {
                 const assignedIds = new Set(groups.flatMap(g => g.teams?.map(gt => gt.team.id) ?? []));
                 const available = teams.filter(tm => !assignedIds.has(tm.id));
@@ -916,13 +894,13 @@ export default function TournamentManagePage() {
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Field label={t('tm.fields.homeTeam')}>
+              <Field label={t('tm.fields.homeTeam', { context: tennisCtx })}>
                 <select className={sel} value={playoffForm.homeTeamId} onChange={e => setPlayoffForm(f => ({ ...f, homeTeamId: e.target.value }))}>
                   <option value="">{t('tm.common.tbd')}</option>
                   {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
               </Field>
-              <Field label={t('tm.fields.awayTeam')}>
+              <Field label={t('tm.fields.awayTeam', { context: tennisCtx })}>
                 <select className={sel} value={playoffForm.awayTeamId} onChange={e => setPlayoffForm(f => ({ ...f, awayTeamId: e.target.value }))}>
                   <option value="">{t('tm.common.tbd')}</option>
                   {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}

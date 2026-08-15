@@ -16,7 +16,7 @@ export enum SportType {
   // FOOTBALL = 'FOOTBALL',
   // BASKETBALL = 'BASKETBALL',
   // VOLLEYBALL = 'VOLLEYBALL',
-  // TENNIS = 'TENNIS',
+  TENNIS = 'TENNIS',
   // HANDBALL = 'HANDBALL',
   // FLOORBALL = 'FLOORBALL',
   OTHER = 'OTHER',

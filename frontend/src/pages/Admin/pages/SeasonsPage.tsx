@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
 import { leagueApi, seasonApi } from '@/services/api';
@@ -12,10 +13,17 @@ const RESET_TIMEOUT_SECONDS = 10;
 export default function SeasonsPage() {
 	const { t } = useTranslation();
 	const { isAdmin, isSeasonManager } = useAuth();
+	const [searchParams] = useSearchParams();
+	const leagueIdParam = searchParams.get('leagueId');
+	const leagueFilter = leagueIdParam ? parseInt(leagueIdParam) : null;
 	const [leagues, setLeagues] = useState<League[]>([]);
 	const [seasons, setSeasons] = useState<Season[]>([]);
 	const [seasonsLoading, setSeasonsLoading] = useState(false);
 	const [error, setError] = useState('');
+
+	const selectedLeague = leagueFilter ? leagues.find((l) => l.id === leagueFilter) || null : null;
+	const visibleSeasons = leagueFilter ? seasons.filter((s) => s.leagueId === leagueFilter) : seasons;
+	const formLeagues = selectedLeague ? [selectedLeague] : leagues;
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -102,8 +110,9 @@ export default function SeasonsPage() {
 				</div>
 			)}
 			<SeasonsTable
-				seasons={seasons}
-				leagues={leagues}
+				seasons={visibleSeasons}
+				leagues={formLeagues}
+				selectedLeague={selectedLeague}
 				onCreateSeason={handleCreateSeason}
 				onUpdateSeason={handleUpdateSeason}
 				onDeleteSeason={handleDeleteSeason}

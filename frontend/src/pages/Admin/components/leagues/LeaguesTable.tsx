@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Edit, Plus, Trash2, UserPlus } from 'lucide-react';
+import { Calendar, Edit, Plus, Trash2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 import type { League } from '@types';
@@ -22,6 +23,7 @@ interface LeaguesTableProps {
 export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, onDeleteLeague, onInviteManager }: LeaguesTableProps) {
 	const { t } = useTranslation();
 	const { isAdmin } = useAuth();
+	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingLeague, setEditingLeague] = useState<League | null>(null);
 	const [invitingLeague, setInvitingLeague] = useState<League | null>(null);
@@ -87,13 +89,29 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 					<TableBody>
 						{leagues.map((league) => (
 							<TableRow key={league.id}>
-								<TableCell className="font-medium">{league.name}</TableCell>
+								<TableCell className="font-medium">
+									<button
+										type="button"
+										onClick={() => navigate(`/admin/seasons?leagueId=${league.id}`)}
+										className="hover:underline text-left"
+									>
+										{league.name}
+									</button>
+								</TableCell>
 								<TableCell>{t(`sports.${league.sportType}`)}</TableCell>
 								<TableCell className="max-w-xs truncate">{league.description || '-'}</TableCell>
 								<TableCell>{league.manager?.name || '-'}</TableCell>
 								<TableCell>{league._count?.seasons || 0}</TableCell>
 								<TableCell className="text-right">
 									<div className="flex justify-end gap-1">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => navigate(`/admin/seasons?leagueId=${league.id}`)}
+											title={t('admin.tabs.league.goToSeasons')}
+										>
+											<Calendar className="size-4" />
+										</Button>
 										{isAdmin() && (
 											<Button variant="ghost" size="sm" onClick={() => setInvitingLeague(league)}>
 												<UserPlus className="size-4" />

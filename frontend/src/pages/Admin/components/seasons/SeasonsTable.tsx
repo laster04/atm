@@ -6,7 +6,7 @@ import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { Calendar, Edit, Plus, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Calendar, Edit, Plus, Trash2, Users } from 'lucide-react';
 
 import { formatDateLocale } from '@/utils/date';
 import type { Season, League } from '@types';
@@ -15,12 +15,13 @@ import SeasonFormModal, { type SeasonFormData } from './SeasonFormModal.tsx';
 interface SeasonsTableProps {
 	seasons: Season[];
 	leagues: League[];
+	selectedLeague?: League | null;
 	onCreateSeason?: (data: SeasonFormData) => void;
 	onUpdateSeason?: (id: number, data: SeasonFormData) => void;
 	onDeleteSeason?: (id: number) => void;
 }
 
-export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
+export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,7 +65,17 @@ export default function SeasonsTable({ seasons, leagues, onCreateSeason, onUpdat
 	return (
 		<Card>
 			<CardHeader>
-				<div className="flex items-center justify-end">
+				<div className="flex items-center justify-between gap-2">
+					{selectedLeague ? (
+						<div className="flex items-center gap-2 min-w-0">
+							<Button variant="ghost" size="sm" onClick={() => navigate('/admin/leagues')}>
+								<ArrowLeft className="size-4" />
+							</Button>
+							<h2 className="font-semibold truncate">
+								{selectedLeague.name} ({t(`sports.${selectedLeague.sportType}`)})
+							</h2>
+						</div>
+					) : <div />}
 					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 						<DialogTrigger asChild>
 							<Button onClick={handleOpenCreate} disabled={leagues.length === 0}>

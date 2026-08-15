@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card'
 import { Badge } from '@components/base/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs';
 import { Trophy, Calendar, MapPin, Users, ChevronLeft } from 'lucide-react';
-import GroupStandings from './components/GroupStandings';
+import GroupCrossTable from './components/GroupCrossTable';
 import PlayoffBracket from './components/PlayoffBracket';
 
 const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
@@ -25,6 +25,7 @@ export default function TournamentDetailScreen() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [standings, setStandings] = useState<Record<number, TournamentStanding[]>>({});
   const [loading, setLoading] = useState(true);
+  const tennisCtx = tournament?.series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
 
   useDocumentTitle([tournament?.name, tournament?.series?.name]);
 
@@ -102,7 +103,7 @@ export default function TournamentDetailScreen() {
               </span>
             )}
             {tournament._count && (
-              <span className="flex items-center gap-1"><Users className="size-4" />{t('tournamentDetail.teamsCount', { count: tournament._count.teams })}</span>
+              <span className="flex items-center gap-1"><Users className="size-4" />{t('tournamentDetail.teamsCount', { count: tournament._count.teams, context: tennisCtx })}</span>
             )}
           </div>
         </CardHeader>
@@ -114,7 +115,7 @@ export default function TournamentDetailScreen() {
           <TabsTrigger value="groups">{t('tournamentDetail.tabs.groups')}</TabsTrigger>
           <TabsTrigger value="schedule">{t('tournamentDetail.tabs.schedule')}</TabsTrigger>
           <TabsTrigger value="playoff">{t('tournamentDetail.tabs.playoff')}</TabsTrigger>
-          <TabsTrigger value="teams">{t('tournamentDetail.tabs.teams')}</TabsTrigger>
+          <TabsTrigger value="teams">{t('tournamentDetail.tabs.teams', { context: tennisCtx })}</TabsTrigger>
         </TabsList>
 
         {/* Groups + standings */}
@@ -122,11 +123,12 @@ export default function TournamentDetailScreen() {
           {(!tournament.groups || tournament.groups.length === 0) ? (
             <Card><CardContent className="pt-6 text-center text-muted-foreground">{t('tournamentDetail.groups.empty')}</CardContent></Card>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
               {tournament.groups.map(group => (
-                <GroupStandings
+                <GroupCrossTable
                   key={group.id}
                   group={group}
+                  games={groupGames.filter(g => g.group?.id === group.id)}
                   standings={standings[group.id] ?? []}
                 />
               ))}
@@ -183,7 +185,7 @@ export default function TournamentDetailScreen() {
         {/* Teams */}
         <TabsContent value="teams" className="mt-4">
           {(!tournament.teams || tournament.teams.length === 0) ? (
-            <Card><CardContent className="pt-6 text-center text-muted-foreground">{t('tournamentDetail.teams.empty')}</CardContent></Card>
+            <Card><CardContent className="pt-6 text-center text-muted-foreground">{t('tournamentDetail.teams.empty', { context: tennisCtx })}</CardContent></Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {tournament.teams.map(team => (

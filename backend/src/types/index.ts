@@ -693,11 +693,13 @@ export interface UpdateTournamentGameRequest {
 }
 
 export interface GenerateTournamentScheduleRequest {
-  startDate: string;
-  startTime: string;
-  endTime: string;
-  slotDurationMinutes: number;
-  locations: string[];
+  // Required for all sports except TENNIS, where matches have no fixed
+  // duration/venue and are generated without date/location.
+  startDate?: string;
+  startTime?: string;
+  endTime?: string;
+  slotDurationMinutes?: number;
+  locations?: string[];
   minRestGames?: number;
 }
 

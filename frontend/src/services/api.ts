@@ -207,7 +207,7 @@ export const tournamentGroupApi = {
   removeTeam: (groupId: string | number, teamId: string | number) =>
     api.delete(`/tournaments/groups/${groupId}/teams/${teamId}`),
   generateTournamentSchedule: (tournamentId: string | number, data: {
-    startDate: string; startTime: string; endTime: string; slotDurationMinutes: number; locations: string[]; minRestGames?: number;
+    startDate?: string; startTime?: string; endTime?: string; slotDurationMinutes?: number; locations?: string[]; minRestGames?: number;
   }) => api.post(`/tournaments/${tournamentId}/generate-schedule`, data),
   deleteTournamentSchedule: (tournamentId: string | number) =>
     api.delete(`/tournaments/${tournamentId}/schedule`),

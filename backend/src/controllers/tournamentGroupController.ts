@@ -215,44 +215,85 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
       return;
     }
 
-    if (!startDate || !startTime || !endTime) {
-      res.status(400).json({ error: 'startDate, startTime and endTime are required' });
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: parseInt(tournamentId) },
+      include: { series: { select: { sportType: true } } },
+    });
+    if (!tournament) {
+      res.status(404).json({ error: 'Tournament not found' });
       return;
     }
-    if (!slotDurationMinutes || slotDurationMinutes <= 0) {
-      res.status(400).json({ error: 'slotDurationMinutes must be a positive number' });
-      return;
-    }
-    const venues = (locations ?? []).map(l => l.trim()).filter(Boolean);
-    if (venues.length === 0) {
-      res.status(400).json({ error: 'At least one location is required' });
-      return;
+    // Tennis matches have no fixed duration, so slot/venue scheduling doesn't
+    // apply — just build the fixture list with date and location left unset.
+    const isTennis = tournament.series?.sportType === 'TENNIS';
+
+    let dayStart = new Date(0);
+    let startHour = 0, startMinute = 0, capacityPerDayPerVenue = 0, slotDuration = 0;
+    let venues: string[] = [];
+
+    if (!isTennis) {
+      if (!startDate || !startTime || !endTime) {
+        res.status(400).json({ error: 'startDate, startTime and endTime are required' });
+        return;
+      }
+      if (!slotDurationMinutes || slotDurationMinutes <= 0) {
+        res.status(400).json({ error: 'slotDurationMinutes must be a positive number' });
+        return;
+      }
+      venues = (locations ?? []).map(l => l.trim()).filter(Boolean);
+      if (venues.length === 0) {
+        res.status(400).json({ error: 'At least one location is required' });
+        return;
+      }
+
+      const [sh, sm] = startTime.split(':').map(Number);
+      const [eh, em] = endTime.split(':').map(Number);
+      if ([sh, sm, eh, em].some(Number.isNaN)) {
+        res.status(400).json({ error: 'startTime and endTime must be in HH:MM format' });
+        return;
+      }
+      const windowMinutes = (eh * 60 + em) - (sh * 60 + sm);
+      if (windowMinutes < 0) {
+        res.status(400).json({ error: 'endTime must be after startTime' });
+        return;
+      }
+      startHour = sh;
+      startMinute = sm;
+      slotDuration = slotDurationMinutes;
+      capacityPerDayPerVenue = Math.floor(windowMinutes / slotDuration) + 1;
+
+      dayStart = new Date(startDate);
+      if (Number.isNaN(dayStart.getTime())) {
+        res.status(400).json({ error: 'startDate is invalid' });
+        return;
+      }
     }
 
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    if ([startHour, startMinute, endHour, endMinute].some(Number.isNaN)) {
-      res.status(400).json({ error: 'startTime and endTime must be in HH:MM format' });
-      return;
-    }
-    const windowMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-    if (windowMinutes < 0) {
-      res.status(400).json({ error: 'endTime must be after startTime' });
-      return;
-    }
-    const capacityPerDayPerVenue = Math.floor(windowMinutes / slotDurationMinutes) + 1;
-
-    const dayStart = new Date(startDate);
-    if (Number.isNaN(dayStart.getTime())) {
-      res.status(400).json({ error: 'startDate is invalid' });
-      return;
-    }
-
-    const groups = await prisma.tournamentGroup.findMany({
+    let groups = await prisma.tournamentGroup.findMany({
       where: { tournamentId: parseInt(tournamentId) },
       include: { teams: true, _count: { select: { games: true } } },
       orderBy: { name: 'asc' },
     });
+
+    // No manual group setup yet — fall back to one default group holding
+    // every team so a schedule can still be generated.
+    if (groups.length === 0) {
+      const allTeams = await prisma.tournamentTeam.findMany({ where: { tournamentId: parseInt(tournamentId) } });
+      if (allTeams.length >= 2) {
+        await prisma.tournamentGroup.create({
+          data: {
+            name: 'A',
+            tournamentId: parseInt(tournamentId),
+            teams: { create: allTeams.map(t => ({ teamId: t.id })) },
+          },
+        });
+        groups = await prisma.tournamentGroup.findMany({
+          where: { tournamentId: parseInt(tournamentId) },
+          include: { teams: true, _count: { select: { games: true } } },
+          orderBy: { name: 'asc' },
+        });
+      }
+    }
 
     const eligible = groups.filter(g => g.teams.length >= 2 && g._count.games === 0);
     if (eligible.length === 0) {
@@ -289,6 +330,21 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
     const slotsPerDayTotal = capacityPerDayPerVenue * venues.length;
     const created = await prisma.$transaction(
       pending.map((g, index) => {
+        if (isTennis) {
+          return prisma.tournamentGame.create({
+            data: {
+              phase: 'GROUP',
+              tournamentId: g.tournamentId,
+              groupId: g.groupId,
+              homeTeamId: g.homeTeamId,
+              awayTeamId: g.awayTeamId,
+              status: 'SCHEDULED',
+              date: null,
+              location: null,
+            },
+          });
+        }
+
         const dayIndex = Math.floor(index / slotsPerDayTotal);
         const slotInDay = index % slotsPerDayTotal;
         const timeSlot = Math.floor(slotInDay / venues.length);
@@ -296,7 +352,7 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
 
         const gameDate = new Date(dayStart);
         gameDate.setDate(gameDate.getDate() + dayIndex);
-        gameDate.setHours(startHour, startMinute + timeSlot * slotDurationMinutes, 0, 0);
+        gameDate.setHours(startHour, startMinute + timeSlot * slotDuration, 0, 0);
 
         return prisma.tournamentGame.create({
           data: {

@@ -21,6 +21,7 @@
     "myTeams": "Moje Týmy",
     "mySeasons": "Moje Sezony",
     "admin": "Administrace",
+    "manageTournaments": "Správa turnajů",
     "login": "Prihlasit",
     "register": "Registrovat",
     "logout": "Odhlasit",
@@ -519,6 +520,7 @@
         "th-manager": "Manazer",
         "th-seasons-c": "Sezon",
         "th-actions": "Akce",
+        "goToSeasons": "Zobrazit sezóny",
         "inviteManager": {
           "title": "Pozvat správce ligy",
           "description": "Zadejte email a jméno osoby, kterou chcete pozvat jako správce této ligy. Obdrží email s odkazem pro nastavení hesla.",
@@ -567,7 +569,9 @@
         "th-created": "Vytvořeno",
         "th-manager": "Manager",
         "th-teams-c": "Počet teamů",
-        "th-actions": "Akce"
+        "th-actions": "Akce",
+        "goToTeams": "Zobrazit týmy",
+        "goToGames": "Zobrazit zápasy"
       },
       "team": {
         "title": "Týmy",
@@ -864,11 +868,14 @@
       "phase": "Fáze",
       "bracketSlot": "Pozice v pavouku",
       "homeTeam": "Domácí tým",
+      "homeTeam_TENNIS": "Domácí hráč",
       "awayTeam": "Hostující tým",
+      "awayTeam_TENNIS": "Hostující hráč",
       "homeScore": "Skóre domácích",
       "awayScore": "Skóre hostů",
       "date": "Datum",
       "team": "Tým",
+      "team_TENNIS": "Hráč",
       "groupName": "Název skupiny"
     },
     "series": {
@@ -884,6 +891,7 @@
         "namePlaceholder": "např. Městský hokejový pohár",
         "sportType": {
           "HOCKEY": "Hokej",
+          "TENNIS": "Tenis",
           "OTHER": "Jiné"
         }
       },
@@ -914,16 +922,20 @@
       "notFound": "Turnaj nebyl nalezen.",
       "tabs": {
         "teams": "Týmy",
+        "teams_TENNIS": "Hráči",
         "groups": "Skupiny",
         "results": "Výsledky",
         "playoff": "Playoff"
       },
       "teams": {
         "addButton": "Přidat tým",
+        "addButton_TENNIS": "Přidat hráče",
         "empty": "Zatím žádné týmy.",
+        "empty_TENNIS": "Zatím žádní hráči.",
         "noPlayers": "Žádní hráči. Klikněte + pro přidání.",
         "addPlayerTitle": "Přidat hráče",
         "deleteConfirm": "Smazat tento tým a všechny jeho hráče?",
+        "deleteConfirm_TENNIS": "Smazat tohoto hráče?",
         "table": {
           "number": "#",
           "name": "Jméno",
@@ -932,7 +944,9 @@
         },
         "modal": {
           "createTitle": "Přidat tým",
-          "editTitle": "Upravit tým"
+          "createTitle_TENNIS": "Přidat hráče",
+          "editTitle": "Upravit tým",
+          "editTitle_TENNIS": "Upravit hráče"
         },
         "errors": {
           "save": "Nepodařilo se uložit tým",
@@ -954,7 +968,9 @@
         "addButton": "Přidat skupinu",
         "empty": "Zatím žádné skupiny.",
         "noTeams": "Žádné přiřazené týmy.",
+        "noTeams_TENNIS": "Žádní přiřazení hráči.",
         "assignTeam": "Přiřadit tým",
+        "assignTeam_TENNIS": "Přiřadit hráče",
         "noAvailableTeams": "Všechny týmy jsou již přiřazeny do nějaké skupiny.",
         "generateSchedule": "Generovat rozpis",
         "deleteSchedule": "Smazat rozpis",
@@ -1030,11 +1046,13 @@
     "notFound": "Turnaj nebyl nalezen.",
     "breadcrumb": "Turnaje",
     "teamsCount": "{{count}} týmů",
+    "teamsCount_TENNIS": "{{count}} hráčů",
     "tabs": {
       "groups": "Skupiny",
       "schedule": "Rozpis skupiny",
       "playoff": "Playoff",
-      "teams": "Týmy"
+      "teams": "Týmy",
+      "teams_TENNIS": "Hráči"
     },
     "groups": {
       "empty": "Zatím žádné skupiny.",
@@ -1043,6 +1061,7 @@
     "standings": {
       "rank": "#",
       "team": "Tým",
+      "team_TENNIS": "Hráč",
       "played": "Z",
       "won": "V",
       "drawn": "R",
@@ -1051,6 +1070,11 @@
       "goalsAgainst": "OG",
       "goalDiff": "+/-",
       "points": "B"
+    },
+    "crossTable": {
+      "score": "Skóre",
+      "points": "Body",
+      "rank": "Pořadí"
     },
     "schedule": {
       "empty": "Zatím žádné skupinové zápasy.",
@@ -1068,7 +1092,8 @@
       }
     },
     "teams": {
-      "empty": "Zatím žádné týmy."
+      "empty": "Zatím žádné týmy.",
+      "empty_TENNIS": "Zatím žádní hráči."
     }
   }
 }

@@ -18,6 +18,15 @@ export interface GroupStandingRow {
 export async function computeGroupStandings(tournamentId: number, groupId: number | null): Promise<GroupStandingRow[]> {
   const groupFilter = groupId ? { groupId } : {};
 
+  const tournament = await prisma.tournament.findUnique({
+    where: { id: tournamentId },
+    include: { series: { select: { sportType: true } } },
+  });
+  // Tennis is win/loss only — no bonus for margin, no points for a draw.
+  const isTennis = tournament?.series?.sportType === 'TENNIS';
+  const winPoints = isTennis ? 1 : 3;
+  const drawPoints = isTennis ? 0 : 1;
+
   const games = await prisma.tournamentGame.findMany({
     where: {
       tournamentId,
@@ -55,11 +64,11 @@ export async function computeGroupStandings(tournamentId: number, groupId: numbe
     away.goalsFor += game.awayScore; away.goalsAgainst += game.homeScore;
 
     if (game.homeScore > game.awayScore) {
-      home.won++; home.points += 3; away.lost++;
+      home.won++; home.points += winPoints; away.lost++;
     } else if (game.homeScore < game.awayScore) {
-      away.won++; away.points += 3; home.lost++;
+      away.won++; away.points += winPoints; home.lost++;
     } else {
-      home.drawn++; home.points++; away.drawn++; away.points++;
+      home.drawn++; home.points += drawPoints; away.drawn++; away.points += drawPoints;
     }
   }
 

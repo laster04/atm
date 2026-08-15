@@ -21,6 +21,7 @@
     "myTeams": "My Teams",
     "mySeasons": "My Seasons",
     "admin": "Admin",
+    "manageTournaments": "Manage Tournaments",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
@@ -519,6 +520,7 @@
         "th-manager": "Manager",
         "th-seasons-c": "Seasons",
         "th-actions": "Actions",
+        "goToSeasons": "View seasons",
         "inviteManager": {
           "title": "Invite Season Manager",
           "description": "Enter the email and name of the person you want to invite as manager of this league. They will receive an email with a link to set their password.",
@@ -567,7 +569,9 @@
         "th-created": "Created",
         "th-manager": "Manager",
         "th-teams-c": "Team count",
-        "th-actions": "Actions"
+        "th-actions": "Actions",
+        "goToTeams": "View teams",
+        "goToGames": "View games"
       },
       "team": {
         "title": "Teams",
@@ -864,11 +868,14 @@
       "phase": "Phase",
       "bracketSlot": "Bracket Slot",
       "homeTeam": "Home Team",
+      "homeTeam_TENNIS": "Home Player",
       "awayTeam": "Away Team",
+      "awayTeam_TENNIS": "Away Player",
       "homeScore": "Home Score",
       "awayScore": "Away Score",
       "date": "Date",
       "team": "Team",
+      "team_TENNIS": "Player",
       "groupName": "Group Name"
     },
     "series": {
@@ -884,6 +891,7 @@
         "namePlaceholder": "e.g. City Hockey Cup",
         "sportType": {
           "HOCKEY": "Hockey",
+          "TENNIS": "Tennis",
           "OTHER": "Other"
         }
       },
@@ -914,16 +922,20 @@
       "notFound": "Tournament not found.",
       "tabs": {
         "teams": "Teams",
+        "teams_TENNIS": "Players",
         "groups": "Groups",
         "results": "Results",
         "playoff": "Playoff"
       },
       "teams": {
         "addButton": "Add Team",
+        "addButton_TENNIS": "Add Player",
         "empty": "No teams yet.",
+        "empty_TENNIS": "No players yet.",
         "noPlayers": "No players. Click + to add.",
         "addPlayerTitle": "Add player",
         "deleteConfirm": "Delete this team and all its players?",
+        "deleteConfirm_TENNIS": "Delete this player?",
         "table": {
           "number": "#",
           "name": "Name",
@@ -932,7 +944,9 @@
         },
         "modal": {
           "createTitle": "Add Team",
-          "editTitle": "Edit Team"
+          "createTitle_TENNIS": "Add Player",
+          "editTitle": "Edit Team",
+          "editTitle_TENNIS": "Edit Player"
         },
         "errors": {
           "save": "Failed to save team",
@@ -954,7 +968,9 @@
         "addButton": "Add Group",
         "empty": "No groups yet.",
         "noTeams": "No teams assigned.",
+        "noTeams_TENNIS": "No players assigned.",
         "assignTeam": "Assign Team",
+        "assignTeam_TENNIS": "Assign Player",
         "noAvailableTeams": "All teams are already assigned to a group.",
         "generateSchedule": "Generate Schedule",
         "deleteSchedule": "Delete Schedule",
@@ -1030,11 +1046,13 @@
     "notFound": "Tournament not found.",
     "breadcrumb": "Tournaments",
     "teamsCount": "{{count}} teams",
+    "teamsCount_TENNIS": "{{count}} players",
     "tabs": {
       "groups": "Groups",
       "schedule": "Group Schedule",
       "playoff": "Playoff",
-      "teams": "Teams"
+      "teams": "Teams",
+      "teams_TENNIS": "Players"
     },
     "groups": {
       "empty": "No groups yet.",
@@ -1043,6 +1061,7 @@
     "standings": {
       "rank": "#",
       "team": "Team",
+      "team_TENNIS": "Player",
       "played": "P",
       "won": "W",
       "drawn": "D",
@@ -1051,6 +1070,11 @@
       "goalsAgainst": "GA",
       "goalDiff": "+/-",
       "points": "Pts"
+    },
+    "crossTable": {
+      "score": "Score",
+      "points": "Points",
+      "rank": "Rank"
     },
     "schedule": {
       "empty": "No group games yet.",
@@ -1068,7 +1092,8 @@
       }
     },
     "teams": {
-      "empty": "No teams yet."
+      "empty": "No teams yet.",
+      "empty_TENNIS": "No players yet."
     }
   }
 }

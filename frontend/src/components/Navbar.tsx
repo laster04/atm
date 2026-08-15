@@ -115,9 +115,9 @@ export default function Navbar() {
 													<Link to="/team-management">{t('nav.myTeams')}</Link>
 												</DropdownMenuItem>
 											)}
-											{isTournamentManager() && (
+											{(isTournamentManager() || isAdmin()) && (
 												<DropdownMenuItem asChild>
-													<Link to="/tournament-management">Manage Tournaments</Link>
+													<Link to="/tournament-management">{t('nav.manageTournaments')}</Link>
 												</DropdownMenuItem>
 											)}
 											{isSeasonManager() && (
