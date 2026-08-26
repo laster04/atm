@@ -6,26 +6,31 @@ import { Game, GameStatus, Standing, TopScorer } from "@types";
 import { useTranslation } from "react-i18next";
 import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
 import { gameStatisticApi } from '@/services/api';
+import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 import TopScorers from './TopScorers';
 
 interface StatsOverviewProps {
 	seasonId: number;
 	standings: Standing[];
 	games: Game[];
+	archived?: boolean;
 }
 
-export function StatsOverview({ seasonId, standings, games }: StatsOverviewProps) {
+export function StatsOverview({ seasonId, standings, games, archived }: StatsOverviewProps) {
 	const { t } = useTranslation();
 	const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
 	const [loadingScorers, setLoadingScorers] = useState(true);
 
 	useEffect(() => {
 		setLoadingScorers(true);
-		gameStatisticApi.getTopScorersBySeason(seasonId, 5)
-			.then((res) => setTopScorers(res.data))
+		const request = archived
+			? gameStatisticApi.getArchivedPlayerStats(seasonId).then((res) => res.data.slice(0, 5).map(mapArchivedPlayerStat))
+			: gameStatisticApi.getTopScorersBySeason(seasonId, 5).then((res) => res.data);
+		request
+			.then((data) => setTopScorers(data))
 			.catch((err) => console.error('Failed to fetch top scorers:', err))
 			.finally(() => setLoadingScorers(false));
-	}, [seasonId]);
+	}, [seasonId, archived]);
 
 	const stats = [
 		{

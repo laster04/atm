@@ -6,7 +6,7 @@ import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
-import { ArrowLeft, Calendar, Edit, Plus, Trash2, Users } from 'lucide-react';
+import { Archive, ArrowLeft, Calendar, Edit, Plus, Trash2, Users } from 'lucide-react';
 
 import { formatDateLocale } from '@/utils/date';
 import type { Season, League } from '@types';
@@ -19,9 +19,10 @@ interface SeasonsTableProps {
 	onCreateSeason?: (data: SeasonFormData) => void;
 	onUpdateSeason?: (id: number, data: SeasonFormData) => void;
 	onDeleteSeason?: (id: number) => void;
+	onArchiveSeason?: (id: number) => void;
 }
 
-export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreateSeason, onUpdateSeason, onDeleteSeason }: SeasonsTableProps) {
+export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreateSeason, onUpdateSeason, onDeleteSeason, onArchiveSeason }: SeasonsTableProps) {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -115,7 +116,12 @@ export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreat
 								<TableCell>{formatDateLocale(season.startDate)}</TableCell>
 								<TableCell>{formatDateLocale(season.endDate)}</TableCell>
 								<TableCell>
-									<Badge variant="secondary">{t(`seasons.status.${season.status}`)}</Badge>
+									<div className="flex items-center gap-1">
+										<Badge variant="secondary">{t(`seasons.status.${season.status}`)}</Badge>
+										{season.archivedAt && (
+											<Badge variant="secondary">{t('seasons.archived')}</Badge>
+										)}
+									</div>
 								</TableCell>
 								<TableCell>{season._count?.seasonTeams ?? season._count?.teams ?? 0}</TableCell>
 								<TableCell className="text-right">
@@ -136,12 +142,24 @@ export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreat
 										>
 											<Calendar className="size-4" />
 										</Button>
+										{season.status === 'COMPLETED' && !season.archivedAt && (
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => onArchiveSeason?.(season.id)}
+												title={t('admin.tabs.season.archiveSeason')}
+											>
+												<Archive className="size-4" />
+											</Button>
+										)}
 										<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(season)}>
 											<Edit className="size-4" />
 										</Button>
-										<Button variant="ghost" size="sm" onClick={() => onDeleteSeason?.(season.id)}>
-											<Trash2 className="size-4 text-destructive" />
-										</Button>
+										{!season.archivedAt && (
+											<Button variant="ghost" size="sm" onClick={() => onDeleteSeason?.(season.id)}>
+												<Trash2 className="size-4 text-destructive" />
+											</Button>
+										)}
 									</div>
 								</TableCell>
 							</TableRow>

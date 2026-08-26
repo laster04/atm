@@ -129,6 +129,11 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
+		if (game.season.archivedAt) {
+			res.status(400).json({ error: 'Cannot modify an archived season' });
+			return;
+		}
+
 		// Check if statistic already exists for this player in this game
 		const existingStatistic = await prisma.hockeyGameStatistic.findFirst({
 			where: {
@@ -167,6 +172,19 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 		const { id } = req.params;
 		const { goals, assists } = req.body as UpdateHockeyGameStatisticRequest;
 
+		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
+			where: { id: parseInt(id) },
+			include: { game: { include: { season: true } } }
+		});
+		if (!existingStatistic) {
+			res.status(404).json({ error: 'Statistic not found' });
+			return;
+		}
+		if (existingStatistic.game.season.archivedAt) {
+			res.status(400).json({ error: 'Cannot modify an archived season' });
+			return;
+		}
+
 		const statistic = await prisma.hockeyGameStatistic.update({
 			where: { id: parseInt(id) },
 			data: {
@@ -194,6 +212,19 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { id } = req.params;
+
+		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
+			where: { id: parseInt(id) },
+			include: { game: { include: { season: true } } }
+		});
+		if (!existingStatistic) {
+			res.status(404).json({ error: 'Statistic not found' });
+			return;
+		}
+		if (existingStatistic.game.season.archivedAt) {
+			res.status(400).json({ error: 'Cannot modify an archived season' });
+			return;
+		}
 
 		await prisma.hockeyGameStatistic.delete({ where: { id: parseInt(id) } });
 		res.json({ message: 'Statistic deleted successfully' });
@@ -290,5 +321,38 @@ export const getScorersBySeasonAndTeam = async (req: Request, res: Response): Pr
 	} catch (error) {
 		console.error('Get team scorers error:', error);
 		res.status(500).json({ error: 'Failed to fetch team scorers' });
+	}
+};
+
+export const getArchivedPlayerStats = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { seasonId } = req.params;
+		const teamId = req.query.teamId ? parseInt(req.query.teamId as string) : undefined;
+
+		const rows = await prisma.seasonArchivePlayerStat.findMany({
+			where: {
+				seasonId: parseInt(seasonId),
+				...(teamId && { teamId })
+			},
+			orderBy: [{ goals: 'desc' }, { assists: 'desc' }]
+		});
+
+		const result = rows.map(row => ({
+			player: {
+				id: row.playerId ?? -row.id,
+				name: row.playerName,
+				number: row.playerNumber,
+				team: { id: row.teamId ?? -row.id, name: row.teamName }
+			},
+			goals: row.goals,
+			assists: row.assists,
+			gamesPlayed: row.gamesPlayed,
+			points: row.goals + row.assists
+		}));
+
+		res.json(result);
+	} catch (error) {
+		console.error('Get archived player stats error:', error);
+		res.status(500).json({ error: 'Failed to fetch archived player stats' });
 	}
 };

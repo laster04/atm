@@ -146,24 +146,25 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const { id } = req.params;
 
-    // Season managers can only delete their own empty leagues
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const league = await prisma.league.findUnique({
-        where: { id: parseInt(id) },
-        include: { _count: { select: { seasons: true } } }
-      });
-      if (!league) {
-        res.status(404).json({ error: 'League not found' });
-        return;
-      }
-      if (league.managerId !== req.user!.id) {
-        res.status(403).json({ error: 'Not authorized to delete this league' });
-        return;
-      }
-      if (league._count.seasons > 0) {
-        res.status(403).json({ error: 'Cannot delete a league with existing seasons' });
-        return;
-      }
+    const league = await prisma.league.findUnique({
+      where: { id: parseInt(id) },
+      include: { _count: { select: { seasons: true } } }
+    });
+    if (!league) {
+      res.status(404).json({ error: 'League not found' });
+      return;
+    }
+
+    // Season managers can only delete their own leagues
+    if (req.user!.role === 'SEASON_MANAGER' && league.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to delete this league' });
+      return;
+    }
+
+    // No one can delete a league that still has seasons, regardless of role
+    if (league._count.seasons > 0) {
+      res.status(403).json({ error: 'Cannot delete a league with existing seasons' });
+      return;
     }
 
     await prisma.league.delete({ where: { id: parseInt(id) } });

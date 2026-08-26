@@ -7,8 +7,10 @@ import {
   createSeason,
   updateSeason,
   deleteSeason,
+  archiveSeason,
   getSeasonStandings,
-  getTeamStanding
+  getTeamStanding,
+  getArchivedStandings
 } from '../controllers/seasonController.js';
 import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
 
@@ -20,8 +22,10 @@ router.get('/league/:leagueId', optionalAuth, getSeasonsByLeague);
 router.get('/:id', getSeasonById);
 router.get('/:id/standings', getSeasonStandings);
 router.get('/:id/standings/:teamId', getTeamStanding);
+router.get('/:id/archived-standings', getArchivedStandings);
 
 router.post('/', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createSeason);
+router.post('/:id/archive', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), archiveSeason);
 router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), updateSeason);
 router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteSeason);
 

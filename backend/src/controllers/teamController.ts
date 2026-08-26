@@ -143,6 +143,10 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
       res.status(403).json({ error: 'Not authorized to add teams to this season' });
       return;
     }
+    if (season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
 
     // Create team and SeasonTeam association in a transaction
     const team = await prisma.$transaction(async (tx) => {
@@ -306,6 +310,10 @@ export const addTeamToSeason = async (req: AuthRequest, res: Response): Promise<
       res.status(403).json({ error: 'Not authorized to add teams to this season' });
       return;
     }
+    if (season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
 
     await prisma.seasonTeam.create({
       data: {
@@ -348,6 +356,10 @@ export const removeTeamFromSeason = async (req: AuthRequest, res: Response): Pro
 
     if (req.user!.role === 'SEASON_MANAGER' && seasonTeam.season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to remove teams from this season' });
+      return;
+    }
+    if (seasonTeam.season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
     }
 

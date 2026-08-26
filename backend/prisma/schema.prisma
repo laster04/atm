@@ -87,6 +87,7 @@ model Season {
   startDate DateTime     @map("start_date")
   endDate   DateTime     @map("end_date")
   status    SeasonStatus @default(DRAFT)
+  archivedAt DateTime?   @map("archived_at")
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
 
@@ -95,6 +96,9 @@ model Season {
 
   seasonTeams SeasonTeam[]
   games       Game[]
+
+  archivedStandings   SeasonArchiveStanding[]
+  archivedPlayerStats SeasonArchivePlayerStat[]
 
   @@map("seasons")
 }
@@ -128,6 +132,9 @@ model Team {
   homeGames   Game[]       @relation("HomeTeam")
   awayGames   Game[]       @relation("AwayTeam")
 
+  archivedStandings   SeasonArchiveStanding[]
+  archivedPlayerStats SeasonArchivePlayerStat[]
+
   @@map("teams")
 }
 
@@ -144,6 +151,8 @@ model Player {
   teamId    Int             @map("team_id")
   team      Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
   statistic HockeyGameStatistic[] @relation("PlayerStatistic")
+
+  archivedStats SeasonArchivePlayerStat[]
 
   @@map("players")
 }
@@ -189,6 +198,54 @@ model HockeyGameStatistic {
 
   @@unique([playerId, gameId])
   @@map("hockey_game_statistics")
+}
+
+model SeasonArchiveStanding {
+  id       Int    @id @default(autoincrement())
+  seasonId Int    @map("season_id")
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  teamId           Int?    @map("team_id")
+  team             Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  teamName         String  @map("team_name")
+  teamLogo         String? @map("team_logo")
+  teamPrimaryColor String? @map("team_primary_color")
+
+  rank         Int
+  played       Int
+  wins         Int
+  draws        Int
+  losses       Int
+  goalsFor     Int      @map("goals_for")
+  goalsAgainst Int      @map("goals_against")
+  points       Int
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([seasonId, teamId])
+  @@map("season_archive_standings")
+}
+
+model SeasonArchivePlayerStat {
+  id       Int    @id @default(autoincrement())
+  seasonId Int    @map("season_id")
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  playerId     Int?    @map("player_id")
+  player       Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  playerName   String  @map("player_name")
+  playerNumber Int?    @map("player_number")
+
+  teamId   Int?    @map("team_id")
+  team     Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  teamName String  @map("team_name")
+
+  gamesPlayed Int      @map("games_played")
+  goals       Int
+  assists     Int
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([seasonId, playerId])
+  @@map("season_archive_player_stats")
 }
 
 // ============================================================

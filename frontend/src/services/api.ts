@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
+  ArchivedStanding, ArchivedPlayerStat,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
@@ -82,8 +83,10 @@ export const seasonApi = {
   create: (data: Partial<Season>) => api.post<Season>('/seasons', data),
   update: (id: string | number, data: Partial<Season>) => api.put<Season>(`/seasons/${id}`, data),
   delete: (id: string | number) => api.delete(`/seasons/${id}`),
+  archive: (id: string | number) => api.post<{ message: string; season: Season }>(`/seasons/${id}/archive`),
   getStandings: (id: string | number) => api.get<Standing[]>(`/seasons/${id}/standings`),
-  getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`)
+  getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`),
+  getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`)
 };
 
 export const teamApi = {
@@ -136,6 +139,8 @@ export const gameStatisticApi = {
     api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/top`, { params: { limit } }),
   getScorersBySeasonAndTeam: (seasonId: string | number, teamId: string | number) =>
       api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/team/${teamId}`),
+  getArchivedPlayerStats: (seasonId: string | number, teamId?: string | number) =>
+      api.get<ArchivedPlayerStat[]>(`/game-statistics/season/${seasonId}/archived`, { params: { teamId } }),
   create: (gameId: string | number, data: { playerId: number; goals?: number | null; assists?: number | null }) =>
     api.post<HockeyGameStatistic>(`/game-statistics/game/${gameId}`, data),
   update: (id: string | number, data: { goals?: number | null; assists?: number | null }) =>

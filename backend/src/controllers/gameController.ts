@@ -79,6 +79,10 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       res.status(403).json({ error: 'Not authorized to create games in this season' });
       return;
     }
+    if (season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
 
     const homeTeamIdNum = typeof homeTeamId === 'string' ? parseInt(homeTeamId) : homeTeamId;
     const awayTeamIdNum = typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId;
@@ -145,6 +149,10 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       res.status(403).json({ error: 'Not authorized to update this game' });
       return;
     }
+    if (existingGame.season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
 
     const homeTeamIdNum = homeTeamId ? (typeof homeTeamId === 'string' ? parseInt(homeTeamId) : homeTeamId) : undefined;
     const awayTeamIdNum = awayTeamId ? (typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId) : undefined;
@@ -198,6 +206,10 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
     // Season managers can only delete games in their own leagues' seasons
     if (req.user!.role === 'SEASON_MANAGER' && game.season.league.managerId !== req.user!.id) {
       res.status(403).json({ error: 'Not authorized to delete this game' });
+      return;
+    }
+    if (game.season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
     }
 

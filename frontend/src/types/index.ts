@@ -68,6 +68,7 @@ export interface Season {
   startDate: string;
   endDate: string;
   status: SeasonStatus;
+  archivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   leagueId: number;
@@ -168,6 +169,19 @@ export interface AuthContextType {
 
 export interface TopScorer {
   player: Player;
+  goals: number;
+  assists: number;
+  gamesPlayed: number;
+  points: number;
+}
+
+export interface ArchivedStanding extends Standing {
+  rank: number;
+  totalTeams: number;
+}
+
+export interface ArchivedPlayerStat {
+  player: { id: number; name: string; number?: number | null; team: { id: number; name: string } };
   goals: number;
   assists: number;
   gamesPlayed: number;

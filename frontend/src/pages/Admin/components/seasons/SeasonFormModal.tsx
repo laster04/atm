@@ -27,6 +27,7 @@ interface SeasonFormModalProps {
 export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: SeasonFormModalProps) {
 	const { t } = useTranslation();
 	const isEditing = !!season;
+	const isArchived = !!season?.archivedAt;
 
 	const initValues = {
 		name: season?.name || '',
@@ -69,6 +70,7 @@ export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: 
 								labelId="select-league-label"
 								id="select-league"
 								label={t('admin.modal.league')}
+								disabled={isArchived}
 								{...form.register('leagueId', { valueAsNumber: true })}
 								defaultValue={initValues.leagueId}
 							>
@@ -110,6 +112,7 @@ export default function SeasonFormModal({ season, leagues, onSubmit, onClose }: 
 								labelId="select-season-status-label"
 								id="select-season-status"
 								label={t('admin.modal.status')}
+								disabled={isArchived}
 								{...form.register('status')}
 								defaultValue={initValues.status}
 							>

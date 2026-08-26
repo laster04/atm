@@ -245,12 +245,14 @@
       "DRAFT": "KONCEPT",
       "ACTIVE": "AKTIVNI",
       "COMPLETED": "DOKONCENA"
-    }
+    },
+    "archived": "Archivováno"
   },
   "seasonDetail": {
     "loading": "Nacitam sezonu...",
     "notFound": "Sezona nenalezena.",
     "backToSeasons": "Zpet na sezony",
+    "archivedNotice": "Tato sezóna je archivována. K dispozici je jen konečná tabulka a celkové statistiky hráčů — rozpis zápasů a detaily jednotlivých zápasů byly trvale odstraněny.",
     "tabs": {
       "overview": "Přehled",
       "standings": "Tabulka",
@@ -571,7 +573,8 @@
         "th-teams-c": "Počet teamů",
         "th-actions": "Akce",
         "goToTeams": "Zobrazit týmy",
-        "goToGames": "Zobrazit zápasy"
+        "goToGames": "Zobrazit zápasy",
+        "archiveSeason": "Archivovat sezónu"
       },
       "team": {
         "title": "Týmy",
@@ -739,13 +742,14 @@
       "VIEWER": "Divak"
     },
     "confirm": {
-      "deleteLeague": "Jste si jisti? Toto smaže všechny sezóny, týmy a zápasy v této lize.",
+      "deleteLeague": "Opravdu chcete smazat tuto ligu?",
       "deleteSeason": "Jste si jisti? Toto smaže všechny týmy a zápasy v této sezóně.",
       "deleteTeam": "Jste si jisti? Toto smaže všechny hráče a data zápasů tohoto týmu.",
       "deletePlayer": "Opravdu chcete smazat tohoto hráče?",
       "deleteGame": "Opravdu chcete smazat tento zápas?",
       "deleteUser": "Opravdu chcete smazat tohoto uživatele?",
-      "deleteStatistic": "Opravdu chcete smazat tuto statistiku?"
+      "deleteStatistic": "Opravdu chcete smazat tuto statistiku?",
+      "archiveSeason": "Archivovat tuto sezónu? Zachová se jen konečná tabulka a celkové statistiky hráčů — detaily jednotlivých zápasů (statistiky ze zápasů) budou trvale smazány, včetně nedohraných zápasů. Tuto akci nelze vrátit zpět."
     },
     "errors": {
       "createLeague": "Vytvoření ligy selhalo",
@@ -767,7 +771,8 @@
       "generateSchedule": "Generování rozpisu selhalo",
       "deleteSeason": "Smazání sezóny selhalo",
       "deleteTeam": "Smazání týmu selhalo",
-      "movePlayer": "Přesun hráče selhal"
+      "movePlayer": "Přesun hráče selhal",
+      "archiveSeason": "Archivace sezóny selhala"
     }
   },
   "language": {

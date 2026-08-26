@@ -245,12 +245,14 @@
       "DRAFT": "DRAFT",
       "ACTIVE": "ACTIVE",
       "COMPLETED": "COMPLETED"
-    }
+    },
+    "archived": "Archived"
   },
   "seasonDetail": {
     "loading": "Loading season...",
     "notFound": "Season not found.",
     "backToSeasons": "Back to Seasons",
+    "archivedNotice": "This season is archived. Only final standings and player totals are available — per-game schedule and box scores were permanently removed.",
     "tabs": {
       "overview": "Overview",
       "standings": "Standings",
@@ -571,7 +573,8 @@
         "th-teams-c": "Team count",
         "th-actions": "Actions",
         "goToTeams": "View teams",
-        "goToGames": "View games"
+        "goToGames": "View games",
+        "archiveSeason": "Archive season"
       },
       "team": {
         "title": "Teams",
@@ -739,13 +742,14 @@
       "VIEWER": "Viewer"
     },
     "confirm": {
-      "deleteLeague": "Are you sure? This will delete all seasons, teams, and games in this league.",
+      "deleteLeague": "Are you sure you want to delete this league?",
       "deleteSeason": "Are you sure? This will delete all teams and games in this season.",
       "deleteTeam": "Are you sure? This will delete all players and game data for this team.",
       "deletePlayer": "Are you sure you want to delete this player?",
       "deleteGame": "Are you sure you want to delete this game?",
       "deleteUser": "Are you sure you want to delete this user?",
-      "deleteStatistic": "Are you sure you want to delete this statistic?"
+      "deleteStatistic": "Are you sure you want to delete this statistic?",
+      "archiveSeason": "Archive this season? Only final standings and player totals will be kept — per-game details (box scores) are permanently deleted, including any games that were never finished. This cannot be undone."
     },
     "errors": {
       "createLeague": "Failed to create league",
@@ -767,7 +771,8 @@
       "generateSchedule": "Failed to generate schedule",
       "deleteSeason": "Failed to delete season",
       "deleteTeam": "Failed to delete team",
-      "movePlayer": "Failed to move player"
+      "movePlayer": "Failed to move player",
+      "archiveSeason": "Failed to archive season"
     }
   },
   "language": {

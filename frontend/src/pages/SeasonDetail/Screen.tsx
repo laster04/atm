@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { seasonApi, gameApi, gameStatisticApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Season, Game, Standing, TopScorer } from '@/types';
+import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 
 import SeasonHeader from './components/SeasonHeader';
 import StandingsTable from './components/StandingsTable';
@@ -46,16 +47,27 @@ export default function SeasonDetailScreen() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [seasonRes, gamesRes, standingsRes, topScorersRes] = await Promise.all([
-          seasonApi.getById(id),
-          gameApi.getBySeason(id),
-          seasonApi.getStandings(id),
-            gameStatisticApi.getTopScorersBySeason(id, 20)
-        ]);
+        const seasonRes = await seasonApi.getById(id);
         setSeason(seasonRes.data);
-        setGames(gamesRes.data);
-        setStandings(standingsRes.data);
-        setTopScorers(topScorersRes.data)
+
+        if (seasonRes.data.archivedAt) {
+          const [standingsRes, playerStatsRes] = await Promise.all([
+            seasonApi.getArchivedStandings(id),
+            gameStatisticApi.getArchivedPlayerStats(id)
+          ]);
+          setGames([]);
+          setStandings(standingsRes.data);
+          setTopScorers(playerStatsRes.data.slice(0, 20).map(mapArchivedPlayerStat));
+        } else {
+          const [gamesRes, standingsRes, topScorersRes] = await Promise.all([
+            gameApi.getBySeason(id),
+            seasonApi.getStandings(id),
+            gameStatisticApi.getTopScorersBySeason(id, 20)
+          ]);
+          setGames(gamesRes.data);
+          setStandings(standingsRes.data);
+          setTopScorers(topScorersRes.data);
+        }
       } catch (error) {
         console.error('Failed to fetch season data:', error);
       } finally {
@@ -78,10 +90,12 @@ export default function SeasonDetailScreen() {
     );
   }
 
+  const isArchived = !!season.archivedAt;
+
   const tabs: { id: TabSeasonDetailType; label: string, icon: any, content: JSX.Element }[] = [
-    { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} /> },
+    { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} /> },
     { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
-    { id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> },
+    ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> }]),
     { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Server className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
     { id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} /> },
   ];
@@ -91,9 +105,14 @@ export default function SeasonDetailScreen() {
       <SeasonHeader season={season} />
 
       <main className="container mx-auto py-8">
+        {isArchived && (
+          <div className="mb-6 rounded border border-muted-foreground/20 bg-muted p-4 text-sm text-muted-foreground">
+            {t('seasonDetail.archivedNotice')}
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5">
+          <TabsList className="grid w-full max-w-2xl mx-auto" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
             {tabs.map((tab) => (
                 <TabsTrigger value={tab.id} key={tab.id} className="flex items-center gap-2">
                   {tab.icon}

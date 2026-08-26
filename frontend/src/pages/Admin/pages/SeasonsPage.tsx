@@ -94,6 +94,17 @@ export default function SeasonsPage() {
 		}
 	};
 
+	const handleArchiveSeason = async (id: number) => {
+		if (!confirm(t('admin.confirm.archiveSeason'))) return;
+		try {
+			const res = await seasonApi.archive(id);
+			setSeasons((prev) => prev.map((s) => (s.id === id ? res.data.season : s)));
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('admin.errors.archiveSeason'));
+		}
+	};
+
 	if (seasonsLoading && seasons.length === 0) {
 		return (
 			<div className="text-center py-4">
@@ -116,6 +127,7 @@ export default function SeasonsPage() {
 				onCreateSeason={handleCreateSeason}
 				onUpdateSeason={handleUpdateSeason}
 				onDeleteSeason={handleDeleteSeason}
+				onArchiveSeason={handleArchiveSeason}
 			/>
 		</div>
 	);
