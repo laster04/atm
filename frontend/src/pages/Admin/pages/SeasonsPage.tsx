@@ -63,9 +63,25 @@ export default function SeasonsPage() {
 
 	const handleCreateSeason = async (data: SeasonFormData) => {
 		setError('');
+		const { copyTeamIds, ...seasonData } = data;
 		try {
-			const res = await seasonApi.create(data);
-			setSeasons((prev) => [...prev, res.data]);
+			const res = await seasonApi.create(seasonData);
+			let createdSeason = res.data;
+
+			if (copyTeamIds && copyTeamIds.length > 0) {
+				try {
+					const copyRes = await seasonApi.copyTeams(createdSeason.id, copyTeamIds);
+					createdSeason = {
+						...createdSeason,
+						_count: { ...createdSeason._count, seasonTeams: copyRes.data.teams.length, games: createdSeason._count?.games ?? 0 }
+					};
+				} catch (copyErr) {
+					const axiosError = copyErr as AxiosError<{ error: string }>;
+					setError(axiosError.response?.data?.error || t('admin.errors.copyTeams'));
+				}
+			}
+
+			setSeasons((prev) => [...prev, createdSeason]);
 		} catch (err) {
 			const axiosError = err as AxiosError<{ error: string }>;
 			setError(axiosError.response?.data?.error || t('admin.errors.createSeason'));

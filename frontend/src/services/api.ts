@@ -86,7 +86,10 @@ export const seasonApi = {
   archive: (id: string | number) => api.post<{ message: string; season: Season }>(`/seasons/${id}/archive`),
   getStandings: (id: string | number) => api.get<Standing[]>(`/seasons/${id}/standings`),
   getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`),
-  getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`)
+  getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`),
+  getCopyableTeams: (id: string | number) => api.get<Team[]>(`/seasons/${id}/copyable-teams`),
+  copyTeams: (id: string | number, teamIds: number[]) =>
+    api.post<{ message: string; teams: Team[] }>(`/seasons/${id}/copy-teams`, { teamIds })
 };
 
 export const teamApi = {

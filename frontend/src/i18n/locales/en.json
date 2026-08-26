@@ -691,6 +691,10 @@
       "startDate": "Start Date",
       "endDate": "End Date",
       "status": "Status",
+      "copyTeamsFrom": "Copy teams from a previous season (optional)",
+      "copyTeamsFromSeason": "Source season",
+      "copyTeamsNone": "None",
+      "copyTeamsEmpty": "This season has no teams to copy.",
       "teamName": "Team Name",
       "manager": "Team Manager",
       "noManager": "No manager",
@@ -772,7 +776,8 @@
       "deleteSeason": "Failed to delete season",
       "deleteTeam": "Failed to delete team",
       "movePlayer": "Failed to move player",
-      "archiveSeason": "Failed to archive season"
+      "archiveSeason": "Failed to archive season",
+      "copyTeams": "Season was created, but copying teams failed"
     }
   },
   "language": {

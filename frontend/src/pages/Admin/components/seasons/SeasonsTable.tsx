@@ -88,6 +88,7 @@ export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreat
 							<SeasonFormModal
 								season={editingSeason}
 								leagues={leagues}
+								seasons={seasons}
 								onSubmit={handleSubmit}
 								onClose={handleClose}
 							/>

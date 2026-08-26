@@ -691,6 +691,10 @@
       "startDate": "Datum začátku",
       "endDate": "Datum konce",
       "status": "Stav",
+      "copyTeamsFrom": "Zkopírovat týmy z předchozí sezóny (volitelné)",
+      "copyTeamsFromSeason": "Zdrojová sezóna",
+      "copyTeamsNone": "Žádná",
+      "copyTeamsEmpty": "Tato sezóna nemá žádné týmy ke zkopírování.",
       "teamName": "Název týmu",
       "manager": "Manažer týmu",
       "noManager": "Bez manažera",
@@ -772,7 +776,8 @@
       "deleteSeason": "Smazání sezóny selhalo",
       "deleteTeam": "Smazání týmu selhalo",
       "movePlayer": "Přesun hráče selhal",
-      "archiveSeason": "Archivace sezóny selhala"
+      "archiveSeason": "Archivace sezóny selhala",
+      "copyTeams": "Sezóna byla vytvořena, ale kopírování týmů selhalo"
     }
   },
   "language": {

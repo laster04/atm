@@ -579,6 +579,102 @@ export const getArchivedStandings = async (req: Request, res: Response): Promise
   }
 };
 
+// Teams that participated in a completed season, usable as a source when setting up a new season.
+// For an archived season the live SeasonTeam rows are gone, so the team list is reconstructed from
+// the archived standings snapshot instead (teams that were later deleted independently are skipped).
+export const getCopyableTeams = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const seasonId = parseInt(id);
+
+    const season = await prisma.season.findUnique({ where: { id: seasonId } });
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+    if (season.status !== 'COMPLETED') {
+      res.status(400).json({ error: 'Only completed seasons can be used as a source' });
+      return;
+    }
+
+    let teamIds: number[];
+    if (season.archivedAt) {
+      const rows = await prisma.seasonArchiveStanding.findMany({
+        where: { seasonId, teamId: { not: null } },
+        select: { teamId: true }
+      });
+      teamIds = Array.from(new Set(rows.map(r => r.teamId as number)));
+    } else {
+      const rows = await prisma.seasonTeam.findMany({ where: { seasonId }, select: { teamId: true } });
+      teamIds = rows.map(r => r.teamId);
+    }
+
+    const teams = await prisma.team.findMany({
+      where: { id: { in: teamIds } },
+      include: { _count: { select: { players: true } } },
+      orderBy: { name: 'asc' }
+    });
+
+    res.json(teams);
+  } catch (error) {
+    console.error('Get copyable teams error:', error);
+    res.status(500).json({ error: 'Failed to fetch teams' });
+  }
+};
+
+export const copyTeamsToSeason = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const seasonId = parseInt(id);
+    const { teamIds } = req.body as { teamIds: (number | string)[] };
+
+    if (!Array.isArray(teamIds) || teamIds.length === 0) {
+      res.status(400).json({ error: 'teamIds is required' });
+      return;
+    }
+
+    const season = await prisma.season.findUnique({
+      where: { id: seasonId },
+      include: { league: { select: { managerId: true } } }
+    });
+    if (!season) {
+      res.status(404).json({ error: 'Season not found' });
+      return;
+    }
+    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
+      res.status(403).json({ error: 'Not authorized to add teams to this season' });
+      return;
+    }
+    if (season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
+
+    const uniqueTeamIds = Array.from(new Set(teamIds.map(t => (typeof t === 'string' ? parseInt(t) : t))));
+    const existingTeamCount = await prisma.team.count({ where: { id: { in: uniqueTeamIds } } });
+    if (existingTeamCount !== uniqueTeamIds.length) {
+      res.status(400).json({ error: 'One or more teams not found' });
+      return;
+    }
+
+    await prisma.seasonTeam.createMany({
+      data: uniqueTeamIds.map(teamId => ({ seasonId, teamId })),
+      skipDuplicates: true
+    });
+
+    const teams = await prisma.team.findMany({
+      where: { id: { in: uniqueTeamIds } },
+      include: { _count: { select: { players: true } } },
+      orderBy: { name: 'asc' }
+    });
+
+    res.status(201).json({ message: 'Teams added to season successfully', teams });
+  } catch (error) {
+    console.error('Copy teams to season error:', error);
+    res.status(500).json({ error: 'Failed to copy teams to season' });
+  }
+};
+
 export const getSeasonsByLeague = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { leagueId } = req.params;
