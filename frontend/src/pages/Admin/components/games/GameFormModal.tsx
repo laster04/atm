@@ -95,7 +95,6 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 							<FormControl className="w-full" size="small">
 								<InputLabel id="select-home-team-label">{t('admin.modal.homeTeam')}</InputLabel>
 								<Select
-									MenuProps={{ disablePortal: true }}
 									labelId="select-home-team-label"
 									label={t('admin.modal.homeTeam')}
 									{...form.register('homeTeamId', { required: true })}
@@ -115,7 +114,6 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 							<FormControl className="w-full" size="small">
 								<InputLabel id="select-away-team-label">{t('admin.modal.awayTeam')}</InputLabel>
 								<Select
-									MenuProps={{ disablePortal: true }}
 									labelId="select-away-team-label"
 									label={t('admin.modal.awayTeam')}
 									{...form.register('awayTeamId', { required: true })}
@@ -168,7 +166,6 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 						<FormControl className="w-full" size="small">
 							<InputLabel id="select-game-status-label">{t('admin.modal.gameStatus')}</InputLabel>
 							<Select
-								MenuProps={{ disablePortal: true }}
 								labelId="select-game-status-label"
 								label={t('admin.modal.gameStatus')}
 								{...form.register('status')}

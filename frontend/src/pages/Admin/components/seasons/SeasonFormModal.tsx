@@ -117,9 +117,6 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 						<FormControl className="w-full" size="small">
 							<InputLabel id="select-league-label">{t('admin.modal.league')}</InputLabel>
 							<Select
-								MenuProps={{
-									disablePortal: true,
-								}}
 								labelId="select-league-label"
 								id="select-league"
 								label={t('admin.modal.league')}
@@ -159,9 +156,6 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 						<FormControl className="w-full" size="small">
 							<InputLabel id="select-season-status-label">{t('admin.modal.status')}</InputLabel>
 							<Select
-								MenuProps={{
-									disablePortal: true,
-								}}
 								labelId="select-season-status-label"
 								id="select-season-status"
 								label={t('admin.modal.status')}
@@ -182,7 +176,6 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 							<FormControl className="w-full" size="small">
 								<InputLabel id="select-copy-source-label">{t('admin.modal.copyTeamsFromSeason')}</InputLabel>
 								<Select
-									MenuProps={{ disablePortal: true }}
 									labelId="select-copy-source-label"
 									id="select-copy-source"
 									label={t('admin.modal.copyTeamsFromSeason')}

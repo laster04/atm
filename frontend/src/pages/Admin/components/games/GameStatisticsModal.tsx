@@ -217,7 +217,6 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 											<FormControl className="w-full" size="small">
 												<InputLabel id="select-player-label">{t('admin.tabs.statistics.selectPlayer')}</InputLabel>
 												<Select
-													MenuProps={{ disablePortal: true }}
 													labelId="select-player-label"
 													label={t('admin.tabs.statistics.selectPlayer')}
 													value={newStat.playerId || ''}

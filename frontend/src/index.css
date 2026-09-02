@@ -134,3 +134,11 @@
     line-height: 1.5;
   }
 }
+
+/* Radix Dialog sets pointer-events:none on <body> while open to block background
+   interaction; that's inherited by MUI Select/Menu popovers too since they portal
+   directly to <body>, making their options unclickable. Re-enable it there. */
+.MuiModal-root,
+.MuiPopover-root {
+  pointer-events: auto;
+}

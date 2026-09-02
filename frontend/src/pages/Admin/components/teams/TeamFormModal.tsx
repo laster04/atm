@@ -55,9 +55,6 @@ export default function TeamFormModal({ team, teamManagers, onSubmit, onClose }:
 						<FormControl className="w-full" size="small">
 							<InputLabel id="select-team-manager-label">{t('admin.modal.manager')}</InputLabel>
 							<Select
-								MenuProps={{
-									disablePortal: true,
-								}}
 								labelId="select-team-manager-label"
 								id="select-team-manager"
 								label={t('admin.modal.manager')}

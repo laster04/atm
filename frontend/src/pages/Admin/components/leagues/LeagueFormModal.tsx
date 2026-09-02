@@ -59,9 +59,6 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 						<FormControl className="w-full" size="small">
 							<InputLabel id="select-sport-type-label">{t('admin.modal.sportType')}</InputLabel>
 							<Select
-								MenuProps={{
-									disablePortal: true,
-								}}
 								labelId="select-sport-type-label"
 								id="select-sport-type"
 								label={t('admin.modal.sportType')}

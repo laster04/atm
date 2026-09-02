@@ -67,9 +67,6 @@ export default function UserFormModal({ user, onSubmit, onClose }: UserFormModal
 							className="w-full" size="small">
 							<InputLabel id="select-user-role-label">{t('admin.modal.userRole')}</InputLabel>
 							<Select
-								MenuProps={{
-									disablePortal: true,
-								}}
 								labelId="select-user-role-label"
 								id="select-user-role"
 								label={t('admin.modal.userRole')}
