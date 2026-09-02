@@ -8,6 +8,7 @@ import type { League } from '@types';
 interface InviteLeagueManagerFormData {
   email: string;
   name: string;
+  locale: string;
 }
 
 interface InviteLeagueManagerModalProps {
@@ -22,14 +23,14 @@ export default function InviteLeagueManagerModal({ leagueId, onSuccess, onClose 
   const [loading, setLoading] = useState(false);
 
   const form = useForm<InviteLeagueManagerFormData>({
-    defaultValues: { email: '', name: '' },
+    defaultValues: { email: '', name: '', locale: i18n.language === 'cs' ? 'cs' : 'en' },
   });
 
   const handleSubmit = async (data: InviteLeagueManagerFormData) => {
     setError('');
     setLoading(true);
     try {
-      const res = await leagueApi.inviteManager(leagueId, { ...data, locale: i18n.language });
+      const res = await leagueApi.inviteManager(leagueId, data);
       onSuccess(res.data);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
@@ -79,6 +80,18 @@ export default function InviteLeagueManagerModal({ leagueId, onSuccess, onClose 
               placeholder={t('admin.tabs.league.inviteManager.emailPlaceholder')}
               required
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">
+              {t('admin.tabs.league.inviteManager.languageLabel')}
+            </label>
+            <select
+              {...form.register('locale', { required: true })}
+              className="w-full px-3 py-2 border rounded"
+            >
+              <option value="cs">{t('admin.tabs.league.inviteManager.languageCs')}</option>
+              <option value="en">{t('admin.tabs.league.inviteManager.languageEn')}</option>
+            </select>
           </div>
           <div className="flex justify-end gap-2">
             <button

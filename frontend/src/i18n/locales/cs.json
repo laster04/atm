@@ -28,6 +28,51 @@
     "menu": "Menu",
     "loggedInAs": "Přihlášen jako"
   },
+  "teamTour": {
+    "steps": {
+      "overview": {
+        "title": "Přehled",
+        "body": "Rychlý přehled vašeho týmu — výsledky, body a zkratky k častým akcím."
+      },
+      "roster": {
+        "title": "Soupiska",
+        "body": "Zde přidáváte a spravujete hráče svého týmu."
+      },
+      "schedule": {
+        "title": "Rozpis",
+        "body": "Zde uvidíte nadcházející i odehrané zápasy vašeho týmu."
+      },
+      "settings": {
+        "title": "Nastavení",
+        "body": "Zde můžete upravit barvu týmu a zobrazit jeho informace."
+      }
+    }
+  },
+  "onboarding": {
+    "stepCounter": "Krok {{current}} z {{total}}",
+    "skip": "Přeskočit",
+    "back": "Zpět",
+    "next": "Další",
+    "finish": "Rozumím",
+    "steps": {
+      "welcome": {
+        "title": "Vítejte v ATM!",
+        "body": "Pojďme se rychle podívat, kde co najdete."
+      },
+      "navMenu": {
+        "title": "Vaše menu účtu",
+        "body": "Toto menu kdykoliv otevřete a dostanete se k týmům, sezonám i nastavení."
+      },
+      "myTeams": {
+        "title": "Vaše týmy",
+        "body": "Týmy, které spravujete, se zobrazují zde. Klikněte na tým a spravujte jeho soupisku, rozpis a nastavení."
+      },
+      "activeSeasons": {
+        "title": "Aktivní sezony",
+        "body": "Zde se zobrazují aktuálně aktivní sezony. Klikněte na sezonu pro zobrazení týmů, rozpisu a tabulky."
+      }
+    }
+  },
   "home": {
     "title": "Planovac Sportovnich Sezon",
     "subtitle": "Spravujte sve sportovni ligy snadno. Vytvarejte sezony, sledujte tymy, planujte zapasy a zobrazujte tabulky na jednom miste.",
@@ -362,6 +407,9 @@
       "emailPlaceholder": "manazer@atm.cz",
       "nameLabel": "Jméno",
       "namePlaceholder": "Jan Novak",
+      "languageLabel": "Jazyk pozvánky",
+      "languageCs": "Čeština",
+      "languageEn": "Angličtina",
       "submit": "Odeslat pozvanku",
       "sending": "Odesílam...",
       "error": "Nepodařilo se pozvat manažera"
@@ -530,6 +578,9 @@
           "emailPlaceholder": "manazer@atm.cz",
           "nameLabel": "Jméno",
           "namePlaceholder": "Jan Novak",
+          "languageLabel": "Jazyk pozvánky",
+          "languageCs": "Čeština",
+          "languageEn": "Angličtina",
           "submit": "Odeslat pozvanku",
           "sending": "Odesílam...",
           "error": "Nepodařilo se pozvat správce"

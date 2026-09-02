@@ -21,7 +21,7 @@ export default function SettingsTab({
 	onTeamUpdate,
 }: SettingsTabProps) {
 	const { t } = useTranslation();
-	const { isAdmin } = useAuth();
+	const { isAdmin, isSeasonManager } = useAuth();
 	const [showInviteModal, setShowInviteModal] = useState(false);
 
 	return (
@@ -88,8 +88,8 @@ export default function SettingsTab({
 				</CardContent>
 			</Card>
 
-			{/* Invite Manager - Admin only */}
-			{isAdmin() && (
+			{/* Invite Manager - Admin/Season Manager only */}
+			{(isAdmin() || isSeasonManager()) && (
 				<Card className="settings-card">
 					<CardHeader>
 						<CardTitle className="text-base">

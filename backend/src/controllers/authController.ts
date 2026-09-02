@@ -59,7 +59,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
         activationToken,
         activationTokenExpiresAt: getActivationTokenExpiry(),
       },
-      select: { id: true, email: true, name: true, role: true, emailVerified: true }
+      select: { id: true, email: true, name: true, role: true, emailVerified: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
     // Send activation email (don't wait for it to complete)
@@ -111,7 +111,14 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 
     res.json({
-      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        onboardingCompletedAt: user.onboardingCompletedAt,
+        teamTourCompletedAt: user.teamTourCompletedAt,
+      },
       token
     });
   } catch (error) {
@@ -316,6 +323,36 @@ export const resetPassword = async (req: AuthRequest, res: Response): Promise<vo
 
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   res.json({ user: req.user });
+};
+
+export const completeOnboarding = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { onboardingCompletedAt: new Date() },
+      select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
+    });
+
+    res.json({ user });
+  } catch (error) {
+    console.error('Complete onboarding error:', error);
+    res.status(500).json({ error: 'Failed to complete onboarding' });
+  }
+};
+
+export const completeTeamTour = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { teamTourCompletedAt: new Date() },
+      select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
+    });
+
+    res.json({ user });
+  } catch (error) {
+    console.error('Complete team tour error:', error);
+    res.status(500).json({ error: 'Failed to complete team tour' });
+  }
 };
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {

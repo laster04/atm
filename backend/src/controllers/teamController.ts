@@ -431,10 +431,30 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const team = await prisma.team.findUnique({ where: { id: parseInt(id) } });
+    const team = await prisma.team.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        seasonTeams: {
+          include: {
+            season: { include: { league: { select: { managerId: true } } } }
+          }
+        }
+      }
+    });
     if (!team) {
       res.status(404).json({ error: 'Team not found' });
       return;
+    }
+
+    // Season managers can only invite managers for teams in their own leagues' seasons
+    if (req.user!.role === 'SEASON_MANAGER') {
+      const hasAccess = team.seasonTeams.some(
+        st => st.season.league.managerId === req.user!.id
+      );
+      if (!hasAccess) {
+        res.status(403).json({ error: 'Not authorized to invite a manager for this team' });
+        return;
+      }
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });

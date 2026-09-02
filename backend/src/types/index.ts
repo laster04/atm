@@ -10,6 +10,8 @@ export interface AuthUser {
   email: string;
   name: string;
   role: Role;
+  onboardingCompletedAt?: Date | null;
+  teamTourCompletedAt?: Date | null;
 }
 
 export interface AuthRequest extends Request {

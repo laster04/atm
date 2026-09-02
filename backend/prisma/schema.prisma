@@ -54,6 +54,8 @@ model User {
   activationTokenExpiresAt    DateTime? @map("activation_token_expires_at")
   passwordResetToken          String?   @unique @map("password_reset_token")
   passwordResetTokenExpiresAt DateTime? @map("password_reset_token_expires_at")
+  onboardingCompletedAt       DateTime? @map("onboarding_completed_at")
+  teamTourCompletedAt         DateTime? @map("team_tour_completed_at")
   createdAt                   DateTime  @default(now()) @map("created_at")
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 

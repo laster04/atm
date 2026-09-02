@@ -71,7 +71,7 @@ export default function Navbar() {
 						<div className="flex items-center justify-end gap-8">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" className="flex items-center gap-2">
+									<Button variant="ghost" className="flex items-center gap-2" data-tour="nav-menu">
 										{user ? (
 											<UserCircle className="size-5" />
 										) : <></>}

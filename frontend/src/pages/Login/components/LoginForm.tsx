@@ -28,7 +28,7 @@ export default function LoginForm() {
 
     try {
       await login(data.email, data.password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
       setError(axiosError.response?.data?.error || t('auth.login.failed'));

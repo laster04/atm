@@ -25,6 +25,6 @@ router.post('/:id/seasons/:seasonId', authenticate, authorize('ADMIN', 'SEASON_M
 router.delete('/:id/seasons/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), removeTeamFromSeason);
 router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), updateTeam);
 router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), deleteTeam);
-router.post('/:id/invite-manager', authenticate, authorize('ADMIN'), inviteManager);
+router.post('/:id/invite-manager', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), inviteManager);
 
 export default router;

@@ -53,6 +53,8 @@ export const authApi = {
   resetPassword: (token: string, password: string) =>
     api.post<{ message: string }>(`/auth/reset-password/${token}`, { password }),
   getMe: () => api.get<{ user: User }>('/auth/me'),
+  completeOnboarding: () => api.post<{ user: User }>('/auth/complete-onboarding'),
+  completeTeamTour: () => api.post<{ user: User }>('/auth/complete-team-tour'),
   updateProfile: (data: { name?: string; password?: string }) =>
     api.put<{ user: User }>('/auth/profile', data),
   getUsers: (filters?: { role?: string; name?: string; active?: boolean }) =>

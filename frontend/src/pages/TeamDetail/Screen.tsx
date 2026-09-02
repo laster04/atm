@@ -2,21 +2,26 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useAuth } from '@/context/AuthContext';
 import { teamApi, playerApi, gameStatisticApi } from '@/services/api';
+import { Button } from '@components/base/button';
 import type { Player, Team, TopScorer } from '@types';
 
 import TeamHeader from './components/TeamHeader';
 import RosterTable from './components/RosterTable';
 import GamesList from './components/GamesList';
+import InviteManagerModal from '../TeamManager/components/InviteManagerModal';
 
 export default function TeamDetailScreen() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { isAdmin, isSeasonManager } = useAuth();
 
   const [team, setTeam] = useState<Team | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useDocumentTitle([team?.season?.league?.name, team?.season?.name, team?.name]);
 
@@ -61,6 +66,14 @@ export default function TeamDetailScreen() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <TeamHeader team={team} />
 
+      {(isAdmin() || isSeasonManager()) && (
+        <div className="mb-6">
+          <Button onClick={() => setShowInviteModal(true)}>
+            {t('teamDetail.inviteManager.button')}
+          </Button>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-2 gap-6">
         <RosterTable
             topScorers={topScorers || []}
@@ -69,6 +82,17 @@ export default function TeamDetailScreen() {
 
         <GamesList games={team.games || []} teamId={team.id} />
       </div>
+
+      {showInviteModal && (
+        <InviteManagerModal
+          teamId={team.id}
+          onSuccess={(updatedTeam) => {
+            setTeam(updatedTeam);
+            setShowInviteModal(false);
+          }}
+          onClose={() => setShowInviteModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -3,6 +3,8 @@ import {
   register,
   login,
   getMe,
+  completeOnboarding,
+  completeTeamTour,
   updateProfile,
   getUsers,
   createUser,
@@ -24,6 +26,8 @@ router.post('/resend-activation', resendActivationEmail);
 router.post('/forgot-password', requestPasswordReset);
 router.post('/reset-password/:token', resetPassword);
 router.get('/me', authenticate, getMe);
+router.post('/complete-onboarding', authenticate, completeOnboarding);
+router.post('/complete-team-tour', authenticate, completeTeamTour);
 router.put('/profile', authenticate, updateProfile);
 router.get('/users', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), getUsers);
 router.post('/users', authenticate, authorize('ADMIN'), createUser);

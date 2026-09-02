@@ -59,12 +59,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
   };
 
+  const completeOnboarding = async () => {
+    const res = await authApi.completeOnboarding();
+    localStorage.setItem('user', JSON.stringify(res.data.user));
+    setUser(res.data.user);
+  };
+
+  const completeTeamTour = async () => {
+    const res = await authApi.completeTeamTour();
+    localStorage.setItem('user', JSON.stringify(res.data.user));
+    setUser(res.data.user);
+  };
+
   const isAdmin = () => user?.role === Role.ADMIN;
   const isSeasonManager = () => user?.role === Role.SEASON_MANAGER;
   const isTeamManager = () => user?.role === Role.TEAM_MANAGER;
   const isTournamentManager = () => user?.role === Role.TOURNAMENT_MANAGER;
   const canManageTeam = (teamManagerId?: number | null) =>
-    isAdmin() || (isTeamManager() && user?.id === teamManagerId);
+    isAdmin() || isSeasonManager() || (isTeamManager() && user?.id === teamManagerId);
 
   return (
     <AuthContext.Provider value={{
@@ -73,6 +85,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       login,
       register,
       logout,
+      completeOnboarding,
+      completeTeamTour,
       isAdmin,
       isSeasonManager,
       isTeamManager,

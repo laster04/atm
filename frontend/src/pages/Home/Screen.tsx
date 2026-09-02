@@ -8,6 +8,7 @@ import type { Season, Team } from '@types';
 
 import MyTeamsSection from './components/MyTeamsSection';
 import ActiveSeasonsSection from './components/ActiveSeasonsSection';
+import OnboardingTour from '@/components/OnboardingTour';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -41,14 +42,22 @@ export default function HomeScreen() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
+      <div className="mb-8" data-tour="dashboard-title">
         <h1 className="text-3xl font-bold text-gray-900">{t('home.title')}</h1>
         <p className="text-gray-600 mt-1">{t('home.subtitle')}</p>
       </div>
 
-      {isTeamManager() && <MyTeamsSection teams={myTeams} />}
+      {isTeamManager() && myTeams.length > 0 && (
+        <div data-tour="my-teams-section">
+          <MyTeamsSection teams={myTeams} />
+        </div>
+      )}
 
-      <ActiveSeasonsSection seasons={activeSeasons} loading={seasonsLoading} />
+      <div data-tour="active-seasons-section">
+        <ActiveSeasonsSection seasons={activeSeasons} loading={seasonsLoading} />
+      </div>
+
+      {user && !seasonsLoading && <OnboardingTour />}
     </div>
   );
 }

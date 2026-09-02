@@ -28,6 +28,51 @@
     "menu": "Menu",
     "loggedInAs": "Logged in as"
   },
+  "teamTour": {
+    "steps": {
+      "overview": {
+        "title": "Overview",
+        "body": "A quick snapshot of your team — record, points, and shortcuts to common actions."
+      },
+      "roster": {
+        "title": "Roster",
+        "body": "Add, edit, and manage your players here."
+      },
+      "schedule": {
+        "title": "Schedule",
+        "body": "See upcoming and past games for your team."
+      },
+      "settings": {
+        "title": "Settings",
+        "body": "Customize your team's color and view its info here."
+      }
+    }
+  },
+  "onboarding": {
+    "stepCounter": "Step {{current}} of {{total}}",
+    "skip": "Skip tour",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Got it",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to ATM!",
+        "body": "Let's take a quick look at where things are."
+      },
+      "navMenu": {
+        "title": "Your account menu",
+        "body": "Open this menu anytime to reach your teams, seasons, and settings."
+      },
+      "myTeams": {
+        "title": "Your teams",
+        "body": "The teams you manage show up here. Click one to manage its roster, schedule, and settings."
+      },
+      "activeSeasons": {
+        "title": "Active seasons",
+        "body": "Currently active seasons appear here. Open one to see its teams, schedule, and standings."
+      }
+    }
+  },
   "home": {
     "title": "Sport Season Scheduler",
     "subtitle": "Manage your sports leagues with ease. Create seasons, track teams, schedule games, and view standings all in one place.",
@@ -362,6 +407,9 @@
       "emailPlaceholder": "manager@atm.com",
       "nameLabel": "Name",
       "namePlaceholder": "John Doe",
+      "languageLabel": "Invitation email language",
+      "languageCs": "Czech",
+      "languageEn": "English",
       "submit": "Send Invitation",
       "sending": "Sending...",
       "error": "Failed to invite manager"
@@ -530,6 +578,9 @@
           "emailPlaceholder": "manager@atm.com",
           "nameLabel": "Name",
           "namePlaceholder": "John Doe",
+          "languageLabel": "Invitation email language",
+          "languageCs": "Czech",
+          "languageEn": "English",
           "submit": "Send Invitation",
           "sending": "Sending...",
           "error": "Failed to invite manager"

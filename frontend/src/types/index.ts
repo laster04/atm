@@ -37,6 +37,8 @@ export interface User {
   role: Role;
   active: boolean;
   emailVerified?: boolean;
+  onboardingCompletedAt?: string | null;
+  teamTourCompletedAt?: string | null;
 }
 
 export interface League {
@@ -160,6 +162,8 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<{ user: User; token: string }>;
   register: (email: string, password: string, name: string) => Promise<{ user: User; token: string }>;
   logout: () => void;
+  completeOnboarding: () => Promise<void>;
+  completeTeamTour: () => Promise<void>;
   isAdmin: () => boolean;
   isSeasonManager: () => boolean;
   isTeamManager: () => boolean;

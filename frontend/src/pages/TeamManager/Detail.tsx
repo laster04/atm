@@ -16,6 +16,7 @@ import OverviewTab from './components/OverviewTab';
 import RosterTab from './components/RosterTab';
 import ScheduleTab from './components/ScheduleTab';
 import SettingsTab from './components/SettingsTab';
+import TeamManagerTour from './components/TeamManagerTour';
 
 type TabType = 'overview' | 'roster' | 'schedule' | 'settings';
 
@@ -158,6 +159,7 @@ export default function Detail() {
 					{tabs.map((tab) => (
 						<button
 							key={tab.id}
+							data-tour={`team-tab-${tab.id}`}
 							onClick={() => setActiveTab(tab.id)}
 							className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
 								activeTab === tab.id
@@ -224,6 +226,7 @@ export default function Detail() {
 						{tabs.map((tab) => (
 							<button
 								key={tab.id}
+								data-tour={`team-tab-${tab.id}`}
 								onClick={() => setActiveTab(tab.id)}
 								className={`flex flex-col items-center justify-center gap-1 transition-colors ${
 									activeTab === tab.id
@@ -241,6 +244,8 @@ export default function Detail() {
 				{/* Mobile Content Padding */}
 				<div className="h-16 lg:hidden" />
 			</div>
+
+			<TeamManagerTour />
 		</div>
 	);
 }

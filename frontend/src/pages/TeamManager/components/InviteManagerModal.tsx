@@ -8,6 +8,7 @@ import type { Team } from '@types';
 interface InviteManagerFormData {
   email: string;
   name: string;
+  locale: string;
 }
 
 interface InviteManagerModalProps {
@@ -22,14 +23,14 @@ export default function InviteManagerModal({ teamId, onSuccess, onClose }: Invit
   const [loading, setLoading] = useState(false);
 
   const form = useForm<InviteManagerFormData>({
-    defaultValues: { email: '', name: '' },
+    defaultValues: { email: '', name: '', locale: i18n.language === 'cs' ? 'cs' : 'en' },
   });
 
   const handleSubmit = async (data: InviteManagerFormData) => {
     setError('');
     setLoading(true);
     try {
-      const res = await teamApi.inviteManager(teamId, { ...data, locale: i18n.language });
+      const res = await teamApi.inviteManager(teamId, data);
       onSuccess(res.data);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
@@ -79,6 +80,18 @@ export default function InviteManagerModal({ teamId, onSuccess, onClose }: Invit
               placeholder={t('teamDetail.inviteManager.emailPlaceholder')}
               required
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">
+              {t('teamDetail.inviteManager.languageLabel')}
+            </label>
+            <select
+              {...form.register('locale', { required: true })}
+              className="w-full px-3 py-2 border rounded"
+            >
+              <option value="cs">{t('teamDetail.inviteManager.languageCs')}</option>
+              <option value="en">{t('teamDetail.inviteManager.languageEn')}</option>
+            </select>
           </div>
           <div className="flex justify-end gap-2">
             <button
