@@ -771,7 +771,7 @@
       "generateScheduleDesc": "Automaticky vytvořit rozpis každý s každým pro všechny týmy. Data budou přidána později.",
       "numberOfRounds": "Počet kol",
       "teamsInSeason": "Týmů v sezóně: {{count}}",
-      "minRoundsInfo": "Minimálně {{minRounds}} kol pro kompletní rozpis",
+      "roundInfo": "Každé kolo je kompletní rozpis každý s každým: {{gamesPerRound}} zápasů",
       "totalGamesInfo": "Celkem zápasů k vygenerování: {{total}}",
       "generateWarning": "Toto smaže všechny existující zápasy v této sezóně a vytvoří nové bez dat. Data můžete přidat k jednotlivým zápasům později.",
       "generate": "Generovat",

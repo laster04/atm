@@ -18,11 +18,11 @@ interface GenerateScheduleModalProps {
 export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }: GenerateScheduleModalProps) {
 	const { t } = useTranslation();
 
-	// Calculate minimum rounds for one full round-robin
-	const minRounds = teamsCount > 1 ? (teamsCount % 2 === 0 ? teamsCount - 1 : teamsCount) : 1;
+	// One round is a full round-robin: every team meets every other team once.
+	const gamesPerRound = teamsCount > 1 ? (teamsCount * (teamsCount - 1)) / 2 : 0;
 
 	const initValues: GenerateScheduleData = {
-		rounds: minRounds * 2, // Default to double round-robin
+		rounds: 2, // Default to double round-robin (home and away)
 	};
 
 	const form = useForm<GenerateScheduleData>({
@@ -36,8 +36,7 @@ export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }:
 	};
 
 	const watchRounds = form.watch('rounds');
-	const gamesPerRound = teamsCount > 1 ? teamsCount * 2 + (teamsCount / 2) : 0;
-	const totalGames = watchRounds * gamesPerRound;
+	const totalGames = (Number(watchRounds) || 0) * gamesPerRound;
 
 	return (
 		<>
@@ -52,7 +51,7 @@ export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }:
 							{t('admin.modal.teamsInSeason', { count: teamsCount })}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							{t('admin.modal.minRoundsInfo', { minRounds })}
+							{t('admin.modal.roundInfo', { gamesPerRound })}
 						</p>
 					</div>
 

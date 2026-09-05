@@ -17,7 +17,8 @@ export const getGamesBySeasonId = async (req: Request, res: Response): Promise<v
         homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
         awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true } }
       },
-      orderBy: [{ round: 'asc' }, { date: 'asc' }]
+      // id breaks ties so undated generated games keep the order they were scheduled in
+      orderBy: [{ round: 'asc' }, { date: 'asc' }, { id: 'asc' }]
     });
     res.json(games);
   } catch (error) {
@@ -256,10 +257,15 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    await prisma.game.deleteMany({ where: { seasonId: parseInt(seasonId) } });
+    const totalRounds = requestedRounds ?? 1;
+    if (!Number.isInteger(totalRounds) || totalRounds < 1) {
+      res.status(400).json({ error: 'Rounds must be a positive whole number' });
+      return;
+    }
 
     const teamIds = teams.map(t => t.id);
-    const totalRounds = requestedRounds || 1;
+    const scheduledGames: Prisma.GameCreateManyInput[] = [];
+    let previousGame: Prisma.GameCreateManyInput | undefined;
 
     // Generate all pairings for each round (every team plays every other team)
     for (let round = 1; round <= totalRounds; round++) {
@@ -287,8 +293,20 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
           });
         }
       }
-      await prisma.game.createMany({ data: shuffleGames(games) });
+
+      // Order within the round, carrying the previous round's last game over so
+      // no team plays back to back across the round boundary either.
+      const orderedRound = orderGamesWithRest(games, previousGame);
+      previousGame = orderedRound[orderedRound.length - 1];
+      scheduledGames.push(...orderedRound);
     }
+
+    // Games are read back in insertion order, so the delete and the insert have
+    // to succeed or fail together to avoid leaving a half-generated schedule.
+    await prisma.$transaction([
+      prisma.game.deleteMany({ where: { seasonId: parseInt(seasonId) } }),
+      prisma.game.createMany({ data: scheduledGames })
+    ]);
 
 
     const createdGames = await prisma.game.findMany({
@@ -310,48 +328,117 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
   }
 };
 
-function shuffleGames(games: Prisma.GameCreateManyInput[]): Prisma.GameCreateManyInput[] {
-  let shuffled = [...games];
-  let attempts = 0;
-  const maxAttempts = 1000;
+type ScheduledGame = Prisma.GameCreateManyInput;
 
-  const fisherYatesShuffle = (array: Prisma.GameCreateManyInput[]): Prisma.GameCreateManyInput[] => {
-    const shuffled = [...array];
+const sharesTeam = (a: ScheduledGame, b: ScheduledGame): boolean =>
+  a.homeTeamId === b.homeTeamId ||
+  a.homeTeamId === b.awayTeamId ||
+  a.awayTeamId === b.homeTeamId ||
+  a.awayTeamId === b.awayTeamId;
 
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
+function fisherYatesShuffle<T>(array: T[]): T[] {
+  const shuffled = [...array];
 
-    return shuffled;
-  }
-
-  const isValidSchedule = (games: Prisma.GameCreateManyInput[]): boolean => {
-    for (let i = 0; i < games.length - 1; i++) {
-      const current = games[i];
-      const next = games[i + 1];
-
-      // Check if same team appears consecutively
-      if (
-          current.homeTeamId === next.homeTeamId ||
-          current.homeTeamId === next.awayTeamId ||
-          current.awayTeamId === next.homeTeamId ||
-          current.awayTeamId === next.awayTeamId
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-  while (!isValidSchedule(shuffled) && attempts < maxAttempts) {
-    shuffled = fisherYatesShuffle([...games]);
-    attempts++;
-  }
-
-  if (attempts === maxAttempts) {
-    console.warn('Could not find valid schedule after max attempts');
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 
   return shuffled;
+}
+
+/**
+ * Orders games so that, where possible, no team plays two games in a row.
+ *
+ * Greedy pass: repeatedly take the game that doesn't reuse a team from the
+ * previous game, preferring the one whose teams still have the most games left
+ * (the most constrained ones, which get harder to place the longer they wait).
+ * A team with too many games left can make some clashes unavoidable, so a
+ * repair pass then swaps the leftovers out where a swap actually helps.
+ *
+ * `previousGame` is the game that comes immediately before this batch (the
+ * previous round's last game), so the round boundary is checked as well.
+ */
+function orderGamesWithRest(games: ScheduledGame[], previousGame?: ScheduledGame): ScheduledGame[] {
+  const remaining = fisherYatesShuffle(games);
+
+  const gamesLeftByTeam = new Map<number, number>();
+  const addGamesLeft = (teamId: number, delta: number): void => {
+    gamesLeftByTeam.set(teamId, (gamesLeftByTeam.get(teamId) ?? 0) + delta);
+  };
+  for (const game of remaining) {
+    addGamesLeft(game.homeTeamId, 1);
+    addGamesLeft(game.awayTeamId, 1);
+  }
+
+  const ordered: ScheduledGame[] = [];
+  let previous = previousGame;
+
+  while (remaining.length > 0) {
+    let bestIndex = -1;
+    let bestScore = -1;
+
+    for (let i = 0; i < remaining.length; i++) {
+      const candidate = remaining[i];
+      if (previous && sharesTeam(previous, candidate)) continue;
+
+      const score =
+        (gamesLeftByTeam.get(candidate.homeTeamId) ?? 0) +
+        (gamesLeftByTeam.get(candidate.awayTeamId) ?? 0);
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    // Every remaining game reuses a team from the previous one: clash is unavoidable here.
+    if (bestIndex === -1) bestIndex = 0;
+
+    const [next] = remaining.splice(bestIndex, 1);
+    addGamesLeft(next.homeTeamId, -1);
+    addGamesLeft(next.awayTeamId, -1);
+    ordered.push(next);
+    previous = next;
+  }
+
+  return repairClashes(ordered, previousGame);
+}
+
+/**
+ * Swaps games that still share a team with their neighbour, keeping only the
+ * swaps that lower the number of clashes around the two positions touched.
+ */
+function repairClashes(games: ScheduledGame[], previousGame?: ScheduledGame): ScheduledGame[] {
+  const repaired = [...games];
+
+  // Clash on the boundary between position index - 1 and index.
+  const boundaryClash = (index: number): number => {
+    const before = index === 0 ? previousGame : repaired[index - 1];
+    const after = repaired[index];
+    if (!before || !after) return 0;
+    return sharesTeam(before, after) ? 1 : 0;
+  };
+
+  const clashesAround = (i: number, j: number): number => {
+    const boundaries = new Set([i, i + 1, j, j + 1].filter(b => b < repaired.length));
+    let total = 0;
+    for (const boundary of boundaries) total += boundaryClash(boundary);
+    return total;
+  };
+
+  for (let i = 0; i < repaired.length; i++) {
+    if (boundaryClash(i) === 0) continue;
+
+    for (let j = 0; j < repaired.length; j++) {
+      if (j === i) continue;
+
+      const before = clashesAround(i, j);
+      [repaired[i], repaired[j]] = [repaired[j], repaired[i]];
+
+      if (clashesAround(i, j) < before) break;
+      [repaired[i], repaired[j]] = [repaired[j], repaired[i]];
+    }
+  }
+
+  return repaired;
 }

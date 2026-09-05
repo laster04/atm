@@ -81,16 +81,18 @@ export default function GamesPage() {
 		return () => clearTimeout(timeout);
 	}, [error]);
 
-	const handleGenerateSchedule = async (data?: GenerateScheduleData) => {
+	const handleGenerateSchedule = async (data: GenerateScheduleData) => {
 		if (!selectedSeason) return;
 		setError('');
 		try {
 			const result = await gameApi.generateSchedule(selectedSeason.id, {
-				rounds: data?.rounds ?? 1,
+				rounds: data.rounds,
 			});
+			// The backend deletes every existing game and returns the full new schedule,
+			// so the season's games are replaced rather than appended to.
 			setGamesBySeason((prev) => ({
 				...prev,
-				[selectedSeason.id]: [...(prev[selectedSeason.id] || []), ...result.data.games]
+				[selectedSeason.id]: result.data.games
 			}));
 			toast.success(t('admin.tabs.game.toasts.generatedGamesSuccessTitle'), {
 				description: t('admin.tabs.game.toasts.generatedGamesSuccessDescription', { count: result.data.games.length }),

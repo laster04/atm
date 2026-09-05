@@ -771,7 +771,7 @@
       "generateScheduleDesc": "Automatically create a round-robin schedule for all teams. Dates will be added later.",
       "numberOfRounds": "Number of Rounds",
       "teamsInSeason": "Teams in season: {{count}}",
-      "minRoundsInfo": "Minimum {{minRounds}} rounds for a full round-robin",
+      "roundInfo": "Each round is a full round-robin: {{gamesPerRound}} games",
       "totalGamesInfo": "Total games to generate: {{total}}",
       "generateWarning": "This will delete all existing games in this season and create new ones without dates. You can add dates to individual games later.",
       "generate": "Generate",
