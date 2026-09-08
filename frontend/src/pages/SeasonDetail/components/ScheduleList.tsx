@@ -20,7 +20,7 @@ enum TabScheduleType {
 export default function ScheduleList({ games }: ScheduleListProps) {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('scheduleType') || TabScheduleType.TODAY;
+  const activeTab = searchParams.get('scheduleType') || TabScheduleType.UPCOMING;
 
   const setActiveScheduleTab = (scheduleType: string) => {
     setSearchParams({ tab: TabSeasonDetailType.SCHEDULE, scheduleType }, { replace: true });

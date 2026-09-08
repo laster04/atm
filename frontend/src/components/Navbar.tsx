@@ -92,6 +92,7 @@ export default function Navbar() {
 													<Badge variant={getRoleBadgeVariant(user?.role)} className="w-fit">
 														{user?.role ? t(`admin.roles.${user.role}`) : ''}
 													</Badge>
+													<p className="text-xs font-normal text-muted-foreground truncate">{user.email}</p>
 												</div>
 											</DropdownMenuLabel>
 											<DropdownMenuSeparator />

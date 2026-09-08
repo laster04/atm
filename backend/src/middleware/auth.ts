@@ -17,7 +17,22 @@ export const authenticate = async (
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    } catch (error) {
+      const name = (error as Error)?.name;
+      if (name === 'TokenExpiredError') {
+        res.status(401).json({ error: 'Token expired' });
+        return;
+      }
+      if (name === 'JsonWebTokenError' || name === 'NotBeforeError') {
+        res.status(401).json({ error: 'Invalid token' });
+        return;
+      }
+      throw error;
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -32,7 +47,10 @@ export const authenticate = async (
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+    // Anything past token verification is a server-side failure (e.g. database
+    // errors). Returning 401 here logs the client out for a problem it cannot fix.
+    console.error('Authentication error:', error);
+    res.status(500).json({ error: 'Authentication failed' });
   }
 };
 
