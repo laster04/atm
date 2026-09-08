@@ -32,19 +32,23 @@
     "steps": {
       "overview": {
         "title": "Přehled",
-        "body": "Rychlý přehled vašeho týmu — výsledky, body a zkratky k častým akcím."
+        "body": "Nejbližší zápas, bilance sezony a zkratka na soupisku."
       },
       "roster": {
         "title": "Soupiska",
-        "body": "Zde přidáváte a spravujete hráče svého týmu."
+        "body": "Přidávejte a spravujte hráče. Vyhledávejte nebo řaďte podle čísla, jména, bodů či trestných minut."
       },
       "schedule": {
         "title": "Rozpis",
-        "body": "Zde uvidíte nadcházející i odehrané zápasy vašeho týmu."
+        "body": "Nadcházející i odehrané zápasy a také odložené, zrušené nebo právě hrané."
       },
       "settings": {
         "title": "Nastavení",
         "body": "Zde můžete upravit barvu týmu a zobrazit jeho informace."
+      },
+      "lineup": {
+        "title": "Zapsat sestavu",
+        "body": "Před zápasem sem klepněte a zaškrtněte, kdo hrál, a zapište góly, asistence a trestné minuty."
       }
     }
   },

@@ -123,6 +123,7 @@ export default function OverviewTab({
 						</div>
 						<button
 							type="button"
+							data-tour="team-next-game"
 							className="flex h-11 items-center justify-center gap-2 rounded-lg text-[15px] font-semibold text-white"
 							style={{ backgroundColor: color }}
 							onClick={() => navigate(`/team-management/${team.id}/game/${nextGame.id}`)}

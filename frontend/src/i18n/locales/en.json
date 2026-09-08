@@ -32,19 +32,23 @@
     "steps": {
       "overview": {
         "title": "Overview",
-        "body": "A quick snapshot of your team — record, points, and shortcuts to common actions."
+        "body": "Your next fixture, the season record, and a shortcut to the roster."
       },
       "roster": {
         "title": "Roster",
-        "body": "Add, edit, and manage your players here."
+        "body": "Add and manage players. Search, or sort by number, name, points or penalty minutes."
       },
       "schedule": {
         "title": "Schedule",
-        "body": "See upcoming and past games for your team."
+        "body": "Upcoming and played games, plus anything postponed, cancelled or in progress."
       },
       "settings": {
         "title": "Settings",
         "body": "Customize your team's color and view its info here."
+      },
+      "lineup": {
+        "title": "Set the line-up",
+        "body": "Tap here before a game to tick who played and record goals, assists and penalty minutes."
       }
     }
   },
