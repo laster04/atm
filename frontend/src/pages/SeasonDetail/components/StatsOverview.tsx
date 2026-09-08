@@ -32,18 +32,21 @@ export function StatsOverview({ seasonId, standings, games, archived }: StatsOve
 			.finally(() => setLoadingScorers(false));
 	}, [seasonId, archived]);
 
+	const leader = standings[0];
+	const completedGames = games.filter(item => item.status == GameStatus.COMPLETED);
+
 	const stats = [
 		{
 			title: t('seasonDetail.overview.gamePlayed'),
-			value: games.filter(item => item.status == GameStatus.COMPLETED).length,
+			value: completedGames.length,
 			icon: Calendar,
 			description: t('seasonDetail.overview.outOfTotal', { count: games.length}),
 		},
 		{
 			title: t('seasonDetail.overview.leader'),
-			value: standings[0].team.name,
+			value: leader?.team?.name ?? '-',
 			icon: Trophy,
-			description: t('seasonDetail.overview.leaderPoints', { points: standings[0].points}),
+			description: t('seasonDetail.overview.leaderPoints', { points: leader?.points ?? 0}),
 		},
 		{
 			title: t('seasonDetail.overview.scoredTotal'),
@@ -53,10 +56,10 @@ export function StatsOverview({ seasonId, standings, games, archived }: StatsOve
 		},
 		{
 			title: t('seasonDetail.overview.avgGoalsPerGame'),
-			value: (games
-				.filter(item => item.status == GameStatus.COMPLETED)
-				.reduce((sum, game) => sum + (game?.homeScore ?? 0) + (game?.awayScore ?? 0), 0)
-				/ games.filter(item => item.status == GameStatus.COMPLETED).length).toFixed(1),
+			value: completedGames.length
+				? (completedGames.reduce((sum, game) => sum + (game?.homeScore ?? 0) + (game?.awayScore ?? 0), 0)
+					/ completedGames.length).toFixed(1)
+				: '0.0',
 			icon: TrendingUp,
 			description: t('seasonDetail.overview.thisSeason'),
 		},
