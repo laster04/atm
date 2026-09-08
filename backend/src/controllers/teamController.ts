@@ -26,7 +26,20 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
           }
         },
         _count: { select: { players: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        manager: { select: { id: true, name: true, email: true } },
+        // Only the next dated fixture on each side; the list screen shows one.
+        homeGames: {
+          where: { status: 'SCHEDULED', date: { not: null } },
+          include: { awayTeam: { select: { id: true, name: true } } },
+          orderBy: { date: 'asc' },
+          take: 1
+        },
+        awayGames: {
+          where: { status: 'SCHEDULED', date: { not: null } },
+          include: { homeTeam: { select: { id: true, name: true } } },
+          orderBy: { date: 'asc' },
+          take: 1
+        }
       },
       orderBy: { name: 'asc' }
     });
@@ -37,7 +50,11 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
         .map(st => st.season)
         .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
         .find(s => s.status === 'ACTIVE') || team.seasonTeams[0]?.season || null;
-      return { ...team, season: activeSeason };
+
+      const nextGame = [...team.homeGames, ...team.awayGames]
+        .sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime())[0] ?? null;
+
+      return { ...team, season: activeSeason, nextGame };
     });
 
     res.json(teamsWithSeason);

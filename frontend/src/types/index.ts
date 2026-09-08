@@ -96,6 +96,8 @@ export interface Team {
   homeGames?: Game[];
   awayGames?: Game[];
   games?: Game[];
+  /** Next dated SCHEDULED fixture; only returned by GET /teams/my. */
+  nextGame?: Game | null;
   _count?: {
     players: number;
   };

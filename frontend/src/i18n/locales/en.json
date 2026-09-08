@@ -488,7 +488,30 @@
         "roster": "Roster",
         "schedule": "Schedule",
         "settings": "Settings"
-      }
+      },
+      "sortNumber": "Number",
+      "searchPlayers": "Search players",
+      "noPosition": "No position set",
+      "noPlayersFound": "No players match your search",
+      "pointsShort": "pts",
+      "playerCount_one": "{{count}} player",
+      "playerCount_other": "{{count}} players",
+      "otherGames": "Other",
+      "notScheduledYet": "Not scheduled yet",
+      "tbd": "TBD",
+      "homeShort": "H",
+      "awayShort": "A",
+      "newDateTbd": "new date to be confirmed",
+      "unknownOpponent": "Opponent",
+      "draws": "Draws",
+      "nextGame": "Next game",
+      "setLineup": "Set line-up",
+      "noScheduledGame": "No game scheduled yet",
+      "then": "Then",
+      "today": "today",
+      "tomorrow": "tomorrow",
+      "inDays_one": "in {{count}} day",
+      "inDays_other": "in {{count}} days"
     },
     "gameStats": {
       "playerStats": "Player Statistics",
@@ -499,7 +522,11 @@
       "saveSuccess": "Statistics saved successfully",
       "saveError": "Failed to save statistics",
       "notFound": "Game not found",
-      "notYourGame": "This game does not belong to your team"
+      "notYourGame": "This game does not belong to your team",
+      "lineup": "Line-up",
+      "allSaved": "All changes saved",
+      "unsavedChanges_one": "{{count}} unsaved change",
+      "unsavedChanges_other": "{{count}} unsaved changes"
     },
     "playerDetail": {
       "addPlayer": "Add Player",
@@ -522,7 +549,12 @@
       "saveError": "Failed to save player",
       "deleteSuccess": "Player deleted successfully",
       "deleteError": "Failed to delete player",
-      "confirmDelete": "Are you sure you want to delete this player?"
+      "confirmDelete": "Are you sure you want to delete this player?",
+      "goalsShort_one": "{{count}} goal",
+      "goalsShort_other": "{{count}} goals",
+      "assistsShort_one": "{{count}} assist",
+      "assistsShort_other": "{{count}} assists",
+      "noPoints": "No points"
     },
     "toast": {
       "colorUpdated": "Color for {{name}} updated!"

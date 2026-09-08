@@ -1,17 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Save, Loader2, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Check, Loader2, Minus, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { gameApi, playerApi, gameStatisticApi } from '@/services/api';
+import { gameApi, playerApi, gameStatisticApi, teamApi } from '@/services/api';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@components/base/card.tsx";
-import { Button } from "@components/base/button.tsx";
-import { Input } from "@components/base/input.tsx";
-import { Checkbox } from "@components/base/checkbox.tsx";
-import { Label } from "@components/base/label.tsx";
-import { Badge } from "@components/base/badge.tsx";
-import { Game, Player, HockeyGameStatistic } from "@types";
+import { Button } from '@components/base/button';
+import { GameStatus, type Game, type HockeyGameStatistic, type Player } from '@types';
 
 interface PlayerStatForm {
 	playerId: number;
@@ -23,15 +18,23 @@ interface PlayerStatForm {
 	existingStatId?: number;
 }
 
+/** Snapshot used to work out which rows actually need a request on save. */
+const signature = (s: PlayerStatForm) => `${s.played}|${s.goals}|${s.assists}`;
+
 export default function GameStatsPage() {
 	const { id: teamId, gameId } = useParams<{ id: string; gameId: string }>();
 	const navigate = useNavigate();
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
+
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [game, setGame] = useState<Game | null>(null);
+	const [teamColor, setTeamColor] = useState<string | null>(null);
 	const [teamStats, setTeamStats] = useState<PlayerStatForm[]>([]);
+	const [baseline, setBaseline] = useState<Record<number, string>>({});
 	const [isHomeTeam, setIsHomeTeam] = useState(false);
+
+	const color = teamColor || '#003E7E';
 
 	useEffect(() => {
 		if (!gameId || !teamId) return;
@@ -39,17 +42,14 @@ export default function GameStatsPage() {
 		const fetchData = async () => {
 			setLoading(true);
 			try {
-				const [gameResp, existingStatsResp] = await Promise.all([
+				const [gameResp, existingStatsResp, teamResp] = await Promise.all([
 					gameApi.getById(gameId),
-					gameStatisticApi.getByGame(gameId)
+					gameStatisticApi.getByGame(gameId),
+					teamApi.getById(teamId),
 				]);
 
 				const gameData = gameResp.data;
-				setGame(gameData);
-
 				const teamIdNum = parseInt(teamId);
-				const isHome = gameData.homeTeamId === teamIdNum;
-				setIsHomeTeam(isHome);
 
 				// Verify this team is part of the game
 				if (gameData.homeTeamId !== teamIdNum && gameData.awayTeamId !== teamIdNum) {
@@ -58,13 +58,14 @@ export default function GameStatsPage() {
 					return;
 				}
 
-				const existingStats = existingStatsResp.data;
+				setGame(gameData);
+				setIsHomeTeam(gameData.homeTeamId === teamIdNum);
+				setTeamColor(teamResp.data.primaryColor ?? null);
+
 				const statsMap = new Map<number, HockeyGameStatistic>();
-				existingStats.forEach(stat => statsMap.set(stat.playerId, stat));
+				existingStatsResp.data.forEach((stat) => statsMap.set(stat.playerId, stat));
 
-				// Fetch players only for the managed team
 				const playersResp = await playerApi.getByTeam(teamIdNum);
-
 				const stats: PlayerStatForm[] = playersResp.data.map((player: Player) => {
 					const existingStat = statsMap.get(player.id);
 					return {
@@ -74,11 +75,12 @@ export default function GameStatsPage() {
 						played: !!existingStat,
 						goals: existingStat?.goals ?? 0,
 						assists: existingStat?.assists ?? 0,
-						existingStatId: existingStat?.id
+						existingStatId: existingStat?.id,
 					};
 				});
 
 				setTeamStats(stats);
+				setBaseline(Object.fromEntries(stats.map((s) => [s.playerId, signature(s)])));
 			} catch (error) {
 				toast.error(t('teamManagement.gameStats.fetchError'));
 			} finally {
@@ -88,33 +90,52 @@ export default function GameStatsPage() {
 		fetchData();
 	}, [gameId, teamId, t, navigate]);
 
-	const updatePlayerStat = (
-		playerId: number,
-		field: keyof PlayerStatForm,
-		value: boolean | number
-	) => {
-		setTeamStats(prev => prev.map(stat =>
-			stat.playerId === playerId ? { ...stat, [field]: value } : stat
-		));
+	const dirty = useMemo(
+		() => teamStats.filter((s) => baseline[s.playerId] !== signature(s)),
+		[teamStats, baseline],
+	);
+
+	const totals = useMemo(() => {
+		const active = teamStats.filter((s) => s.played);
+		return {
+			lineup: active.length,
+			goals: active.reduce((sum, s) => sum + s.goals, 0),
+			assists: active.reduce((sum, s) => sum + s.assists, 0),
+		};
+	}, [teamStats]);
+
+	const patch = (playerId: number, changes: Partial<PlayerStatForm>) => {
+		setTeamStats((prev) => prev.map((stat) => {
+			if (stat.playerId !== playerId) return stat;
+			const next = { ...stat, ...changes };
+			// Unticking a player clears their numbers so the row reads honestly.
+			if (changes.played === false) return { ...next, goals: 0, assists: 0 };
+			return next;
+		}));
+	};
+
+	const step = (stat: PlayerStatForm, field: 'goals' | 'assists', delta: number) => {
+		const value = Math.max(0, stat[field] + delta);
+		patch(stat.playerId, { [field]: value, played: true } as Partial<PlayerStatForm>);
 	};
 
 	const handleSubmit = async () => {
-		if (!gameId) return;
+		if (!gameId || !dirty.length) return;
 
 		setSaving(true);
 		try {
-			for (const stat of teamStats) {
+			for (const stat of dirty) {
 				if (stat.played) {
 					if (stat.existingStatId) {
 						await gameStatisticApi.update(stat.existingStatId, {
 							goals: stat.goals,
-							assists: stat.assists
+							assists: stat.assists,
 						});
 					} else {
 						await gameStatisticApi.create(gameId, {
 							playerId: stat.playerId,
 							goals: stat.goals,
-							assists: stat.assists
+							assists: stat.assists,
 						});
 					}
 				} else if (stat.existingStatId) {
@@ -124,15 +145,18 @@ export default function GameStatsPage() {
 
 			toast.success(t('teamManagement.gameStats.saveSuccess'));
 
-			// Refresh data to get updated IDs
 			const existingStatsResp = await gameStatisticApi.getByGame(gameId);
 			const statsMap = new Map<number, HockeyGameStatistic>();
-			existingStatsResp.data.forEach(stat => statsMap.set(stat.playerId, stat));
+			existingStatsResp.data.forEach((stat) => statsMap.set(stat.playerId, stat));
 
-			setTeamStats(prev => prev.map(stat => ({
-				...stat,
-				existingStatId: statsMap.get(stat.playerId)?.id
-			})));
+			setTeamStats((prev) => {
+				const next = prev.map((stat) => ({
+					...stat,
+					existingStatId: statsMap.get(stat.playerId)?.id,
+				}));
+				setBaseline(Object.fromEntries(next.map((s) => [s.playerId, signature(s)])));
+				return next;
+			});
 		} catch (error) {
 			toast.error(t('teamManagement.gameStats.saveError'));
 		} finally {
@@ -140,63 +164,17 @@ export default function GameStatsPage() {
 		}
 	};
 
-	const renderPlayerRow = (stat: PlayerStatForm) => (
-		<div key={stat.playerId} className="flex items-center gap-3 py-2 border-b last:border-b-0">
-			<Checkbox
-				id={`played-${stat.playerId}`}
-				checked={stat.played}
-				onCheckedChange={(checked) => updatePlayerStat(stat.playerId, 'played', !!checked)}
-			/>
-			<div className="flex-1 min-w-0">
-				<Label htmlFor={`played-${stat.playerId}`} className="cursor-pointer">
-					{stat.playerNumber && (
-						<span className="text-muted-foreground mr-2">#{stat.playerNumber}</span>
-					)}
-					{stat.playerName}
-				</Label>
-			</div>
-			<div className="flex items-center gap-2">
-				<div className="flex flex-col items-center">
-					<Label className="text-xs text-muted-foreground mb-1">
-						{t('teamManagement.gameStats.goals')}
-					</Label>
-					<Input
-						type="number"
-						min={0}
-						value={stat.goals}
-						onChange={(e) => updatePlayerStat(stat.playerId, 'goals', parseInt(e.target.value) || 0)}
-						disabled={!stat.played}
-						className="w-16 text-center"
-					/>
-				</div>
-				<div className="flex flex-col items-center">
-					<Label className="text-xs text-muted-foreground mb-1">
-						{t('teamManagement.gameStats.assists')}
-					</Label>
-					<Input
-						type="number"
-						min={0}
-						value={stat.assists}
-						onChange={(e) => updatePlayerStat(stat.playerId, 'assists', parseInt(e.target.value) || 0)}
-						disabled={!stat.played}
-						className="w-16 text-center"
-					/>
-				</div>
-			</div>
-		</div>
-	);
-
 	if (loading) {
 		return (
 			<div className="flex items-center justify-center py-12">
-				<Loader2 className="h-8 w-8 animate-spin" />
+				<Loader2 className="size-8 animate-spin" />
 			</div>
 		);
 	}
 
 	if (!game) {
 		return (
-			<div className="text-center py-12 text-muted-foreground">
+			<div className="py-12 text-center text-muted-foreground">
 				{t('teamManagement.gameStats.notFound')}
 			</div>
 		);
@@ -206,108 +184,154 @@ export default function GameStatsPage() {
 	const opponentTeam = isHomeTeam ? game.awayTeam : game.homeTeam;
 	const myScore = isHomeTeam ? game.homeScore : game.awayScore;
 	const opponentScore = isHomeTeam ? game.awayScore : game.homeScore;
+	const hasScore = game.status === GameStatus.COMPLETED && myScore != null && opponentScore != null;
+
+	const periods = [
+		[isHomeTeam ? game.period1HomeScore : game.period1AwayScore, isHomeTeam ? game.period1AwayScore : game.period1HomeScore],
+		[isHomeTeam ? game.period2HomeScore : game.period2AwayScore, isHomeTeam ? game.period2AwayScore : game.period2HomeScore],
+		[isHomeTeam ? game.period3HomeScore : game.period3AwayScore, isHomeTeam ? game.period3AwayScore : game.period3HomeScore],
+	].filter(([mine]) => mine != null);
+
+	const Stepper = ({ stat, field }: { stat: PlayerStatForm; field: 'goals' | 'assists' }) => (
+		<div className="tm-stat-stepper">
+			<button
+				type="button"
+				aria-label={`${t(`teamManagement.gameStats.${field}`)} −`}
+				disabled={stat[field] === 0}
+				onClick={() => step(stat, field, -1)}
+			>
+				<Minus className="size-3.5" />
+			</button>
+			<output className={stat.played ? undefined : 'text-muted-foreground'}>{stat[field]}</output>
+			<button
+				type="button"
+				aria-label={`${t(`teamManagement.gameStats.${field}`)} +`}
+				onClick={() => step(stat, field, 1)}
+			>
+				<Plus className="size-3.5" />
+			</button>
+		</div>
+	);
 
 	return (
-		<div className="space-y-4 p-4">
-			<div className="flex items-center gap-2">
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={() => navigate(`/team-management/${teamId}`)}
-				>
-					<ArrowLeft className="h-4 w-4 mr-1" />
-					{t('common.back')}
-				</Button>
+		<div className="-mx-4 flex min-h-full flex-col lg:mx-0">
+			{/* Game header */}
+			<div className="flex flex-col gap-3 px-4 pb-3">
+				<div className="flex items-center gap-2">
+					<Button
+						variant="ghost"
+						size="sm"
+						className="-ml-2 size-11"
+						aria-label={t('common.back')}
+						onClick={() => navigate(`/team-management/${teamId}`)}
+					>
+						<ArrowLeft className="size-5" />
+					</Button>
+					<div className="min-w-0 flex-1">
+						<div className="truncate text-base font-semibold">
+							{myTeam?.name} — {opponentTeam?.name}
+						</div>
+						<div className="truncate text-xs text-muted-foreground">
+							{game.date && new Date(game.date).toLocaleDateString(i18n.language, {
+								day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+							})}
+							{game.location && ` · ${game.location}`}
+						</div>
+					</div>
+				</div>
+
+				{hasScore && (
+					<div className="flex items-center gap-3">
+						<span className="text-2xl font-bold tabular-nums leading-none">
+							{myScore}:{opponentScore}
+						</span>
+						{periods.length > 0 && (
+							<span className="text-xs text-muted-foreground">
+								{periods.map(([mine, theirs], i) => `P${i + 1} ${mine}:${theirs}`).join('  ')}
+							</span>
+						)}
+					</div>
+				)}
 			</div>
 
-			<Card>
-				<CardHeader className="pb-3">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-lg flex items-center gap-2">
-							<div
-								className="size-4 rounded-full"
-								style={{ backgroundColor: myTeam?.primaryColor ?? '#808080' }}
-							/>
-							{myTeam?.name}
-							<span className="text-muted-foreground">vs</span>
-							<div
-								className="size-4 rounded-full"
-								style={{ backgroundColor: opponentTeam?.primaryColor ?? '#808080' }}
-							/>
-							{opponentTeam?.name}
-						</CardTitle>
-						<Badge variant={isHomeTeam ? 'default' : 'outline'}>
-							{isHomeTeam ? t('teamManagement.pwa.home') : t('teamManagement.pwa.away')}
-						</Badge>
-					</div>
-					<div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-						{game.date && new Date(game.date).toLocaleDateString()}
-						{game.location && ` • ${game.location}`}
-					</div>
-					{game.status === 'COMPLETED' && myScore != null && opponentScore != null && (
-						<div className="mt-2">
-							<div className="flex items-center gap-2">
-								<span className="text-2xl font-bold">{myScore} : {opponentScore}</span>
-								<Badge
-									variant={myScore > opponentScore ? 'default' : myScore === opponentScore ? 'secondary' : 'destructive'}
-									className={myScore > opponentScore ? 'bg-green-600' : ''}
-								>
-									{myScore > opponentScore ? t('teamManagement.pwa.win') : myScore === opponentScore ? t('teamManagement.pwa.draw') : t('teamManagement.pwa.loss')}
-								</Badge>
-							</div>
-							{(() => {
-								const p1my = isHomeTeam ? game.period1HomeScore : game.period1AwayScore;
-								const p1opp = isHomeTeam ? game.period1AwayScore : game.period1HomeScore;
-								const p2my = isHomeTeam ? game.period2HomeScore : game.period2AwayScore;
-								const p2opp = isHomeTeam ? game.period2AwayScore : game.period2HomeScore;
-								const p3my = isHomeTeam ? game.period3HomeScore : game.period3AwayScore;
-								const p3opp = isHomeTeam ? game.period3AwayScore : game.period3HomeScore;
-								if (p1my == null && p2my == null && p3my == null) return null;
-								return (
-									<div className="flex gap-3 text-sm text-muted-foreground mt-1">
-										{p1my != null && <span>P1: {p1my}-{p1opp}</span>}
-										{p2my != null && <span>P2: {p2my}-{p2opp}</span>}
-										{p3my != null && <span>P3: {p3my}-{p3opp}</span>}
-									</div>
-								);
-							})()}
-						</div>
-					)}
-				</CardHeader>
-			</Card>
+			{/* Column headers double as the running totals */}
+			<div className="flex items-center gap-4 border-y border-border bg-card px-4 py-2.5 text-xs text-muted-foreground">
+				<span>
+					{t('teamManagement.gameStats.lineup')}{' '}
+					<b className="font-semibold text-foreground">{totals.lineup}</b>
+				</span>
+				<span>
+					{t('teamManagement.gameStats.goals')}{' '}
+					<b className="font-semibold text-foreground">{totals.goals}</b>
+				</span>
+				<span>
+					{t('teamManagement.gameStats.assists')}{' '}
+					<b className="font-semibold text-foreground">{totals.assists}</b>
+				</span>
+			</div>
 
-			<Card>
-				<CardHeader className="pb-3">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-base flex items-center gap-2">
-							<div
-								className="size-4 rounded-full"
-								style={{ backgroundColor: myTeam?.primaryColor ?? '#808080' }}
-							/>
-							{t('teamManagement.gameStats.playerStats')}
-						</CardTitle>
-						<Button onClick={handleSubmit} disabled={saving} size="sm">
-							{saving ? (
-								<Loader2 className="h-4 w-4 animate-spin mr-2" />
-							) : (
-								<Save className="h-4 w-4 mr-2" />
-							)}
-							{t('common.save')}
-						</Button>
-					</div>
-				</CardHeader>
-				<CardContent>
-					{teamStats.length === 0 ? (
-						<p className="text-muted-foreground text-center py-4">
-							{t('teamManagement.gameStats.noPlayers')}
-						</p>
-					) : (
-						<div className="space-y-1">
-							{teamStats.map(stat => renderPlayerRow(stat))}
+			{/* Rows */}
+			<div className="flex-1 bg-card">
+				{teamStats.length === 0 ? (
+					<p className="px-4 py-8 text-center text-sm text-muted-foreground">
+						{t('teamManagement.gameStats.noPlayers')}
+					</p>
+				) : (
+					teamStats.map((stat) => (
+						<div key={stat.playerId} className="tm-stat-row">
+							<button
+								type="button"
+								className="tm-stat-toggle"
+								role="checkbox"
+								aria-checked={stat.played}
+								aria-label={stat.playerName}
+								onClick={() => patch(stat.playerId, { played: !stat.played })}
+							>
+								<span
+									className="tm-stat-box"
+									style={stat.played ? { backgroundColor: color, borderColor: color } : undefined}
+								>
+									{stat.played && <Check className="size-3.5 text-white" strokeWidth={3} />}
+								</span>
+							</button>
+							<div className="min-w-0 flex-1">
+								<div className={`truncate text-sm font-semibold leading-tight ${stat.played ? '' : 'text-muted-foreground'}`}>
+									{stat.playerName}
+								</div>
+								{stat.playerNumber != null && (
+									<div className="text-[11.5px] text-muted-foreground">#{stat.playerNumber}</div>
+								)}
+							</div>
+							<Stepper stat={stat} field="goals" />
+							<Stepper stat={stat} field="assists" />
 						</div>
+					))
+				)}
+			</div>
+
+			{/* Save bar */}
+			<div className="tm-save-bar">
+				<div className="min-w-0 flex-1 text-xs">
+					{dirty.length > 0 ? (
+						<span className="font-semibold">
+							{t('teamManagement.gameStats.unsavedChanges', { count: dirty.length })}
+						</span>
+					) : (
+						<span className="text-muted-foreground">
+							{t('teamManagement.gameStats.allSaved')}
+						</span>
 					)}
-				</CardContent>
-			</Card>
+				</div>
+				<Button
+					className="h-11 px-6 text-[15px] font-semibold text-white"
+					style={{ backgroundColor: color }}
+					disabled={saving || dirty.length === 0}
+					onClick={handleSubmit}
+				>
+					{saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+					{t('common.save')}
+				</Button>
+			</div>
 		</div>
 	);
 }

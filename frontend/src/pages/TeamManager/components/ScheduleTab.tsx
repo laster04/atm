@@ -1,163 +1,270 @@
-import type { Game } from '@types';
-import { Badge } from "@components/base/badge.tsx";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ChevronRight, Clock, MapPin } from 'lucide-react';
+import { GameStatus, type Game } from '@types';
+
+type Tab = 'upcoming' | 'played' | 'other';
 
 interface ScheduleTabProps {
 	games: Game[];
 	teamId: number;
+	teamColor?: string | null;
 }
 
-export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
-	const { t } = useTranslation();
+const OTHER_STATUSES = [GameStatus.POSTPONED, GameStatus.IN_PROGRESS, GameStatus.CANCELLED];
+
+export default function ScheduleTab({ games, teamId, teamColor }: ScheduleTabProps) {
+	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
+	const [tab, setTab] = useState<Tab>('upcoming');
 
+	const color = teamColor || '#003E7E';
 
-	// Already sorted soonest-first by the API (undated games last) - keep that order.
-	const upcomingGames = (games || [])
-		.filter((g: Game) => g.status === 'SCHEDULED');
+	const buckets = useMemo(() => {
+		const all = games || [];
+		return {
+			// The API already sorts soonest-first with undated games last.
+			upcoming: all.filter((g) => g.status === GameStatus.SCHEDULED),
+			played: all
+				.filter((g) => g.status === GameStatus.COMPLETED)
+				.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()),
+			other: all.filter((g) => OTHER_STATUSES.includes(g.status)),
+		};
+	}, [games]);
 
-	const completedGames = games
-		.filter((g) => g.status === 'COMPLETED')
-		.sort((a, b) => {
-			if (!a.date || !b.date) return 0;
-			return new Date(b.date).getTime() - new Date(a.date).getTime();
-		});
-	return (
-		<div className="schedule-container">
-			{/* Upcoming Games Section */}
-			<section className="schedule-section">
-				<div className="schedule-section-header">
-					<h2 className="schedule-section-title">📅 {t('teamManagement.pwa.upcomingGames')}</h2>
-					<p className="schedule-section-subtitle">{upcomingGames.length} games scheduled</p>
-				</div>
+	const tabs: { key: Tab; label: string }[] = [
+		{ key: 'upcoming', label: t('teamManagement.pwa.upcomingGames') },
+		{ key: 'played', label: t('teamManagement.pwa.pastGames') },
+		{ key: 'other', label: t('teamManagement.pwa.otherGames') },
+	];
 
-				<div className="games-list">
-					{upcomingGames.length > 0 ? (
-						upcomingGames.map((game: Game, index) => (
-							<div
-								key={game.id}
-								className="game-card game-card-upcoming group"
-								style={{ animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards` }}
-							>
-								<div className="game-card-header">
-									<div className="game-opponent">
-										<h3 className="game-opponent-name">
-											{game.homeTeamId === teamId
-												? `vs ${game.awayTeam?.name}`
-												: `@ ${game.homeTeam?.name}`}
-										</h3>
-										<Badge className="game-location-badge" variant={game.homeTeamId === teamId ? 'default' : 'outline'}>
-											{game.homeTeamId === teamId ? t('teamManagement.pwa.home') : t('teamManagement.pwa.away')}
-										</Badge>
-									</div>
-								</div>
+	const isHome = (game: Game) => game.homeTeamId === teamId;
+	const opponentName = (game: Game) =>
+		(isHome(game) ? game.awayTeam?.name : game.homeTeam?.name) ?? t('teamManagement.pwa.unknownOpponent');
 
-								<div className="game-card-meta">
-									<span className="game-date">
-										📍 {game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
-									</span>
-									{game.location && <span className="game-location">🏟️ {game.location}</span>}
-								</div>
+	const dateParts = (game: Game) => {
+		if (!game.date) return null;
+		const d = new Date(game.date);
+		return {
+			dow: d.toLocaleDateString(i18n.language, { weekday: 'short' }),
+			day: d.toLocaleDateString(i18n.language, { day: 'numeric' }),
+			mon: d.toLocaleDateString(i18n.language, { month: 'short' }),
+			time: d.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }),
+			month: d.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' }),
+		};
+	};
+
+	const statusTone: Record<string, { bg: string; fg: string }> = {
+		[GameStatus.POSTPONED]: { bg: '#fef3c7', fg: '#92400e' },
+		[GameStatus.IN_PROGRESS]: { bg: '#dcfce7', fg: '#166534' },
+		[GameStatus.CANCELLED]: { bg: '#fee2e2', fg: '#991b1b' },
+	};
+
+	const DateBlock = ({ game }: { game: Game }) => {
+		const parts = dateParts(game);
+		const postponed = game.status === GameStatus.POSTPONED;
+		if (!parts) {
+			return (
+				<span className="tm-date-block is-tbd">
+					<span className="tm-date-day">{t('teamManagement.pwa.tbd')}</span>
+				</span>
+			);
+		}
+		return (
+			<span className={`tm-date-block ${postponed ? 'is-postponed' : ''}`}>
+				<span className="tm-date-dow">{parts.dow}</span>
+				<span className="tm-date-day">{parts.day}</span>
+				<span className="tm-date-mon">{parts.mon}</span>
+			</span>
+		);
+	};
+
+	const SidePill = ({ game }: { game: Game }) => (
+		<span
+			className={`tm-side-pill ${isHome(game) ? '' : 'is-away'}`}
+			style={isHome(game) ? { backgroundColor: `${color}1A`, color } : undefined}
+		>
+			{isHome(game) ? t('teamManagement.pwa.home') : t('teamManagement.pwa.away')}
+		</span>
+	);
+
+	const Meta = ({ game }: { game: Game }) => {
+		const parts = dateParts(game);
+		if (!parts && !game.location) return null;
+		return (
+			<span className="tm-game-meta">
+				{parts && (
+					<>
+						<Clock className="size-3 shrink-0" aria-hidden />
+						<span>{parts.time}</span>
+					</>
+				)}
+				{game.location && (
+					<>
+						{parts && <span aria-hidden className="text-border">|</span>}
+						<MapPin className="size-3 shrink-0" aria-hidden />
+						<span>{game.location}</span>
+					</>
+				)}
+			</span>
+		);
+	};
+
+	const renderUpcoming = () => {
+		const dated = buckets.upcoming.filter((g) => g.date);
+		const undated = buckets.upcoming.filter((g) => !g.date);
+		if (!dated.length && !undated.length) return renderEmpty();
+
+		let lastMonth = '';
+		return (
+			<>
+				{dated.map((game) => {
+					const month = dateParts(game)!.month;
+					const heading = month !== lastMonth ? month : null;
+					lastMonth = month;
+					return (
+						<div key={game.id} className="flex flex-col gap-2">
+							{heading && <div className="tm-section-label pt-2 first:pt-0">{heading}</div>}
+							<div className="tm-game-card">
+								<DateBlock game={game} />
+								<span className="tm-game-main">
+									<span className="tm-game-opponent">{opponentName(game)}</span>
+									<Meta game={game} />
+								</span>
+								<SidePill game={game} />
 							</div>
-						))
-					) : (
-						<div className="schedule-empty-state">
-							<div className="empty-icon">🎯</div>
-							<p className="empty-message">{t('teamDetail.games.noGames')}</p>
-							<p className="empty-submessage">No upcoming games scheduled</p>
 						</div>
-					)}
-				</div>
-			</section>
+					);
+				})}
 
-			{/* Completed Games Section */}
-			<section className="schedule-section mt-8">
-				<div className="schedule-section-header">
-					<h2 className="schedule-section-title">🏆 {t('teamManagement.pwa.pastGames')}</h2>
-					<p className="schedule-section-subtitle">{completedGames.length} games played</p>
-				</div>
-
-				<div className="games-list">
-					{completedGames.length > 0 ? (
-						completedGames.map((game: Game, index) => {
-							const isHome = game.homeTeamId === teamId;
-							const teamScore = isHome ? game.homeScore : game.awayScore;
-							const opponentScore = isHome ? game.awayScore : game.homeScore;
-							const hasScore = teamScore != null && opponentScore != null;
-							const isWin = hasScore && teamScore > opponentScore;
-							const isDraw = hasScore && teamScore === opponentScore;
-							const resultColor = isWin ? 'win' : isDraw ? 'draw' : 'loss';
-
-							return (
-								<button
-									key={game.id}
-									className="game-card game-card-completed group"
-									onClick={() => navigate(`/team-management/${teamId}/game/${game.id}`)}
-									style={{ animation: `slideIn 0.3s ease-out ${index * 0.05}s backwards` }}
-								>
-									<div className="game-card-header">
-										<div className="game-opponent">
-											<h3 className="game-opponent-name">
-												{isHome
-													? `vs ${game.awayTeam?.name}`
-													: `@ ${game.homeTeam?.name}`}
-											</h3>
-											{hasScore && (
-												<Badge className={`game-result-badge game-result-${resultColor}`}>
-													{isWin ? t('teamManagement.pwa.win') : isDraw ? t('teamManagement.pwa.draw') : t('teamManagement.pwa.loss')}
-												</Badge>
-											)}
-										</div>
-
-										{hasScore && (
-											<div className="text-right">
-												<div className="game-score-display">
-													<span className="game-final-score">{teamScore}</span>
-													<span className="game-score-separator">:</span>
-													<span className="game-final-score">{opponentScore}</span>
-												</div>
-												{(() => {
-													const p1team = isHome ? game.period1HomeScore : game.period1AwayScore;
-													const p1opp = isHome ? game.period1AwayScore : game.period1HomeScore;
-													const p2team = isHome ? game.period2HomeScore : game.period2AwayScore;
-													const p2opp = isHome ? game.period2AwayScore : game.period2HomeScore;
-													const p3team = isHome ? game.period3HomeScore : game.period3AwayScore;
-													const p3opp = isHome ? game.period3AwayScore : game.period3HomeScore;
-													if (p1team == null && p2team == null && p3team == null) return null;
-													return (
-														<div className="flex gap-2 text-xs text-gray-400 justify-end mt-1">
-															{p1team != null && <span>P1: {p1team}-{p1opp}</span>}
-															{p2team != null && <span>P2: {p2team}-{p2opp}</span>}
-															{p3team != null && <span>P3: {p3team}-{p3opp}</span>}
-														</div>
-													);
-												})()}
-											</div>
-										)}
-									</div>
-
-									<div className="game-card-meta">
-										<span className="game-date">
-											📍 {game.date ? new Date(game.date).toLocaleDateString() : t('admin.tabs.game.noDate')}
-										</span>
-										{game.location && <span className="game-location">🏟️ {game.location}</span>}
-									</div>
-
-									<ChevronRight className="game-card-icon" />
-								</button>
-							);
-						})
-					) : (
-						<div className="schedule-empty-state">
-							<div className="empty-icon">📊</div>
-							<p className="empty-message">{t('teamDetail.games.noGames')}</p>
-							<p className="empty-submessage">No completed games yet</p>
+				{undated.length > 0 && (
+					<div className="flex flex-col gap-2 pt-2">
+						<div className="tm-section-label">{t('teamManagement.pwa.notScheduledYet')}</div>
+						<div className="tm-rows-card">
+							{undated.map((game) => (
+								<div key={game.id} className="tm-compact-row">
+									<span
+										className="w-6 shrink-0 text-[11px] font-semibold uppercase tracking-wide"
+										style={{ color: isHome(game) ? color : undefined }}
+									>
+										{isHome(game) ? t('teamManagement.pwa.homeShort') : t('teamManagement.pwa.awayShort')}
+									</span>
+									<span className="flex-1 min-w-0 truncate text-sm font-medium">{opponentName(game)}</span>
+									<span className="shrink-0 text-xs text-muted-foreground">
+										{t('teamManagement.pwa.tbd')}
+									</span>
+								</div>
+							))}
 						</div>
+					</div>
+				)}
+			</>
+		);
+	};
+
+	const renderPlayed = () => {
+		if (!buckets.played.length) return renderEmpty();
+		return buckets.played.map((game) => {
+			const home = isHome(game);
+			const teamScore = home ? game.homeScore : game.awayScore;
+			const oppScore = home ? game.awayScore : game.homeScore;
+			const hasScore = teamScore != null && oppScore != null;
+			const result = !hasScore ? null
+				: teamScore > oppScore ? 'win'
+				: teamScore === oppScore ? 'draw' : 'loss';
+			const tone = result === 'win' ? { bg: '#dcfce7', fg: '#166534' }
+				: result === 'draw' ? { bg: '#fef3c7', fg: '#92400e' }
+				: { bg: '#fee2e2', fg: '#991b1b' };
+
+			return (
+				<button
+					key={game.id}
+					type="button"
+					className="tm-game-card"
+					onClick={() => navigate(`/team-management/${teamId}/game/${game.id}`)}
+				>
+					<DateBlock game={game} />
+					<span className="tm-game-main">
+						<span className="tm-game-opponent">{opponentName(game)}</span>
+						<Meta game={game} />
+					</span>
+					{hasScore && (
+						<span className="flex flex-col items-end gap-1 shrink-0">
+							<span className="text-lg font-bold tabular-nums leading-none">
+								{teamScore}:{oppScore}
+							</span>
+							<span
+								className="tm-status-pill"
+								style={{ backgroundColor: tone.bg, color: tone.fg }}
+							>
+								{result === 'win' ? t('teamManagement.pwa.win')
+									: result === 'draw' ? t('teamManagement.pwa.draw')
+									: t('teamManagement.pwa.loss')}
+							</span>
+						</span>
 					)}
+					<ChevronRight className="size-4 text-muted-foreground shrink-0" />
+				</button>
+			);
+		});
+	};
+
+	const renderOther = () => {
+		if (!buckets.other.length) return renderEmpty();
+		return buckets.other.map((game) => {
+			const tone = statusTone[game.status] ?? { bg: '#ececf0', fg: '#717182' };
+			return (
+				<div key={game.id} className="tm-game-card">
+					<DateBlock game={game} />
+					<span className="tm-game-main">
+						<span className="tm-game-opponent">{opponentName(game)}</span>
+						<span className="flex items-center gap-2">
+							<span
+								className="tm-status-pill"
+								style={{ backgroundColor: tone.bg, color: tone.fg }}
+							>
+								{t(`admin.tabs.game.status.${game.status}`)}
+							</span>
+							{game.status === GameStatus.POSTPONED && (
+								<span className="text-xs text-muted-foreground">
+									{t('teamManagement.pwa.newDateTbd')}
+								</span>
+							)}
+						</span>
+					</span>
+					<SidePill game={game} />
 				</div>
-			</section>
+			);
+		});
+	};
+
+	const renderEmpty = () => (
+		<div className="px-4 py-12 text-center text-sm text-muted-foreground">
+			{t('teamDetail.games.noGames')}
+		</div>
+	);
+
+	return (
+		<div className="flex flex-col gap-3 pb-2">
+			<div className="tm-segmented grid-cols-3">
+				{tabs.map((option) => (
+					<button
+						key={option.key}
+						type="button"
+						aria-pressed={tab === option.key}
+						onClick={() => setTab(option.key)}
+					>
+						{option.label}
+					</button>
+				))}
+			</div>
+
+			<div className="flex flex-col gap-2">
+				{tab === 'upcoming' && renderUpcoming()}
+				{tab === 'played' && renderPlayed()}
+				{tab === 'other' && renderOther()}
+			</div>
 		</div>
 	);
 }

@@ -488,7 +488,32 @@
         "roster": "Soupiska",
         "schedule": "Rozpis",
         "settings": "Nastavení"
-      }
+      },
+      "sortNumber": "Číslo",
+      "searchPlayers": "Hledat hráče",
+      "noPosition": "Pozice neuvedena",
+      "noPlayersFound": "Žádný hráč neodpovídá hledání",
+      "pointsShort": "b.",
+      "playerCount_one": "{{count}} hráč",
+      "playerCount_few": "{{count}} hráči",
+      "playerCount_other": "{{count}} hráčů",
+      "otherGames": "Ostatní",
+      "notScheduledYet": "Zatím bez termínu",
+      "tbd": "Bez data",
+      "homeShort": "D",
+      "awayShort": "V",
+      "newDateTbd": "nový termín bude upřesněn",
+      "unknownOpponent": "Soupeř",
+      "draws": "Remízy",
+      "nextGame": "Příští zápas",
+      "setLineup": "Zapsat sestavu",
+      "noScheduledGame": "Zatím není naplánován žádný zápas",
+      "then": "Dále",
+      "today": "dnes",
+      "tomorrow": "zítra",
+      "inDays_one": "za {{count}} den",
+      "inDays_few": "za {{count}} dny",
+      "inDays_other": "za {{count}} dní"
     },
     "gameStats": {
       "playerStats": "Statistiky hráčů",
@@ -499,7 +524,12 @@
       "saveSuccess": "Statistiky byly úspěšně uloženy",
       "saveError": "Nepodařilo se uložit statistiky",
       "notFound": "Zápas nenalezen",
-      "notYourGame": "Tento zápas nepatří vašemu týmu"
+      "notYourGame": "Tento zápas nepatří vašemu týmu",
+      "lineup": "Sestava",
+      "allSaved": "Vše uloženo",
+      "unsavedChanges_one": "{{count}} neuložená změna",
+      "unsavedChanges_few": "{{count}} neuložené změny",
+      "unsavedChanges_other": "{{count}} neuložených změn"
     },
     "playerDetail": {
       "addPlayer": "Přidat hráče",
@@ -522,7 +552,14 @@
       "saveError": "Nepodařilo se uložit hráče",
       "deleteSuccess": "Hráč byl úspěšně smazán",
       "deleteError": "Nepodařilo se smazat hráče",
-      "confirmDelete": "Opravdu chcete smazat tohoto hráče?"
+      "confirmDelete": "Opravdu chcete smazat tohoto hráče?",
+      "goalsShort_one": "{{count}} gól",
+      "goalsShort_few": "{{count}} góly",
+      "goalsShort_other": "{{count}} gólů",
+      "assistsShort_one": "{{count}} asistence",
+      "assistsShort_few": "{{count}} asistence",
+      "assistsShort_other": "{{count}} asistencí",
+      "noPoints": "Bez bodů"
     },
     "toast": {
       "colorUpdated": "Barva pro {{name}} byla aktualizována!"
