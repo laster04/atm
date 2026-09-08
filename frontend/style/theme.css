@@ -1549,11 +1549,13 @@
     }
 
     .tm-stat-box {
-        @apply flex items-center justify-center size-6 rounded-md border-2 border-border transition-colors;
+        @apply flex items-center justify-center size-6 rounded-md transition-colors;
+        border: 2px solid rgb(0 0 0 / 0.25);
     }
 
     .tm-stat-stepper {
-        @apply flex items-center gap-0.5 shrink-0;
+        @apply flex items-center justify-center gap-0.5 shrink-0;
+        width: 5.5rem;
     }
 
     .tm-stat-stepper button {

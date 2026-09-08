@@ -214,14 +214,17 @@ export default function GameStatsPage() {
 	);
 
 	return (
-		<div className="-mx-4 flex min-h-full flex-col lg:mx-0">
+		<div className="flex min-h-screen flex-col">
 			{/* Game header */}
-			<div className="flex flex-col gap-3 px-4 pb-3">
+			<div
+				className="tm-team-header flex flex-col gap-3 px-4 pb-3 pt-3 text-white"
+				style={{ backgroundColor: color }}
+			>
 				<div className="flex items-center gap-2">
 					<Button
 						variant="ghost"
 						size="sm"
-						className="-ml-2 size-11"
+						className="-ml-2 size-11 text-white hover:bg-white/20"
 						aria-label={t('common.back')}
 						onClick={() => navigate(`/team-management/${teamId}`)}
 					>
@@ -231,7 +234,7 @@ export default function GameStatsPage() {
 						<div className="truncate text-base font-semibold">
 							{myTeam?.name} — {opponentTeam?.name}
 						</div>
-						<div className="truncate text-xs text-muted-foreground">
+						<div className="truncate text-xs text-white/85">
 							{game.date && new Date(game.date).toLocaleDateString(i18n.language, {
 								day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
 							})}
@@ -246,7 +249,7 @@ export default function GameStatsPage() {
 							{myScore}:{opponentScore}
 						</span>
 						{periods.length > 0 && (
-							<span className="text-xs text-muted-foreground">
+							<span className="text-xs text-white/85">
 								{periods.map(([mine, theirs], i) => `P${i + 1} ${mine}:${theirs}`).join('  ')}
 							</span>
 						)}
@@ -254,8 +257,8 @@ export default function GameStatsPage() {
 				)}
 			</div>
 
-			{/* Column headers double as the running totals */}
-			<div className="flex items-center gap-4 border-y border-border bg-card px-4 py-2.5 text-xs text-muted-foreground">
+			{/* Running totals, then the column headers the steppers sit under */}
+			<div className="flex items-center gap-4 border-b border-border bg-card px-4 py-2.5 text-xs text-muted-foreground">
 				<span>
 					{t('teamManagement.gameStats.lineup')}{' '}
 					<b className="font-semibold text-foreground">{totals.lineup}</b>
@@ -267,6 +270,16 @@ export default function GameStatsPage() {
 				<span>
 					{t('teamManagement.gameStats.assists')}{' '}
 					<b className="font-semibold text-foreground">{totals.assists}</b>
+				</span>
+			</div>
+
+			<div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-muted px-4 py-1.5 pl-[3.25rem] text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+				<span className="flex-1" />
+				<span className="w-[5.5rem] shrink-0 text-center">
+					{t('teamManagement.gameStats.goals')}
+				</span>
+				<span className="w-[5.5rem] shrink-0 text-center">
+					{t('teamManagement.gameStats.assists')}
 				</span>
 			</div>
 
