@@ -14,9 +14,9 @@ export default function ScheduleTab({ games, teamId }: ScheduleTabProps) {
 	const navigate = useNavigate();
 
 
+	// Already sorted soonest-first by the API (undated games last) - keep that order.
 	const upcomingGames = (games || [])
-		.filter((g: Game) => g.status === 'SCHEDULED')
-		.reverse();
+		.filter((g: Game) => g.status === 'SCHEDULED');
 
 	const completedGames = games
 		.filter((g) => g.status === 'COMPLETED')

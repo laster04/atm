@@ -20,11 +20,11 @@ router.get('/season/:seasonId', getTeamsBySeasonId);
 router.get('/available/:seasonId', getTeamsAvailableForSeason);
 router.get('/:id', getTeamById);
 
-router.post('/season/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), createTeam);
+router.post('/season/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createTeam);
 router.post('/:id/seasons/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), addTeamToSeason);
 router.delete('/:id/seasons/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), removeTeamFromSeason);
 router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), updateTeam);
-router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), deleteTeam);
+router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteTeam);
 router.post('/:id/invite-manager', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), inviteManager);
 
 export default router;

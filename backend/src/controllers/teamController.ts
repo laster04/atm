@@ -102,9 +102,15 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const allGames = [...team.homeGames, ...team.awayGames].sort(
-      (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
-    );
+    // Undated games must sort last: `new Date(null)` is the epoch, which would
+    // push every unscheduled game ahead of real fixtures (and, because the two
+    // relations are concatenated, make the first N games all home games).
+    const allGames = [...team.homeGames, ...team.awayGames].sort((a, b) => {
+      if (!a.date && !b.date) return a.id - b.id;
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
 
     // Add convenience `season` field (most recent active or first)
     const activeSeason = team.seasonTeams

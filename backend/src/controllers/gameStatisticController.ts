@@ -7,6 +7,13 @@ import {
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
+/**
+ * TEAM_MANAGERs may only touch statistics for players on a team they manage.
+ * ADMIN and SEASON_MANAGER are already scoped by the route's authorize().
+ */
+const deniedForTeamManager = (req: AuthRequest, teamManagerId: number | null): boolean =>
+	req.user!.role === 'TEAM_MANAGER' && teamManagerId !== req.user!.id;
+
 export const getStatisticsByGameId = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
@@ -129,6 +136,11 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
+		if (deniedForTeamManager(req, player.team.managerId)) {
+			res.status(403).json({ error: 'Not authorized to record statistics for this player' });
+			return;
+		}
+
 		if (game.season.archivedAt) {
 			res.status(400).json({ error: 'Cannot modify an archived season' });
 			return;
@@ -174,7 +186,10 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
 			where: { id: parseInt(id) },
-			include: { game: { include: { season: true } } }
+			include: {
+				game: { include: { season: true } },
+				player: { include: { team: { select: { managerId: true } } } }
+			}
 		});
 		if (!existingStatistic) {
 			res.status(404).json({ error: 'Statistic not found' });
@@ -182,6 +197,10 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 		if (existingStatistic.game.season.archivedAt) {
 			res.status(400).json({ error: 'Cannot modify an archived season' });
+			return;
+		}
+		if (deniedForTeamManager(req, existingStatistic.player.team.managerId)) {
+			res.status(403).json({ error: 'Not authorized to modify this statistic' });
 			return;
 		}
 
@@ -215,7 +234,10 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
 			where: { id: parseInt(id) },
-			include: { game: { include: { season: true } } }
+			include: {
+				game: { include: { season: true } },
+				player: { include: { team: { select: { managerId: true } } } }
+			}
 		});
 		if (!existingStatistic) {
 			res.status(404).json({ error: 'Statistic not found' });
@@ -223,6 +245,10 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 		if (existingStatistic.game.season.archivedAt) {
 			res.status(400).json({ error: 'Cannot modify an archived season' });
+			return;
+		}
+		if (deniedForTeamManager(req, existingStatistic.player.team.managerId)) {
+			res.status(403).json({ error: 'Not authorized to modify this statistic' });
 			return;
 		}
 
