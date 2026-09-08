@@ -115,6 +115,7 @@ export default function PlayerDetailPage() {
 	const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
 	const gamesPlayed = statistics.length;
 	const totalPoints = totalGoals + totalAssists;
+	const totalPenaltyMinutes = statistics.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
 
 	if (loading) {
 		return (
@@ -279,18 +280,19 @@ export default function PlayerDetailPage() {
 			</div>
 
 			{/* Stats Summary */}
-			<div className="grid grid-cols-4 gap-2">
+			<div className="grid grid-cols-5 gap-1.5">
 				{[
 					{ value: gamesPlayed, label: t('teamManagement.playerDetail.gamesPlayed'), color: undefined },
 					{ value: totalGoals, label: t('teamManagement.playerDetail.goals'), color: '#166534' },
 					{ value: totalAssists, label: t('teamManagement.playerDetail.assists'), color: undefined },
 					{ value: totalPoints, label: t('teamManagement.pwa.points'), color: team?.primaryColor || '#003E7E' },
+					{ value: totalPenaltyMinutes, label: t('teamManagement.gameStats.penaltyMinutesShort'), color: '#92400e' },
 				].map((tile) => (
 					<div
 						key={tile.label}
-						className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-card py-2.5"
+						className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-1 py-2.5"
 					>
-						<span className="text-xl font-bold leading-none tabular-nums" style={{ color: tile.color }}>
+						<span className="text-lg font-bold leading-none tabular-nums" style={{ color: tile.color }}>
 							{tile.value}
 						</span>
 						<span className="text-[10.5px] uppercase tracking-wide text-muted-foreground">
@@ -332,6 +334,7 @@ export default function PlayerDetailPage() {
 							const points = [
 								stat.goals ? t('teamManagement.playerDetail.goalsShort', { count: stat.goals }) : null,
 								stat.assists ? t('teamManagement.playerDetail.assistsShort', { count: stat.assists }) : null,
+								stat.penaltyMinutes ? `${stat.penaltyMinutes} ${t('teamManagement.gameStats.penaltyMinutesShort')}` : null,
 							].filter(Boolean).join(' · ');
 
 							return (

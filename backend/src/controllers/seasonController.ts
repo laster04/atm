@@ -460,6 +460,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
         gamesPlayed: number;
         goals: number;
         assists: number;
+        penaltyMinutes: number;
       }>();
 
       for (const stat of stats) {
@@ -467,6 +468,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
         if (existing) {
           existing.goals += stat.goals || 0;
           existing.assists += stat.assists || 0;
+          existing.penaltyMinutes += stat.penaltyMinutes || 0;
           existing.gamesPlayed += 1;
         } else {
           playerAgg.set(stat.playerId, {
@@ -477,7 +479,8 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
             teamName: stat.player.team.name,
             gamesPlayed: 1,
             goals: stat.goals || 0,
-            assists: stat.assists || 0
+            assists: stat.assists || 0,
+            penaltyMinutes: stat.penaltyMinutes || 0
           });
         }
       }
@@ -493,7 +496,8 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
             teamName: p.teamName,
             gamesPlayed: p.gamesPlayed,
             goals: p.goals,
-            assists: p.assists
+            assists: p.assists,
+            penaltyMinutes: p.penaltyMinutes
           }))
         });
       }
@@ -509,10 +513,16 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
       }
       const sourceGoals = stats.reduce((sum, s) => sum + (s.goals || 0), 0);
       const sourceAssists = stats.reduce((sum, s) => sum + (s.assists || 0), 0);
-      const archivedGoals = Array.from(playerAgg.values()).reduce((sum, p) => sum + p.goals, 0);
-      const archivedAssists = Array.from(playerAgg.values()).reduce((sum, p) => sum + p.assists, 0);
+      const sourcePenalties = stats.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
+      const agg = Array.from(playerAgg.values());
+      const archivedGoals = agg.reduce((sum, p) => sum + p.goals, 0);
+      const archivedAssists = agg.reduce((sum, p) => sum + p.assists, 0);
+      const archivedPenalties = agg.reduce((sum, p) => sum + p.penaltyMinutes, 0);
       if (archivedGoals !== sourceGoals || archivedAssists !== sourceAssists) {
         throw new Error('Archive verification failed: goals/assists total mismatch');
+      }
+      if (archivedPenalties !== sourcePenalties) {
+        throw new Error('Archive verification failed: penalty minutes total mismatch');
       }
 
       // Verified — now safe to delete the live season-scoped rows

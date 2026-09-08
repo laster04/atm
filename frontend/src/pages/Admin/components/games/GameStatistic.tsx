@@ -31,6 +31,7 @@ interface PlayerStatForm {
 	played: boolean;
 	goals: number;
 	assists: number;
+	penaltyMinutes: number;
 	existingStatId?: number;
 }
 
@@ -98,6 +99,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 						played: !!existingStat,
 						goals: existingStat?.goals ?? 0,
 						assists: existingStat?.assists ?? 0,
+						penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
 						existingStatId: existingStat?.id
 					};
 				});
@@ -112,6 +114,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 						played: !!existingStat,
 						goals: existingStat?.goals ?? 0,
 						assists: existingStat?.assists ?? 0,
+						penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
 						existingStatId: existingStat?.id
 					};
 				});
@@ -163,13 +166,15 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 					if (stat.existingStatId) {
 						await gameStatisticApi.update(stat.existingStatId, {
 							goals: stat.goals,
-							assists: stat.assists
+							assists: stat.assists,
+							penaltyMinutes: stat.penaltyMinutes
 						});
 					} else {
 						await gameStatisticApi.create(id, {
 							playerId: stat.playerId,
 							goals: stat.goals,
-							assists: stat.assists
+							assists: stat.assists,
+							penaltyMinutes: stat.penaltyMinutes
 						});
 					}
 				} else if (stat.existingStatId) {
@@ -239,6 +244,20 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 						min={0}
 						value={stat.assists}
 						onChange={(e) => updatePlayerStat(team, stat.playerId, 'assists', parseInt(e.target.value) || 0)}
+						disabled={!stat.played || !canEditTeam}
+						className="w-16 text-center"
+					/>
+				</div>
+				<div className="flex flex-col items-center">
+					<Label className="text-xs text-muted-foreground mb-1">
+						{t('gameStatistic.penaltyMinutes', 'PIM')}
+					</Label>
+					<Input
+						type="number"
+						min={0}
+						step={2}
+						value={stat.penaltyMinutes}
+						onChange={(e) => updatePlayerStat(team, stat.playerId, 'penaltyMinutes', parseInt(e.target.value) || 0)}
 						disabled={!stat.played || !canEditTeam}
 						className="w-16 text-center"
 					/>

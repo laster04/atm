@@ -524,11 +524,13 @@ export interface CreateHockeyGameStatisticRequest {
   playerId: string | number;
   goals?: number | null;
   assists?: number | null;
+  penaltyMinutes?: number | null;
 }
 
 export interface UpdateHockeyGameStatisticRequest {
   goals?: number | null;
   assists?: number | null;
+  penaltyMinutes?: number | null;
 }
 
 // Response types

@@ -115,13 +115,14 @@ describe('Game Statistics CRUD', () => {
       const res = await request(app)
         .post(`/api/game-statistics/game/${gameId}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ playerId, goals: 2, assists: 1 })
+        .send({ playerId, goals: 2, assists: 1, penaltyMinutes: 4 })
         .expect(201);
 
       statisticId = res.body.id;
       expect(res.body).toHaveProperty('id');
       expect(res.body.goals).toBe(2);
       expect(res.body.assists).toBe(1);
+      expect(res.body.penaltyMinutes).toBe(4);
       expect(res.body.playerId).toBe(playerId);
       expect(res.body.gameId).toBe(gameId);
       expect(res.body).toHaveProperty('player');
@@ -317,6 +318,20 @@ describe('Game Statistics CRUD', () => {
 
       expect(res.body.goals).toBe(10);
       // assists should remain unchanged
+      expect(res.body.assists).toBe(3);
+      // and so should penalty minutes
+      expect(res.body.penaltyMinutes).toBe(4);
+    });
+
+    it('should update penalty minutes on their own', async () => {
+      const res = await request(app)
+        .put(`/api/game-statistics/${statisticId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ penaltyMinutes: 12 })
+        .expect(200);
+
+      expect(res.body.penaltyMinutes).toBe(12);
+      expect(res.body.goals).toBe(10);
       expect(res.body.assists).toBe(3);
     });
 

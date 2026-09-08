@@ -15,11 +15,12 @@ interface PlayerStatForm {
 	played: boolean;
 	goals: number;
 	assists: number;
+	penaltyMinutes: number;
 	existingStatId?: number;
 }
 
 /** Snapshot used to work out which rows actually need a request on save. */
-const signature = (s: PlayerStatForm) => `${s.played}|${s.goals}|${s.assists}`;
+const signature = (s: PlayerStatForm) => `${s.played}|${s.goals}|${s.assists}|${s.penaltyMinutes}`;
 
 export default function GameStatsPage() {
 	const { id: teamId, gameId } = useParams<{ id: string; gameId: string }>();
@@ -75,6 +76,7 @@ export default function GameStatsPage() {
 						played: !!existingStat,
 						goals: existingStat?.goals ?? 0,
 						assists: existingStat?.assists ?? 0,
+						penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
 						existingStatId: existingStat?.id,
 					};
 				});
@@ -101,6 +103,7 @@ export default function GameStatsPage() {
 			lineup: active.length,
 			goals: active.reduce((sum, s) => sum + s.goals, 0),
 			assists: active.reduce((sum, s) => sum + s.assists, 0),
+			penaltyMinutes: active.reduce((sum, s) => sum + s.penaltyMinutes, 0),
 		};
 	}, [teamStats]);
 
@@ -109,13 +112,16 @@ export default function GameStatsPage() {
 			if (stat.playerId !== playerId) return stat;
 			const next = { ...stat, ...changes };
 			// Unticking a player clears their numbers so the row reads honestly.
-			if (changes.played === false) return { ...next, goals: 0, assists: 0 };
+			if (changes.played === false) return { ...next, goals: 0, assists: 0, penaltyMinutes: 0 };
 			return next;
 		}));
 	};
 
-	const step = (stat: PlayerStatForm, field: 'goals' | 'assists', delta: number) => {
-		const value = Math.max(0, stat[field] + delta);
+	type CounterField = 'goals' | 'assists' | 'penaltyMinutes';
+
+	const step = (stat: PlayerStatForm, field: CounterField, delta: number) => {
+		// Penalty minutes come in twos on the ice; the rest step by one.
+		const value = Math.max(0, stat[field] + delta * (field === 'penaltyMinutes' ? 2 : 1));
 		patch(stat.playerId, { [field]: value, played: true } as Partial<PlayerStatForm>);
 	};
 
@@ -130,12 +136,14 @@ export default function GameStatsPage() {
 						await gameStatisticApi.update(stat.existingStatId, {
 							goals: stat.goals,
 							assists: stat.assists,
+							penaltyMinutes: stat.penaltyMinutes,
 						});
 					} else {
 						await gameStatisticApi.create(gameId, {
 							playerId: stat.playerId,
 							goals: stat.goals,
 							assists: stat.assists,
+							penaltyMinutes: stat.penaltyMinutes,
 						});
 					}
 				} else if (stat.existingStatId) {
@@ -192,26 +200,34 @@ export default function GameStatsPage() {
 		[isHomeTeam ? game.period3HomeScore : game.period3AwayScore, isHomeTeam ? game.period3AwayScore : game.period3HomeScore],
 	].filter(([mine]) => mine != null);
 
-	const Stepper = ({ stat, field }: { stat: PlayerStatForm; field: 'goals' | 'assists' }) => (
-		<div className="tm-stat-stepper">
-			<button
-				type="button"
-				aria-label={`${t(`teamManagement.gameStats.${field}`)} −`}
-				disabled={stat[field] === 0}
-				onClick={() => step(stat, field, -1)}
-			>
-				<Minus className="size-3.5" />
-			</button>
-			<output className={stat.played ? undefined : 'text-muted-foreground'}>{stat[field]}</output>
-			<button
-				type="button"
-				aria-label={`${t(`teamManagement.gameStats.${field}`)} +`}
-				onClick={() => step(stat, field, 1)}
-			>
-				<Plus className="size-3.5" />
-			</button>
-		</div>
-	);
+	const Stepper = ({ stat, field }: { stat: PlayerStatForm; field: CounterField }) => {
+		const label = t(`teamManagement.gameStats.${field}`);
+		return (
+			<div className="tm-stat-stepper">
+				<span className="tm-stat-label">{label}</span>
+				<div className="tm-stat-controls">
+					<button
+						type="button"
+						aria-label={`${label} −`}
+						disabled={stat[field] === 0}
+						onClick={() => step(stat, field, -1)}
+					>
+						<Minus className="size-3.5" />
+					</button>
+					<output className={stat.played ? undefined : 'text-muted-foreground'}>
+						{stat[field]}
+					</output>
+					<button
+						type="button"
+						aria-label={`${label} +`}
+						onClick={() => step(stat, field, 1)}
+					>
+						<Plus className="size-3.5" />
+					</button>
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<div className="flex min-h-screen flex-col">
@@ -271,15 +287,9 @@ export default function GameStatsPage() {
 					{t('teamManagement.gameStats.assists')}{' '}
 					<b className="font-semibold text-foreground">{totals.assists}</b>
 				</span>
-			</div>
-
-			<div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-muted px-4 py-1.5 pl-[3.25rem] text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-				<span className="flex-1" />
-				<span className="w-[5.5rem] shrink-0 text-center">
-					{t('teamManagement.gameStats.goals')}
-				</span>
-				<span className="w-[5.5rem] shrink-0 text-center">
-					{t('teamManagement.gameStats.assists')}
+				<span>
+					{t('teamManagement.gameStats.penaltyMinutesShort')}{' '}
+					<b className="font-semibold text-foreground">{totals.penaltyMinutes}</b>
 				</span>
 			</div>
 
@@ -292,31 +302,38 @@ export default function GameStatsPage() {
 				) : (
 					teamStats.map((stat) => (
 						<div key={stat.playerId} className="tm-stat-row">
-							<button
-								type="button"
-								className="tm-stat-toggle"
-								role="checkbox"
-								aria-checked={stat.played}
-								aria-label={stat.playerName}
-								onClick={() => patch(stat.playerId, { played: !stat.played })}
-							>
-								<span
-									className="tm-stat-box"
-									style={stat.played ? { backgroundColor: color, borderColor: color } : undefined}
+							<div className="tm-stat-identity">
+								<button
+									type="button"
+									className="tm-stat-toggle"
+									role="checkbox"
+									aria-checked={stat.played}
+									aria-label={stat.playerName}
+									onClick={() => patch(stat.playerId, { played: !stat.played })}
 								>
-									{stat.played && <Check className="size-3.5 text-white" strokeWidth={3} />}
+									<span
+										className="tm-stat-box"
+										style={stat.played ? { backgroundColor: color, borderColor: color } : undefined}
+									>
+										{stat.played && <Check className="size-3.5 text-white" strokeWidth={3} />}
+									</span>
+								</button>
+								<span className="min-w-0 flex-1">
+									<span className={`block truncate text-sm font-semibold leading-tight ${stat.played ? '' : 'text-muted-foreground'}`}>
+										{stat.playerName}
+									</span>
+									{stat.playerNumber != null && (
+										<span className="block text-[11.5px] text-muted-foreground">
+											#{stat.playerNumber}
+										</span>
+									)}
 								</span>
-							</button>
-							<div className="min-w-0 flex-1">
-								<div className={`truncate text-sm font-semibold leading-tight ${stat.played ? '' : 'text-muted-foreground'}`}>
-									{stat.playerName}
-								</div>
-								{stat.playerNumber != null && (
-									<div className="text-[11.5px] text-muted-foreground">#{stat.playerNumber}</div>
-								)}
 							</div>
-							<Stepper stat={stat} field="goals" />
-							<Stepper stat={stat} field="assists" />
+							<div className="tm-stat-counters">
+								<Stepper stat={stat} field="goals" />
+								<Stepper stat={stat} field="assists" />
+								<Stepper stat={stat} field="penaltyMinutes" />
+							</div>
 						</div>
 					))
 				)}

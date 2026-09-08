@@ -331,7 +331,8 @@
       "gamesPlayed": "GP",
       "goals": "G",
       "assists": "A",
-      "points": "PTS"
+      "points": "PTS",
+      "penaltyMinutes": "PIM"
     },
     "standings": {
       "rank": "#",
@@ -435,7 +436,9 @@
       "gameByGame": "Game by Game",
       "date": "Date",
       "game": "Game",
-      "noStatistics": "No statistics recorded yet."
+      "noStatistics": "No statistics recorded yet.",
+      "penaltyMinutes": "Penalty minutes",
+      "penaltyMinutesShort": "PIM"
     },
     "team": {
       "title": "Current Team"
@@ -526,7 +529,9 @@
       "lineup": "Line-up",
       "allSaved": "All changes saved",
       "unsavedChanges_one": "{{count}} unsaved change",
-      "unsavedChanges_other": "{{count}} unsaved changes"
+      "unsavedChanges_other": "{{count}} unsaved changes",
+      "penaltyMinutes": "Penalty",
+      "penaltyMinutesShort": "PIM"
     },
     "playerDetail": {
       "addPlayer": "Add Player",
@@ -729,7 +734,8 @@
         "loadError": "Failed to load statistics",
         "createError": "Failed to create statistic",
         "updateError": "Failed to update statistic",
-        "deleteError": "Failed to delete statistic"
+        "deleteError": "Failed to delete statistic",
+        "th-penaltyMinutes": "PIM"
       }
     },
     "seasons": {
@@ -1190,5 +1196,8 @@
       "empty": "No teams yet.",
       "empty_TENNIS": "No players yet."
     }
+  },
+  "gameStatistic": {
+    "penaltyMinutes": "PIM"
   }
 }

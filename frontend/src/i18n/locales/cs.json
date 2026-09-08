@@ -331,7 +331,8 @@
       "gamesPlayed": "Z",
       "goals": "G",
       "assists": "A",
-      "points": "B"
+      "points": "B",
+      "penaltyMinutes": "TM"
     },
     "standings": {
       "rank": "#",
@@ -435,7 +436,9 @@
       "gameByGame": "Po zapasech",
       "date": "Datum",
       "game": "Zapas",
-      "noStatistics": "Zatim zadne zaznamenane statistiky."
+      "noStatistics": "Zatim zadne zaznamenane statistiky.",
+      "penaltyMinutes": "Trestné minuty",
+      "penaltyMinutesShort": "TM"
     },
     "team": {
       "title": "Aktualni tym"
@@ -529,7 +532,9 @@
       "allSaved": "Vše uloženo",
       "unsavedChanges_one": "{{count}} neuložená změna",
       "unsavedChanges_few": "{{count}} neuložené změny",
-      "unsavedChanges_other": "{{count}} neuložených změn"
+      "unsavedChanges_other": "{{count}} neuložených změn",
+      "penaltyMinutes": "Trest",
+      "penaltyMinutesShort": "TM"
     },
     "playerDetail": {
       "addPlayer": "Přidat hráče",
@@ -734,7 +739,8 @@
         "loadError": "Nepodařilo se načíst statistiky",
         "createError": "Nepodařilo se vytvořit statistiku",
         "updateError": "Nepodařilo se aktualizovat statistiku",
-        "deleteError": "Nepodařilo se smazat statistiku"
+        "deleteError": "Nepodařilo se smazat statistiku",
+        "th-penaltyMinutes": "TM"
       }
     },
     "seasons": {
@@ -1195,5 +1201,8 @@
       "empty": "Zatím žádné týmy.",
       "empty_TENNIS": "Zatím žádní hráči."
     }
+  },
+  "gameStatistic": {
+    "penaltyMinutes": "TM"
   }
 }

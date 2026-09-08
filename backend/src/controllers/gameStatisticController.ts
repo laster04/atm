@@ -92,7 +92,7 @@ export const getStatisticById = async (req: Request, res: Response): Promise<voi
 export const createStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
-		const { playerId, goals, assists } = req.body as CreateHockeyGameStatisticRequest;
+		const { playerId, goals, assists, penaltyMinutes } = req.body as CreateHockeyGameStatisticRequest;
 
 		if (!playerId) {
 			res.status(400).json({ error: 'Player ID is required' });
@@ -163,7 +163,8 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 				gameId: parseInt(gameId),
 				playerId: parseInt(String(playerId)),
 				goals: goals ?? null,
-				assists: assists ?? null
+				assists: assists ?? null,
+				penaltyMinutes: penaltyMinutes ?? null
 			},
 			include: {
 				player: {
@@ -182,7 +183,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 export const updateStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { id } = req.params;
-		const { goals, assists } = req.body as UpdateHockeyGameStatisticRequest;
+		const { goals, assists, penaltyMinutes } = req.body as UpdateHockeyGameStatisticRequest;
 
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
 			where: { id: parseInt(id) },
@@ -208,7 +209,8 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 			where: { id: parseInt(id) },
 			data: {
 				...(goals !== undefined && { goals }),
-				...(assists !== undefined && { assists })
+				...(assists !== undefined && { assists }),
+				...(penaltyMinutes !== undefined && { penaltyMinutes })
 			},
 			include: {
 				player: {
@@ -289,6 +291,7 @@ async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?:
 		player: typeof statistics[0]['player'];
 		goals: number;
 		assists: number;
+		penaltyMinutes: number;
 		gamesPlayed: number;
 	}>();
 
@@ -297,12 +300,14 @@ async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?:
 		if (existing) {
 			existing.goals += stat.goals || 0;
 			existing.assists += stat.assists || 0;
+			existing.penaltyMinutes += stat.penaltyMinutes || 0;
 			existing.gamesPlayed += 1;
 		} else {
 			playerStats.set(stat.playerId, {
 				player: stat.player,
 				goals: stat.goals || 0,
 				assists: stat.assists || 0,
+				penaltyMinutes: stat.penaltyMinutes || 0,
 				gamesPlayed: 1
 			});
 		}
@@ -372,6 +377,7 @@ export const getArchivedPlayerStats = async (req: Request, res: Response): Promi
 			},
 			goals: row.goals,
 			assists: row.assists,
+			penaltyMinutes: row.penaltyMinutes,
 			gamesPlayed: row.gamesPlayed,
 			points: row.goals + row.assists
 		}));
