@@ -27,7 +27,7 @@ export default function Screen(): React.JSX.Element {
   return (
     <div className="teams-grid-container">
       {myTeams.length > 0 ? (
-        <div className="teams-grid">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {myTeams.map((team) => (
             <TeamCard key={team.id} team={team} />
           ))}

@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Loader2, Edit, Trophy, Target } from 'lucide-react';
+import { ArrowLeft, Loader2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { playerApi, gameStatisticApi, teamApi } from '@/services/api';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@components/base/card.tsx";
 import { Button } from "@components/base/button.tsx";
-import { Badge } from "@components/base/badge.tsx";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@components/base/dialog.tsx";
 import { Input } from "@components/base/input.tsx";
 import { Label } from "@components/base/label.tsx";
@@ -17,7 +16,7 @@ import type { Player, Team, HockeyGameStatistic } from "@types";
 export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
 	const navigate = useNavigate();
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const isNew = playerId === 'new';
 
 	const [loading, setLoading] = useState(!isNew);
@@ -115,6 +114,8 @@ export default function PlayerDetailPage() {
 	const totalGoals = statistics.reduce((sum, s) => sum + (s.goals || 0), 0);
 	const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
 	const gamesPlayed = statistics.length;
+	const totalPoints = totalGoals + totalAssists;
+	const totalPenaltyMinutes = statistics.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
 
 	if (loading) {
 		return (
@@ -254,79 +255,68 @@ export default function PlayerDetailPage() {
 			</div>
 
 			{/* Player Info Card */}
-			<Card>
-				<CardContent className="pt-6">
-					<div className="flex items-center gap-4">
-						<div
-							className="size-16 rounded-full flex items-center justify-center text-white font-bold text-2xl"
-							style={{ backgroundColor: team?.primaryColor || '#003E7E' }}
-						>
-							{player.number || '?'}
-						</div>
-						<div className="flex-1">
-							<h2 className="text-xl font-bold">{player.name}</h2>
-							<div className="flex items-center gap-2 mt-1">
-								{player.position && (
-									<Badge variant="secondary">{player.position}</Badge>
-								)}
-								{player.bornYear && (
-									<span className="text-sm text-muted-foreground">
-										{t('teamManagement.playerDetail.born')} {player.bornYear}
-									</span>
-								)}
-							</div>
-							{player.note && (
-								<p className="text-sm text-muted-foreground mt-2">{player.note}</p>
-							)}
-						</div>
+			<div
+				className="flex items-center gap-4 rounded-xl p-4 text-white"
+				style={{ backgroundColor: team?.primaryColor || '#003E7E' }}
+			>
+				<div className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-white/35 bg-black/15 text-2xl font-bold">
+					{player.number ?? '–'}
+				</div>
+				<div className="min-w-0 flex-1">
+					<h2 className="truncate text-xl font-bold">{player.name}</h2>
+					<div className="mt-1 flex flex-wrap items-center gap-2">
+						{player.position && (
+							<span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[11.5px] font-semibold">
+								{player.position}
+							</span>
+						)}
+						{player.bornYear && (
+							<span className="text-xs text-white/85">
+								{t('teamManagement.playerDetail.born')} {player.bornYear}
+							</span>
+						)}
 					</div>
-				</CardContent>
-			</Card>
-
-			{/* Stats Summary */}
-			<div className="grid grid-cols-3 gap-3">
-				<Card>
-					<CardContent className="p-4 text-center">
-						<div className="text-2xl font-bold">{gamesPlayed}</div>
-						<div className="text-xs text-muted-foreground mt-1">
-							{t('teamManagement.playerDetail.gamesPlayed')}
-						</div>
-					</CardContent>
-				</Card>
-				<Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-					<CardContent className="p-4 text-center">
-						<div className="flex items-center justify-center gap-1">
-							<Target className="h-4 w-4 text-green-700" />
-							<span className="text-2xl font-bold text-green-900">{totalGoals}</span>
-						</div>
-						<div className="text-xs text-green-700 mt-1">
-							{t('teamManagement.playerDetail.goals')}
-						</div>
-					</CardContent>
-				</Card>
-				<Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-					<CardContent className="p-4 text-center">
-						<div className="flex items-center justify-center gap-1">
-							<Trophy className="h-4 w-4 text-blue-700" />
-							<span className="text-2xl font-bold text-blue-900">{totalAssists}</span>
-						</div>
-						<div className="text-xs text-blue-700 mt-1">
-							{t('teamManagement.playerDetail.assists')}
-						</div>
-					</CardContent>
-				</Card>
+				</div>
 			</div>
 
+			{/* Stats Summary */}
+			<div className="grid grid-cols-5 gap-1.5">
+				{[
+					{ value: gamesPlayed, label: t('teamManagement.playerDetail.gamesPlayed'), color: undefined },
+					{ value: totalGoals, label: t('teamManagement.playerDetail.goals'), color: '#166534' },
+					{ value: totalAssists, label: t('teamManagement.playerDetail.assists'), color: undefined },
+					{ value: totalPoints, label: t('teamManagement.pwa.points'), color: team?.primaryColor || '#003E7E' },
+					{ value: totalPenaltyMinutes, label: t('teamManagement.gameStats.penaltyMinutesShort'), color: '#92400e' },
+				].map((tile) => (
+					<div
+						key={tile.label}
+						className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-1 py-2.5"
+					>
+						<span className="text-lg font-bold leading-none tabular-nums" style={{ color: tile.color }}>
+							{tile.value}
+						</span>
+						<span className="text-[10.5px] uppercase tracking-wide text-muted-foreground">
+							{tile.label}
+						</span>
+					</div>
+				))}
+			</div>
+
+			{player.note && (
+				<div className="flex flex-col gap-1 rounded-xl border border-border bg-card p-3.5">
+					<span className="tm-section-label">{t('teamManagement.playerDetail.note')}</span>
+					<p className="text-sm leading-relaxed text-muted-foreground" style={{ textWrap: 'pretty' }}>
+						{player.note}
+					</p>
+				</div>
+			)}
+
 			{/* Games List */}
-			<Card className="mb-8">
-				<CardHeader className="pb-3">
-					<CardTitle className="text-base">
-						{t('teamManagement.playerDetail.gameHistory')}
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-3">
-					{statistics.length > 0 ? (
-						statistics.map((stat) => {
+			<div className="flex flex-col gap-2 mb-4">
+				<span className="tm-section-label">{t('teamManagement.playerDetail.gameHistory')}</span>
+				{statistics.length > 0 ? (
+					<div className="tm-rows-card">
+						{statistics.map((stat) => {
 							const game = stat.game;
 							if (!game) return null;
 
@@ -335,55 +325,51 @@ export default function PlayerDetailPage() {
 							const oppScore = isHome ? game.awayScore : game.homeScore;
 							const opponent = isHome ? game.awayTeam : game.homeTeam;
 							const hasScore = myScore != null && oppScore != null;
-							const isWin = hasScore && myScore > oppScore;
-							const isDraw = hasScore && myScore === oppScore;
+							const result = !hasScore ? null
+								: myScore > oppScore ? 'win'
+								: myScore === oppScore ? 'draw' : 'loss';
+							const tone = result === 'win' ? { bg: '#dcfce7', fg: '#166534' }
+								: result === 'draw' ? { bg: '#fef3c7', fg: '#92400e' }
+								: { bg: '#fee2e2', fg: '#991b1b' };
+							const points = [
+								stat.goals ? t('teamManagement.playerDetail.goalsShort', { count: stat.goals }) : null,
+								stat.assists ? t('teamManagement.playerDetail.assistsShort', { count: stat.assists }) : null,
+								stat.penaltyMinutes ? `${stat.penaltyMinutes} ${t('teamManagement.gameStats.penaltyMinutesShort')}` : null,
+							].filter(Boolean).join(' · ');
 
 							return (
-								<div
-									key={stat.id}
-									className="flex items-center gap-3 p-3 border rounded-lg"
-								>
-									<div className="flex-1">
-										<div className="font-medium text-sm">
-											{isHome ? 'vs' : '@'} {opponent?.name}
-										</div>
-										<div className="text-xs text-muted-foreground">
-											{game.date ? new Date(game.date).toLocaleDateString() : '-'}
-										</div>
-									</div>
-									<div className="flex items-center gap-3">
-										<div className="text-right text-sm">
-											<div className="flex items-center gap-2">
-												{stat.goals ? (
-													<span className="text-green-600 font-medium">{stat.goals}G</span>
-												) : null}
-												{stat.assists ? (
-													<span className="text-blue-600 font-medium">{stat.assists}A</span>
-												) : null}
-												{!stat.goals && !stat.assists && (
-													<span className="text-muted-foreground">-</span>
-												)}
-											</div>
-										</div>
-										{hasScore && (
-											<Badge
-												variant={isWin ? 'default' : isDraw ? 'secondary' : 'destructive'}
-												className={isWin ? 'bg-green-600' : ''}
-											>
-												{myScore}:{oppScore}
-											</Badge>
-										)}
-									</div>
+								<div key={stat.id} className="tm-compact-row py-2">
+									<span className="w-11 shrink-0 whitespace-nowrap text-[11.5px] text-muted-foreground">
+										{game.date
+											? new Date(game.date).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })
+											: '—'}
+									</span>
+									<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+										<span className="truncate text-sm font-medium">
+											{opponent?.name} ({isHome ? t('teamManagement.pwa.homeShort') : t('teamManagement.pwa.awayShort')})
+										</span>
+										<span className="text-[11.5px] text-muted-foreground">
+											{points || t('teamManagement.playerDetail.noPoints')}
+										</span>
+									</span>
+									{hasScore && (
+										<span
+											className="tm-status-pill tabular-nums"
+											style={{ backgroundColor: tone.bg, color: tone.fg }}
+										>
+											{myScore}:{oppScore}
+										</span>
+									)}
 								</div>
 							);
-						})
-					) : (
-						<div className="text-center text-muted-foreground py-4">
-							{t('teamManagement.playerDetail.noGames')}
-						</div>
-					)}
-				</CardContent>
-			</Card>
+						})}
+					</div>
+				) : (
+					<div className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+						{t('teamManagement.playerDetail.noGames')}
+					</div>
+				)}
+			</div>
 
 			{/* Edit Modal */}
 			<Dialog open={showEditModal} onOpenChange={setShowEditModal}>

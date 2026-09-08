@@ -50,6 +50,7 @@ export default function PlayerDetailScreen() {
   // Calculate totals
   const totalGoals = statistics.reduce((sum, s) => sum + (s.goals || 0), 0);
   const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
+  const totalPenaltyMinutes = statistics.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
   const gamesPlayed = statistics.length;
 
   return (
@@ -63,6 +64,7 @@ export default function PlayerDetailScreen() {
             statistics={statistics}
             totalGoals={totalGoals}
             totalAssists={totalAssists}
+            totalPenaltyMinutes={totalPenaltyMinutes}
             gamesPlayed={gamesPlayed}
           />
         </div>

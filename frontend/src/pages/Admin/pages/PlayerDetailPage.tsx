@@ -23,6 +23,7 @@ interface GameStatForm {
   played: boolean;
   goals: number;
   assists: number;
+  penaltyMinutes: number;
   existingStatId?: number;
 }
 
@@ -115,6 +116,7 @@ export default function PlayerDetailPage() {
               played: !!existingStat,
               goals: existingStat?.goals ?? 0,
               assists: existingStat?.assists ?? 0,
+              penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
               existingStatId: existingStat?.id,
             };
           });
@@ -186,12 +188,14 @@ export default function PlayerDetailPage() {
             await gameStatisticApi.update(stat.existingStatId, {
               goals: stat.goals,
               assists: stat.assists,
+              penaltyMinutes: stat.penaltyMinutes,
             });
           } else {
             await gameStatisticApi.create(stat.gameId, {
               playerId: player.id,
               goals: stat.goals,
               assists: stat.assists,
+              penaltyMinutes: stat.penaltyMinutes,
             });
           }
         } else if (stat.existingStatId) {
@@ -258,6 +262,7 @@ export default function PlayerDetailPage() {
   // Calculate totals
   const totalGoals = statistics.reduce((sum, s) => sum + (s.goals || 0), 0);
   const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
+  const totalPenaltyMinutes = statistics.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
   const gamesPlayed = statistics.length;
 
   return (
@@ -346,7 +351,7 @@ export default function PlayerDetailPage() {
             </CardHeader>
             <CardContent>
               {/* Summary stats */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                 <div className="bg-muted p-4 rounded-lg text-center">
                   <p className="text-2xl font-bold text-blue-600">{gamesPlayed}</p>
                   <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.gamesPlayed')}</p>
@@ -358,6 +363,10 @@ export default function PlayerDetailPage() {
                 <div className="bg-muted p-4 rounded-lg text-center">
                   <p className="text-2xl font-bold text-purple-600">{totalAssists}</p>
                   <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.assists')}</p>
+                </div>
+                <div className="bg-muted p-4 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-amber-600">{totalPenaltyMinutes}</p>
+                  <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.penaltyMinutes')}</p>
                 </div>
               </div>
 
@@ -374,6 +383,7 @@ export default function PlayerDetailPage() {
                         <TableHead>{t('playerDetail.statistics.game')}</TableHead>
                         <TableHead className="text-center">{t('playerDetail.statistics.goals')}</TableHead>
                         <TableHead className="text-center">{t('playerDetail.statistics.assists')}</TableHead>
+                        <TableHead className="text-center">{t('playerDetail.statistics.penaltyMinutesShort')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -392,6 +402,7 @@ export default function PlayerDetailPage() {
                           </TableCell>
                           <TableCell className="text-center font-medium">{stat.goals ?? 0}</TableCell>
                           <TableCell className="text-center font-medium">{stat.assists ?? 0}</TableCell>
+                          <TableCell className="text-center font-medium">{stat.penaltyMinutes ?? 0}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -501,6 +512,24 @@ export default function PlayerDetailPage() {
                             value={stat.assists}
                             onChange={(e) =>
                               updateGameStat(stat.gameId, 'assists', parseInt(e.target.value) || 0)
+                            }
+                            disabled={!stat.played}
+                            className="w-16 text-center"
+                          />
+                        </div>
+
+                        {/* Penalty minutes input */}
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs text-muted-foreground mb-1">
+                            {t('playerDetail.statistics.penaltyMinutesShort')}
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={2}
+                            value={stat.penaltyMinutes}
+                            onChange={(e) =>
+                              updateGameStat(stat.gameId, 'penaltyMinutes', parseInt(e.target.value) || 0)
                             }
                             disabled={!stat.played}
                             className="w-16 text-center"

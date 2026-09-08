@@ -21,8 +21,8 @@ router.get('/game/:gameId', getStatisticsByGameId);
 router.get('/player/:playerId', getStatisticsByPlayerId);
 router.get('/:id', getStatisticById);
 
-router.post('/game/:gameId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createStatistic);
-router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), updateStatistic);
-router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteStatistic);
+router.post('/game/:gameId', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), createStatistic);
+router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), updateStatistic);
+router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), deleteStatistic);
 
 export default router;

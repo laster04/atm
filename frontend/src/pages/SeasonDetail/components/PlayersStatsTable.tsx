@@ -38,6 +38,7 @@ export default function PlayersStatsTable({ topScorers }: PlayersStatsTableProps
 							<TableHead className="text-center">{t('seasonDetail.playersStats.gamesPlayed')}</TableHead>
 							<TableHead className="text-center">{t('seasonDetail.playersStats.goals')}</TableHead>
 							<TableHead className="text-center">{t('seasonDetail.playersStats.assists')}</TableHead>
+							<TableHead className="text-center">{t('seasonDetail.playersStats.penaltyMinutes')}</TableHead>
 							<TableHead className="text-center">{t('seasonDetail.playersStats.points')}</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -85,6 +86,7 @@ export default function PlayersStatsTable({ topScorers }: PlayersStatsTableProps
 								<TableCell className="text-center">{topScorer.gamesPlayed}</TableCell>
 								<TableCell className="text-center">{topScorer.goals}</TableCell>
 								<TableCell className="text-center">{topScorer.assists}</TableCell>
+								<TableCell className="text-center">{topScorer.penaltyMinutes ?? 0}</TableCell>
 								<TableCell className="text-center font-bold">{topScorer.points}</TableCell>
 							</TableRow>
 						))}

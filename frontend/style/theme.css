@@ -1310,4 +1310,296 @@
             @apply text-4xl;
         }
     }
+
+    /* =========================================================================
+       Team manager -- mobile shell
+       The tab content, the fixed bottom bar and the sticky team header are the
+       three places the notch and the home indicator bite. Bottom spacing has a
+       single source here: the nav's own height plus the safe-area inset. Do not
+       re-add per-tab bottom padding.
+       ========================================================================= */
+
+    .tm-team-header {
+        padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .tm-content {
+        padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 1rem);
+    }
+
+    @media (min-width: 1024px) {
+        .tm-content {
+            padding-bottom: 1.5rem;
+        }
+    }
+
+    .tm-bottom-nav {
+        @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-20;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .tm-bottom-nav-item {
+        @apply flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors;
+    }
+
+    .tm-bottom-nav-item span {
+        @apply text-[10.5px] font-medium leading-none;
+    }
+
+    .tm-bottom-nav-item.is-active span {
+        @apply font-semibold;
+    }
+
+    /* -------------------------------------------------------------------------
+       Team manager -- roster
+       Replaces the 3-column card grid the old .table-body used under 768px,
+       which dropped .table-col-position entirely and wrapped long names onto
+       three lines. One row per player, position kept, 44px+ touch targets.
+       ------------------------------------------------------------------------- */
+
+    .tm-toolbar {
+        @apply sticky top-0 z-10 flex items-center gap-2 overflow-x-auto bg-card border-b border-border px-4 py-2;
+        scrollbar-width: none;
+    }
+
+    .tm-toolbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tm-search {
+        @apply flex items-center gap-2 w-full h-11 rounded-lg bg-input-background px-3;
+    }
+
+    .tm-search input {
+        @apply flex-1 bg-transparent border-0 outline-none text-sm min-w-0;
+    }
+
+    .tm-pill-strip {
+        @apply flex min-w-0 flex-1 items-center gap-2 overflow-x-auto;
+        scrollbar-width: none;
+    }
+
+    .tm-pill-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tm-sort-pill {
+        @apply flex items-center h-9 shrink-0 px-3 rounded-full border border-border text-xs font-medium text-muted-foreground transition-colors;
+    }
+
+    .tm-sort-pill[aria-pressed="true"] {
+        @apply text-white border-transparent;
+    }
+
+    .tm-player-row {
+        @apply flex items-center gap-3 w-full min-h-[62px] px-4 py-2 text-left border-b border-border transition-colors;
+    }
+
+    .tm-player-row:active {
+        @apply bg-muted/40;
+    }
+
+    .tm-player-number {
+        @apply flex items-center justify-center size-10 shrink-0 rounded-full text-[15px] font-bold text-white;
+    }
+
+    .tm-player-number.is-unset {
+        @apply bg-input-background text-muted-foreground;
+    }
+
+    .tm-player-main {
+        @apply flex flex-col gap-0.5 flex-1 min-w-0;
+    }
+
+    .tm-player-name {
+        @apply text-[15px] font-semibold leading-tight truncate;
+    }
+
+    .tm-player-meta {
+        @apply text-xs text-muted-foreground leading-tight truncate;
+    }
+
+    .tm-player-stats {
+        @apply flex shrink-0 gap-1;
+    }
+
+    .tm-player-stat {
+        @apply flex w-9 flex-col items-center gap-px;
+    }
+
+    .tm-player-stat b {
+        @apply text-[15px] font-semibold leading-none tabular-nums;
+    }
+
+    .tm-player-stat span {
+        @apply text-[9px] font-semibold uppercase tracking-wider text-muted-foreground leading-none;
+    }
+
+    .tm-fab {
+        @apply fixed right-4 flex items-center gap-2 pl-4 pr-5 rounded-full text-white font-semibold shadow-lg z-20;
+        height: 3.25rem;
+        bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 1rem);
+    }
+
+    @media (min-width: 1024px) {
+        .tm-fab {
+            bottom: 1.5rem;
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+       Team manager -- schedule + overview
+       ------------------------------------------------------------------------- */
+
+    .tm-segmented {
+        @apply grid gap-1 p-1 rounded-lg bg-muted;
+    }
+
+    .tm-segmented button {
+        @apply flex items-center justify-center h-9 rounded-md text-[13.5px] font-medium text-muted-foreground transition-colors;
+    }
+
+    .tm-segmented button[aria-pressed="true"] {
+        @apply bg-card text-foreground font-semibold shadow-sm;
+    }
+
+    .tm-section-label {
+        @apply text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground;
+    }
+
+    .tm-game-card {
+        @apply flex items-center gap-3 w-full p-3 text-left bg-card border border-border rounded-xl shadow-sm transition-colors;
+    }
+
+    .tm-game-card:active {
+        @apply bg-muted/30;
+    }
+
+    .tm-date-block {
+        @apply flex flex-col items-center justify-center gap-px shrink-0 w-[46px] py-1.5 rounded-lg bg-input-background;
+    }
+
+    .tm-date-block .tm-date-dow {
+        @apply text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground;
+    }
+
+    .tm-date-block .tm-date-day {
+        @apply text-[19px] font-bold leading-none;
+    }
+
+    .tm-date-block .tm-date-mon {
+        @apply text-[10.5px] text-muted-foreground;
+    }
+
+    .tm-date-block.is-postponed {
+        background-color: #fef3c7;
+    }
+
+    .tm-date-block.is-postponed .tm-date-dow,
+    .tm-date-block.is-postponed .tm-date-mon {
+        color: #92400e;
+    }
+
+    .tm-date-block.is-postponed .tm-date-day {
+        color: #92400e;
+        text-decoration: line-through;
+    }
+
+    .tm-date-block.is-tbd .tm-date-day {
+        @apply text-sm font-semibold text-muted-foreground;
+    }
+
+    .tm-game-main {
+        @apply flex flex-col gap-1 flex-1 min-w-0;
+    }
+
+    .tm-game-opponent {
+        @apply text-[15.5px] font-semibold leading-tight truncate;
+    }
+
+    .tm-game-meta {
+        @apply flex items-center gap-1.5 text-xs text-muted-foreground min-w-0;
+    }
+
+    .tm-game-meta > span {
+        @apply truncate;
+    }
+
+    .tm-side-pill {
+        @apply shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wide;
+    }
+
+    .tm-side-pill.is-away {
+        @apply border border-border text-muted-foreground;
+    }
+
+    .tm-status-pill {
+        @apply shrink-0 px-2 py-0.5 rounded-lg text-[11px] font-semibold;
+    }
+
+    .tm-rows-card {
+        @apply flex flex-col bg-card border border-border rounded-xl overflow-hidden;
+    }
+
+    .tm-rows-card > * + * {
+        @apply border-t border-border;
+    }
+
+    .tm-compact-row {
+        @apply flex items-center gap-3 w-full min-h-[54px] px-3 text-left;
+    }
+
+    /* -------------------------------------------------------------------------
+       Team manager -- game statistics entry
+       ------------------------------------------------------------------------- */
+
+    /* Three counters (goals, assists, penalty minutes) plus a name will not fit
+       on one 390px line, so the row is two lines: identity on top, counters
+       below, each under its own label. */
+    .tm-stat-row {
+        @apply flex flex-col gap-1.5 px-4 py-2 border-b border-border;
+    }
+
+    .tm-stat-identity {
+        @apply flex items-center gap-2 min-h-11;
+    }
+
+    .tm-stat-toggle {
+        @apply flex items-center justify-center size-11 shrink-0 -ml-2;
+    }
+
+    .tm-stat-box {
+        @apply flex items-center justify-center size-6 rounded-md transition-colors;
+        border: 2px solid rgb(0 0 0 / 0.25);
+    }
+
+    .tm-stat-counters {
+        @apply grid grid-cols-3 gap-2 pl-9;
+    }
+
+    .tm-stat-stepper {
+        @apply flex flex-col items-center gap-1;
+    }
+
+    .tm-stat-stepper .tm-stat-label {
+        @apply text-[9.5px] font-semibold uppercase tracking-wider text-muted-foreground leading-none;
+    }
+
+    .tm-stat-stepper .tm-stat-controls {
+        @apply flex items-center justify-center gap-1;
+    }
+
+    .tm-stat-stepper button {
+        @apply flex items-center justify-center size-9 rounded-lg border border-border text-foreground transition-colors disabled:opacity-40;
+    }
+
+    .tm-stat-stepper output {
+        @apply w-6 text-center text-base font-semibold tabular-nums;
+    }
+
+    .tm-save-bar {
+        @apply sticky bottom-0 flex items-center gap-3 bg-card border-t border-border px-4 py-2.5;
+        padding-bottom: calc(0.625rem + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -4px 6px -4px rgb(0 0 0 / 0.1);
+    }
 }

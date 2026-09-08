@@ -15,16 +15,23 @@ interface Rect {
   height: number;
 }
 
-function measure(selector: string | null): Rect | null {
+/** The desktop sidebar and the mobile bottom nav carry the same data-tour
+ *  anchors, so always resolve the one that is actually laid out. */
+function visibleTarget(selector: string | null): Element | null {
   if (!selector) return null;
   const candidates = document.querySelectorAll(`[data-tour="${selector}"]`);
   for (const el of candidates) {
     const r = el.getBoundingClientRect();
-    if (r.width > 0 && r.height > 0) {
-      return { top: r.top, left: r.left, width: r.width, height: r.height };
-    }
+    if (r.width > 0 && r.height > 0) return el;
   }
   return null;
+}
+
+function measure(selector: string | null): Rect | null {
+  const el = visibleTarget(selector);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { top: r.top, left: r.left, width: r.width, height: r.height };
 }
 
 interface SpotlightTourProps {
@@ -56,7 +63,7 @@ export default function SpotlightTour({ steps: allSteps, eligible, onFinish }: S
     if (!active || !steps) return;
 
     const step = steps[index];
-    const el = step?.target ? document.querySelector(`[data-tour="${step.target}"]`) : null;
+    const el = visibleTarget(step?.target ?? null);
 
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });

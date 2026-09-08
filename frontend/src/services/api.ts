@@ -146,9 +146,9 @@ export const gameStatisticApi = {
       api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/team/${teamId}`),
   getArchivedPlayerStats: (seasonId: string | number, teamId?: string | number) =>
       api.get<ArchivedPlayerStat[]>(`/game-statistics/season/${seasonId}/archived`, { params: { teamId } }),
-  create: (gameId: string | number, data: { playerId: number; goals?: number | null; assists?: number | null }) =>
+  create: (gameId: string | number, data: { playerId: number; goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
     api.post<HockeyGameStatistic>(`/game-statistics/game/${gameId}`, data),
-  update: (id: string | number, data: { goals?: number | null; assists?: number | null }) =>
+  update: (id: string | number, data: { goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
     api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
   delete: (id: string | number) => api.delete(`/game-statistics/${id}`)
 };

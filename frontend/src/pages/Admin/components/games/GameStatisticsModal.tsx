@@ -18,6 +18,7 @@ interface StatisticFormData {
 	playerId: number;
 	goals: number | null;
 	assists: number | null;
+	penaltyMinutes: number | null;
 }
 
 export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameStatisticsModalProps) {
@@ -29,8 +30,8 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 	const [error, setError] = useState('');
 	const [isAdding, setIsAdding] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
-	const [editForm, setEditForm] = useState<{ goals: number | null; assists: number | null }>({ goals: null, assists: null });
-	const [newStat, setNewStat] = useState<StatisticFormData>({ playerId: 0, goals: null, assists: null });
+	const [editForm, setEditForm] = useState<{ goals: number | null; assists: number | null; penaltyMinutes: number | null }>({ goals: null, assists: null, penaltyMinutes: null });
+	const [newStat, setNewStat] = useState<StatisticFormData>({ playerId: 0, goals: null, assists: null, penaltyMinutes: null });
 
 	useEffect(() => {
 		loadData();
@@ -66,10 +67,11 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 			const res = await gameStatisticApi.create(game.id, {
 				playerId: newStat.playerId,
 				goals: newStat.goals,
-				assists: newStat.assists
+				assists: newStat.assists,
+				penaltyMinutes: newStat.penaltyMinutes
 			});
 			setStatistics([...statistics, res.data]);
-			setNewStat({ playerId: 0, goals: null, assists: null });
+			setNewStat({ playerId: 0, goals: null, assists: null, penaltyMinutes: null });
 			setIsAdding(false);
 		} catch (err) {
 			console.error('Failed to create statistic:', err);
@@ -82,7 +84,8 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 		try {
 			const res = await gameStatisticApi.update(id, {
 				goals: editForm.goals,
-				assists: editForm.assists
+				assists: editForm.assists,
+				penaltyMinutes: editForm.penaltyMinutes
 			});
 			setStatistics(statistics.map(s => s.id === id ? res.data : s));
 			setEditingId(null);
@@ -106,7 +109,7 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 
 	const startEditing = (stat: HockeyGameStatistic) => {
 		setEditingId(stat.id);
-		setEditForm({ goals: stat.goals ?? null, assists: stat.assists ?? null });
+		setEditForm({ goals: stat.goals ?? null, assists: stat.assists ?? null, penaltyMinutes: stat.penaltyMinutes ?? null });
 	};
 
 	const getPlayerTeamName = (playerId: number) => {
@@ -142,13 +145,14 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 									<TableHead>{t('admin.tabs.statistics.th-team')}</TableHead>
 									<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-goals')}</TableHead>
 									<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-assists')}</TableHead>
+									<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-penaltyMinutes')}</TableHead>
 									<TableHead className="w-24 text-right">{t('admin.tabs.statistics.th-actions')}</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{statistics.length === 0 && !isAdding ? (
 									<TableRow>
-										<TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+										<TableCell colSpan={6} className="text-center text-muted-foreground py-8">
 											{t('admin.tabs.statistics.noStatistics')}
 										</TableCell>
 									</TableRow>
@@ -183,6 +187,20 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 													/>
 												) : (
 													stat.assists ?? '-'
+												)}
+											</TableCell>
+											<TableCell className="text-center">
+												{editingId === stat.id ? (
+													<Input
+														type="number"
+														value={editForm.penaltyMinutes ?? ''}
+														onChange={(e) => setEditForm({ ...editForm, penaltyMinutes: e.target.value ? parseInt(e.target.value) : null })}
+														className="w-16 text-center mx-auto"
+														min={0}
+														step={2}
+													/>
+												) : (
+													stat.penaltyMinutes ?? '-'
 												)}
 											</TableCell>
 											<TableCell className="text-right">
@@ -266,6 +284,17 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 												onChange={(e) => setNewStat({ ...newStat, assists: e.target.value ? parseInt(e.target.value) : null })}
 												className="w-16 text-center mx-auto"
 												min={0}
+												placeholder="0"
+											/>
+										</TableCell>
+										<TableCell className="text-center">
+											<Input
+												type="number"
+												value={newStat.penaltyMinutes ?? ''}
+												onChange={(e) => setNewStat({ ...newStat, penaltyMinutes: e.target.value ? parseInt(e.target.value) : null })}
+												className="w-16 text-center mx-auto"
+												min={0}
+												step={2}
 												placeholder="0"
 											/>
 										</TableCell>

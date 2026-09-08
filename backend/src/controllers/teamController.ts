@@ -26,7 +26,20 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
           }
         },
         _count: { select: { players: true } },
-        manager: { select: { id: true, name: true, email: true } }
+        manager: { select: { id: true, name: true, email: true } },
+        // Only the next dated fixture on each side; the list screen shows one.
+        homeGames: {
+          where: { status: 'SCHEDULED', date: { not: null } },
+          include: { awayTeam: { select: { id: true, name: true } } },
+          orderBy: { date: 'asc' },
+          take: 1
+        },
+        awayGames: {
+          where: { status: 'SCHEDULED', date: { not: null } },
+          include: { homeTeam: { select: { id: true, name: true } } },
+          orderBy: { date: 'asc' },
+          take: 1
+        }
       },
       orderBy: { name: 'asc' }
     });
@@ -37,7 +50,11 @@ export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void>
         .map(st => st.season)
         .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
         .find(s => s.status === 'ACTIVE') || team.seasonTeams[0]?.season || null;
-      return { ...team, season: activeSeason };
+
+      const nextGame = [...team.homeGames, ...team.awayGames]
+        .sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime())[0] ?? null;
+
+      return { ...team, season: activeSeason, nextGame };
     });
 
     res.json(teamsWithSeason);
@@ -102,9 +119,15 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const allGames = [...team.homeGames, ...team.awayGames].sort(
-      (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
-    );
+    // Undated games must sort last: `new Date(null)` is the epoch, which would
+    // push every unscheduled game ahead of real fixtures (and, because the two
+    // relations are concatenated, make the first N games all home games).
+    const allGames = [...team.homeGames, ...team.awayGames].sort((a, b) => {
+      if (!a.date && !b.date) return a.id - b.id;
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
 
     // Add convenience `season` field (most recent active or first)
     const activeSeason = team.seasonTeams

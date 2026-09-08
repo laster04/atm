@@ -25,7 +25,7 @@ export default function SettingsTab({
 	const [showInviteModal, setShowInviteModal] = useState(false);
 
 	return (
-		<div className="space-y-4 pb-20">
+		<div className="flex flex-col gap-4">
 			<div className="settings-header">
 				<h3 className="settings-title">{t('teamManagement.pwa.teamSettings')}</h3>
 				<p className="settings-subtitle">
@@ -42,51 +42,28 @@ export default function SettingsTab({
 			/>
 
 			{/* Team Info */}
-			<Card className="settings-card">
-				<CardHeader>
-					<CardTitle className="text-base">
-						{t('teamManagement.pwa.teamInfo')}
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-3">
-					<div className="settings-row">
-						<span className="settings-row-label">
-							{t('teamManagement.pwa.teamName')}
-						</span>
-						<span className="settings-row-value">{team.name}</span>
-					</div>
-					{team.season && (
-						<div className="settings-row">
-							<span className="settings-row-label">
-								{t('teamManagement.pwa.season')}
+			<div className="flex flex-col gap-2">
+				<span className="tm-section-label">{t('teamManagement.pwa.teamInfo')}</span>
+				<div className="tm-rows-card">
+					{[
+						{ label: t('teamManagement.pwa.teamName'), value: team.name },
+						...(team.season ? [{ label: t('teamManagement.pwa.season'), value: team.season.name }] : []),
+						{ label: t('teamManagement.pwa.manager'), value: team.manager?.name || '—' },
+						{
+							label: t('teamManagement.pwa.seasonRecord'),
+							value: standing ? `${standing.wins}-${standing.draws}-${standing.losses}` : '—',
+						},
+						{ label: t('teamManagement.pwa.totalPoints'), value: String(standing?.points ?? 0) },
+					].map((row) => (
+						<div key={row.label} className="flex min-h-12 items-center gap-3 px-3.5 py-2.5">
+							<span className="shrink-0 text-sm text-muted-foreground">{row.label}</span>
+							<span className="ml-auto min-w-0 truncate text-right text-sm font-medium">
+								{row.value}
 							</span>
-							<span className="settings-row-value">{team.season.name}</span>
 						</div>
-					)}
-					<div className="settings-row">
-						<span className="settings-row-label">
-							{t('teamManagement.pwa.manager')}
-						</span>
-						<span className="settings-row-value">
-							{team.manager?.name || '-'}
-						</span>
-					</div>
-					<div className="settings-row">
-						<span className="settings-row-label">
-							{t('teamManagement.pwa.seasonRecord')}
-						</span>
-						<span className="settings-row-value">
-							{standing ? `${standing.wins}-${standing.losses}-${standing.draws}` : '-'}
-						</span>
-					</div>
-					<div className="settings-row settings-row-last">
-						<span className="settings-row-label">
-							{t('teamManagement.pwa.totalPoints')}
-						</span>
-						<span className="settings-row-value">{standing?.points ?? 0}</span>
-					</div>
-				</CardContent>
-			</Card>
+					))}
+				</div>
+			</div>
 
 			{/* Invite Manager - Admin/Season Manager only */}
 			{(isAdmin() || isSeasonManager()) && (

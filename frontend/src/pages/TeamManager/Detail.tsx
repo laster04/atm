@@ -110,7 +110,7 @@ export default function Detail() {
 		<div className="min-h-screen bg-background flex flex-col lg:flex-row">
 			{/* Mobile/Tablet Header */}
 			<div
-				className="sticky top-0 z-10 text-white border-b shadow-md lg:hidden"
+				className="tm-team-header sticky top-0 z-10 text-white border-b shadow-md lg:hidden"
 				style={{ backgroundColor: localColor || '#003E7E' }}
 			>
 				<div className="px-4 py-3">
@@ -146,7 +146,7 @@ export default function Detail() {
 						onClick={handleBack}
 					>
 						<ArrowLeft className="size-5 mr-2" />
-						Back
+						{t('common.back')}
 					</Button>
 					<h1 className="text-2xl font-bold">{team.name}</h1>
 					{team.season && (
@@ -180,20 +180,19 @@ export default function Detail() {
 				<div className="hidden lg:block border-b bg-card">
 					<div className="px-6 py-4">
 						<h2 className="text-xl font-semibold text-foreground">
-							{activeTab === 'overview' && 'Overview'}
-							{activeTab === 'roster' && 'Team Roster'}
-							{activeTab === 'schedule' && 'Schedule'}
-							{activeTab === 'settings' && 'Settings'}
+							{tabs.find((tab) => tab.id === activeTab)?.label}
 						</h2>
 					</div>
 				</div>
 
 				{/* Content Area */}
-				<div className="flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
+				<div className="tm-content flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
 					{activeTab === 'overview' && (
 						<OverviewTab
 							team={team}
 							standing={standing}
+							playerCount={players.length}
+							teamColor={localColor}
 							onTabChange={setActiveTab}
 						/>
 					)}
@@ -202,12 +201,14 @@ export default function Detail() {
 							players={players}
 							teamId={team.id}
 							teamColor={localColor}
+							seasonId={team.season?.id}
 						/>
 					)}
 					{activeTab === 'schedule' && (
 						<ScheduleTab
 							games={team.games || []}
 							teamId={team.id}
+							teamColor={localColor}
 						/>
 					)}
 					{activeTab === 'settings' && (
@@ -221,18 +222,17 @@ export default function Detail() {
 				</div>
 
 				{/* Mobile Bottom Navigation */}
-				<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20 lg:hidden">
-					<div className="grid grid-cols-4 h-16">
+				<div className="tm-bottom-nav lg:hidden">
+					<div className="grid grid-cols-4 h-14">
 						{tabs.map((tab) => (
 							<button
 								key={tab.id}
 								data-tour={`team-tab-${tab.id}`}
 								onClick={() => setActiveTab(tab.id)}
-								className={`flex flex-col items-center justify-center gap-1 transition-colors ${
-									activeTab === tab.id
-										? 'text-primary'
-										: 'text-muted-foreground'
+								className={`tm-bottom-nav-item ${
+									activeTab === tab.id ? 'is-active' : ''
 								}`}
+								style={activeTab === tab.id ? { color: localColor || '#003E7E' } : undefined}
 							>
 								<tab.icon className="size-5" />
 								<span className="text-xs font-medium">{tab.label}</span>
@@ -240,9 +240,6 @@ export default function Detail() {
 						))}
 					</div>
 				</div>
-
-				{/* Mobile Content Padding */}
-				<div className="h-16 lg:hidden" />
 			</div>
 
 			<TeamManagerTour />

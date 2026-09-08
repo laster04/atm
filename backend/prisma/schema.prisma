@@ -197,6 +197,7 @@ model HockeyGameStatistic {
   game     Game   @relation("GameStatistic", fields: [gameId], references: [id], onDelete: Cascade)
   goals    Int?
   assists  Int?
+  penaltyMinutes Int? @map("penalty_minutes")
 
   @@unique([playerId, gameId])
   @@map("hockey_game_statistics")
@@ -241,10 +242,11 @@ model SeasonArchivePlayerStat {
   team     Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
   teamName String  @map("team_name")
 
-  gamesPlayed Int      @map("games_played")
-  goals       Int
-  assists     Int
-  createdAt   DateTime @default(now()) @map("created_at")
+  gamesPlayed    Int      @map("games_played")
+  goals          Int
+  assists        Int
+  penaltyMinutes Int      @default(0) @map("penalty_minutes")
+  createdAt      DateTime @default(now()) @map("created_at")
 
   @@unique([seasonId, playerId])
   @@map("season_archive_player_stats")

@@ -32,19 +32,23 @@
     "steps": {
       "overview": {
         "title": "Přehled",
-        "body": "Rychlý přehled vašeho týmu — výsledky, body a zkratky k častým akcím."
+        "body": "Nejbližší zápas, bilance sezony a zkratka na soupisku."
       },
       "roster": {
         "title": "Soupiska",
-        "body": "Zde přidáváte a spravujete hráče svého týmu."
+        "body": "Přidávejte a spravujte hráče. Vyhledávejte nebo řaďte podle čísla, jména, bodů či trestných minut."
       },
       "schedule": {
         "title": "Rozpis",
-        "body": "Zde uvidíte nadcházející i odehrané zápasy vašeho týmu."
+        "body": "Nadcházející i odehrané zápasy a také odložené, zrušené nebo právě hrané."
       },
       "settings": {
         "title": "Nastavení",
         "body": "Zde můžete upravit barvu týmu a zobrazit jeho informace."
+      },
+      "lineup": {
+        "title": "Zapsat sestavu",
+        "body": "Před zápasem sem klepněte a zaškrtněte, kdo hrál, a zapište góly, asistence a trestné minuty."
       }
     }
   },
@@ -331,7 +335,8 @@
       "gamesPlayed": "Z",
       "goals": "G",
       "assists": "A",
-      "points": "B"
+      "points": "B",
+      "penaltyMinutes": "TM"
     },
     "standings": {
       "rank": "#",
@@ -435,7 +440,9 @@
       "gameByGame": "Po zapasech",
       "date": "Datum",
       "game": "Zapas",
-      "noStatistics": "Zatim zadne zaznamenane statistiky."
+      "noStatistics": "Zatim zadne zaznamenane statistiky.",
+      "penaltyMinutes": "Trestné minuty",
+      "penaltyMinutesShort": "TM"
     },
     "team": {
       "title": "Aktualni tym"
@@ -488,7 +495,32 @@
         "roster": "Soupiska",
         "schedule": "Rozpis",
         "settings": "Nastavení"
-      }
+      },
+      "sortNumber": "Číslo",
+      "searchPlayers": "Hledat hráče",
+      "noPosition": "Pozice neuvedena",
+      "noPlayersFound": "Žádný hráč neodpovídá hledání",
+      "pointsShort": "b.",
+      "playerCount_one": "{{count}} hráč",
+      "playerCount_few": "{{count}} hráči",
+      "playerCount_other": "{{count}} hráčů",
+      "otherGames": "Ostatní",
+      "notScheduledYet": "Zatím bez termínu",
+      "tbd": "Bez data",
+      "homeShort": "D",
+      "awayShort": "V",
+      "newDateTbd": "nový termín bude upřesněn",
+      "unknownOpponent": "Soupeř",
+      "draws": "Remízy",
+      "nextGame": "Příští zápas",
+      "setLineup": "Zapsat sestavu",
+      "noScheduledGame": "Zatím není naplánován žádný zápas",
+      "then": "Dále",
+      "today": "dnes",
+      "tomorrow": "zítra",
+      "inDays_one": "za {{count}} den",
+      "inDays_few": "za {{count}} dny",
+      "inDays_other": "za {{count}} dní"
     },
     "gameStats": {
       "playerStats": "Statistiky hráčů",
@@ -499,7 +531,14 @@
       "saveSuccess": "Statistiky byly úspěšně uloženy",
       "saveError": "Nepodařilo se uložit statistiky",
       "notFound": "Zápas nenalezen",
-      "notYourGame": "Tento zápas nepatří vašemu týmu"
+      "notYourGame": "Tento zápas nepatří vašemu týmu",
+      "lineup": "Sestava",
+      "allSaved": "Vše uloženo",
+      "unsavedChanges_one": "{{count}} neuložená změna",
+      "unsavedChanges_few": "{{count}} neuložené změny",
+      "unsavedChanges_other": "{{count}} neuložených změn",
+      "penaltyMinutes": "Trest",
+      "penaltyMinutesShort": "TM"
     },
     "playerDetail": {
       "addPlayer": "Přidat hráče",
@@ -522,7 +561,14 @@
       "saveError": "Nepodařilo se uložit hráče",
       "deleteSuccess": "Hráč byl úspěšně smazán",
       "deleteError": "Nepodařilo se smazat hráče",
-      "confirmDelete": "Opravdu chcete smazat tohoto hráče?"
+      "confirmDelete": "Opravdu chcete smazat tohoto hráče?",
+      "goalsShort_one": "{{count}} gól",
+      "goalsShort_few": "{{count}} góly",
+      "goalsShort_other": "{{count}} gólů",
+      "assistsShort_one": "{{count}} asistence",
+      "assistsShort_few": "{{count}} asistence",
+      "assistsShort_other": "{{count}} asistencí",
+      "noPoints": "Bez bodů"
     },
     "toast": {
       "colorUpdated": "Barva pro {{name}} byla aktualizována!"
@@ -697,7 +743,8 @@
         "loadError": "Nepodařilo se načíst statistiky",
         "createError": "Nepodařilo se vytvořit statistiku",
         "updateError": "Nepodařilo se aktualizovat statistiku",
-        "deleteError": "Nepodařilo se smazat statistiku"
+        "deleteError": "Nepodařilo se smazat statistiku",
+        "th-penaltyMinutes": "TM"
       }
     },
     "seasons": {
@@ -1158,5 +1205,8 @@
       "empty": "Zatím žádné týmy.",
       "empty_TENNIS": "Zatím žádní hráči."
     }
+  },
+  "gameStatistic": {
+    "penaltyMinutes": "TM"
   }
 }

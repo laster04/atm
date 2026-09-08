@@ -7,6 +7,7 @@ interface PlayerStatisticsProps {
   statistics: HockeyGameStatistic[];
   totalGoals: number;
   totalAssists: number;
+  totalPenaltyMinutes: number;
   gamesPlayed: number;
 }
 
@@ -14,6 +15,7 @@ export default function PlayerStatistics({
   statistics,
   totalGoals,
   totalAssists,
+  totalPenaltyMinutes,
   gamesPlayed
 }: PlayerStatisticsProps) {
   const { t, i18n } = useTranslation();
@@ -23,7 +25,7 @@ export default function PlayerStatistics({
       <h2 className="text-xl font-bold mb-4">{t('playerDetail.statistics.title')}</h2>
 
       {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div className="bg-gray-50 p-4 rounded-lg text-center">
           <p className="text-2xl font-bold text-blue-600">{gamesPlayed}</p>
           <p className="text-sm text-gray-500">{t('playerDetail.statistics.gamesPlayed')}</p>
@@ -35,6 +37,10 @@ export default function PlayerStatistics({
         <div className="bg-gray-50 p-4 rounded-lg text-center">
           <p className="text-2xl font-bold text-purple-600">{totalAssists}</p>
           <p className="text-sm text-gray-500">{t('playerDetail.statistics.assists')}</p>
+        </div>
+        <div className="bg-gray-50 p-4 rounded-lg text-center">
+          <p className="text-2xl font-bold text-amber-600">{totalPenaltyMinutes}</p>
+          <p className="text-sm text-gray-500">{t('playerDetail.statistics.penaltyMinutes')}</p>
         </div>
       </div>
 
@@ -52,6 +58,7 @@ export default function PlayerStatistics({
                   <th className="text-left py-2">{t('playerDetail.statistics.game')}</th>
                   <th className="text-center py-2">{t('playerDetail.statistics.goals')}</th>
                   <th className="text-center py-2">{t('playerDetail.statistics.assists')}</th>
+                  <th className="text-center py-2">{t('playerDetail.statistics.penaltyMinutesShort')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,6 +77,7 @@ export default function PlayerStatistics({
                     </td>
                     <td className="py-2 text-center font-medium">{stat.goals ?? 0}</td>
                     <td className="py-2 text-center font-medium">{stat.assists ?? 0}</td>
+                    <td className="py-2 text-center font-medium">{stat.penaltyMinutes ?? 0}</td>
                   </tr>
                 ))}
               </tbody>

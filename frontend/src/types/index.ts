@@ -96,6 +96,8 @@ export interface Team {
   homeGames?: Game[];
   awayGames?: Game[];
   games?: Game[];
+  /** Next dated SCHEDULED fixture; only returned by GET /teams/my. */
+  nextGame?: Game | null;
   _count?: {
     players: number;
   };
@@ -152,6 +154,7 @@ export interface HockeyGameStatistic {
   gameId: number;
   goals?: number | null;
   assists?: number | null;
+  penaltyMinutes?: number | null;
   player?: Player & { team?: Team };
   game?: Game & { homeTeam?: Team; awayTeam?: Team };
 }
@@ -175,6 +178,7 @@ export interface TopScorer {
   player: Player;
   goals: number;
   assists: number;
+  penaltyMinutes: number;
   gamesPlayed: number;
   points: number;
 }
@@ -188,6 +192,7 @@ export interface ArchivedPlayerStat {
   player: { id: number; name: string; number?: number | null; team: { id: number; name: string } };
   goals: number;
   assists: number;
+  penaltyMinutes: number;
   gamesPlayed: number;
   points: number;
 }
