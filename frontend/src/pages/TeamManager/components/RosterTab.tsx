@@ -5,7 +5,7 @@ import { ChevronRight, Plus, Search } from 'lucide-react';
 import { gameStatisticApi } from '@/services/api';
 import type { Player } from '@types';
 
-type SortKey = 'number' | 'name' | 'points';
+type SortKey = 'number' | 'name' | 'points' | 'penaltyMinutes';
 
 interface RosterTabProps {
 	players: Player[];
@@ -25,22 +25,27 @@ export default function RosterTab({
 
 	const [query, setQuery] = useState('');
 	const [sort, setSort] = useState<SortKey>('number');
-	const [points, setPoints] = useState<Record<number, number>>({});
+	const [stats, setStats] = useState<Record<number, { points: number; penaltyMinutes: number }>>({});
 
 	const color = teamColor || '#003E7E';
 
 	useEffect(() => {
 		if (!seasonId) {
-			setPoints({});
+			setStats({});
 			return;
 		}
 		let cancelled = false;
 		gameStatisticApi.getScorersBySeasonAndTeam(seasonId, teamId)
 			.then((res) => {
 				if (cancelled) return;
-				const next: Record<number, number> = {};
-				res.data.forEach((scorer) => { next[scorer.player.id] = scorer.points; });
-				setPoints(next);
+				const next: Record<number, { points: number; penaltyMinutes: number }> = {};
+				res.data.forEach((scorer) => {
+					next[scorer.player.id] = {
+						points: scorer.points,
+						penaltyMinutes: scorer.penaltyMinutes ?? 0,
+					};
+				});
+				setStats(next);
 			})
 			.catch((err) => console.error('Failed to fetch team scorers:', err));
 		return () => { cancelled = true; };
@@ -55,19 +60,21 @@ export default function RosterTab({
 
 		return [...filtered].sort((a, b) => {
 			if (sort === 'name') return a.name.localeCompare(b.name);
-			if (sort === 'points') return (points[b.id] ?? 0) - (points[a.id] ?? 0);
+			if (sort === 'points') return (stats[b.id]?.points ?? 0) - (stats[a.id]?.points ?? 0);
+			if (sort === 'penaltyMinutes') return (stats[b.id]?.penaltyMinutes ?? 0) - (stats[a.id]?.penaltyMinutes ?? 0);
 			// Players without a number sort last rather than as number 0.
 			if (a.number == null && b.number == null) return a.name.localeCompare(b.name);
 			if (a.number == null) return 1;
 			if (b.number == null) return -1;
 			return a.number - b.number;
 		});
-	}, [players, query, sort, points]);
+	}, [players, query, sort, stats]);
 
 	const sortOptions: { key: SortKey; label: string }[] = [
 		{ key: 'number', label: t('teamManagement.pwa.sortNumber') },
 		{ key: 'name', label: t('common.name') },
 		{ key: 'points', label: t('teamManagement.pwa.points') },
+		{ key: 'penaltyMinutes', label: t('teamManagement.gameStats.penaltyMinutesShort') },
 	];
 
 	const describe = (player: Player) => {
@@ -90,19 +97,22 @@ export default function RosterTab({
 					/>
 				</label>
 				<div className="flex items-center gap-2">
-					{sortOptions.map((option) => (
-						<button
-							key={option.key}
-							type="button"
-							aria-pressed={sort === option.key}
-							onClick={() => setSort(option.key)}
-							className="tm-sort-pill"
-							style={sort === option.key ? { backgroundColor: color } : undefined}
-						>
-							{option.label}
-						</button>
-					))}
-					<span className="ml-auto text-xs text-muted-foreground">
+					{/* Four pills exceed 390px, so the strip scrolls and the count stays put. */}
+					<div className="tm-pill-strip">
+						{sortOptions.map((option) => (
+							<button
+								key={option.key}
+								type="button"
+								aria-pressed={sort === option.key}
+								onClick={() => setSort(option.key)}
+								className="tm-sort-pill"
+								style={sort === option.key ? { backgroundColor: color } : undefined}
+							>
+								{option.label}
+							</button>
+						))}
+					</div>
+					<span className="shrink-0 text-xs text-muted-foreground">
 						{t('teamManagement.pwa.playerCount', { count: visible.length })}
 					</span>
 				</div>
@@ -128,9 +138,15 @@ export default function RosterTab({
 								<span className="tm-player-meta">{describe(player)}</span>
 							</span>
 							{seasonId && (
-								<span className="tm-player-points">
-									<b>{points[player.id] ?? 0}</b>
-									<span>{t('teamManagement.pwa.pointsShort')}</span>
+								<span className="tm-player-stats">
+									<span className="tm-player-stat">
+										<b>{stats[player.id]?.points ?? 0}</b>
+										<span>{t('teamManagement.pwa.pointsShort')}</span>
+									</span>
+									<span className="tm-player-stat">
+										<b>{stats[player.id]?.penaltyMinutes ?? 0}</b>
+										<span>{t('teamManagement.gameStats.penaltyMinutesShort')}</span>
+									</span>
 								</span>
 							)}
 							<ChevronRight className="size-4 text-muted-foreground shrink-0" />
