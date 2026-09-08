@@ -108,7 +108,7 @@ export default function GamesPage() {
 		try {
 			if (!selectedSeason) return;
 			const res = await gameApi.create(selectedSeason.id, {
-				date: toISOString(data.date),
+				date: data.date ? toISOString(data.date) : null,
 				homeTeamId: data.homeTeamId,
 				awayTeamId: data.awayTeamId,
 				location: data.location || undefined,
@@ -129,7 +129,7 @@ export default function GamesPage() {
 		setError('');
 		try {
 			const res = await gameApi.update(id, {
-				date: toISOString(data.date),
+				date: data.date ? toISOString(data.date) : null,
 				homeTeamId: data.homeTeamId,
 				awayTeamId: data.awayTeamId,
 				homeScore: data.homeScore,

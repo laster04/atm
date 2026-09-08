@@ -448,7 +448,7 @@ export interface PlayerDetail {
 export interface CreateGameRequest {
   homeTeamId: string | number;
   awayTeamId: string | number;
-  date?: string;
+  date?: string | null;
   location?: string;
   round?: string | number;
 }
@@ -456,7 +456,7 @@ export interface CreateGameRequest {
 export interface UpdateGameRequest {
   homeTeamId?: string | number;
   awayTeamId?: string | number;
-  date?: string;
+  date?: string | null;
   location?: string;
   homeScore?: number | null;
   awayScore?: number | null;

@@ -761,6 +761,8 @@
       "homeTeam": "Home Team",
       "awayTeam": "Away Team",
       "gameDate": "Date & Time",
+      "clearGameDate": "Clear date",
+      "gameDateTbdHint": "Date will show as TBD until a new date is set.",
       "gameRound": "Round",
       "gameLocation": "Location",
       "gameLocationPlaceholder": "e.g., Stadium Name",

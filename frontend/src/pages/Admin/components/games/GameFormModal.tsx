@@ -59,6 +59,7 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 
 	const watchHomeTeam = form.watch('homeTeamId');
 	const watchAwayTeam = form.watch('awayTeamId');
+	const watchDate = form.watch('date');
 
 	const toIntOrNull = (v: number | null | undefined) =>
 		v !== null && v !== undefined && !isNaN(Number(v)) ? Number(v) : null;
@@ -133,13 +134,26 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label>{t('admin.modal.gameDate')}</Label>
+							<div className="flex items-center justify-between gap-2">
+								<Label>{t('admin.modal.gameDate')}</Label>
+								{watchDate && (
+									<button
+										type="button"
+										onClick={() => form.setValue('date', '', { shouldDirty: true })}
+										className="text-xs text-muted-foreground underline hover:text-foreground"
+									>
+										{t('admin.modal.clearGameDate')}
+									</button>
+								)}
+							</div>
 							<Input
 								type="datetime-local"
-								{...form.register('date', { required: true })}
+								{...form.register('date')}
 								className="w-full px-3 py-2 border rounded"
-								required
 							/>
+							{!watchDate && (
+								<p className="text-xs text-muted-foreground">{t('admin.modal.gameDateTbdHint')}</p>
+							)}
 						</div>
 						<div className="space-y-2">
 							<Label>{t('admin.modal.gameRound')}</Label>

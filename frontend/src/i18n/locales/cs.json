@@ -761,6 +761,8 @@
       "homeTeam": "Domácí tým",
       "awayTeam": "Hostující tým",
       "gameDate": "Datum a čas",
+      "clearGameDate": "Vymazat datum",
+      "gameDateTbdHint": "Datum se zobrazí jako „bude upřesněno“, dokud nenastavíte nové.",
       "gameRound": "Kolo",
       "gameLocation": "Místo",
       "gameLocationPlaceholder": "např. Název stadionu",

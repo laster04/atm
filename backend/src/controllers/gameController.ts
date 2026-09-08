@@ -164,7 +164,8 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       data: {
         ...(homeTeamIdNum && { homeTeamId: homeTeamIdNum }),
         ...(awayTeamIdNum && { awayTeamId: awayTeamIdNum }),
-        ...(date && { date: new Date(date) }),
+        // date can be explicitly cleared (null/'') when a game is postponed to an unknown date
+        ...(date !== undefined && { date: date ? new Date(date) : null }),
         ...(location !== undefined && { location }),
         ...(homeScore !== undefined && { homeScore: homeScore !== null ? homeScore : null }),
         ...(awayScore !== undefined && { awayScore: awayScore !== null ? awayScore : null }),
