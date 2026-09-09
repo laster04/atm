@@ -5,15 +5,15 @@ import { Plus, Pencil, Trash2, Users, ChevronDown, ChevronRight } from 'lucide-r
 
 interface TeamsPanelProps {
   teams: TournamentTeam[];
-  expandedTeam: number | null;
-  teamPlayers: Record<number, TournamentPlayer[]>;
-  toggleTeam: (teamId: number) => void;
+  expandedTeam: string | null;
+  teamPlayers: Record<string, TournamentPlayer[]>;
+  toggleTeam: (teamId: string) => void;
   openTeamCreate: () => void;
   openTeamEdit: (team: TournamentTeam) => void;
-  deleteTeam: (teamId: number) => void;
-  openPlayerCreate: (teamId: number) => void;
+  deleteTeam: (teamId: string) => void;
+  openPlayerCreate: (teamId: string) => void;
   openPlayerEdit: (player: TournamentPlayer) => void;
-  deletePlayer: (playerId: number, teamId: number) => void;
+  deletePlayer: (playerId: string, teamId: string) => void;
 }
 
 export default function TeamsPanel({

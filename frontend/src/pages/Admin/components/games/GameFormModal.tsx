@@ -10,8 +10,8 @@ import { Game, GameStatus, Team } from '@types';
 
 interface GameFormData {
 	date: string;
-	homeTeamId: number;
-	awayTeamId: number;
+	homeTeamId: string;
+	awayTeamId: string;
 	homeScore?: number | null;
 	awayScore?: number | null;
 	period1HomeScore?: number | null;
@@ -38,8 +38,8 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 
 	const initValues: GameFormData = {
 		date: formatDateTimeForInput(game?.date) || '',
-		homeTeamId: game?.homeTeamId || 0,
-		awayTeamId: game?.awayTeamId || 0,
+		homeTeamId: game?.homeTeamId || '',
+		awayTeamId: game?.awayTeamId || '',
 		homeScore: game?.homeScore ?? null,
 		awayScore: game?.awayScore ?? null,
 		period1HomeScore: game?.period1HomeScore ?? null,
@@ -67,8 +67,8 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 	const handleFormSubmit = (data: GameFormData) => {
 		onSubmit({
 			...data,
-			homeTeamId: Number(data.homeTeamId),
-			awayTeamId: Number(data.awayTeamId),
+			homeTeamId: data.homeTeamId,
+			awayTeamId: data.awayTeamId,
 			homeScore: toIntOrNull(data.homeScore),
 			awayScore: toIntOrNull(data.awayScore),
 			period1HomeScore: toIntOrNull(data.period1HomeScore),
@@ -102,7 +102,7 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 									defaultValue={initValues.homeTeamId}
 								>
 									{teams
-										.filter((team) => team.id !== Number(watchAwayTeam))
+										.filter((team) => team.id !== watchAwayTeam)
 										.map((team) => (
 											<MenuItem key={team.id} value={team.id}>
 												{team.name}
@@ -121,7 +121,7 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 									defaultValue={initValues.awayTeamId}
 								>
 									{teams
-										.filter((team) => team.id !== Number(watchHomeTeam))
+										.filter((team) => team.id !== watchHomeTeam)
 										.map((team) => (
 											<MenuItem key={team.id} value={team.id}>
 												{team.name}

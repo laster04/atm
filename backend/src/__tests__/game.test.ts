@@ -25,11 +25,11 @@ async function getAdminToken(): Promise<string> {
 }
 
 let token: string;
-let leagueId: number;
-let seasonId: number;
-let teamId: number;
-let teamId2: number;
-let gameId: number;
+let leagueId: string;
+let seasonId: string;
+let teamId: string;
+let teamId2: string;
+let gameId: string;
 
 beforeAll(async () => {
   token = await getAdminToken();
@@ -177,7 +177,7 @@ describe('Games CRUD', () => {
 
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBeGreaterThanOrEqual(1);
-      const ids = res.body.map((g: { id: number }) => g.id);
+      const ids = res.body.map((g: { id: string }) => g.id);
       expect(ids).toContain(gameId);
     });
 
@@ -186,7 +186,7 @@ describe('Games CRUD', () => {
         .get(`/api/games/season/${seasonId}`)
         .expect(200);
 
-      const game = res.body.find((g: { id: number }) => g.id === gameId);
+      const game = res.body.find((g: { id: string }) => g.id === gameId);
       expect(game).toBeDefined();
       expect(game.homeTeam).toHaveProperty('id', teamId);
       expect(game.homeTeam).toHaveProperty('name');

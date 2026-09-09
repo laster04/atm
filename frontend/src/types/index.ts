@@ -31,7 +31,7 @@ export enum GameStatus {
 }
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: Role;
@@ -42,14 +42,14 @@ export interface User {
 }
 
 export interface League {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
   logo?: string | null;
   description?: string | null;
   createdAt: string;
   updatedAt: string;
-  managerId?: number | null;
+  managerId?: string | null;
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   seasons?: Season[];
   _count?: {
@@ -58,14 +58,14 @@ export interface League {
 }
 
 export interface LeagueRef {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
-  managerId?: number | null;
+  managerId?: string | null;
 }
 
 export interface Season {
-  id: number;
+  id: string;
   name: string;
   startDate: string;
   endDate: string;
@@ -73,7 +73,7 @@ export interface Season {
   archivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
-  leagueId: number;
+  leagueId: string;
   league?: LeagueRef;
   teams?: Team[];
   _count?: {
@@ -84,13 +84,13 @@ export interface Season {
 }
 
 export interface Team {
-  id: number;
+  id: string;
   name: string;
   logo?: string | null;
   primaryColor?: string | null;
-  managerId?: number | null;
+  managerId?: string | null;
   season?: Season;
-  seasonTeams?: { id: number; seasonId: number; teamId: number; season: Season }[];
+  seasonTeams?: { id: string; seasonId: string; teamId: string; season: Season }[];
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   players?: Player[];
   homeGames?: Game[];
@@ -104,18 +104,18 @@ export interface Team {
 }
 
 export interface Player {
-  id: number;
+  id: string;
   name: string;
   number?: number | null;
   position?: string | null;
   bornYear?: number | null;
   note?: string | null;
-  teamId: number;
+  teamId: string;
   team?: Team;
 }
 
 export interface Game {
-  id: number;
+  id: string;
   date?: string | null;
   location?: string | null;
   homeScore?: number | null;
@@ -128,9 +128,9 @@ export interface Game {
   period3AwayScore?: number | null;
   status: GameStatus;
   round?: number | null;
-  seasonId: number;
-  homeTeamId: number;
-  awayTeamId: number;
+  seasonId: string;
+  homeTeamId: string;
+  awayTeamId: string;
   season?: Season;
   homeTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
   awayTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
@@ -149,9 +149,9 @@ export interface Standing {
 }
 
 export interface HockeyGameStatistic {
-  id: number;
-  playerId: number;
-  gameId: number;
+  id: string;
+  playerId: string;
+  gameId: string;
   goals?: number | null;
   assists?: number | null;
   penaltyMinutes?: number | null;
@@ -171,7 +171,7 @@ export interface AuthContextType {
   isSeasonManager: () => boolean;
   isTeamManager: () => boolean;
   isTournamentManager: () => boolean;
-  canManageTeam: (teamManagerId?: number | null) => boolean;
+  canManageTeam: (teamManagerId?: string | null) => boolean;
 }
 
 export interface TopScorer {
@@ -189,7 +189,7 @@ export interface ArchivedStanding extends Standing {
 }
 
 export interface ArchivedPlayerStat {
-  player: { id: number; name: string; number?: number | null; team: { id: number; name: string } };
+  player: { id: string; name: string; number?: number | null; team: { id: string; name: string } };
   goals: number;
   assists: number;
   penaltyMinutes: number;
@@ -205,26 +205,26 @@ export type TournamentStatus = 'DRAFT' | 'REGISTRATION' | 'GROUP_STAGE' | 'PLAYO
 export type TournamentGamePhase = 'GROUP' | 'ROUND_OF_16' | 'QUARTER_FINAL' | 'SEMI_FINAL' | 'BRONZE' | 'FINAL';
 
 export interface TournamentSeries {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
   logo?: string | null;
   description?: string | null;
-  managerId?: number | null;
+  managerId?: string | null;
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   tournaments?: Tournament[];
   _count?: { tournaments: number };
 }
 
 export interface Tournament {
-  id: number;
+  id: string;
   name: string;
   year?: number | null;
   status: TournamentStatus;
   startDate?: string | null;
   endDate?: string | null;
   location?: string | null;
-  seriesId: number;
+  seriesId: string;
   series?: Pick<TournamentSeries, 'id' | 'name' | 'sportType' | 'logo'>;
   teams?: TournamentTeam[];
   groups?: TournamentGroup[];
@@ -233,39 +233,39 @@ export interface Tournament {
 }
 
 export interface TournamentTeam {
-  id: number;
+  id: string;
   name: string;
   logo?: string | null;
   primaryColor?: string | null;
   country?: string | null;
-  tournamentId: number;
+  tournamentId: string;
   players?: TournamentPlayer[];
   groupTeams?: Array<{ group: Pick<TournamentGroup, 'id' | 'name'> }>;
   _count?: { players: number };
 }
 
 export interface TournamentPlayer {
-  id: number;
+  id: string;
   name: string;
   number?: number | null;
   position?: string | null;
   bornYear?: number | null;
   note?: string | null;
-  teamId: number;
+  teamId: string;
   team?: TournamentTeam;
 }
 
 export interface TournamentGroup {
-  id: number;
+  id: string;
   name: string;
-  tournamentId: number;
+  tournamentId: string;
   teams?: Array<{ team: TournamentTeam }>;
   games?: TournamentGame[];
   _count?: { games: number };
 }
 
 export interface TournamentGame {
-  id: number;
+  id: string;
   phase: TournamentGamePhase;
   homeScore?: number | null;
   awayScore?: number | null;
@@ -276,10 +276,10 @@ export interface TournamentGame {
   homeSeed?: number | null;
   awaySeed?: number | null;
   note?: string | null;
-  tournamentId: number;
-  groupId?: number | null;
-  homeTeamId?: number | null;
-  awayTeamId?: number | null;
+  tournamentId: string;
+  groupId?: string | null;
+  homeTeamId?: string | null;
+  awayTeamId?: string | null;
   homeTeam?: Pick<TournamentTeam, 'id' | 'name' | 'logo' | 'primaryColor' | 'country'> | null;
   awayTeam?: Pick<TournamentTeam, 'id' | 'name' | 'logo' | 'primaryColor' | 'country'> | null;
   group?: Pick<TournamentGroup, 'id' | 'name'> | null;
@@ -287,16 +287,16 @@ export interface TournamentGame {
 }
 
 export interface TournamentGameStatistic {
-  id: number;
-  gameId: number;
-  playerId: number;
+  id: string;
+  gameId: string;
+  playerId: string;
   goals?: number | null;
   assists?: number | null;
   player?: TournamentPlayer & { team?: TournamentTeam };
 }
 
 export interface TournamentStanding {
-  teamId: number;
+  teamId: string;
   team?: TournamentTeam;
   played: number;
   won: number;

@@ -6,19 +6,20 @@ import {
 	UpdateHockeyGameStatisticRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
+import { toId } from '../utils/ids.js';
 
 /**
  * TEAM_MANAGERs may only touch statistics for players on a team they manage.
  * ADMIN and SEASON_MANAGER are already scoped by the route's authorize().
  */
-const deniedForTeamManager = (req: AuthRequest, teamManagerId: number | null): boolean =>
+const deniedForTeamManager = (req: AuthRequest, teamManagerId: string | null): boolean =>
 	req.user!.role === 'TEAM_MANAGER' && teamManagerId !== req.user!.id;
 
 export const getStatisticsByGameId = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
 		const statistics = await prisma.hockeyGameStatistic.findMany({
-			where: { gameId: parseInt(gameId) },
+			where: { gameId: gameId },
 			include: {
 				player: {
 					include: { team: true }
@@ -40,7 +41,7 @@ export const getStatisticsByPlayerId = async (req: Request, res: Response): Prom
 	try {
 		const { playerId } = req.params;
 		const statistics = await prisma.hockeyGameStatistic.findMany({
-			where: { playerId: parseInt(playerId) },
+			where: { playerId: playerId },
 			include: {
 				game: {
 					include: {
@@ -62,7 +63,7 @@ export const getStatisticById = async (req: Request, res: Response): Promise<voi
 	try {
 		const { id } = req.params;
 		const statistic = await prisma.hockeyGameStatistic.findUnique({
-			where: { id: parseInt(id) },
+			where: { id: id },
 			include: {
 				player: {
 					include: { team: true }
@@ -92,7 +93,8 @@ export const getStatisticById = async (req: Request, res: Response): Promise<voi
 export const createStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
-		const { playerId, goals, assists, penaltyMinutes } = req.body as CreateHockeyGameStatisticRequest;
+		const { goals, assists, penaltyMinutes } = req.body as CreateHockeyGameStatisticRequest;
+		const playerId = toId(req.body.playerId);
 
 		if (!playerId) {
 			res.status(400).json({ error: 'Player ID is required' });
@@ -100,7 +102,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 
 		const game = await prisma.game.findUnique({
-			where: { id: parseInt(gameId) },
+			where: { id: gameId },
 			include: { season: true }
 		});
 		if (!game) {
@@ -109,7 +111,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 
 		const player = await prisma.player.findUnique({
-			where: { id: parseInt(String(playerId)) },
+			where: { id: String(playerId) },
 			include: { team: true }
 		});
 		if (!player) {
@@ -149,8 +151,8 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 		// Check if statistic already exists for this player in this game
 		const existingStatistic = await prisma.hockeyGameStatistic.findFirst({
 			where: {
-				gameId: parseInt(gameId),
-				playerId: parseInt(String(playerId))
+				gameId: gameId,
+				playerId: String(playerId)
 			}
 		});
 		if (existingStatistic) {
@@ -160,8 +162,8 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 
 		const statistic = await prisma.hockeyGameStatistic.create({
 			data: {
-				gameId: parseInt(gameId),
-				playerId: parseInt(String(playerId)),
+				gameId: gameId,
+				playerId: String(playerId),
 				goals: goals ?? null,
 				assists: assists ?? null,
 				penaltyMinutes: penaltyMinutes ?? null
@@ -186,7 +188,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 		const { goals, assists, penaltyMinutes } = req.body as UpdateHockeyGameStatisticRequest;
 
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
-			where: { id: parseInt(id) },
+			where: { id: id },
 			include: {
 				game: { include: { season: true } },
 				player: { include: { team: { select: { managerId: true } } } }
@@ -206,7 +208,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 
 		const statistic = await prisma.hockeyGameStatistic.update({
-			where: { id: parseInt(id) },
+			where: { id: id },
 			data: {
 				...(goals !== undefined && { goals }),
 				...(assists !== undefined && { assists }),
@@ -235,7 +237,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 		const { id } = req.params;
 
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
-			where: { id: parseInt(id) },
+			where: { id: id },
 			include: {
 				game: { include: { season: true } },
 				player: { include: { team: { select: { managerId: true } } } }
@@ -254,7 +256,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		await prisma.hockeyGameStatistic.delete({ where: { id: parseInt(id) } });
+		await prisma.hockeyGameStatistic.delete({ where: { id: id } });
 		res.json({ message: 'Statistic deleted successfully' });
 	} catch (error) {
 		if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
@@ -266,7 +268,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 	}
 };
 
-async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?: { limit?: number; teamId?: number }) {
+async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?: { limit?: number; teamId?: string }) {
 	const games = await prisma.game.findMany({
 		where: gameFilter,
 		select: { id: true }
@@ -287,7 +289,7 @@ async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?:
 		}
 	});
 
-	const playerStats = new Map<number, {
+	const playerStats = new Map<string, {
 		player: typeof statistics[0]['player'];
 		goals: number;
 		assists: number;
@@ -326,7 +328,7 @@ export const getTopScorersBySeason = async (req: Request, res: Response): Promis
 		const limit = parseInt(req.query.limit as string) || 10;
 
 		const result = await aggregatePlayerStats(
-			{ seasonId: parseInt(seasonId) },
+			{ seasonId: seasonId },
 			{ limit }
 		);
 		res.json(result);
@@ -339,14 +341,13 @@ export const getTopScorersBySeason = async (req: Request, res: Response): Promis
 export const getScorersBySeasonAndTeam = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { seasonId, teamId } = req.params;
-		const teamIdNum = parseInt(teamId);
 
 		const result = await aggregatePlayerStats(
 			{
-				seasonId: parseInt(seasonId),
-				OR: [{ homeTeamId: teamIdNum }, { awayTeamId: teamIdNum }]
+				seasonId: seasonId,
+				OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }]
 			},
-			{ teamId: teamIdNum }
+			{ teamId: teamId }
 		);
 		res.json(result);
 	} catch (error) {
@@ -358,11 +359,11 @@ export const getScorersBySeasonAndTeam = async (req: Request, res: Response): Pr
 export const getArchivedPlayerStats = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { seasonId } = req.params;
-		const teamId = req.query.teamId ? parseInt(req.query.teamId as string) : undefined;
+		const teamId = req.query.teamId ? req.query.teamId as string : undefined;
 
 		const rows = await prisma.seasonArchivePlayerStat.findMany({
 			where: {
-				seasonId: parseInt(seasonId),
+				seasonId: seasonId,
 				...(teamId && { teamId })
 			},
 			orderBy: [{ goals: 'desc' }, { assists: 'desc' }]

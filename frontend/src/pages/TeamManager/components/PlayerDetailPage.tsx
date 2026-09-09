@@ -320,7 +320,7 @@ export default function PlayerDetailPage() {
 							const game = stat.game;
 							if (!game) return null;
 
-							const isHome = game.homeTeamId === parseInt(teamId!);
+							const isHome = game.homeTeamId === teamId!;
 							const myScore = isHome ? game.homeScore : game.awayScore;
 							const oppScore = isHome ? game.awayScore : game.homeScore;
 							const opponent = isHome ? game.awayTeam : game.homeTeam;

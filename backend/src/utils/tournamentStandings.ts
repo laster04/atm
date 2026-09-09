@@ -1,8 +1,8 @@
 import prisma from '../config/database.js';
 
 export interface GroupStandingRow {
-  teamId: number;
-  team: { id: number; name: string; logo: string | null; primaryColor: string | null; country: string | null };
+  teamId: string;
+  team: { id: string; name: string; logo: string | null; primaryColor: string | null; country: string | null };
   played: number;
   won: number;
   drawn: number;
@@ -15,7 +15,7 @@ export interface GroupStandingRow {
 
 // Shared by the standings endpoint and playoff seeding, so both rank teams
 // the same way (points, then goal diff, then goals for).
-export async function computeGroupStandings(tournamentId: number, groupId: number | null): Promise<GroupStandingRow[]> {
+export async function computeGroupStandings(tournamentId: string, groupId: string | null): Promise<GroupStandingRow[]> {
   const groupFilter = groupId ? { groupId } : {};
 
   const tournament = await prisma.tournament.findUnique({
@@ -43,7 +43,7 @@ export async function computeGroupStandings(tournamentId: number, groupId: numbe
     },
   });
 
-  const statsMap = new Map<number, Omit<GroupStandingRow, 'team' | 'goalDiff'>>();
+  const statsMap = new Map<string, Omit<GroupStandingRow, 'team' | 'goalDiff'>>();
   for (const team of teams) {
     statsMap.set(team.id, {
       teamId: team.id, played: 0, won: 0, drawn: 0, lost: 0,
@@ -73,14 +73,14 @@ export async function computeGroupStandings(tournamentId: number, groupId: numbe
   }
 
   // Tennis breaks a points tie by head-to-head result rather than goal diff.
-  const headToHeadWinner = new Map<string, number>();
+  const headToHeadWinner = new Map<string, string>();
   if (isTennis) {
     for (const game of games) {
       if (game.homeTeamId == null || game.awayTeamId == null) continue;
       if (game.homeScore == null || game.awayScore == null) continue;
       if (game.homeScore === game.awayScore) continue;
       const winnerId = game.homeScore > game.awayScore ? game.homeTeamId : game.awayTeamId;
-      const key = [game.homeTeamId, game.awayTeamId].sort((x, y) => x - y).join('-');
+      const key = [game.homeTeamId, game.awayTeamId].sort().join('-');
       headToHeadWinner.set(key, winnerId);
     }
   }
@@ -94,7 +94,7 @@ export async function computeGroupStandings(tournamentId: number, groupId: numbe
     .sort((a, b) => {
       if (b.points !== a.points) return b.points - a.points;
       if (isTennis) {
-        const key = [a.teamId, b.teamId].sort((x, y) => x - y).join('-');
+        const key = [a.teamId, b.teamId].sort().join('-');
         const winnerId = headToHeadWinner.get(key);
         if (winnerId === a.teamId) return -1;
         if (winnerId === b.teamId) return 1;

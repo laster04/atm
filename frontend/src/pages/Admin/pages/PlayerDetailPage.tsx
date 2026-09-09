@@ -18,13 +18,13 @@ import PlayerFormModal, { type PlayerFormData } from '../components/players/Play
 import MovePlayerModal from '../components/players/MovePlayerModal';
 
 interface GameStatForm {
-  gameId: number;
+  gameId: string;
   game: Game;
   played: boolean;
   goals: number;
   assists: number;
   penaltyMinutes: number;
-  existingStatId?: number;
+  existingStatId?: string;
 }
 
 export default function PlayerDetailPage() {
@@ -94,7 +94,7 @@ export default function PlayerDetailPage() {
         );
 
         // Create a map of existing statistics by gameId
-        const statsMap = new Map<number, HockeyGameStatistic>();
+        const statsMap = new Map<string, HockeyGameStatistic>();
         statistics.forEach((stat) => {
           if (stat.gameId) statsMap.set(stat.gameId, stat);
         });
@@ -141,7 +141,7 @@ export default function PlayerDetailPage() {
     }
   };
 
-  const handleMovePlayer = async (playerId: number, targetTeamId: number) => {
+  const handleMovePlayer = async (playerId: string, targetTeamId: string) => {
     try {
       const res = await playerApi.move(playerId, targetTeamId);
       setPlayer(res.data);
@@ -164,7 +164,7 @@ export default function PlayerDetailPage() {
 
   // Update a single game stat field
   const updateGameStat = (
-    gameId: number,
+    gameId: string,
     field: keyof GameStatForm,
     value: boolean | number
   ) => {

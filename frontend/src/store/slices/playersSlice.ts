@@ -3,7 +3,7 @@ import { playerApi } from '../../services/api';
 import type { Player } from '../../types';
 
 interface PlayersState {
-  items: Record<number, Player[]>; // keyed by teamId
+  items: Record<string, Player[]>; // keyed by teamId
   currentPlayer: Player | null;
   loading: boolean;
   error: string | null;
@@ -21,7 +21,7 @@ export const fetchPlayersByTeam = createAsyncThunk(
   async (teamId: string | number, { rejectWithValue }) => {
     try {
       const response = await playerApi.getByTeam(teamId);
-      return { teamId: Number(teamId), players: response.data };
+      return { teamId: teamId, players: response.data };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch players');
@@ -47,7 +47,7 @@ export const createPlayer = createAsyncThunk(
   async ({ teamId, data }: { teamId: string | number; data: Partial<Player> }, { rejectWithValue }) => {
     try {
       const response = await playerApi.create(teamId, data);
-      return { teamId: Number(teamId), player: response.data };
+      return { teamId: teamId, player: response.data };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to create player');
@@ -70,10 +70,10 @@ export const updatePlayer = createAsyncThunk(
 
 export const deletePlayer = createAsyncThunk(
   'players/delete',
-  async ({ id, teamId }: { id: string | number; teamId: number }, { rejectWithValue }) => {
+  async ({ id, teamId }: { id: string | number; teamId: string }, { rejectWithValue }) => {
     try {
       await playerApi.delete(id);
-      return { id: Number(id), teamId };
+      return { id: id, teamId };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to delete player');

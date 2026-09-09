@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest, CreateTournamentSeriesRequest, UpdateTournamentSeriesRequest } from '../types/index.js';
+import { toNullableId } from '../utils/ids.js';
 
 const seriesInclude = {
   manager: { select: { id: true, name: true, email: true } },
@@ -24,7 +25,7 @@ export const getSeriesById = async (req: Request, res: Response): Promise<void> 
   try {
     const { id } = req.params;
     const series = await prisma.tournamentSeries.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         ...seriesInclude,
         tournaments: {
@@ -43,7 +44,8 @@ export const getSeriesById = async (req: Request, res: Response): Promise<void> 
 
 export const createSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, sportType, logo, description, managerId } = req.body as CreateTournamentSeriesRequest;
+    const { name, sportType, logo, description } = req.body as CreateTournamentSeriesRequest;
+    const managerId = toNullableId(req.body.managerId);
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
     const series = await prisma.tournamentSeries.create({
@@ -60,10 +62,11 @@ export const createSeries = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, sportType, logo, description, managerId } = req.body as UpdateTournamentSeriesRequest;
+    const { name, sportType, logo, description } = req.body as UpdateTournamentSeriesRequest;
+    const managerId = toNullableId(req.body.managerId);
 
     const series = await prisma.tournamentSeries.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(sportType !== undefined && { sportType }),
@@ -83,7 +86,7 @@ export const updateSeries = async (req: AuthRequest, res: Response): Promise<voi
 export const deleteSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.tournamentSeries.delete({ where: { id: parseInt(id) } });
+    await prisma.tournamentSeries.delete({ where: { id: id } });
     res.json({ message: 'Tournament series deleted' });
   } catch (error) {
     console.error('Delete tournament series error:', error);

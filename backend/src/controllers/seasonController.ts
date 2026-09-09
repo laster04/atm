@@ -9,10 +9,11 @@ import {
   StandingTeamRef,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
+import { toId } from '../utils/ids.js';
 
 type StandingGame = {
-  homeTeamId: number;
-  awayTeamId: number;
+  homeTeamId: string;
+  awayTeamId: string;
   homeScore: number | null;
   awayScore: number | null;
 };
@@ -109,7 +110,7 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
   try {
     const { id } = req.params;
     const season = await prisma.season.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
         seasonTeams: {
@@ -143,7 +144,8 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
 
 export const createSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, leagueId, startDate, endDate, status } = req.body as CreateSeasonRequest;
+    const { name, startDate, endDate, status } = req.body as CreateSeasonRequest;
+    const leagueId = toId(req.body.leagueId);
 
     if (!name || !leagueId || !startDate || !endDate) {
       res.status(400).json({ error: 'Name, league, start date, and end date are required' });
@@ -187,10 +189,11 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, leagueId, startDate, endDate, status } = req.body as UpdateSeasonRequest;
+    const { name, startDate, endDate, status } = req.body as UpdateSeasonRequest;
+    const leagueId = toId(req.body.leagueId);
 
     const existingSeason = await prisma.season.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: { league: { select: { managerId: true } } }
     });
     if (!existingSeason) {
@@ -229,7 +232,7 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const season = await prisma.season.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name && { name }),
         ...(leagueId && { leagueId }),
@@ -259,7 +262,7 @@ export const deleteSeason = async (req: AuthRequest, res: Response): Promise<voi
     const { id } = req.params;
 
     // Archived seasons are a permanent record and can never be deleted, regardless of role
-    const seasonToDelete = await prisma.season.findUnique({ where: { id: parseInt(id) } });
+    const seasonToDelete = await prisma.season.findUnique({ where: { id: id } });
     if (!seasonToDelete) {
       res.status(404).json({ error: 'Season not found' });
       return;
@@ -272,7 +275,7 @@ export const deleteSeason = async (req: AuthRequest, res: Response): Promise<voi
     // Season managers can only delete seasons in their own leagues that haven't started yet
     if (req.user!.role === 'SEASON_MANAGER') {
       const season = await prisma.season.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: id },
         include: { league: { select: { managerId: true } } }
       });
       if (!season) {
@@ -289,7 +292,7 @@ export const deleteSeason = async (req: AuthRequest, res: Response): Promise<voi
       }
     }
 
-    await prisma.season.delete({ where: { id: parseInt(id) } });
+    await prisma.season.delete({ where: { id: id } });
     res.json({ message: 'Season deleted successfully' });
   } catch (error) {
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
@@ -304,7 +307,7 @@ export const deleteSeason = async (req: AuthRequest, res: Response): Promise<voi
 export const getSeasonStandings = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const seasonId = parseInt(id);
+    const seasonId = id;
 
     const season = await prisma.season.findUnique({ where: { id: seasonId } });
     if (!season) {
@@ -334,8 +337,8 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
 export const getTeamStanding = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id, teamId } = req.params;
-    const seasonId = parseInt(id);
-    const teamIdNum = parseInt(teamId);
+    const seasonId = id;
+    const teamIdNum = teamId;
 
     const season = await prisma.season.findUnique({ where: { id: seasonId } });
     if (!season) {
@@ -387,7 +390,7 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
 export const archiveSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const seasonId = parseInt(id);
+    const seasonId = id;
 
     const season = await prisma.season.findUnique({
       where: { id: seasonId },
@@ -451,11 +454,11 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
           })
         : [];
 
-      const playerAgg = new Map<number, {
-        playerId: number;
+      const playerAgg = new Map<string, {
+        playerId: string;
         playerName: string;
         playerNumber: number | null;
-        teamId: number;
+        teamId: string;
         teamName: string;
         gamesPlayed: number;
         goals: number;
@@ -550,7 +553,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
 export const getArchivedStandings = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const seasonId = parseInt(id);
+    const seasonId = id;
 
     const season = await prisma.season.findUnique({ where: { id: seasonId } });
     if (!season) {
@@ -565,7 +568,7 @@ export const getArchivedStandings = async (req: Request, res: Response): Promise
 
     const standings: TeamStanding[] = rows.map(row => ({
       team: {
-        id: row.teamId ?? -row.id,
+        id: row.teamId ?? `archived-${row.id}`,
         name: row.teamName,
         logo: row.teamLogo,
         primaryColor: row.teamPrimaryColor
@@ -595,7 +598,7 @@ export const getArchivedStandings = async (req: Request, res: Response): Promise
 export const getCopyableTeams = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const seasonId = parseInt(id);
+    const seasonId = id;
 
     const season = await prisma.season.findUnique({ where: { id: seasonId } });
     if (!season) {
@@ -607,13 +610,13 @@ export const getCopyableTeams = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    let teamIds: number[];
+    let teamIds: string[];
     if (season.archivedAt) {
       const rows = await prisma.seasonArchiveStanding.findMany({
         where: { seasonId, teamId: { not: null } },
         select: { teamId: true }
       });
-      teamIds = Array.from(new Set(rows.map(r => r.teamId as number)));
+      teamIds = Array.from(new Set(rows.map(r => r.teamId as string)));
     } else {
       const rows = await prisma.seasonTeam.findMany({ where: { seasonId }, select: { teamId: true } });
       teamIds = rows.map(r => r.teamId);
@@ -635,11 +638,17 @@ export const getCopyableTeams = async (req: Request, res: Response): Promise<voi
 export const copyTeamsToSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const seasonId = parseInt(id);
-    const { teamIds } = req.body as { teamIds: (number | string)[] };
+    const seasonId = id;
+    const rawTeamIds = (req.body as { teamIds?: unknown[] }).teamIds;
 
-    if (!Array.isArray(teamIds) || teamIds.length === 0) {
+    if (!Array.isArray(rawTeamIds) || rawTeamIds.length === 0) {
       res.status(400).json({ error: 'teamIds is required' });
+      return;
+    }
+
+    const teamIds = rawTeamIds.map(toId);
+    if (teamIds.some((teamId) => teamId === undefined)) {
+      res.status(400).json({ error: 'One or more teams not found' });
       return;
     }
 
@@ -660,7 +669,7 @@ export const copyTeamsToSeason = async (req: AuthRequest, res: Response): Promis
       return;
     }
 
-    const uniqueTeamIds = Array.from(new Set(teamIds.map(t => (typeof t === 'string' ? parseInt(t) : t))));
+    const uniqueTeamIds = Array.from(new Set(teamIds as string[]));
     const existingTeamCount = await prisma.team.count({ where: { id: { in: uniqueTeamIds } } });
     if (existingTeamCount !== uniqueTeamIds.length) {
       res.status(400).json({ error: 'One or more teams not found' });
@@ -689,14 +698,14 @@ export const getSeasonsByLeague = async (req: AuthRequest, res: Response): Promi
   try {
     const { leagueId } = req.params;
 
-    const league = await prisma.league.findUnique({ where: { id: parseInt(leagueId) } });
+    const league = await prisma.league.findUnique({ where: { id: leagueId } });
     if (!league) {
       res.status(404).json({ error: 'League not found' });
       return;
     }
 
     const seasons = await prisma.season.findMany({
-      where: { leagueId: parseInt(leagueId) },
+      where: { leagueId: leagueId },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true } },
         _count: { select: { seasonTeams: true, games: true } }

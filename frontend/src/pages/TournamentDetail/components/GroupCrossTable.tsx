@@ -16,7 +16,7 @@ export default function GroupCrossTable({ group, games, standings }: GroupCrossT
 
   // Each pair is only ever played once (fixed home/away), so mirror the
   // result into the reverse cell with scores swapped to the row team's side.
-  const cell = (rowId: number, colId: number): string => {
+  const cell = (rowId: string, colId: string): string => {
     const direct = games.find(g => g.homeTeamId === rowId && g.awayTeamId === colId);
     if (direct && direct.status === 'COMPLETED') return `${direct.homeScore}:${direct.awayScore}`;
     const reverse = games.find(g => g.homeTeamId === colId && g.awayTeamId === rowId);

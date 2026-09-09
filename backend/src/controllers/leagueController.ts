@@ -48,7 +48,7 @@ export const getLeagueById = async (req: Request, res: Response): Promise<void> 
   try {
     const { id } = req.params;
     const league = await prisma.league.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         seasons: {
           include: {
@@ -111,7 +111,7 @@ export const updateLeague = async (req: AuthRequest, res: Response): Promise<voi
 
     // Season managers can only update their own leagues
     if (req.user!.role === 'SEASON_MANAGER') {
-      const league = await prisma.league.findUnique({ where: { id: parseInt(id) } });
+      const league = await prisma.league.findUnique({ where: { id: id } });
       if (!league || league.managerId !== req.user!.id) {
         res.status(403).json({ error: 'Not authorized to update this league' });
         return;
@@ -119,7 +119,7 @@ export const updateLeague = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const league = await prisma.league.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name && { name }),
         ...(sportType && { sportType }),
@@ -147,7 +147,7 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
     const { id } = req.params;
 
     const league = await prisma.league.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: { _count: { select: { seasons: true } } }
     });
     if (!league) {
@@ -167,7 +167,7 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    await prisma.league.delete({ where: { id: parseInt(id) } });
+    await prisma.league.delete({ where: { id: id } });
     res.json({ message: 'League deleted successfully' });
   } catch (error) {
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
@@ -189,7 +189,7 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const league = await prisma.league.findUnique({ where: { id: parseInt(id) } });
+    const league = await prisma.league.findUnique({ where: { id: id } });
     if (!league) {
       res.status(404).json({ error: 'League not found' });
       return;
@@ -225,7 +225,7 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
 
     // Assign as league manager
     const updatedLeague = await prisma.league.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: { managerId: newUser.id },
       include: {
         _count: { select: { seasons: true } },

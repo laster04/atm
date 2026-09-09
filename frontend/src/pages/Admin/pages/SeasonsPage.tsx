@@ -15,7 +15,7 @@ export default function SeasonsPage() {
 	const { isAdmin, isSeasonManager } = useAuth();
 	const [searchParams] = useSearchParams();
 	const leagueIdParam = searchParams.get('leagueId');
-	const leagueFilter = leagueIdParam ? parseInt(leagueIdParam) : null;
+	const leagueFilter = leagueIdParam ? leagueIdParam : null;
 	const [leagues, setLeagues] = useState<League[]>([]);
 	const [seasons, setSeasons] = useState<Season[]>([]);
 	const [seasonsLoading, setSeasonsLoading] = useState(false);
@@ -88,7 +88,7 @@ export default function SeasonsPage() {
 		}
 	};
 
-	const handleUpdateSeason = async (id: number, data: SeasonFormData) => {
+	const handleUpdateSeason = async (id: string, data: SeasonFormData) => {
 		setError('');
 		try {
 			const res = await seasonApi.update(id, data);
@@ -99,7 +99,7 @@ export default function SeasonsPage() {
 		}
 	};
 
-	const handleDeleteSeason = async (id: number) => {
+	const handleDeleteSeason = async (id: string) => {
 		if (!confirm(t('admin.confirm.deleteSeason'))) return;
 		try {
 			await seasonApi.delete(id);
@@ -110,7 +110,7 @@ export default function SeasonsPage() {
 		}
 	};
 
-	const handleArchiveSeason = async (id: number) => {
+	const handleArchiveSeason = async (id: string) => {
 		if (!confirm(t('admin.confirm.archiveSeason'))) return;
 		try {
 			const res = await seasonApi.archive(id);

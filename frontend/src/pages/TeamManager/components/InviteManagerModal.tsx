@@ -12,7 +12,7 @@ interface InviteManagerFormData {
 }
 
 interface InviteManagerModalProps {
-  teamId: number;
+  teamId: string;
   onSuccess: (team: Team) => void;
   onClose: () => void;
 }

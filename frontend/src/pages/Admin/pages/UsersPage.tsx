@@ -62,7 +62,7 @@ export default function UsersPage() {
 		}
 	};
 
-	const handleUpdateUser = async (id: number, data: UserFormData) => {
+	const handleUpdateUser = async (id: string, data: UserFormData) => {
 		setError('');
 		try {
 			await authApi.updateUser(id, {
@@ -79,7 +79,7 @@ export default function UsersPage() {
 		}
 	};
 
-	const handleDeleteUser = async (id: number) => {
+	const handleDeleteUser = async (id: string) => {
 		if (!confirm(t('admin.confirm.deleteUser'))) return;
 		setError('');
 		try {

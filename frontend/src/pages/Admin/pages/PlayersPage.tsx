@@ -14,11 +14,11 @@ export default function PlayersPage() {
 	const { isAdmin, isSeasonManager } = useAuth();
 
 	const [seasons, setSeasons] = useState<Season[]>([]);
-	const [teamsBySeason, setTeamsBySeason] = useState<Record<number, Team[]>>({});
+	const [teamsBySeason, setTeamsBySeason] = useState<Record<string, Team[]>>({});
 	const [allTeams, setAllTeams] = useState<Team[]>([]);
-	const [playersByTeam, setPlayersByTeam] = useState<Record<number, Player[]>>({});
+	const [playersByTeam, setPlayersByTeam] = useState<Record<string, Player[]>>({});
 	const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
-	const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+	const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
 	const [error, setError] = useState('');
 
 	const teams = selectedSeason ? teamsBySeason[selectedSeason.id] || [] : [];
@@ -113,7 +113,7 @@ export default function PlayersPage() {
 		}
 	};
 
-	const handleUpdatePlayer = async (id: number, data: PlayerFormData) => {
+	const handleUpdatePlayer = async (id: string, data: PlayerFormData) => {
 		setError('');
 		try {
 			const res = await playerApi.update(id, {
@@ -137,7 +137,7 @@ export default function PlayersPage() {
 		}
 	};
 
-	const handleDeletePlayer = async (id: number) => {
+	const handleDeletePlayer = async (id: string) => {
 		if (!confirm(t('admin.confirm.deletePlayer'))) return;
 		if (!selectedTeamId) return;
 		try {
@@ -152,7 +152,7 @@ export default function PlayersPage() {
 		}
 	};
 
-	const handleMovePlayer = async (playerId: number, targetTeamId: number) => {
+	const handleMovePlayer = async (playerId: string, targetTeamId: string) => {
 		if (!selectedTeamId) return;
 		try {
 			await playerApi.move(playerId, targetTeamId);
@@ -176,7 +176,7 @@ export default function PlayersPage() {
 		}
 	};
 
-	const handleSeasonChange = (seasonId: number) => {
+	const handleSeasonChange = (seasonId: string) => {
 		const season = seasons.find((s) => s.id === seasonId);
 		if (season) {
 			setSelectedSeason(season);

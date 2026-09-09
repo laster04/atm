@@ -9,9 +9,9 @@ type SortKey = 'number' | 'name' | 'points' | 'penaltyMinutes';
 
 interface RosterTabProps {
 	players: Player[];
-	teamId: number;
+	teamId: string;
 	teamColor?: string | null;
-	seasonId?: number;
+	seasonId?: string;
 }
 
 export default function RosterTab({
@@ -25,7 +25,7 @@ export default function RosterTab({
 
 	const [query, setQuery] = useState('');
 	const [sort, setSort] = useState<SortKey>('number');
-	const [stats, setStats] = useState<Record<number, { points: number; penaltyMinutes: number }>>({});
+	const [stats, setStats] = useState<Record<string, { points: number; penaltyMinutes: number }>>({});
 
 	const color = teamColor || '#003E7E';
 
@@ -38,7 +38,7 @@ export default function RosterTab({
 		gameStatisticApi.getScorersBySeasonAndTeam(seasonId, teamId)
 			.then((res) => {
 				if (cancelled) return;
-				const next: Record<number, { points: number; penaltyMinutes: number }> = {};
+				const next: Record<string, { points: number; penaltyMinutes: number }> = {};
 				res.data.forEach((scorer) => {
 					next[scorer.player.id] = {
 						points: scorer.points,

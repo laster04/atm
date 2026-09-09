@@ -9,14 +9,14 @@ import { Button } from '@components/base/button';
 import { GameStatus, type Game, type HockeyGameStatistic, type Player } from '@types';
 
 interface PlayerStatForm {
-	playerId: number;
+	playerId: string;
 	playerName: string;
 	playerNumber: number | null;
 	played: boolean;
 	goals: number;
 	assists: number;
 	penaltyMinutes: number;
-	existingStatId?: number;
+	existingStatId?: string;
 }
 
 /** Snapshot used to work out which rows actually need a request on save. */
@@ -32,7 +32,7 @@ export default function GameStatsPage() {
 	const [game, setGame] = useState<Game | null>(null);
 	const [teamColor, setTeamColor] = useState<string | null>(null);
 	const [teamStats, setTeamStats] = useState<PlayerStatForm[]>([]);
-	const [baseline, setBaseline] = useState<Record<number, string>>({});
+	const [baseline, setBaseline] = useState<Record<string, string>>({});
 	const [isHomeTeam, setIsHomeTeam] = useState(false);
 
 	const color = teamColor || '#003E7E';
@@ -50,23 +50,22 @@ export default function GameStatsPage() {
 				]);
 
 				const gameData = gameResp.data;
-				const teamIdNum = parseInt(teamId);
 
 				// Verify this team is part of the game
-				if (gameData.homeTeamId !== teamIdNum && gameData.awayTeamId !== teamIdNum) {
+				if (gameData.homeTeamId !== teamId && gameData.awayTeamId !== teamId) {
 					toast.error(t('teamManagement.gameStats.notYourGame'));
 					navigate(`/team-management/${teamId}`);
 					return;
 				}
 
 				setGame(gameData);
-				setIsHomeTeam(gameData.homeTeamId === teamIdNum);
+				setIsHomeTeam(gameData.homeTeamId === teamId);
 				setTeamColor(teamResp.data.primaryColor ?? null);
 
-				const statsMap = new Map<number, HockeyGameStatistic>();
+				const statsMap = new Map<string, HockeyGameStatistic>();
 				existingStatsResp.data.forEach((stat) => statsMap.set(stat.playerId, stat));
 
-				const playersResp = await playerApi.getByTeam(teamIdNum);
+				const playersResp = await playerApi.getByTeam(teamId);
 				const stats: PlayerStatForm[] = playersResp.data.map((player: Player) => {
 					const existingStat = statsMap.get(player.id);
 					return {
@@ -107,7 +106,7 @@ export default function GameStatsPage() {
 		};
 	}, [teamStats]);
 
-	const patch = (playerId: number, changes: Partial<PlayerStatForm>) => {
+	const patch = (playerId: string, changes: Partial<PlayerStatForm>) => {
 		setTeamStats((prev) => prev.map((stat) => {
 			if (stat.playerId !== playerId) return stat;
 			const next = { ...stat, ...changes };
@@ -154,7 +153,7 @@ export default function GameStatsPage() {
 			toast.success(t('teamManagement.gameStats.saveSuccess'));
 
 			const existingStatsResp = await gameStatisticApi.getByGame(gameId);
-			const statsMap = new Map<number, HockeyGameStatistic>();
+			const statsMap = new Map<string, HockeyGameStatistic>();
 			existingStatsResp.data.forEach((stat) => statsMap.set(stat.playerId, stat));
 
 			setTeamStats((prev) => {

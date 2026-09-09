@@ -17,7 +17,7 @@ export default function TeamsPage() {
 	const { isAdmin, isSeasonManager } = useAuth();
 
 	const [seasons, setSeasons] = useState<Season[]>([]);
-	const [teamsBySeason, setTeamsBySeason] = useState<Record<number, Team[]>>({});
+	const [teamsBySeason, setTeamsBySeason] = useState<Record<string, Team[]>>({});
 	const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
 	const [teamManagers, setTeamManagers] = useState<User[]>([]);
 	const [error, setError] = useState('');
@@ -45,7 +45,7 @@ export default function TeamsPage() {
 		if (seasons.length > 0 && !selectedSeason) {
 			const seasonIdParam = searchParams.get('seasonId');
 			if (seasonIdParam) {
-				const season = seasons.find((s) => s.id === parseInt(seasonIdParam));
+				const season = seasons.find((s) => s.id === seasonIdParam);
 				if (season) {
 					setSelectedSeason(season);
 					return;
@@ -79,7 +79,7 @@ export default function TeamsPage() {
 			if (!selectedSeason) return;
 			const res = await teamApi.create(selectedSeason.id, {
 				name: data.name,
-				managerId: data.managerId ? parseInt(data.managerId) : undefined,
+				managerId: data.managerId ? data.managerId : undefined,
 			});
 			setTeamsBySeason((prev) => ({
 				...prev,
@@ -91,12 +91,12 @@ export default function TeamsPage() {
 		}
 	};
 
-	const handleUpdateTeam = async (id: number, data: TeamFormData) => {
+	const handleUpdateTeam = async (id: string, data: TeamFormData) => {
 		setError('');
 		try {
 			const res = await teamApi.update(id, {
 				name: data.name,
-				managerId: data.managerId ? parseInt(data.managerId) : null,
+				managerId: data.managerId ? data.managerId : null,
 			});
 			if (selectedSeason) {
 				setTeamsBySeason((prev) => ({
@@ -112,7 +112,7 @@ export default function TeamsPage() {
 		}
 	};
 
-	const handleDeleteTeam = async (id: number) => {
+	const handleDeleteTeam = async (id: string) => {
 		if (!confirm(t('admin.confirm.deleteTeam'))) return;
 		if (!selectedSeason) return;
 		try {
@@ -127,7 +127,7 @@ export default function TeamsPage() {
 		}
 	};
 
-	const handleSeasonChange = (seasonId: number) => {
+	const handleSeasonChange = (seasonId: string) => {
 		const season = seasons.find((s) => s.id === seasonId);
 		if (season) setSelectedSeason(season);
 	};

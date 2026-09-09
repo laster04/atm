@@ -13,11 +13,11 @@ import { formatDateForInput } from '@/utils/date';
 
 interface SeasonFormData {
 	name: string;
-	leagueId: number;
+	leagueId: string;
 	startDate: string;
 	endDate: string;
 	status: SeasonStatus;
-	copyTeamIds?: number[];
+	copyTeamIds?: string[];
 }
 
 interface SeasonFormModalProps {
@@ -35,7 +35,7 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 
 	const initValues = {
 		name: season?.name || '',
-		leagueId: season?.leagueId || (leagues.length > 0 ? leagues[0].id : 0),
+		leagueId: season?.leagueId || (leagues.length > 0 ? leagues[0].id : ''),
 		startDate: formatDateForInput(season?.startDate),
 		endDate: formatDateForInput(season?.endDate),
 		status: season?.status || SeasonStatus.DRAFT,
@@ -46,13 +46,13 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 	});
 
 	const watchedLeagueId = form.watch('leagueId');
-	const [sourceSeasonId, setSourceSeasonId] = useState<number | ''>('');
+	const [sourceSeasonId, setSourceSeasonId] = useState<string>('');
 	const [copyableTeams, setCopyableTeams] = useState<Team[]>([]);
-	const [selectedTeamIds, setSelectedTeamIds] = useState<Set<number>>(new Set());
+	const [selectedTeamIds, setSelectedTeamIds] = useState<Set<string>>(new Set());
 	const [loadingTeams, setLoadingTeams] = useState(false);
 
 	const sourceCandidates = seasons.filter(
-		(s) => s.leagueId === Number(watchedLeagueId) && s.status === SeasonStatus.COMPLETED
+		(s) => s.leagueId === watchedLeagueId && s.status === SeasonStatus.COMPLETED
 	);
 
 	useEffect(() => {
@@ -77,7 +77,7 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 			.finally(() => setLoadingTeams(false));
 	}, [sourceSeasonId]);
 
-	const toggleTeam = (teamId: number) => {
+	const toggleTeam = (teamId: string) => {
 		setSelectedTeamIds((prev) => {
 			const next = new Set(prev);
 			if (next.has(teamId)) next.delete(teamId);
@@ -180,7 +180,7 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 									id="select-copy-source"
 									label={t('admin.modal.copyTeamsFromSeason')}
 									value={sourceSeasonId}
-									onChange={(e) => setSourceSeasonId(e.target.value ? Number(e.target.value) : '')}
+									onChange={(e) => setSourceSeasonId(e.target.value ? e.target.value : '')}
 								>
 									<MenuItem value="">{t('admin.modal.copyTeamsNone')}</MenuItem>
 									{sourceCandidates.map((s) => (

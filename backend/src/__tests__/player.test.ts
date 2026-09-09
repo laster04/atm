@@ -25,12 +25,12 @@ async function getAdminToken(): Promise<string> {
 }
 
 let token: string;
-let leagueId: number;
-let seasonId: number;
-let teamId: number;
-let teamId2: number;
-let playerId: number;
-let playerId2: number;
+let leagueId: string;
+let seasonId: string;
+let teamId: string;
+let teamId2: string;
+let playerId: string;
+let playerId2: string;
 
 beforeAll(async () => {
   token = await getAdminToken();
@@ -158,7 +158,7 @@ describe('Players CRUD', () => {
 
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBeGreaterThanOrEqual(1);
-      const ids = res.body.map((p: { id: number }) => p.id);
+      const ids = res.body.map((p: { id: string }) => p.id);
       expect(ids).toContain(playerId);
     });
   });

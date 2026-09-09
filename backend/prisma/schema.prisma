@@ -42,7 +42,7 @@ enum SportType {
 }
 
 model User {
-  id                          Int       @id @default(autoincrement())
+  id                          String    @id @default(uuid())
   email                       String    @unique
   password                    String
   name                        String
@@ -67,7 +67,7 @@ model User {
 }
 
 model League {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid())
   name        String
   sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
@@ -75,8 +75,8 @@ model League {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  managerId Int?  @map("manager_id")
-  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+  managerId String? @map("manager_id")
+  manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   seasons Season[]
 
@@ -84,16 +84,16 @@ model League {
 }
 
 model Season {
-  id        Int          @id @default(autoincrement())
-  name      String
-  startDate DateTime     @map("start_date")
-  endDate   DateTime     @map("end_date")
-  status    SeasonStatus @default(DRAFT)
-  archivedAt DateTime?   @map("archived_at")
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  id         String       @id @default(uuid())
+  name       String
+  startDate  DateTime     @map("start_date")
+  endDate    DateTime     @map("end_date")
+  status     SeasonStatus @default(DRAFT)
+  archivedAt DateTime?    @map("archived_at")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
 
-  leagueId Int    @map("league_id")
+  leagueId String @map("league_id")
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
 
   seasonTeams SeasonTeam[]
@@ -106,9 +106,9 @@ model Season {
 }
 
 model SeasonTeam {
-  id        Int      @id @default(autoincrement())
-  seasonId  Int      @map("season_id")
-  teamId    Int      @map("team_id")
+  id        String   @id @default(uuid())
+  seasonId  String   @map("season_id")
+  teamId    String   @map("team_id")
   createdAt DateTime @default(now()) @map("created_at")
 
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -119,15 +119,15 @@ model SeasonTeam {
 }
 
 model Team {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(uuid())
   name         String
   logo         String?
   primaryColor String?  @map("primary_color")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  managerId Int?  @map("manager_id")
-  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+  managerId String? @map("manager_id")
+  manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   seasonTeams SeasonTeam[]
   players     Player[]
@@ -141,7 +141,7 @@ model Team {
 }
 
 model Player {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   number    Int?
   position  String?
@@ -150,8 +150,8 @@ model Player {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  teamId    Int             @map("team_id")
-  team      Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId    String                @map("team_id")
+  team      Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade)
   statistic HockeyGameStatistic[] @relation("PlayerStatistic")
 
   archivedStats SeasonArchivePlayerStat[]
@@ -160,9 +160,9 @@ model Player {
 }
 
 model Game {
-  id        Int        @id @default(autoincrement())
-  date      DateTime?
-  location  String?
+  id               String     @id @default(uuid())
+  date             DateTime?
+  location         String?
   homeScore        Int?       @map("home_score")
   awayScore        Int?       @map("away_score")
   period1HomeScore Int?       @map("period1_home_score")
@@ -172,43 +172,43 @@ model Game {
   period3HomeScore Int?       @map("period3_home_score")
   period3AwayScore Int?       @map("period3_away_score")
   status           GameStatus @default(SCHEDULED)
-  round     Int?
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+  round            Int?
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
 
-  seasonId Int    @map("season_id")
+  seasonId String @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
-  homeTeamId Int             @map("home_team_id")
-  homeTeam   Team            @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
+  homeTeamId String @map("home_team_id")
+  homeTeam   Team   @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
 
-  awayTeamId Int             @map("away_team_id")
-  awayTeam   Team            @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
+  awayTeamId String                @map("away_team_id")
+  awayTeam   Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
   statistic  HockeyGameStatistic[] @relation("GameStatistic")
 
   @@map("games")
 }
 
 model HockeyGameStatistic {
-  id       Int    @id @default(autoincrement())
-  playerId Int    @map("player_id")
-  player   Player @relation("PlayerStatistic", fields: [playerId], references: [id], onDelete: Cascade)
-  gameId   Int    @map("game_id")
-  game     Game   @relation("GameStatistic", fields: [gameId], references: [id], onDelete: Cascade)
-  goals    Int?
-  assists  Int?
-  penaltyMinutes Int? @map("penalty_minutes")
+  id             String @id @default(uuid())
+  playerId       String @map("player_id")
+  player         Player @relation("PlayerStatistic", fields: [playerId], references: [id], onDelete: Cascade)
+  gameId         String @map("game_id")
+  game           Game   @relation("GameStatistic", fields: [gameId], references: [id], onDelete: Cascade)
+  goals          Int?
+  assists        Int?
+  penaltyMinutes Int?   @map("penalty_minutes")
 
   @@unique([playerId, gameId])
   @@map("hockey_game_statistics")
 }
 
 model SeasonArchiveStanding {
-  id       Int    @id @default(autoincrement())
-  seasonId Int    @map("season_id")
+  id       String @id @default(uuid())
+  seasonId String @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
-  teamId           Int?    @map("team_id")
+  teamId           String? @map("team_id")
   team             Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
   teamName         String  @map("team_name")
   teamLogo         String? @map("team_logo")
@@ -229,16 +229,16 @@ model SeasonArchiveStanding {
 }
 
 model SeasonArchivePlayerStat {
-  id       Int    @id @default(autoincrement())
-  seasonId Int    @map("season_id")
+  id       String @id @default(uuid())
+  seasonId String @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
-  playerId     Int?    @map("player_id")
+  playerId     String? @map("player_id")
   player       Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
   playerName   String  @map("player_name")
   playerNumber Int?    @map("player_number")
 
-  teamId   Int?    @map("team_id")
+  teamId   String? @map("team_id")
   team     Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
   teamName String  @map("team_name")
 
@@ -274,7 +274,7 @@ enum TournamentGamePhase {
 }
 
 model TournamentSeries {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid())
   name        String
   sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
@@ -282,8 +282,8 @@ model TournamentSeries {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  managerId Int?  @map("manager_id")
-  manager   User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+  managerId String? @map("manager_id")
+  manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   tournaments Tournament[]
 
@@ -291,28 +291,28 @@ model TournamentSeries {
 }
 
 model Tournament {
-  id          Int               @id @default(autoincrement())
-  name        String
-  year        Int?
-  status      TournamentStatus  @default(DRAFT)
-  startDate   DateTime?         @map("start_date")
-  endDate     DateTime?         @map("end_date")
-  location    String?
-  createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
+  id        String           @id @default(uuid())
+  name      String
+  year      Int?
+  status    TournamentStatus @default(DRAFT)
+  startDate DateTime?        @map("start_date")
+  endDate   DateTime?        @map("end_date")
+  location  String?
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
 
-  seriesId    Int               @map("series_id")
-  series      TournamentSeries  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  seriesId String           @map("series_id")
+  series   TournamentSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
-  teams       TournamentTeam[]
-  groups      TournamentGroup[]
-  games       TournamentGame[]
+  teams  TournamentTeam[]
+  groups TournamentGroup[]
+  games  TournamentGame[]
 
   @@map("tournaments")
 }
 
 model TournamentTeam {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(uuid())
   name         String
   logo         String?
   primaryColor String?  @map("primary_color")
@@ -320,19 +320,19 @@ model TournamentTeam {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tournamentId Int        @map("tournament_id")
+  tournamentId String     @map("tournament_id")
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
   players    TournamentPlayer[]
   groupTeams TournamentGroupTeam[]
-  homeGames  TournamentGame[] @relation("TournamentHomeTeam")
-  awayGames  TournamentGame[] @relation("TournamentAwayTeam")
+  homeGames  TournamentGame[]      @relation("TournamentHomeTeam")
+  awayGames  TournamentGame[]      @relation("TournamentAwayTeam")
 
   @@map("tournament_teams")
 }
 
 model TournamentPlayer {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   number    Int?
   position  String?
@@ -341,7 +341,7 @@ model TournamentPlayer {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  teamId Int            @map("team_id")
+  teamId String         @map("team_id")
   team   TournamentTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   statistics TournamentGameStatistic[]
@@ -350,10 +350,10 @@ model TournamentPlayer {
 }
 
 model TournamentGroup {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(uuid())
   name String
 
-  tournamentId Int        @map("tournament_id")
+  tournamentId String     @map("tournament_id")
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
   teams TournamentGroupTeam[]
@@ -363,8 +363,8 @@ model TournamentGroup {
 }
 
 model TournamentGroupTeam {
-  groupId Int @map("group_id")
-  teamId  Int @map("team_id")
+  groupId String @map("group_id")
+  teamId  String @map("team_id")
 
   group TournamentGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   team  TournamentTeam  @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -374,30 +374,30 @@ model TournamentGroupTeam {
 }
 
 model TournamentGame {
-  id           Int                 @id @default(autoincrement())
-  phase        TournamentGamePhase
-  homeScore    Int?                @map("home_score")
-  awayScore    Int?                @map("away_score")
-  date         DateTime?
-  location     String?
-  status       GameStatus          @default(SCHEDULED)
-  bracketSlot  Int?                @map("bracket_slot")
-  homeSeed     Int?                @map("home_seed")
-  awaySeed     Int?                @map("away_seed")
-  note         String?
-  createdAt    DateTime            @default(now()) @map("created_at")
-  updatedAt    DateTime            @updatedAt @map("updated_at")
+  id          String              @id @default(uuid())
+  phase       TournamentGamePhase
+  homeScore   Int?                @map("home_score")
+  awayScore   Int?                @map("away_score")
+  date        DateTime?
+  location    String?
+  status      GameStatus          @default(SCHEDULED)
+  bracketSlot Int?                @map("bracket_slot")
+  homeSeed    Int?                @map("home_seed")
+  awaySeed    Int?                @map("away_seed")
+  note        String?
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
 
-  tournamentId Int        @map("tournament_id")
+  tournamentId String     @map("tournament_id")
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
-  groupId Int?             @map("group_id")
+  groupId String?          @map("group_id")
   group   TournamentGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
 
-  homeTeamId Int?            @map("home_team_id")
+  homeTeamId String?         @map("home_team_id")
   homeTeam   TournamentTeam? @relation("TournamentHomeTeam", fields: [homeTeamId], references: [id], onDelete: SetNull)
 
-  awayTeamId Int?            @map("away_team_id")
+  awayTeamId String?         @map("away_team_id")
   awayTeam   TournamentTeam? @relation("TournamentAwayTeam", fields: [awayTeamId], references: [id], onDelete: SetNull)
 
   statistics TournamentGameStatistic[]
@@ -406,14 +406,14 @@ model TournamentGame {
 }
 
 model TournamentGameStatistic {
-  id       Int @id @default(autoincrement())
-  goals    Int?
-  assists  Int?
+  id      String @id @default(uuid())
+  goals   Int?
+  assists Int?
 
-  gameId   Int            @map("game_id")
-  game     TournamentGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String         @map("game_id")
+  game   TournamentGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
-  playerId Int              @map("player_id")
+  playerId String           @map("player_id")
   player   TournamentPlayer @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@unique([gameId, playerId])

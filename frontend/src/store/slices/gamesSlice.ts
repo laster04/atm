@@ -3,7 +3,7 @@ import { gameApi } from '../../services/api';
 import type { Game } from '../../types';
 
 interface GamesState {
-  items: Record<number, Game[]>; // keyed by seasonId
+  items: Record<string, Game[]>; // keyed by seasonId
   currentGame: Game | null;
   loading: boolean;
   error: string | null;
@@ -21,7 +21,7 @@ export const fetchGamesBySeason = createAsyncThunk(
   async (seasonId: string | number, { rejectWithValue }) => {
     try {
       const response = await gameApi.getBySeason(seasonId);
-      return { seasonId: Number(seasonId), games: response.data };
+      return { seasonId: seasonId, games: response.data };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch games');
@@ -47,7 +47,7 @@ export const createGame = createAsyncThunk(
   async ({ seasonId, data }: { seasonId: string | number; data: Partial<Game> }, { rejectWithValue }) => {
     try {
       const response = await gameApi.create(seasonId, data);
-      return { seasonId: Number(seasonId), game: response.data };
+      return { seasonId: seasonId, game: response.data };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to create game');
@@ -70,10 +70,10 @@ export const updateGame = createAsyncThunk(
 
 export const deleteGame = createAsyncThunk(
   'games/delete',
-  async ({ id, seasonId }: { id: string | number; seasonId: number }, { rejectWithValue }) => {
+  async ({ id, seasonId }: { id: string | number; seasonId: string }, { rejectWithValue }) => {
     try {
       await gameApi.delete(id);
-      return { id: Number(id), seasonId };
+      return { id: id, seasonId };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to delete game');
@@ -95,7 +95,7 @@ export const generateSchedule = createAsyncThunk(
   ) => {
     try {
       const response = await gameApi.generateSchedule(seasonId, data);
-      return { seasonId: Number(seasonId), games: response.data.games };
+      return { seasonId: seasonId, games: response.data.games };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       return rejectWithValue(err.response?.data?.message || 'Failed to generate schedule');

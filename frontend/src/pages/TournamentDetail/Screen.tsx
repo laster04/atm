@@ -23,7 +23,7 @@ export default function TournamentDetailScreen() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [standings, setStandings] = useState<Record<number, TournamentStanding[]>>({});
+  const [standings, setStandings] = useState<Record<string, TournamentStanding[]>>({});
   const [loading, setLoading] = useState(true);
   const tennisCtx = tournament?.series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
 
@@ -36,7 +36,7 @@ export default function TournamentDetailScreen() {
       setTournament(t);
 
       if (t.groups && t.groups.length > 0) {
-        const standingsByGroup: Record<number, TournamentStanding[]> = {};
+        const standingsByGroup: Record<string, TournamentStanding[]> = {};
         await Promise.all(
           t.groups.map(async g => {
             const res = await tournamentApi.getStandings(id, g.id);

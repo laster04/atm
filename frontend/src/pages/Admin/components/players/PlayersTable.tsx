@@ -17,14 +17,14 @@ interface PlayersTableProps {
 	teams: Team[];
 	allTeams: Team[];
 	seasons: Season[];
-	selectedSeasonId: number | null;
-	selectedTeamId: number | null;
-	onSeasonChange: (seasonId: number) => void;
-	onTeamChange: (teamId: number) => void;
+	selectedSeasonId: string | null;
+	selectedTeamId: string | null;
+	onSeasonChange: (seasonId: string) => void;
+	onTeamChange: (teamId: string) => void;
 	onCreatePlayer?: (data: PlayerFormData) => void;
-	onUpdatePlayer?: (id: number, data: PlayerFormData) => void;
-	onDeletePlayer?: (id: number) => void;
-	onMovePlayer?: (playerId: number, targetTeamId: number) => void;
+	onUpdatePlayer?: (id: string, data: PlayerFormData) => void;
+	onDeletePlayer?: (id: string) => void;
+	onMovePlayer?: (playerId: string, targetTeamId: string) => void;
 	canMovePlayer?: boolean;
 }
 
@@ -83,7 +83,7 @@ export default function PlayersTable({
 		setMovingPlayer(null);
 	};
 
-	const handleMoveSubmit = (playerId: number, targetTeamId: number) => {
+	const handleMoveSubmit = (playerId: string, targetTeamId: string) => {
 		onMovePlayer?.(playerId, targetTeamId);
 		handleCloseMove();
 	};
@@ -99,7 +99,7 @@ export default function PlayersTable({
 								labelId="player-season-filter-label"
 								value={selectedSeasonId || ''}
 								label={t('admin.tabs.player.filterBySeason')}
-								onChange={(e) => onSeasonChange(Number(e.target.value))}
+								onChange={(e) => onSeasonChange(e.target.value)}
 							>
 								{seasons.map((season) => (
 									<MenuItem key={season.id} value={season.id}>
@@ -114,7 +114,7 @@ export default function PlayersTable({
 								labelId="player-team-filter-label"
 								value={selectedTeamId || ''}
 								label={t('admin.tabs.player.filterByTeam')}
-								onChange={(e) => onTeamChange(Number(e.target.value))}
+								onChange={(e) => onTeamChange(e.target.value)}
 							>
 								{teams.map((team) => (
 									<MenuItem key={team.id} value={team.id}>

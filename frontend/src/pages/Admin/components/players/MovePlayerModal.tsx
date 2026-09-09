@@ -11,8 +11,8 @@ interface MovePlayerModalProps {
 	player: Player;
 	teams: Team[];
 	seasons: Season[];
-	currentSeasonId: number;
-	onSubmit: (playerId: number, targetTeamId: number) => void;
+	currentSeasonId: string;
+	onSubmit: (playerId: string, targetTeamId: string) => void;
 	onClose: () => void;
 }
 
@@ -25,8 +25,8 @@ export default function MovePlayerModal({
 	onClose
 }: MovePlayerModalProps) {
 	const { t } = useTranslation();
-	const [selectedSeasonId, setSelectedSeasonId] = useState<number>(currentSeasonId);
-	const [selectedTeamId, setSelectedTeamId] = useState<number | ''>('');
+	const [selectedSeasonId, setSelectedSeasonId] = useState<string>(currentSeasonId);
+	const [selectedTeamId, setSelectedTeamId] = useState<string>('');
 	const [seasonTeams, setSeasonTeams] = useState<Team[]>(teams);
 
 	// Load teams for the selected season
@@ -78,7 +78,7 @@ export default function MovePlayerModal({
 								value={selectedSeasonId}
 								label={t('admin.modal.targetSeason')}
 								onChange={(e) => {
-									setSelectedSeasonId(Number(e.target.value));
+									setSelectedSeasonId(e.target.value);
 									setSelectedTeamId('');
 								}}
 							>
@@ -97,7 +97,7 @@ export default function MovePlayerModal({
 								labelId="move-team-label"
 								value={selectedTeamId}
 								label={t('admin.modal.targetTeam')}
-								onChange={(e) => setSelectedTeamId(Number(e.target.value))}
+								onChange={(e) => setSelectedTeamId(e.target.value)}
 								disabled={availableTeams.length === 0}
 							>
 								{availableTeams.map((team) => (

@@ -25,8 +25,8 @@ export interface UserFilters {
 interface UsersTableProps {
 	users: User[];
 	onCreateUser?: (data: UserFormData) => void;
-	onUpdateUser?: (id: number, data: UserFormData) => void;
-	onDeleteUser?: (id: number) => void;
+	onUpdateUser?: (id: string, data: UserFormData) => void;
+	onDeleteUser?: (id: string) => void;
 	onFilterChange?: (filters: UserFilters) => void;
 }
 
@@ -35,7 +35,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<User | null>(null);
 	const [filters, setFilters] = useState<UserFilters>({});
-	const [resendingEmail, setResendingEmail] = useState<number | null>(null);
+	const [resendingEmail, setResendingEmail] = useState<string | null>(null);
 
 	const handleResendVerification = async (user: User) => {
 		setResendingEmail(user.id);

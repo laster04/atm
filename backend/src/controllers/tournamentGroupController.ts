@@ -7,6 +7,7 @@ import {
   AssignTeamToGroupRequest,
   GenerateTournamentScheduleRequest,
 } from '../types/index.js';
+import { toId } from '../utils/ids.js';
 
 const groupInclude = {
   teams: {
@@ -18,16 +19,16 @@ const groupInclude = {
 
 // Circle method: each round pairs every team at most once, so a team never
 // plays twice in the same round instead of front-loading against everyone.
-function buildRoundRobinRounds(teamIds: number[]): [number, number][][] {
-  const arr: (number | null)[] = [...teamIds];
+function buildRoundRobinRounds(teamIds: string[]): [string, string][][] {
+  const arr: (string | null)[] = [...teamIds];
   if (arr.length % 2 !== 0) arr.push(null); // bye slot for odd team counts
-  const rounds: [number, number][][] = [];
+  const rounds: [string, string][][] = [];
   const roundCount = arr.length - 1;
   const half = arr.length / 2;
   let list = arr;
 
   for (let r = 0; r < roundCount; r++) {
-    const round: [number, number][] = [];
+    const round: [string, string][] = [];
     for (let i = 0; i < half; i++) {
       const a = list[i];
       const b = list[list.length - 1 - i];
@@ -42,10 +43,10 @@ function buildRoundRobinRounds(teamIds: number[]): [number, number][][] {
 // Greedily resequences fixtures so both teams in a fixture last played at
 // least `minGap` slots ago, falling back to the least-bad option when the
 // constraint can't be fully satisfied (e.g. too few teams for the gap size).
-function scheduleWithRestGap<T extends { homeTeamId: number; awayTeamId: number }>(fixtures: T[], minGap: number): T[] {
+function scheduleWithRestGap<T extends { homeTeamId: string; awayTeamId: string }>(fixtures: T[], minGap: number): T[] {
   const pool = [...fixtures];
   const scheduled: T[] = [];
-  const lastPlayedAt = new Map<number, number>();
+  const lastPlayedAt = new Map<string, number>();
 
   while (pool.length > 0) {
     let bestIndex = 0;
@@ -70,7 +71,7 @@ export const getGroupsByTournament = async (req: Request, res: Response): Promis
   try {
     const { tournamentId } = req.params;
     const groups = await prisma.tournamentGroup.findMany({
-      where: { tournamentId: parseInt(tournamentId) },
+      where: { tournamentId: tournamentId },
       include: groupInclude,
       orderBy: { name: 'asc' },
     });
@@ -85,7 +86,7 @@ export const getGroupById = async (req: Request, res: Response): Promise<void> =
   try {
     const { id } = req.params;
     const group = await prisma.tournamentGroup.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         ...groupInclude,
         games: {
@@ -112,7 +113,7 @@ export const createGroup = async (req: AuthRequest, res: Response): Promise<void
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
     const group = await prisma.tournamentGroup.create({
-      data: { name, tournamentId: parseInt(tournamentId) },
+      data: { name, tournamentId: tournamentId },
       include: groupInclude,
     });
     res.status(201).json(group);
@@ -128,7 +129,7 @@ export const updateGroup = async (req: AuthRequest, res: Response): Promise<void
     const { name } = req.body as UpdateTournamentGroupRequest;
 
     const group = await prisma.tournamentGroup.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: { ...(name !== undefined && { name }) },
       include: groupInclude,
     });
@@ -142,7 +143,7 @@ export const updateGroup = async (req: AuthRequest, res: Response): Promise<void
 export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.tournamentGroup.delete({ where: { id: parseInt(id) } });
+    await prisma.tournamentGroup.delete({ where: { id: id } });
     res.json({ message: 'Group deleted' });
   } catch (error) {
     console.error('Delete group error:', error);
@@ -153,10 +154,10 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 export const assignTeamToGroup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { teamId } = req.body as AssignTeamToGroupRequest;
+    const teamId = toId(req.body.teamId);
     if (!teamId) { res.status(400).json({ error: 'teamId is required' }); return; }
 
-    const group = await prisma.tournamentGroup.findUnique({ where: { id: parseInt(id) } });
+    const group = await prisma.tournamentGroup.findUnique({ where: { id: id } });
     if (!group) { res.status(404).json({ error: 'Group not found' }); return; }
 
     const team = await prisma.tournamentTeam.findUnique({ where: { id: teamId } });
@@ -176,13 +177,13 @@ export const assignTeamToGroup = async (req: AuthRequest, res: Response): Promis
     }
 
     await prisma.tournamentGroupTeam.upsert({
-      where: { groupId_teamId: { groupId: parseInt(id), teamId } },
-      create: { groupId: parseInt(id), teamId },
+      where: { groupId_teamId: { groupId: id, teamId } },
+      create: { groupId: id, teamId },
       update: {},
     });
 
     const updated = await prisma.tournamentGroup.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: groupInclude,
     });
     res.json(updated);
@@ -196,7 +197,7 @@ export const removeTeamFromGroup = async (req: AuthRequest, res: Response): Prom
   try {
     const { id, teamId } = req.params;
     await prisma.tournamentGroupTeam.delete({
-      where: { groupId_teamId: { groupId: parseInt(id), teamId: parseInt(teamId) } },
+      where: { groupId_teamId: { groupId: id, teamId: teamId } },
     });
     res.json({ message: 'Team removed from group' });
   } catch (error) {
@@ -216,7 +217,7 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
     }
 
     const tournament = await prisma.tournament.findUnique({
-      where: { id: parseInt(tournamentId) },
+      where: { id: tournamentId },
       include: { series: { select: { sportType: true } } },
     });
     if (!tournament) {
@@ -270,7 +271,7 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
     }
 
     let groups = await prisma.tournamentGroup.findMany({
-      where: { tournamentId: parseInt(tournamentId) },
+      where: { tournamentId: tournamentId },
       include: { teams: true, _count: { select: { games: true } } },
       orderBy: { name: 'asc' },
     });
@@ -278,17 +279,17 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
     // No manual group setup yet — fall back to one default group holding
     // every team so a schedule can still be generated.
     if (groups.length === 0) {
-      const allTeams = await prisma.tournamentTeam.findMany({ where: { tournamentId: parseInt(tournamentId) } });
+      const allTeams = await prisma.tournamentTeam.findMany({ where: { tournamentId: tournamentId } });
       if (allTeams.length >= 2) {
         await prisma.tournamentGroup.create({
           data: {
             name: 'A',
-            tournamentId: parseInt(tournamentId),
+            tournamentId: tournamentId,
             teams: { create: allTeams.map(t => ({ teamId: t.id })) },
           },
         });
         groups = await prisma.tournamentGroup.findMany({
-          where: { tournamentId: parseInt(tournamentId) },
+          where: { tournamentId: tournamentId },
           include: { teams: true, _count: { select: { games: true } } },
           orderBy: { name: 'asc' },
         });
@@ -310,7 +311,7 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
       rounds: buildRoundRobinRounds(group.teams.map(gt => gt.teamId)),
     }));
 
-    const interleaved: { groupId: number; tournamentId: number; homeTeamId: number; awayTeamId: number }[] = [];
+    const interleaved: { groupId: string; tournamentId: string; homeTeamId: string; awayTeamId: string }[] = [];
     const maxRounds = Math.max(...groupRounds.map(g => g.rounds.length));
     for (let r = 0; r < maxRounds; r++) {
       for (const group of groupRounds) {
@@ -380,7 +381,7 @@ export const deleteTournamentSchedule = async (req: AuthRequest, res: Response):
   try {
     const { tournamentId } = req.params;
 
-    const tournament = await prisma.tournament.findUnique({ where: { id: parseInt(tournamentId) } });
+    const tournament = await prisma.tournament.findUnique({ where: { id: tournamentId } });
     if (!tournament) { res.status(404).json({ error: 'Tournament not found' }); return; }
     if (tournament.status !== 'DRAFT') {
       res.status(400).json({ error: 'Schedule can only be deleted while tournament is in DRAFT status' });
@@ -388,7 +389,7 @@ export const deleteTournamentSchedule = async (req: AuthRequest, res: Response):
     }
 
     const { count } = await prisma.tournamentGame.deleteMany({
-      where: { tournamentId: parseInt(tournamentId), phase: 'GROUP' },
+      where: { tournamentId: tournamentId, phase: 'GROUP' },
     });
 
     res.json({ message: `Deleted ${count} game(s)` });

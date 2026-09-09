@@ -24,7 +24,7 @@ function seedOrder(n: number): number[] {
 export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { tournamentId } = req.params;
-    const tid = parseInt(tournamentId);
+    const tid = tournamentId;
     const { qualifiersPerGroup, startTime, slotDurationMinutes, location } =
       req.body as GenerateTournamentPlayoffsRequest;
 
@@ -95,7 +95,7 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
     // Seed order: all group winners first (ranked amongst themselves), then
     // all runners-up, etc. — mirrors how real tournaments seed a bracket
     // built from multiple groups.
-    const seeds: number[] = [];
+    const seeds: string[] = [];
     for (let rank = 0; rank < qualifiersPerGroup; rank++) {
       const rankTeams = standingsByGroup
         .map(s => s[rank])
@@ -122,7 +122,7 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
 
     interface PendingGame {
       phase: TournamentGamePhase; bracketSlot: number;
-      homeTeamId: number | null; awayTeamId: number | null;
+      homeTeamId: string | null; awayTeamId: string | null;
       homeSeed: number | null; awaySeed: number | null;
     }
     const rounds: PendingGame[][] = [];
@@ -191,7 +191,7 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
 export const deleteTournamentPlayoffs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { tournamentId } = req.params;
-    const tid = parseInt(tournamentId);
+    const tid = tournamentId;
 
     const completedCount = await prisma.tournamentGame.count({
       where: { tournamentId: tid, phase: { not: 'GROUP' }, status: 'COMPLETED' },
@@ -214,7 +214,7 @@ export const deleteTournamentPlayoffs = async (req: AuthRequest, res: Response):
 // Called after a group game completes: if that was the last one, resolves
 // any seed-only first-round playoff games (generated before the group stage
 // finished) into real team assignments.
-export async function resolvePlayoffSeeds(tournamentId: number): Promise<void> {
+export async function resolvePlayoffSeeds(tournamentId: string): Promise<void> {
   const unresolved = await prisma.tournamentGame.findMany({
     where: { tournamentId, phase: { not: 'GROUP' }, homeTeamId: null, homeSeed: { not: null } },
   });
@@ -235,7 +235,7 @@ export async function resolvePlayoffSeeds(tournamentId: number): Promise<void> {
   const standingsByGroup = await Promise.all(groups.map(g => computeGroupStandings(tournamentId, g.id)));
   if (standingsByGroup.some(s => s.length < qualifiersPerGroup)) return;
 
-  const seeds: number[] = [];
+  const seeds: string[] = [];
   for (let rank = 0; rank < qualifiersPerGroup; rank++) {
     const rankTeams = standingsByGroup
       .map(s => s[rank])
@@ -255,11 +255,11 @@ export async function resolvePlayoffSeeds(tournamentId: number): Promise<void> {
 }
 
 interface CompletableGame {
-  tournamentId: number;
+  tournamentId: string;
   phase: TournamentGamePhase;
   bracketSlot: number | null;
-  homeTeamId: number | null;
-  awayTeamId: number | null;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
   homeScore: number | null;
   awayScore: number | null;
   status: string;

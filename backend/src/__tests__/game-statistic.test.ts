@@ -25,14 +25,14 @@ async function getAdminToken(): Promise<string> {
 }
 
 let token: string;
-let leagueId: number;
-let seasonId: number;
-let teamId: number;
-let teamId2: number;
-let playerId: number;
-let playerId2: number;
-let gameId: number;
-let statisticId: number;
+let leagueId: string;
+let seasonId: string;
+let teamId: string;
+let teamId2: string;
+let playerId: string;
+let playerId2: string;
+let gameId: string;
+let statisticId: string;
 
 beforeAll(async () => {
   token = await getAdminToken();
@@ -436,7 +436,7 @@ describe('Game Statistics CRUD', () => {
           .get(`/api/game-statistics/season/${seasonId}/team/${teamId}`)
           .expect(200);
 
-      const playerIds = res.body.map((e: { player: { id: number } }) => e.player.id);
+      const playerIds = res.body.map((e: { player: { id: string } }) => e.player.id);
       expect(playerIds).toContain(playerId);
       expect(playerIds).not.toContain(playerId2);
 

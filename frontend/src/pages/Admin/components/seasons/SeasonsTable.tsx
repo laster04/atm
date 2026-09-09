@@ -17,9 +17,9 @@ interface SeasonsTableProps {
 	leagues: League[];
 	selectedLeague?: League | null;
 	onCreateSeason?: (data: SeasonFormData) => void;
-	onUpdateSeason?: (id: number, data: SeasonFormData) => void;
-	onDeleteSeason?: (id: number) => void;
-	onArchiveSeason?: (id: number) => void;
+	onUpdateSeason?: (id: string, data: SeasonFormData) => void;
+	onDeleteSeason?: (id: string) => void;
+	onArchiveSeason?: (id: string) => void;
 }
 
 export default function SeasonsTable({ seasons, leagues, selectedLeague, onCreateSeason, onUpdateSeason, onDeleteSeason, onArchiveSeason }: SeasonsTableProps) {

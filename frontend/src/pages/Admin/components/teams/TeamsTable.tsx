@@ -14,12 +14,12 @@ import TeamFormModal, { type TeamFormData } from './TeamFormModal.tsx';
 interface TeamsTableProps {
 	teams: Team[];
 	seasons: Season[];
-	selectedSeasonId: number | null;
+	selectedSeasonId: string | null;
 	teamManagers: User[];
-	onSeasonChange: (seasonId: number) => void;
+	onSeasonChange: (seasonId: string) => void;
 	onCreateTeam?: (data: TeamFormData) => void;
-	onUpdateTeam?: (id: number, data: TeamFormData) => void;
-	onDeleteTeam?: (id: number) => void;
+	onUpdateTeam?: (id: string, data: TeamFormData) => void;
+	onDeleteTeam?: (id: string) => void;
 }
 
 export default function TeamsTable({
@@ -71,7 +71,7 @@ export default function TeamsTable({
 							labelId="team-season-filter-label"
 							value={selectedSeasonId || ''}
 							label={t('admin.tabs.team.filterBySeason')}
-							onChange={(e) => onSeasonChange(Number(e.target.value))}
+							onChange={(e) => onSeasonChange(e.target.value)}
 						>
 							{seasons.map((season) => (
 								<MenuItem key={season.id} value={season.id}>

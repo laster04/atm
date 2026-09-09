@@ -6,7 +6,7 @@ import { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, Tournament
 // ============================================================================
 
 export interface AuthUser {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: Role;
@@ -19,7 +19,7 @@ export interface AuthRequest extends Request {
 }
 
 export interface JwtPayload {
-  userId: number;
+  userId: string;
 }
 
 // ============================================================================
@@ -56,7 +56,7 @@ export interface LeagueIdParam {
 
 // Shared user select (without password)
 export interface UserPublic {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: Role;
@@ -68,7 +68,7 @@ export interface UserWithActive extends UserPublic {
 
 // Manager reference used in relations
 export interface ManagerRef {
-  id: number;
+  id: string;
   name: string;
   email: string;
 }
@@ -148,21 +148,21 @@ export interface UpdateLeagueRequest {
 
 // Response types
 export interface LeagueRef {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
-  managerId?: number | null;
+  managerId?: string | null;
 }
 
 export interface LeagueListItem {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
   logo: string | null;
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   manager: ManagerRef | null;
   _count: {
     seasons: number;
@@ -170,27 +170,27 @@ export interface LeagueListItem {
 }
 
 export interface LeagueDetail {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
   logo: string | null;
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   manager: ManagerRef | null;
   seasons: SeasonInLeague[];
 }
 
 export interface SeasonInLeague {
-  id: number;
+  id: string;
   name: string;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
-  leagueId: number;
+  leagueId: string;
   _count: {
     seasonTeams: number;
     games: number;
@@ -198,14 +198,14 @@ export interface SeasonInLeague {
 }
 
 export interface LeagueResponse {
-  id: number;
+  id: string;
   name: string;
   sportType: SportType;
   logo: string | null;
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   manager: ManagerRef | null;
 }
 
@@ -216,7 +216,7 @@ export interface LeagueResponse {
 // Request bodies
 export interface CreateSeasonRequest {
   name: string;
-  leagueId: number;
+  leagueId: string;
   startDate: string;
   endDate: string;
   status?: SeasonStatus;
@@ -224,7 +224,7 @@ export interface CreateSeasonRequest {
 
 export interface UpdateSeasonRequest {
   name?: string;
-  leagueId?: number;
+  leagueId?: string;
   startDate?: string;
   endDate?: string;
   status?: SeasonStatus;
@@ -232,14 +232,14 @@ export interface UpdateSeasonRequest {
 
 // Response types
 export interface SeasonListItem {
-  id: number;
+  id: string;
   name: string;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
-  leagueId: number;
+  leagueId: string;
   league: LeagueRef;
   _count: {
     seasonTeams: number;
@@ -248,13 +248,13 @@ export interface SeasonListItem {
 }
 
 export interface TeamInSeason {
-  id: number;
+  id: string;
   name: string;
   logo: string | null;
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   manager: ManagerRef | null;
   _count: {
     players: number;
@@ -262,14 +262,14 @@ export interface TeamInSeason {
 }
 
 export interface SeasonDetail {
-  id: number;
+  id: string;
   name: string;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
-  leagueId: number;
+  leagueId: string;
   league: LeagueRef;
   teams: TeamInSeason[];
   _count: {
@@ -278,14 +278,14 @@ export interface SeasonDetail {
 }
 
 export interface SeasonResponse {
-  id: number;
+  id: string;
   name: string;
   startDate: Date;
   endDate: Date;
   status: SeasonStatus;
   createdAt: Date;
   updatedAt: Date;
-  leagueId: number;
+  leagueId: string;
   league: LeagueRef;
 }
 
@@ -315,37 +315,37 @@ export interface InviteManagerRequest {
 
 // Response types
 export interface TeamRef {
-  id: number;
+  id: string;
   name: string;
   logo?: string | null;
   primaryColor?: string | null;
 }
 
 export interface SeasonTeamRef {
-  id: number;
-  seasonId: number;
-  teamId: number;
+  id: string;
+  seasonId: string;
+  teamId: string;
   season: {
-    id: number;
+    id: string;
     name: string;
     startDate: Date;
     endDate: Date;
     status: SeasonStatus;
     createdAt: Date;
     updatedAt: Date;
-    leagueId: number;
+    leagueId: string;
     league: LeagueRef;
   };
 }
 
 export interface TeamListItem {
-  id: number;
+  id: string;
   name: string;
   logo: string | null;
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   manager: ManagerRef | null;
   _count: {
     players: number;
@@ -357,7 +357,7 @@ export interface TeamWithSeason extends TeamListItem {
 }
 
 export interface GameForTeam {
-  id: number;
+  id: string;
   date: Date | null;
   location: string | null;
   homeScore: number | null;
@@ -369,13 +369,13 @@ export interface GameForTeam {
 }
 
 export interface TeamDetail {
-  id: number;
+  id: string;
   name: string;
   logo: string | null;
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   seasonTeams: SeasonTeamRef[];
   manager: ManagerRef | null;
   players: PlayerResponse[];
@@ -383,13 +383,13 @@ export interface TeamDetail {
 }
 
 export interface TeamResponse {
-  id: number;
+  id: string;
   name: string;
   logo: string | null;
   primaryColor: string | null;
   createdAt: Date;
   updatedAt: Date;
-  managerId: number | null;
+  managerId: string | null;
   manager: ManagerRef | null;
 }
 
@@ -416,7 +416,7 @@ export interface UpdatePlayerRequest {
 
 // Response types
 export interface PlayerResponse {
-  id: number;
+  id: string;
   name: string;
   number: number | null;
   position: string | null;
@@ -424,11 +424,11 @@ export interface PlayerResponse {
   note: string | null;
   createdAt: Date;
   updatedAt: Date;
-  teamId: number;
+  teamId: string;
 }
 
 export interface PlayerDetail {
-  id: number;
+  id: string;
   name: string;
   number: number | null;
   position: string | null;
@@ -436,7 +436,7 @@ export interface PlayerDetail {
   note: string | null;
   createdAt: Date;
   updatedAt: Date;
-  teamId: number;
+  teamId: string;
   team: TeamWithSeason;
 }
 
@@ -446,16 +446,16 @@ export interface PlayerDetail {
 
 // Request bodies
 export interface CreateGameRequest {
-  homeTeamId: string | number;
-  awayTeamId: string | number;
+  homeTeamId: string;
+  awayTeamId: string;
   date?: string | null;
   location?: string;
   round?: string | number;
 }
 
 export interface UpdateGameRequest {
-  homeTeamId?: string | number;
-  awayTeamId?: string | number;
+  homeTeamId?: string;
+  awayTeamId?: string;
   date?: string | null;
   location?: string;
   homeScore?: number | null;
@@ -476,7 +476,7 @@ export interface GenerateScheduleRequest {
 
 // Response types
 export interface GameListItem {
-  id: number;
+  id: string;
   date: Date | null;
   location: string | null;
   homeScore: number | null;
@@ -485,15 +485,15 @@ export interface GameListItem {
   round: number | null;
   createdAt: Date;
   updatedAt: Date;
-  seasonId: number;
-  homeTeamId: number;
-  awayTeamId: number;
+  seasonId: string;
+  homeTeamId: string;
+  awayTeamId: string;
   homeTeam: TeamRef;
   awayTeam: TeamRef;
 }
 
 export interface GameDetail {
-  id: number;
+  id: string;
   date: Date | null;
   location: string | null;
   homeScore: number | null;
@@ -502,9 +502,9 @@ export interface GameDetail {
   round: number | null;
   createdAt: Date;
   updatedAt: Date;
-  seasonId: number;
-  homeTeamId: number;
-  awayTeamId: number;
+  seasonId: string;
+  homeTeamId: string;
+  awayTeamId: string;
   season: SeasonResponse;
   homeTeam: TeamRef;
   awayTeam: TeamRef;
@@ -521,7 +521,7 @@ export interface GenerateScheduleResponse {
 
 // Request bodies
 export interface CreateHockeyGameStatisticRequest {
-  playerId: string | number;
+  playerId: string;
   goals?: number | null;
   assists?: number | null;
   penaltyMinutes?: number | null;
@@ -535,9 +535,9 @@ export interface UpdateHockeyGameStatisticRequest {
 
 // Response types
 export interface HockeyGameStatisticResponse {
-  id: number;
-  playerId: number;
-  gameId: number;
+  id: string;
+  playerId: string;
+  gameId: string;
   goals: number | null;
   assists: number | null;
 }
@@ -555,7 +555,7 @@ export interface PlayerIdParam {
 // ============================================================================
 
 export interface StandingTeamRef {
-  id: number;
+  id: string;
   name: string;
   logo: string | null;
   primaryColor?: string | null;
@@ -598,7 +598,7 @@ export interface CreateTournamentSeriesRequest {
   sportType?: SportType;
   logo?: string;
   description?: string;
-  managerId?: number | null;
+  managerId?: string | null;
 }
 
 export interface UpdateTournamentSeriesRequest {
@@ -606,7 +606,7 @@ export interface UpdateTournamentSeriesRequest {
   sportType?: SportType;
   logo?: string | null;
   description?: string | null;
-  managerId?: number | null;
+  managerId?: string | null;
 }
 
 // --- Tournament (edition) ---
@@ -669,15 +669,15 @@ export interface UpdateTournamentGroupRequest {
 }
 
 export interface AssignTeamToGroupRequest {
-  teamId: number;
+  teamId: string;
 }
 
 // --- TournamentGame ---
 export interface CreateTournamentGameRequest {
   phase: TournamentGamePhase;
-  groupId?: number | null;
-  homeTeamId?: number | null;
-  awayTeamId?: number | null;
+  groupId?: string | null;
+  homeTeamId?: string | null;
+  awayTeamId?: string | null;
   date?: string | null;
   location?: string | null;
   bracketSlot?: number | null;
@@ -685,8 +685,8 @@ export interface CreateTournamentGameRequest {
 }
 
 export interface UpdateTournamentGameRequest {
-  homeTeamId?: number | null;
-  awayTeamId?: number | null;
+  homeTeamId?: string | null;
+  awayTeamId?: string | null;
   homeScore?: number | null;
   awayScore?: number | null;
   date?: string | null;
@@ -716,7 +716,7 @@ export interface GenerateTournamentPlayoffsRequest {
 
 // --- TournamentGameStatistic ---
 export interface CreateTournamentGameStatisticRequest {
-  playerId: number;
+  playerId: string;
   goals?: number | null;
   assists?: number | null;
 }

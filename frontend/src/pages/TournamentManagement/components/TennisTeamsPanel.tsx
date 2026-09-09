@@ -7,7 +7,7 @@ interface TennisTeamsPanelProps {
   teams: TournamentTeam[];
   openTeamCreate: () => void;
   openTeamEdit: (team: TournamentTeam) => void;
-  deleteTeam: (teamId: number) => void;
+  deleteTeam: (teamId: string) => void;
 }
 
 export default function TennisTeamsPanel({ teams, openTeamCreate, openTeamEdit, deleteTeam }: TennisTeamsPanelProps) {
