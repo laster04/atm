@@ -1369,6 +1369,28 @@
     }
   },
   "gameStatistic": {
-    "penaltyMinutes": "TM"
+    "penaltyMinutes": "TM",
+    "title": "Statistiky zápasu",
+    "score": "Skóre",
+    "total": "Celkem",
+    "period1": "1.T",
+    "period2": "2.T",
+    "period3": "3.T",
+    "home": "Domácí",
+    "away": "Hosté",
+    "goals": "Góly",
+    "assists": "Asistence",
+    "lineup": "Sestava",
+    "viewOnly": "Jen ke čtení",
+    "noPlayers": "V tomto týmu nejsou žádní hráči",
+    "notFound": "Zápas nenalezen",
+    "unauthorized": "Nemáte oprávnění k této stránce",
+    "fetchError": "Nepodařilo se načíst data zápasu",
+    "saveSuccess": "Statistiky byly úspěšně uloženy",
+    "saveError": "Nepodařilo se uložit statistiky",
+    "allSaved": "Vše uloženo",
+    "unsavedChanges_one": "{{count}} neuložená změna",
+    "unsavedChanges_few": "{{count}} neuložené změny",
+    "unsavedChanges_other": "{{count}} neuložených změn"
   }
 }

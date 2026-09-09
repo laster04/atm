@@ -1359,6 +1359,27 @@
     }
   },
   "gameStatistic": {
-    "penaltyMinutes": "PIM"
+    "penaltyMinutes": "PIM",
+    "title": "Game statistics",
+    "score": "Score",
+    "total": "Total",
+    "period1": "P1",
+    "period2": "P2",
+    "period3": "P3",
+    "home": "Home",
+    "away": "Away",
+    "goals": "Goals",
+    "assists": "Assists",
+    "lineup": "Line-up",
+    "viewOnly": "View only",
+    "noPlayers": "No players in this team",
+    "notFound": "Game not found",
+    "unauthorized": "You are not authorized to access this page",
+    "fetchError": "Failed to fetch game data",
+    "saveSuccess": "Statistics saved successfully",
+    "saveError": "Failed to save statistics",
+    "allSaved": "All changes saved",
+    "unsavedChanges_one": "{{count}} unsaved change",
+    "unsavedChanges_other": "{{count}} unsaved changes"
   }
 }

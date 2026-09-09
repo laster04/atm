@@ -17,19 +17,22 @@ export default function TeamManagerLayout() {
 		);
 	}
 
-	// Don't show header on team detail page (it has its own header)
-	const isTeamDetailPage = /^\/team-management\/\d+/.test(location.pathname);
+	// Only the two list screens wear the shared header; everything below them
+	// (a team, a game sheet) brings its own. Matching on the list paths keeps
+	// this correct now that ids are UUIDs rather than numbers.
+	const path = location.pathname.replace(/\/+$/, '');
+	const isListPage = path === '/team-management' || path === '/team-management/my-teams';
 
 	return (
 		<div className="min-h-screen bg-background">
-			{!isTeamDetailPage && (
+			{isListPage && (
 				<ManagerHeader
 					title={t('teamManagement.title')}
 					subtitle={t('teamManagement.tabs.myTeams')}
 					backTo="/"
 				/>
 			)}
-			<div className={isTeamDetailPage ? '' : 'container mx-auto px-4 py-4'}>
+			<div className={isListPage ? 'container mx-auto px-4 py-4' : ''}>
 				<Outlet />
 			</div>
 		</div>
