@@ -26,6 +26,7 @@
     "register": "Register",
     "logout": "Logout",
     "menu": "Menu",
+    "toggleMenu": "Toggle menu",
     "loggedInAs": "Logged in as"
   },
   "teamTour": {

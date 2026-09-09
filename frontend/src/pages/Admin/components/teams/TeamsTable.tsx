@@ -10,6 +10,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import type { Team, Season, User } from '@types';
 import TeamFormModal, { type TeamFormData } from './TeamFormModal.tsx';
+import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 interface TeamsTableProps {
 	teams: Team[];
@@ -52,6 +53,26 @@ export default function TeamsTable({
 		setEditingTeam(null);
 	};
 
+	// Identical in the table and the card list, so defined once.
+	const rowActions = (team: Team) => (
+		<>
+			<Button
+				variant="ghost"
+				size="sm"
+				onClick={() => navigate(`/team-management/${team.id}`)}
+				title={t('admin.tabs.team.goToDetail')}
+			>
+				<Eye className="size-4" />
+			</Button>
+			<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(team)}>
+				<Edit className="size-4" />
+			</Button>
+			<Button variant="ghost" size="sm" onClick={() => onDeleteTeam?.(team.id)}>
+				<Trash2 className="size-4 text-destructive" />
+			</Button>
+		</>
+	);
+
 	const handleSubmit = (data: TeamFormData) => {
 		if (editingTeam) {
 			onUpdateTeam?.(editingTeam.id, data);
@@ -62,8 +83,8 @@ export default function TeamsTable({
 	};
 
 	return (
-		<Card>
-			<CardHeader>
+		<Card className="border-0 bg-transparent shadow-none rounded-none sm:border sm:bg-card sm:rounded-xl">
+			<CardHeader className="px-0 sm:px-6">
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
 					<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
 						<InputLabel id="team-season-filter-label">{t('admin.tabs.team.filterBySeason')}</InputLabel>
@@ -98,7 +119,7 @@ export default function TeamsTable({
 					</Dialog>
 				</div>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="px-0 sm:px-6">
 				{!selectedSeasonId ? (
 					<div className="text-center py-8 text-muted-foreground">
 						{t('admin.tabs.team.selectSeasonFirst')}
@@ -108,49 +129,59 @@ export default function TeamsTable({
 						{t('admin.tabs.team.noTeams')}
 					</div>
 				) : (
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>{t('admin.tabs.team.th-name')}</TableHead>
-								<TableHead>{t('admin.tabs.team.th-manager')}</TableHead>
-								<TableHead>{t('admin.tabs.team.th-players')}</TableHead>
-								<TableHead className="text-right">{t('admin.tabs.team.th-actions')}</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
+					<>
+						<AdminTableView>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>{t('admin.tabs.team.th-name')}</TableHead>
+									<TableHead>{t('admin.tabs.team.th-manager')}</TableHead>
+									<TableHead>{t('admin.tabs.team.th-players')}</TableHead>
+									<TableHead className="text-right">{t('admin.tabs.team.th-actions')}</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{teams.map((team) => (
+									<TableRow
+										key={team.id}
+										style={{
+											backgroundColor: `${team.primaryColor}08`,
+											borderLeft: `4px solid ${team.primaryColor ?? '#808080'}`
+										}}
+									>
+										<TableCell className="font-medium">{team.name}</TableCell>
+										<TableCell>{team.manager?.name || '-'}</TableCell>
+										<TableCell>{team._count?.players || 0}</TableCell>
+										<TableCell className="text-right">
+											<div className="flex justify-end gap-1">{rowActions(team)}</div>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+						</AdminTableView>
+
+						<AdminCardView>
 							{teams.map((team) => (
-								<TableRow
+								<AdminCard
 									key={team.id}
+									title={team.name}
+									actions={rowActions(team)}
 									style={{
 										backgroundColor: `${team.primaryColor}08`,
-										borderLeft: `4px solid ${team.primaryColor ?? '#808080'}`
+										borderLeft: `4px solid ${team.primaryColor ?? '#808080'}`,
 									}}
 								>
-									<TableCell className="font-medium">{team.name}</TableCell>
-									<TableCell>{team.manager?.name || '-'}</TableCell>
-									<TableCell>{team._count?.players || 0}</TableCell>
-									<TableCell className="text-right">
-										<div className="flex justify-end gap-1">
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() => navigate(`/team-management/${team.id}`)}
-												title={t('admin.tabs.team.goToDetail')}
-											>
-												<Eye className="size-4" />
-											</Button>
-											<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(team)}>
-												<Edit className="size-4" />
-											</Button>
-											<Button variant="ghost" size="sm" onClick={() => onDeleteTeam?.(team.id)}>
-												<Trash2 className="size-4 text-destructive" />
-											</Button>
-										</div>
-									</TableCell>
-								</TableRow>
+									<AdminCardField label={t('admin.tabs.team.th-manager')}>
+										{team.manager?.name || '-'}
+									</AdminCardField>
+									<AdminCardField label={t('admin.tabs.team.th-players')}>
+										{team._count?.players || 0}
+									</AdminCardField>
+								</AdminCard>
 							))}
-						</TableBody>
-					</Table>
+						</AdminCardView>
+					</>
 				)}
 			</CardContent>
 		</Card>

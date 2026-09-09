@@ -26,6 +26,7 @@
     "register": "Registrovat",
     "logout": "Odhlasit",
     "menu": "Menu",
+    "toggleMenu": "Přepnout menu",
     "loggedInAs": "Přihlášen jako"
   },
   "teamTour": {

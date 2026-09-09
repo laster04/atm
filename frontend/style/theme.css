@@ -774,21 +774,6 @@
         }
     }
 
-    /* Admin Card List (for mobile table fallback) */
-    .admin-card-list {
-        @apply space-y-3;
-    }
-
-    .admin-card-item {
-        @apply p-3 sm:p-4 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all;
-    }
-
-    @media (min-width: 769px) {
-        .admin-card-item {
-            @apply hidden;
-        }
-    }
-
     /* Admin Dialog Responsive */
     .admin-dialog {
         @apply max-w-lg;
