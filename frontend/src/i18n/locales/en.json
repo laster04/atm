@@ -884,7 +884,10 @@
       "new": "+ New",
       "noSeasons": "No seasons yet",
       "teamsIn": "Teams in {{name}}",
-      "selectSeason": "Select a season to manage teams"
+      "selectSeason": "Select a season to manage teams",
+      "allLeagues": "All leagues",
+      "empty": "No seasons in this view",
+      "rowActions": "Season actions"
     },
     "teams": {
       "addTeam": "+ Add Team",
@@ -1010,6 +1013,23 @@
       "movePlayer": "Failed to move player",
       "archiveSeason": "Failed to archive season",
       "copyTeams": "Season was created, but copying teams failed"
+    },
+    "nav": {
+      "users": "Users",
+      "leagues": "Leagues",
+      "seasons": "Seasons",
+      "more": "More",
+      "players": "Players",
+      "games": "Games"
+    },
+    "more": {
+      "acrossSeasons": "Across seasons",
+      "playersHint": "Search players in every team and move them",
+      "gamesHint": "Every fixture regardless of season",
+      "seasonWork": "Season management",
+      "seasonWorkTitle": "Teams, dates and results",
+      "seasonWorkHint": "Managed inside a season, not in a global table.",
+      "openSeasons": "Open seasons"
     }
   },
   "language": {

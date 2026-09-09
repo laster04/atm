@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Menu, LogOut, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/components/utils';
 import { Button } from '@components/base/button';
 import {
 	DropdownMenu,
@@ -16,6 +17,12 @@ interface ManagerHeaderProps {
 	subtitle?: string;
 	backTo?: string;
 	color?: string;
+	/**
+	 * Ink for the header's own text and controls. Light suits the navy and the
+	 * darker team colours; a light background — the admin gold — needs dark,
+	 * where white would sit at 1.6:1.
+	 */
+	ink?: 'light' | 'dark';
 }
 
 export default function ManagerHeader({
@@ -23,6 +30,7 @@ export default function ManagerHeader({
 	subtitle,
 	backTo,
 	color = '#003E7E',
+	ink = 'light',
 }: ManagerHeaderProps) {
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
@@ -47,6 +55,11 @@ export default function ManagerHeader({
 		i18n.changeLanguage(newLang);
 	};
 
+	const dark = ink === 'dark';
+	const inkClass = dark ? 'text-[#252525]' : 'text-white';
+	const hoverClass = dark ? 'hover:bg-black/10' : 'hover:bg-white/20';
+	const subtitleClass = dark ? 'text-[#252525]/70' : 'opacity-80';
+
 	const isRootPage = location.pathname === '/admin' ||
 		location.pathname === '/admin/' ||
 		location.pathname === '/team-management' ||
@@ -58,7 +71,7 @@ export default function ManagerHeader({
 
 	return (
 		<div
-			className="sticky top-0 z-10 text-white border-b shadow-md"
+			className={cn('sticky top-0 z-10 border-b shadow-md', inkClass)}
 			style={{ backgroundColor: color }}
 		>
 			<div className="px-4 py-3">
@@ -67,7 +80,7 @@ export default function ManagerHeader({
 						<Button
 							variant="ghost"
 							size="sm"
-							className="text-white hover:bg-white/20 -ml-2"
+							className={cn('-ml-2', inkClass, hoverClass)}
 							onClick={handleBack}
 						>
 							<ArrowLeft className="size-5" />
@@ -76,7 +89,7 @@ export default function ManagerHeader({
 					<div className="flex-1 min-w-0">
 						<h1 className="text-lg font-bold truncate">{title}</h1>
 						{subtitle && (
-							<p className="text-sm opacity-80 truncate">{subtitle}</p>
+							<p className={cn('text-sm truncate', subtitleClass)}>{subtitle}</p>
 						)}
 					</div>
 					<DropdownMenu>
@@ -84,7 +97,7 @@ export default function ManagerHeader({
 							<Button
 								variant="ghost"
 								size="sm"
-								className="text-white hover:bg-white/20"
+								className={cn(inkClass, hoverClass)}
 							>
 								<Menu className="size-5" />
 							</Button>

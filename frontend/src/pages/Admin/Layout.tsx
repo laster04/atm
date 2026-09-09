@@ -1,17 +1,15 @@
 import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { CalendarDays, MoreHorizontal, Trophy, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Card, CardContent } from '@components/base/card';
 import { cn } from '@/components/utils';
 import ManagerHeader from '@/components/ManagerHeader';
-import { Menu, X } from 'lucide-react';
+import { ADMIN_GOLD, ADMIN_GOLD_INK } from './components/util';
 
 export default function AdminLayout() {
 	const { isAdmin, isSeasonManager } = useAuth();
 	const { t } = useTranslation();
 	const location = useLocation();
-	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	if (!isAdmin() && !isSeasonManager()) {
 		return (
@@ -22,83 +20,94 @@ export default function AdminLayout() {
 		);
 	}
 
+	/**
+	 * Four sections, not six. A team, a fixture and a player only exist inside a
+	 * season, and the season manager screens already handle them there; what is
+	 * left here is what is genuinely global — people, leagues, the season list
+	 * itself, and the two cross-season views under More.
+	 */
 	const tabs = [
-		...(isAdmin() ? [{ to: '/admin/users', label: t('admin.tabs.user.title') }] : []),
-		{ to: '/admin/leagues', label: t('admin.tabs.league.title') },
-		{ to: '/admin/seasons', label: t('admin.tabs.season.title') },
-		{ to: '/admin/teams', label: t('admin.tabs.team.title') },
-		{ to: '/admin/players', label: t('admin.tabs.player.title') },
-		{ to: '/admin/games', label: t('admin.tabs.game.title') },
+		...(isAdmin() ? [{ to: '/admin/users', label: t('admin.nav.users'), icon: Users }] : []),
+		{ to: '/admin/leagues', label: t('admin.nav.leagues'), icon: Trophy },
+		{ to: '/admin/seasons', label: t('admin.nav.seasons'), icon: CalendarDays },
+		{ to: '/admin/more', label: t('admin.nav.more'), icon: MoreHorizontal },
 	];
 
-	// Below `lg` the nav is unmounted while collapsed, so the tab bar cannot
-	// carry the active state. Name the section next to the toggle instead.
 	const activeTab = tabs.find((tab) => location.pathname.startsWith(tab.to));
 
-	const handleTabClick = () => {
-		setMobileMenuOpen(false);
-	};
-
 	return (
-		<div className="min-h-screen bg-background">
-			<ManagerHeader
-				title={t('admin.title')}
-				subtitle={t('admin.tabs.title')}
-				backTo="/"
-			/>
+		<div className="flex min-h-screen flex-col bg-background lg:flex-row">
+			{/* Desktop sidebar */}
+			<div
+				className="hidden border-r text-[#252525] shadow-sm lg:flex lg:w-64 lg:flex-col"
+				style={{ backgroundColor: ADMIN_GOLD }}
+			>
+				<div className="border-b border-black/10 p-6">
+					<h1 className="text-2xl font-bold">{t('admin.title')}</h1>
+					<p className="mt-2 text-sm text-[#252525]/70">{t('admin.tabs.title')}</p>
+				</div>
+				<nav className="flex-1 space-y-2 p-4">
+					{tabs.map((tab) => (
+						<NavLink
+							key={tab.to}
+							to={tab.to}
+							className={({ isActive }) =>
+								cn(
+									'flex w-full items-center gap-3 rounded-lg px-4 py-3 transition-colors',
+									isActive ? 'bg-black/15 font-semibold' : 'hover:bg-black/5'
+								)
+							}
+						>
+							<tab.icon className="size-5" />
+							<span className="font-medium">{tab.label}</span>
+						</NavLink>
+					))}
+				</nav>
+			</div>
 
-			<div className="container mx-auto px-0 sm:px-4 py-0 sm:py-4">
-				{/* On a phone this is the page, not a card floating on one. */}
-				<Card className="admin-card border-0 shadow-none rounded-none sm:border sm:shadow-sm sm:rounded-xl">
-					<CardContent className="admin-card-content p-3 sm:p-6">
-						{/* Mobile Menu Button */}
-						<div className="lg:hidden mb-4 flex items-center gap-2">
-							<button
-								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-								className="p-2.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-								aria-label={t('nav.toggleMenu')}
-								aria-expanded={mobileMenuOpen}
-								aria-controls="admin-nav"
+			<div className="flex flex-1 flex-col">
+				{/* Phone header. Gold is light enough that the ink has to flip. */}
+				<div className="lg:hidden">
+					<ManagerHeader
+						title={t('admin.title')}
+						subtitle={activeTab?.label}
+						backTo="/"
+						color={ADMIN_GOLD}
+						ink="dark"
+					/>
+				</div>
+
+				<div className="hidden border-b bg-card lg:block">
+					<div className="px-6 py-4">
+						<h2 className="text-xl font-semibold text-foreground">{activeTab?.label}</h2>
+					</div>
+				</div>
+
+				<div className="tm-content flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
+					<Outlet />
+				</div>
+
+				{/* Phone bottom navigation */}
+				<div className="tm-bottom-nav lg:hidden">
+					<div
+						className="grid h-14"
+						style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+					>
+						{tabs.map((tab) => (
+							<NavLink
+								key={tab.to}
+								to={tab.to}
+								className={({ isActive }) =>
+									cn('tm-bottom-nav-item', isActive && 'is-active')
+								}
+								style={({ isActive }) => (isActive ? { color: ADMIN_GOLD_INK } : undefined)}
 							>
-								{mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-							</button>
-							{activeTab && (
-								<span className="text-base font-semibold text-foreground">{activeTab.label}</span>
-							)}
-						</div>
-
-						{/* Navigation */}
-						<nav id="admin-nav" className={cn(
-							'transition-all duration-200 ease-in-out',
-							mobileMenuOpen
-								? 'flex flex-col space-y-1 mb-4 gap-0 border-none'
-								: 'hidden lg:flex lg:space-x-1 lg:border-b lg:border-border lg:mb-4 lg:overflow-x-auto'
-						)}>
-							{tabs.map((tab) => (
-								<NavLink
-									key={tab.to}
-									to={tab.to}
-									onClick={handleTabClick}
-									className={({ isActive }) =>
-										cn(
-											'px-3.5 py-2.5 text-sm font-medium rounded-lg transition-all whitespace-nowrap lg:rounded-t-md lg:px-4 lg:py-2',
-											isActive
-												? 'bg-muted text-foreground border-b-2 border-primary lg:border-b-2'
-												: 'text-muted-foreground hover:bg-muted/50'
-										)
-									}
-								>
-									{tab.label}
-								</NavLink>
-							))}
-						</nav>
-
-						{/* Page Content */}
-						<div className="admin-page-content mt-4 sm:mt-6">
-							<Outlet />
-						</div>
-					</CardContent>
-				</Card>
+								<tab.icon className="size-5" />
+								<span>{tab.label}</span>
+							</NavLink>
+						))}
+					</div>
+				</div>
 			</div>
 		</div>
 	);
