@@ -51,7 +51,10 @@ export default function ManagerHeader({
 		location.pathname === '/admin/' ||
 		location.pathname === '/team-management' ||
 		location.pathname === '/team-management/' ||
-		location.pathname === '/team-management/my-teams';
+		location.pathname === '/team-management/my-teams' ||
+		location.pathname === '/season-management' ||
+		location.pathname === '/season-management/' ||
+		location.pathname === '/season-management/my-seasons';
 
 	return (
 		<div

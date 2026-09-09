@@ -106,5 +106,8 @@ export default function AdminLayout() {
 
 export function AdminIndex() {
 	const { isAdmin } = useAuth();
-	return <Navigate to={isAdmin() ? '/admin/users' : '/admin/leagues'} replace />;
+	// A season manager's home is their own season screens, not the global tables.
+	// The tables stay reachable by deep link for the CRUD not ported yet (leagues,
+	// players); once that moves, the guard above can drop `isSeasonManager()`.
+	return <Navigate to={isAdmin() ? '/admin/users' : '/season-management'} replace />;
 }

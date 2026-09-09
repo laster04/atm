@@ -1587,4 +1587,21 @@
         padding-bottom: calc(0.625rem + env(safe-area-inset-bottom, 0px));
         box-shadow: 0 -4px 6px -4px rgb(0 0 0 / 0.1);
     }
+
+    /* -------------------------------------------------------------------------
+       Season manager
+       ------------------------------------------------------------------------- */
+
+    /* Period scores are typed, never nudged: the UA spinners only steal width
+       from a 56px field and appear on hover over a control meant for a thumb. */
+    .sm-score-input {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+
+    .sm-score-input::-webkit-outer-spin-button,
+    .sm-score-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 }

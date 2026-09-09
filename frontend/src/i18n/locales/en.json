@@ -1,5 +1,6 @@
 {
   "common": {
+    "back": "Back",
     "loading": "Loading...",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -594,6 +595,141 @@
         "navy": "Navy",
         "teal": "Teal"
       }
+    }
+  },
+  "seasonManagement": {
+    "title": "Season Management",
+    "subtitle": "My Seasons",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need Season Manager privileges.",
+    "noSeasons": "You do not manage any season yet.",
+    "newSeason": "New season",
+    "createError": "Failed to create the season",
+    "notFound": "Season not found",
+    "tabs": {
+      "season": "Season",
+      "games": "Games",
+      "teams": "Teams",
+      "table": "Table",
+      "more": "More"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed"
+    },
+    "stats": {
+      "teams": "Teams",
+      "games": "Games",
+      "played": "Played"
+    },
+    "attention": {
+      "label": "Needs your attention",
+      "noTeams": "No teams in this season",
+      "noTeamsHint": "Add the teams before generating a schedule.",
+      "addTeams": "Add teams",
+      "noGames": "No fixtures yet",
+      "noGamesHint": "Generate a schedule once the teams are in.",
+      "generate": "Generate schedule",
+      "noDates_one": "{{count}} fixture has no date",
+      "noDates_other": "{{count}} fixtures have no date",
+      "noDatesHint": "Teams cannot see them in their schedule until they do.",
+      "setDates": "Set dates round by round",
+      "allClear": "Everything is set",
+      "allClearHint": "Every fixture has a date. Record results as they come in."
+    },
+    "nextUp": {
+      "label": "Next up",
+      "all": "All {{count}}",
+      "empty": "No dated fixture yet"
+    },
+    "publish": {
+      "title": "Publish the season",
+      "hint": "Draft is hidden from viewers",
+      "action": "Activate",
+      "liveTitle": "Season is live",
+      "liveHint": "Viewers can see the fixtures and the table",
+      "complete": "Complete",
+      "completedTitle": "Season completed",
+      "completedHint": "Results are final",
+      "error": "Failed to change the season status"
+    },
+    "games": {
+      "fixtures_one": "{{count}} fixture",
+      "fixtures_other": "{{count}} fixtures",
+      "filters": {
+        "noDate": "No date {{count}}",
+        "dated": "Dated {{count}}",
+        "played": "Played {{count}}"
+      },
+      "allRounds": "All rounds",
+      "roundShort": "R{{n}}",
+      "round": "Round {{n}}",
+      "noRound": "No round",
+      "noDate": "No date set",
+      "result": "Result",
+      "setDate": "Set date",
+      "edit": "Edit",
+      "empty": "No fixtures in this view"
+    },
+    "dates": {
+      "title": "Round {{n}} dates",
+      "subtitle": "{{count}} of {{total}} still without a date",
+      "roundDefault": "Round default",
+      "applyToAll": "Apply to all {{count}}",
+      "fixtures": "Fixtures",
+      "set": "Set",
+      "change": "Change",
+      "clear": "Clear",
+      "notSet": "No date",
+      "toSave_one": "{{count}} date to save",
+      "toSave_other": "{{count}} dates to save",
+      "nothingToSave": "No changes",
+      "nextRound": "Round {{n}} next",
+      "lastRound": "Last round",
+      "save": "Save round",
+      "saveError": "Failed to save the dates"
+    },
+    "result": {
+      "title": "Record result",
+      "finalScore": "Final score",
+      "home": "Home",
+      "away": "Away",
+      "periods": "Periods",
+      "optional": "optional",
+      "period": "P{{n}}",
+      "status": "Status",
+      "save": "Save result",
+      "saveError": "Failed to save the result"
+    },
+    "teams": {
+      "count_one": "{{count}} in this season",
+      "count_other": "{{count}} in this season",
+      "noManager": "No manager yet",
+      "players": "Players",
+      "add": "Add team",
+      "empty": "No teams in this season yet",
+      "createError": "Failed to create the team"
+    },
+    "table": {
+      "teams_one": "{{count}} team",
+      "teams_other": "{{count}} teams",
+      "team": "Team",
+      "played": "P",
+      "points": "Pts",
+      "empty": "No games played yet — the order is alphabetical until results come in."
+    },
+    "more": {
+      "seasonInfo": "Season info",
+      "league": "League",
+      "starts": "Starts",
+      "ends": "Ends",
+      "actions": "Actions",
+      "generateSchedule": "Generate schedule",
+      "generateHint": "Creates the fixtures for every round",
+      "regenerateHint": "Replaces the existing fixtures",
+      "generateError": "Failed to generate the schedule",
+      "publicPage": "View public page"
     }
   },
   "admin": {

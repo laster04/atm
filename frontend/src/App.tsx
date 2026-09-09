@@ -18,6 +18,7 @@ import SeasonDetail from './pages/SeasonDetail';
 import TeamDetail from './pages/TeamDetail';
 import PlayerDetail from './pages/PlayerDetail';
 import { TeamManagerLayout, TeamManagerIndex, MyTeamsPage, TeamDetailPage, GameStatsPage, TeamManagerPlayerDetailPage } from './pages/TeamManager';
+import { SeasonManagerLayout, SeasonManagerIndex, MySeasonsPage, SeasonManagePage } from './pages/SeasonManager';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
@@ -31,6 +32,7 @@ function AppContent() {
   const location = useLocation();
   const isManagerRoute = location.pathname.startsWith('/admin') ||
                          location.pathname.startsWith('/team-management') ||
+                         location.pathname.startsWith('/season-management') ||
                          location.pathname.startsWith('/tournament-management');
   const isLandingRoute = location.pathname === '/';
 
@@ -63,6 +65,11 @@ function AppContent() {
             <Route path=":id/game/:gameId" element={<GameStatsPage />} />
             <Route path=":id/player/:playerId" element={<TeamManagerPlayerDetailPage />} />
             <Route path="game-statistic/:id" element={<GameStatistic />} />
+          </Route>
+          <Route path="/season-management" element={<SeasonManagerLayout />}>
+            <Route index element={<SeasonManagerIndex />} />
+            <Route path="my-seasons" element={<MySeasonsPage />} />
+            <Route path=":id" element={<SeasonManagePage />} />
           </Route>
           <Route path="/tournament-management" element={<TournamentManagementLayout />}>
             <Route index element={<TournamentManagementIndex />} />

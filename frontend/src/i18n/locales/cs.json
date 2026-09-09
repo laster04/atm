@@ -1,7 +1,8 @@
 {
   "common": {
+    "back": "Zpět",
     "loading": "Nacitam...",
-    "cancel": "Zrusit",
+    "cancel": "Zrušit",
     "delete": "Smazat",
     "create": "Vytvorit",
     "edit": "Upravit",
@@ -599,6 +600,146 @@
         "navy": "Námořnická",
         "teal": "Tyrkysová"
       }
+    }
+  },
+  "seasonManagement": {
+    "title": "Správa sezóny",
+    "subtitle": "Moje sezóny",
+    "accessDenied": "Přístup odepřen",
+    "noPrivileges": "Potřebujete oprávnění správce sezóny.",
+    "noSeasons": "Zatím nespravujete žádnou sezónu.",
+    "newSeason": "Nová sezóna",
+    "createError": "Nepodařilo se vytvořit sezónu",
+    "notFound": "Sezóna nenalezena",
+    "tabs": {
+      "season": "Sezóna",
+      "games": "Zápasy",
+      "teams": "Týmy",
+      "table": "Tabulka",
+      "more": "Více"
+    },
+    "status": {
+      "DRAFT": "Koncept",
+      "ACTIVE": "Aktivní",
+      "COMPLETED": "Dokončená"
+    },
+    "stats": {
+      "teams": "Týmy",
+      "games": "Zápasy",
+      "played": "Odehráno"
+    },
+    "attention": {
+      "label": "Vyžaduje pozornost",
+      "noTeams": "V sezóně nejsou žádné týmy",
+      "noTeamsHint": "Před vygenerováním rozpisu přidejte týmy.",
+      "addTeams": "Přidat týmy",
+      "noGames": "Zatím žádné zápasy",
+      "noGamesHint": "Jakmile budou týmy hotové, vygenerujte rozpis.",
+      "generate": "Vygenerovat rozpis",
+      "noDates_one": "{{count}} zápas nemá termín",
+      "noDates_few": "{{count}} zápasy nemají termín",
+      "noDates_other": "{{count}} zápasů nemá termín",
+      "noDatesHint": "Dokud termín nemají, týmy je ve svém rozpisu neuvidí.",
+      "setDates": "Nastavit termíny po kolech",
+      "allClear": "Vše je nastaveno",
+      "allClearHint": "Každý zápas má termín. Zapisujte výsledky, jak přicházejí."
+    },
+    "nextUp": {
+      "label": "Nejbližší zápasy",
+      "all": "Všech {{count}}",
+      "empty": "Zatím žádný zápas s termínem"
+    },
+    "publish": {
+      "title": "Zveřejnit sezónu",
+      "hint": "Koncept diváci nevidí",
+      "action": "Aktivovat",
+      "liveTitle": "Sezóna běží",
+      "liveHint": "Diváci vidí zápasy i tabulku",
+      "complete": "Dokončit",
+      "completedTitle": "Sezóna dokončena",
+      "completedHint": "Výsledky jsou konečné",
+      "error": "Nepodařilo se změnit stav sezóny"
+    },
+    "games": {
+      "fixtures_one": "{{count}} zápas",
+      "fixtures_few": "{{count}} zápasy",
+      "fixtures_other": "{{count}} zápasů",
+      "filters": {
+        "noDate": "Bez termínu {{count}}",
+        "dated": "S termínem {{count}}",
+        "played": "Odehráno {{count}}"
+      },
+      "allRounds": "Všechna kola",
+      "roundShort": "K{{n}}",
+      "round": "{{n}}. kolo",
+      "noRound": "Bez kola",
+      "noDate": "Termín nenastaven",
+      "result": "Výsledek",
+      "setDate": "Nastavit termín",
+      "edit": "Upravit",
+      "empty": "V tomto výběru nejsou žádné zápasy"
+    },
+    "dates": {
+      "title": "Termíny {{n}}. kola",
+      "subtitle": "{{count}} z {{total}} stále bez termínu",
+      "roundDefault": "Výchozí pro kolo",
+      "applyToAll": "Použít na všech {{count}}",
+      "fixtures": "Zápasy",
+      "set": "Nastavit",
+      "change": "Změnit",
+      "clear": "Zrušit",
+      "notSet": "Bez termínu",
+      "toSave_one": "{{count}} termín k uložení",
+      "toSave_few": "{{count}} termíny k uložení",
+      "toSave_other": "{{count}} termínů k uložení",
+      "nothingToSave": "Žádné změny",
+      "nextRound": "Další je {{n}}. kolo",
+      "lastRound": "Poslední kolo",
+      "save": "Uložit kolo",
+      "saveError": "Nepodařilo se uložit termíny"
+    },
+    "result": {
+      "title": "Zapsat výsledek",
+      "finalScore": "Konečné skóre",
+      "home": "Domácí",
+      "away": "Hosté",
+      "periods": "Třetiny",
+      "optional": "nepovinné",
+      "period": "T{{n}}",
+      "status": "Stav",
+      "save": "Uložit výsledek",
+      "saveError": "Nepodařilo se uložit výsledek"
+    },
+    "teams": {
+      "count_one": "{{count}} v této sezóně",
+      "count_few": "{{count}} v této sezóně",
+      "count_other": "{{count}} v této sezóně",
+      "noManager": "Zatím bez manažera",
+      "players": "Hráči",
+      "add": "Přidat tým",
+      "empty": "V této sezóně zatím nejsou žádné týmy",
+      "createError": "Nepodařilo se vytvořit tým"
+    },
+    "table": {
+      "teams_one": "{{count}} tým",
+      "teams_few": "{{count}} týmy",
+      "teams_other": "{{count}} týmů",
+      "team": "Tým",
+      "played": "Z",
+      "points": "B",
+      "empty": "Zatím se nehrálo — pořadí je abecední, dokud nepřijdou výsledky."
+    },
+    "more": {
+      "seasonInfo": "O sezóně",
+      "league": "Liga",
+      "starts": "Začátek",
+      "ends": "Konec",
+      "actions": "Akce",
+      "generateSchedule": "Vygenerovat rozpis",
+      "generateHint": "Vytvoří zápasy pro všechna kola",
+      "regenerateHint": "Nahradí stávající zápasy",
+      "generateError": "Nepodařilo se vygenerovat rozpis",
+      "publicPage": "Zobrazit veřejnou stránku"
     }
   },
   "admin": {

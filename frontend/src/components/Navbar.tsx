@@ -123,7 +123,7 @@ export default function Navbar() {
 											)}
 											{isSeasonManager() && (
 												<DropdownMenuItem asChild>
-													<Link to="/admin">{t('nav.mySeasons')}</Link>
+													<Link to="/season-management">{t('nav.mySeasons')}</Link>
 												</DropdownMenuItem>
 											)}
 											{isAdmin() && (
