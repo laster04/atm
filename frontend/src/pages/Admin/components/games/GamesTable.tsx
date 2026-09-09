@@ -14,6 +14,7 @@ import GameFormModal, { type GameFormData } from './GameFormModal.tsx';
 import GenerateScheduleModal, { type GenerateScheduleData } from './GenerateScheduleModal.tsx';
 import GameStatisticsModal from './GameStatisticsModal.tsx';
 import { useNavigate } from "react-router-dom";
+import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 interface GamesTableProps {
 	games: Game[];
@@ -75,6 +76,51 @@ export default function GamesTable({
 		setEditingGame(null);
 	};
 
+	// Identical in the table and the card list, so defined once.
+	const rowActions = (game: Game) => (
+		<>
+			<Button
+				variant="ghost"
+				size="sm"
+				onClick={() => navigate(`/team-management/game-statistic/${game.id}`)}
+				title={t('admin.tabs.statistics.title')}
+			>
+				<BarChart3 className="size-4" />
+			</Button>
+			<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(game)}>
+				<Edit className="size-4" />
+			</Button>
+			<Button variant="ghost" size="sm" onClick={() => onDeleteGame?.(game.id)}>
+				<Trash2 className="size-4 text-destructive" />
+			</Button>
+		</>
+	);
+
+	// Two full club names do not fit on one 390px line, so each team gets its
+	// own row with its colour and its own score, instead of "A 10 - 4 B".
+	const fixture = (game: Game) => {
+		const done = game.status === 'COMPLETED';
+		const side = (team: Team | undefined, score: number | null | undefined) => (
+			<div className="flex items-center justify-between gap-2">
+				<span
+					className="min-w-0 truncate border-l-4 pl-2"
+					style={{ borderColor: team?.primaryColor ?? '#808080' }}
+				>
+					{team?.name}
+				</span>
+				<span className="shrink-0 font-bold tabular-nums">
+					{done ? score : <span className="text-muted-foreground">-</span>}
+				</span>
+			</div>
+		);
+		return (
+			<div className="space-y-1">
+				{side(game.homeTeam, game.homeScore)}
+				{side(game.awayTeam, game.awayScore)}
+			</div>
+		);
+	};
+
 	const handleSubmit = (data: GameFormData) => {
 		if (editingGame) {
 			onUpdateGame?.(editingGame.id, data);
@@ -110,8 +156,8 @@ export default function GamesTable({
 		.sort((a, b) => a - b);
 
 	return (
-		<Card>
-			<CardHeader>
+		<Card className="border-0 bg-transparent shadow-none rounded-none sm:border sm:bg-card sm:rounded-xl">
+			<CardHeader className="px-0 sm:px-6">
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
 					<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
 						<InputLabel id="game-season-filter-label">{t('admin.tabs.game.filterBySeason')}</InputLabel>
@@ -168,7 +214,7 @@ export default function GamesTable({
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="px-0 sm:px-6">
 				{!selectedSeasonId ? (
 					<div className="text-center py-8 text-muted-foreground">{t('admin.tabs.game.selectSeasonFirst')}</div>
 				) : teams.length < 2 ? (
@@ -184,68 +230,76 @@ export default function GamesTable({
 										{t('admin.tabs.game.round', { round })}
 									</CardTitle>
 								)}
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>{t('admin.tabs.game.th-date')}</TableHead>
-											<TableHead>{t('admin.tabs.game.th-homeTeam')}</TableHead>
-											<TableHead className="text-center">{t('admin.tabs.game.th-score')}</TableHead>
-											<TableHead>{t('admin.tabs.game.th-awayTeam')}</TableHead>
-											<TableHead>{t('admin.tabs.game.th-location')}</TableHead>
-											<TableHead>{t('admin.tabs.game.th-status')}</TableHead>
-											<TableHead className="text-right">{t('admin.tabs.game.th-actions')}</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{gamesByRound[round].map((game) => (
-											<TableRow key={game.id}>
-												<TableCell className="whitespace-nowrap">
-													{formatGameDateTime(game.date, i18n.language) || t('admin.tabs.game.noDate')}
-												</TableCell>
-												<TableCell
-													className="font-medium"
-													style={{ borderLeft: `4px solid ${game.homeTeam?.primaryColor ?? '#808080'}` }}
-												>
-													{game.homeTeam?.name}
-												</TableCell>
-												<TableCell className="text-center font-bold">
-													{game.status === 'COMPLETED' ? (
-														`${game.homeScore} - ${game.awayScore}`
-													) : (
-														<span className="text-muted-foreground">-</span>
-													)}
-												</TableCell>
-												<TableCell
-													className="font-medium"
-													style={{ borderLeft: `4px solid ${game.awayTeam?.primaryColor ?? '#808080'}` }}
-												>
-													{game.awayTeam?.name}
-												</TableCell>
-												<TableCell>{game.location || '-'}</TableCell>
-												<TableCell>
-													<Badge variant={getStatusVariant(game.status)}>
-														{t(`admin.tabs.game.status.${game.status}`)}
-													</Badge>
-												</TableCell>
-												<TableCell className="text-right">
-													<div className="flex justify-end gap-1">
-														<Button variant="ghost" size="sm"
-																onClick={() => navigate(`/team-management/game-statistic/${game.id}`)}
-																title={t('admin.tabs.statistics.title')}>
-															<BarChart3 className="size-4" />
-														</Button>
-														<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(game)}>
-															<Edit className="size-4" />
-														</Button>
-														<Button variant="ghost" size="sm" onClick={() => onDeleteGame?.(game.id)}>
-															<Trash2 className="size-4 text-destructive" />
-														</Button>
-													</div>
-												</TableCell>
+								<AdminTableView>
+									<Table>
+										<TableHeader>
+											<TableRow>
+												<TableHead>{t('admin.tabs.game.th-date')}</TableHead>
+												<TableHead>{t('admin.tabs.game.th-homeTeam')}</TableHead>
+												<TableHead className="text-center">{t('admin.tabs.game.th-score')}</TableHead>
+												<TableHead>{t('admin.tabs.game.th-awayTeam')}</TableHead>
+												<TableHead>{t('admin.tabs.game.th-location')}</TableHead>
+												<TableHead>{t('admin.tabs.game.th-status')}</TableHead>
+												<TableHead className="text-right">{t('admin.tabs.game.th-actions')}</TableHead>
 											</TableRow>
-										))}
-									</TableBody>
-								</Table>
+										</TableHeader>
+										<TableBody>
+											{gamesByRound[round].map((game) => (
+												<TableRow key={game.id}>
+													<TableCell className="whitespace-nowrap">
+														{formatGameDateTime(game.date, i18n.language) || t('admin.tabs.game.noDate')}
+													</TableCell>
+													<TableCell
+														className="font-medium"
+														style={{ borderLeft: `4px solid ${game.homeTeam?.primaryColor ?? '#808080'}` }}
+													>
+														{game.homeTeam?.name}
+													</TableCell>
+													<TableCell className="text-center font-bold">
+														{game.status === 'COMPLETED' ? (
+															`${game.homeScore} - ${game.awayScore}`
+														) : (
+															<span className="text-muted-foreground">-</span>
+														)}
+													</TableCell>
+													<TableCell
+														className="font-medium"
+														style={{ borderLeft: `4px solid ${game.awayTeam?.primaryColor ?? '#808080'}` }}
+													>
+														{game.awayTeam?.name}
+													</TableCell>
+													<TableCell>{game.location || '-'}</TableCell>
+													<TableCell>
+														<Badge variant={getStatusVariant(game.status)}>
+															{t(`admin.tabs.game.status.${game.status}`)}
+														</Badge>
+													</TableCell>
+													<TableCell className="text-right">
+														<div className="flex justify-end gap-1">{rowActions(game)}</div>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</AdminTableView>
+
+								<AdminCardView>
+									{gamesByRound[round].map((game) => (
+										<AdminCard key={game.id} title={fixture(game)} actions={rowActions(game)}>
+											<AdminCardField label={t('admin.tabs.game.th-date')}>
+												{formatGameDateTime(game.date, i18n.language) || t('admin.tabs.game.noDate')}
+											</AdminCardField>
+											<AdminCardField label={t('admin.tabs.game.th-location')}>
+												{game.location || '-'}
+											</AdminCardField>
+											<AdminCardField label={t('admin.tabs.game.th-status')}>
+												<Badge variant={getStatusVariant(game.status)}>
+													{t(`admin.tabs.game.status.${game.status}`)}
+												</Badge>
+											</AdminCardField>
+										</AdminCard>
+									))}
+								</AdminCardView>
 							</div>
 						))}
 					</div>

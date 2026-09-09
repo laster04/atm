@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@components/base/dialog.ts
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@components/base/tooltip.tsx";
 import UserFormModal, { type UserFormData } from "@/pages/Admin/components/users/UserFormModal.tsx";
 import { authApi } from '@/services/api';
+import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 export interface UserFilters {
 	name?: string;
@@ -64,6 +65,42 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 		setEditingUser(null);
 	};
 
+	// Shared by the table and the card list.
+	const verifiedBadge = (user: User) =>
+		user.emailVerified ? (
+			<Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
+				<CheckCircle className="size-3 mr-1" />
+				{t('admin.tabs.user.verified', 'Verified')}
+			</Badge>
+		) : (
+			<Badge variant="outline" className="text-amber-600 border-amber-300">
+				<AlertCircle className="size-3 mr-1" />
+				{t('admin.tabs.user.unverified', 'Unverified')}
+			</Badge>
+		);
+
+	const rowActions = (user: User) => (
+		<>
+			{!user.emailVerified && (
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => handleResendVerification(user)}
+					disabled={resendingEmail === user.id}
+					title={t('admin.tabs.user.resendVerification', 'Resend verification email')}
+				>
+					<Mail className={`size-4 ${resendingEmail === user.id ? 'animate-pulse' : ''}`} />
+				</Button>
+			)}
+			<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(user)}>
+				<Edit className="size-4" />
+			</Button>
+			<Button variant="ghost" size="sm" onClick={() => onDeleteUser?.(user.id)}>
+				<Trash2 className="size-4 text-destructive" />
+			</Button>
+		</>
+	);
+
 	const handleSubmit = (data: UserFormData) => {
 		console.log(data);
 		if (editingUser) {
@@ -91,8 +128,8 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 	const hasActiveFilters = Object.keys(filters).length > 0;
 
 	return (
-		<Card>
-			<CardHeader>
+		<Card className="border-0 bg-transparent shadow-none rounded-none sm:border sm:bg-card sm:rounded-xl">
+			<CardHeader className="px-0 sm:px-6">
 				<div className="flex flex-col gap-4">
 					<div className="flex items-center gap-4 flex-wrap">
 						<div className="relative flex-1 min-w-[200px]">
@@ -158,90 +195,74 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent>
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>{t('admin.tabs.user.th-name')}</TableHead>
-							<TableHead>{t('admin.tabs.user.th-email')}</TableHead>
-							<TableHead>{t('admin.tabs.user.th-role')}</TableHead>
-							<TableHead>{t('admin.tabs.user.th-status')}</TableHead>
-							<TableHead>{t('admin.tabs.user.th-emailStatus', 'Email')}</TableHead>
-							<TableHead className="text-right">{t('admin.tabs.user.th-actions')}</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{users.map((user) => (
-							<TableRow key={user.id}>
-								<TableCell className="font-medium">{user.name}</TableCell>
-								<TableCell>{user.email}</TableCell>
-								<TableCell>
-									<Badge variant="secondary">{user.role}</Badge>
-								</TableCell>
-								<TableCell>
-									<Badge variant={user.active ? 'default' : 'outline'}>
-										{user.active ? t('admin.tabs.user.active') : t('admin.tabs.user.inactive')}
-									</Badge>
-								</TableCell>
-								<TableCell>
-									<TooltipProvider>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<div className="flex items-center gap-1">
-													{user.emailVerified ? (
-														<Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
-															<CheckCircle className="size-3 mr-1" />
-															{t('admin.tabs.user.verified', 'Verified')}
-														</Badge>
-													) : (
-														<Badge variant="outline" className="text-amber-600 border-amber-300">
-															<AlertCircle className="size-3 mr-1" />
-															{t('admin.tabs.user.unverified', 'Unverified')}
-														</Badge>
-													)}
-												</div>
-											</TooltipTrigger>
-											<TooltipContent>
-												{user.emailVerified
-													? t('admin.tabs.user.emailVerifiedTooltip', 'Email has been verified')
-													: t('admin.tabs.user.emailUnverifiedTooltip', 'Email not yet verified')}
-											</TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
-								</TableCell>
-								<TableCell className="text-right">
-									<div className="flex justify-end gap-1">
-										{!user.emailVerified && (
-											<TooltipProvider>
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<Button
-															variant="ghost"
-															size="sm"
-															onClick={() => handleResendVerification(user)}
-															disabled={resendingEmail === user.id}
-														>
-															<Mail className={`size-4 ${resendingEmail === user.id ? 'animate-pulse' : ''}`} />
-														</Button>
-													</TooltipTrigger>
-													<TooltipContent>
-														{t('admin.tabs.user.resendVerification', 'Resend verification email')}
-													</TooltipContent>
-												</Tooltip>
-											</TooltipProvider>
-										)}
-										<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(user)}>
-											<Edit className="size-4"/>
-										</Button>
-										<Button variant="ghost" size="sm" onClick={() => onDeleteUser?.(user.id)}>
-											<Trash2 className="size-4 text-destructive"/>
-										</Button>
-									</div>
-								</TableCell>
+			<CardContent className="px-0 sm:px-6">
+				<AdminTableView>
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>{t('admin.tabs.user.th-name')}</TableHead>
+								<TableHead>{t('admin.tabs.user.th-email')}</TableHead>
+								<TableHead>{t('admin.tabs.user.th-role')}</TableHead>
+								<TableHead>{t('admin.tabs.user.th-status')}</TableHead>
+								<TableHead>{t('admin.tabs.user.th-emailStatus', 'Email')}</TableHead>
+								<TableHead className="text-right">{t('admin.tabs.user.th-actions')}</TableHead>
 							</TableRow>
-						))}
-					</TableBody>
-				</Table>
+						</TableHeader>
+						<TableBody>
+							{users.map((user) => (
+								<TableRow key={user.id}>
+									<TableCell className="font-medium">{user.name}</TableCell>
+									<TableCell>{user.email}</TableCell>
+									<TableCell>
+										<Badge variant="secondary">{user.role}</Badge>
+									</TableCell>
+									<TableCell>
+										<Badge variant={user.active ? 'default' : 'outline'}>
+											{user.active ? t('admin.tabs.user.active') : t('admin.tabs.user.inactive')}
+										</Badge>
+									</TableCell>
+									<TableCell>
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<div className="flex items-center gap-1">{verifiedBadge(user)}</div>
+												</TooltipTrigger>
+												<TooltipContent>
+													{user.emailVerified
+														? t('admin.tabs.user.emailVerifiedTooltip', 'Email has been verified')
+														: t('admin.tabs.user.emailUnverifiedTooltip', 'Email not yet verified')}
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</TableCell>
+									<TableCell className="text-right">
+										<div className="flex justify-end gap-1">{rowActions(user)}</div>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</AdminTableView>
+
+				<AdminCardView>
+					{users.map((user) => (
+						<AdminCard key={user.id} title={user.name} actions={rowActions(user)}>
+							<AdminCardField label={t('admin.tabs.user.th-email')}>{user.email}</AdminCardField>
+							<AdminCardField label={t('admin.tabs.user.th-role')}>
+								<Badge variant="secondary">{user.role}</Badge>
+							</AdminCardField>
+							<AdminCardField label={t('admin.tabs.user.th-status')}>
+								<Badge variant={user.active ? 'default' : 'outline'}>
+									{user.active ? t('admin.tabs.user.active') : t('admin.tabs.user.inactive')}
+								</Badge>
+							</AdminCardField>
+							{/* The tooltip is pointer-only, so the badge carries the meaning here. */}
+							<AdminCardField label={t('admin.tabs.user.th-emailStatus', 'Email')}>
+								{verifiedBadge(user)}
+							</AdminCardField>
+						</AdminCard>
+					))}
+				</AdminCardView>
 			</CardContent>
 		</Card>
 	);

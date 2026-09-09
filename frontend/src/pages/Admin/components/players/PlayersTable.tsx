@@ -11,6 +11,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import type { Player, Team, Season } from '@types';
 import PlayerFormModal, { type PlayerFormData } from './PlayerFormModal.tsx';
 import MovePlayerModal from './MovePlayerModal.tsx';
+import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 interface PlayersTableProps {
 	players: Player[];
@@ -64,6 +65,28 @@ export default function PlayersTable({
 		setEditingPlayer(null);
 	};
 
+	// Identical in the table and the card list, so defined once.
+	const rowActions = (player: Player) => (
+		<>
+			<Button variant="ghost" size="sm" asChild>
+				<Link to={`/admin/players/${player.id}`}>
+					<Eye className="size-4" />
+				</Link>
+			</Button>
+			<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(player)}>
+				<Edit className="size-4" />
+			</Button>
+			{canMovePlayer && (
+				<Button variant="ghost" size="sm" onClick={() => handleOpenMove(player)}>
+					<ArrowRightLeft className="size-4" />
+				</Button>
+			)}
+			<Button variant="ghost" size="sm" onClick={() => onDeletePlayer?.(player.id)}>
+				<Trash2 className="size-4 text-destructive" />
+			</Button>
+		</>
+	);
+
 	const handleSubmit = (data: PlayerFormData) => {
 		if (editingPlayer) {
 			onUpdatePlayer?.(editingPlayer.id, data);
@@ -89,8 +112,8 @@ export default function PlayersTable({
 	};
 
 	return (
-		<Card>
-			<CardHeader>
+		<Card className="border-0 bg-transparent shadow-none rounded-none sm:border sm:bg-card sm:rounded-xl">
+			<CardHeader className="px-0 sm:px-6">
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
 					<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4 flex-1">
 						<FormControl size="small" sx={{ minWidth: '70%', sm: { minWidth: 200 } }}>
@@ -141,7 +164,7 @@ export default function PlayersTable({
 					</Dialog>
 				</div>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="px-0 sm:px-6">
 				{!selectedSeasonId ? (
 					<div className="text-center py-8 text-muted-foreground">
 						{t('admin.tabs.player.selectSeasonFirst')}
@@ -155,53 +178,67 @@ export default function PlayersTable({
 						{t('admin.tabs.player.noPlayers')}
 					</div>
 				) : (
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>{t('admin.tabs.player.th-name')}</TableHead>
-								<TableHead>{t('admin.tabs.player.th-number')}</TableHead>
-								<TableHead>{t('admin.tabs.player.th-position')}</TableHead>
-								<TableHead>{t('admin.tabs.player.th-bornYear')}</TableHead>
-								<TableHead>{t('admin.tabs.player.th-note')}</TableHead>
-								<TableHead className="text-right">{t('admin.tabs.player.th-actions')}</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
+					<>
+						<AdminTableView>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>{t('admin.tabs.player.th-name')}</TableHead>
+									<TableHead>{t('admin.tabs.player.th-number')}</TableHead>
+									<TableHead>{t('admin.tabs.player.th-position')}</TableHead>
+									<TableHead>{t('admin.tabs.player.th-bornYear')}</TableHead>
+									<TableHead>{t('admin.tabs.player.th-note')}</TableHead>
+									<TableHead className="text-right">{t('admin.tabs.player.th-actions')}</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{players.map((player) => (
+									<TableRow key={player.id}>
+										<TableCell className="font-medium">
+											<Link to={`/admin/players/${player.id}`} className="hover:text-blue-600">
+												{player.name}
+											</Link>
+										</TableCell>
+										<TableCell>{player.number || '-'}</TableCell>
+										<TableCell>{player.position || '-'}</TableCell>
+										<TableCell>{player.bornYear || '-'}</TableCell>
+										<TableCell>{player.note || '-'}</TableCell>
+										<TableCell className="text-right">
+											<div className="flex justify-end gap-1">{rowActions(player)}</div>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+						</AdminTableView>
+
+						<AdminCardView>
 							{players.map((player) => (
-								<TableRow key={player.id}>
-									<TableCell className="font-medium">
+								<AdminCard
+									key={player.id}
+									title={
 										<Link to={`/admin/players/${player.id}`} className="hover:text-blue-600">
 											{player.name}
 										</Link>
-									</TableCell>
-									<TableCell>{player.number || '-'}</TableCell>
-									<TableCell>{player.position || '-'}</TableCell>
-									<TableCell>{player.bornYear || '-'}</TableCell>
-									<TableCell>{player.note || '-'}</TableCell>
-									<TableCell className="text-right">
-										<div className="flex justify-end gap-1">
-											<Button variant="ghost" size="sm" asChild>
-												<Link to={`/admin/players/${player.id}`}>
-													<Eye className="size-4" />
-												</Link>
-											</Button>
-											<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(player)}>
-												<Edit className="size-4" />
-											</Button>
-											{canMovePlayer && (
-												<Button variant="ghost" size="sm" onClick={() => handleOpenMove(player)}>
-													<ArrowRightLeft className="size-4" />
-												</Button>
-											)}
-											<Button variant="ghost" size="sm" onClick={() => onDeletePlayer?.(player.id)}>
-												<Trash2 className="size-4 text-destructive" />
-											</Button>
-										</div>
-									</TableCell>
-								</TableRow>
+									}
+									actions={rowActions(player)}
+								>
+									<AdminCardField label={t('admin.tabs.player.th-number')}>
+										{player.number || '-'}
+									</AdminCardField>
+									<AdminCardField label={t('admin.tabs.player.th-position')}>
+										{player.position || '-'}
+									</AdminCardField>
+									<AdminCardField label={t('admin.tabs.player.th-bornYear')}>
+										{player.bornYear || '-'}
+									</AdminCardField>
+									<AdminCardField label={t('admin.tabs.player.th-note')}>
+										{player.note || '-'}
+									</AdminCardField>
+								</AdminCard>
 							))}
-						</TableBody>
-					</Table>
+						</AdminCardView>
+					</>
 				)}
 			</CardContent>
 			<Dialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>

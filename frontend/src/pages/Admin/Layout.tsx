@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -10,6 +10,7 @@ import { Menu, X } from 'lucide-react';
 export default function AdminLayout() {
 	const { isAdmin, isSeasonManager } = useAuth();
 	const { t } = useTranslation();
+	const location = useLocation();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	if (!isAdmin() && !isSeasonManager()) {
@@ -30,6 +31,10 @@ export default function AdminLayout() {
 		{ to: '/admin/games', label: t('admin.tabs.game.title') },
 	];
 
+	// Below `lg` the nav is unmounted while collapsed, so the tab bar cannot
+	// carry the active state. Name the section next to the toggle instead.
+	const activeTab = tabs.find((tab) => location.pathname.startsWith(tab.to));
+
 	const handleTabClick = () => {
 		setMobileMenuOpen(false);
 	};
@@ -42,23 +47,28 @@ export default function AdminLayout() {
 				backTo="/"
 			/>
 
-			<div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
-				<Card className="admin-card">
+			<div className="container mx-auto px-0 sm:px-4 py-0 sm:py-4">
+				{/* On a phone this is the page, not a card floating on one. */}
+				<Card className="admin-card border-0 shadow-none rounded-none sm:border sm:shadow-sm sm:rounded-xl">
 					<CardContent className="admin-card-content p-3 sm:p-6">
 						{/* Mobile Menu Button */}
-						<div className="lg:hidden mb-4">
+						<div className="lg:hidden mb-4 flex items-center gap-2">
 							<button
 								onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 								className="p-2.5 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-								aria-label="Toggle menu"
+								aria-label={t('nav.toggleMenu')}
 								aria-expanded={mobileMenuOpen}
+								aria-controls="admin-nav"
 							>
 								{mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
 							</button>
+							{activeTab && (
+								<span className="text-base font-semibold text-foreground">{activeTab.label}</span>
+							)}
 						</div>
 
 						{/* Navigation */}
-						<nav className={cn(
+						<nav id="admin-nav" className={cn(
 							'transition-all duration-200 ease-in-out',
 							mobileMenuOpen
 								? 'flex flex-col space-y-1 mb-4 gap-0 border-none'
