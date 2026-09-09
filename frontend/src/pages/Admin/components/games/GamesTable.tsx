@@ -19,11 +19,11 @@ interface GamesTableProps {
 	games: Game[];
 	seasons: Season[];
 	teams: Team[];
-	selectedSeasonId: number | null;
-	onSeasonChange: (seasonId: number) => void;
+	selectedSeasonId: string | null;
+	onSeasonChange: (seasonId: string) => void;
 	onCreateGame?: (data: GameFormData) => void;
-	onUpdateGame?: (id: number, data: GameFormData) => void;
-	onDeleteGame?: (id: number) => void;
+	onUpdateGame?: (id: string, data: GameFormData) => void;
+	onDeleteGame?: (id: string) => void;
 	onGenerateSchedule?: (data: GenerateScheduleData) => void;
 }
 
@@ -102,7 +102,7 @@ export default function GamesTable({
 			acc[round].push(game);
 			return acc;
 		},
-		{} as Record<number, Game[]>
+		{} as Record<string, Game[]>
 	);
 
 	const sortedRounds = Object.keys(gamesByRound)
@@ -119,7 +119,7 @@ export default function GamesTable({
 							labelId="game-season-filter-label"
 							value={selectedSeasonId || ''}
 							label={t('admin.tabs.game.filterBySeason')}
-							onChange={(e) => onSeasonChange(Number(e.target.value))}
+							onChange={(e) => onSeasonChange(e.target.value)}
 						>
 							{seasons.map((season) => (
 								<MenuItem key={season.id} value={season.id}>

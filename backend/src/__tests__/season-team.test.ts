@@ -28,11 +28,11 @@ async function getAdminToken(): Promise<string> {
 }
 
 let token: string;
-let leagueId: number;
-let seasonId: number;
-let seasonId2: number;
-let teamId: number;
-let teamId2: number;
+let leagueId: string;
+let seasonId: string;
+let seasonId2: string;
+let teamId: string;
+let teamId2: string;
 
 beforeAll(async () => {
   token = await getAdminToken();
@@ -120,7 +120,7 @@ describe('Season-Team M:N Relationship', () => {
         .expect(200);
 
       expect(Array.isArray(res.body)).toBe(true);
-      const ids = res.body.map((t: { id: number }) => t.id);
+      const ids = res.body.map((t: { id: string }) => t.id);
       expect(ids).toContain(teamId);
       expect(ids).toContain(teamId2);
     });
@@ -134,7 +134,7 @@ describe('Season-Team M:N Relationship', () => {
 
       expect(res.body).toHaveProperty('teams');
       expect(Array.isArray(res.body.teams)).toBe(true);
-      const teamIds = res.body.teams.map((t: { id: number }) => t.id);
+      const teamIds = res.body.teams.map((t: { id: string }) => t.id);
       expect(teamIds).toContain(teamId);
       expect(teamIds).toContain(teamId2);
 
@@ -207,8 +207,8 @@ describe('Season-Team M:N Relationship', () => {
       const res1 = await request(app).get(`/api/teams/season/${seasonId}`).expect(200);
       const res2 = await request(app).get(`/api/teams/season/${seasonId2}`).expect(200);
 
-      expect(res1.body.map((t: { id: number }) => t.id)).toContain(teamId);
-      expect(res2.body.map((t: { id: number }) => t.id)).toContain(teamId);
+      expect(res1.body.map((t: { id: string }) => t.id)).toContain(teamId);
+      expect(res2.body.map((t: { id: string }) => t.id)).toContain(teamId);
     });
 
     it('should require authentication', async () => {
@@ -226,7 +226,7 @@ describe('Season-Team M:N Relationship', () => {
 
       expect(Array.isArray(res.body)).toBe(true);
       // teamId and teamId2 are both in seasonId, so neither should be in available list
-      const ids = res.body.map((t: { id: number }) => t.id);
+      const ids = res.body.map((t: { id: string }) => t.id);
       expect(ids).not.toContain(teamId);
       expect(ids).not.toContain(teamId2);
     });
@@ -319,7 +319,7 @@ describe('Season-Team M:N Relationship', () => {
         .get(`/api/teams/season/${seasonId}`)
         .expect(200);
 
-      expect(res.body.map((t: { id: number }) => t.id)).toContain(teamId);
+      expect(res.body.map((t: { id: string }) => t.id)).toContain(teamId);
     });
 
     it('team should no longer be in the second season', async () => {
@@ -327,7 +327,7 @@ describe('Season-Team M:N Relationship', () => {
         .get(`/api/teams/season/${seasonId2}`)
         .expect(200);
 
-      expect(res.body.map((t: { id: number }) => t.id)).not.toContain(teamId);
+      expect(res.body.map((t: { id: string }) => t.id)).not.toContain(teamId);
     });
 
     it('should return 404 when removing a team not in the season', async () => {
@@ -346,12 +346,15 @@ describe('Season-Team M:N Relationship', () => {
 
   describe('Seasons list returns seasonTeams count', () => {
     it('GET /api/seasons should include _count.seasonTeams', async () => {
+      // The seasons created here default to DRAFT, which the list endpoint
+      // hides from anonymous callers — so ask as the admin.
       const res = await request(app)
         .get('/api/seasons')
+        .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
       expect(Array.isArray(res.body)).toBe(true);
-      const testSeason = res.body.find((s: { id: number }) => s.id === seasonId);
+      const testSeason = res.body.find((s: { id: string }) => s.id === seasonId);
       expect(testSeason).toBeDefined();
       expect(testSeason._count).toHaveProperty('seasonTeams');
       expect(typeof testSeason._count.seasonTeams).toBe('number');

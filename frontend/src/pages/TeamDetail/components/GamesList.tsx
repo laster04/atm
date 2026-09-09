@@ -4,7 +4,7 @@ import type { Game } from '@types';
 
 interface GamesListProps {
   games: Game[];
-  teamId: number;
+  teamId: string;
 }
 
 export default function GamesList({ games, teamId }: GamesListProps) {

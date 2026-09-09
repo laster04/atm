@@ -15,7 +15,7 @@ interface HockeyGameStatisticsModalProps {
 }
 
 interface StatisticFormData {
-	playerId: number;
+	playerId: string;
 	goals: number | null;
 	assists: number | null;
 	penaltyMinutes: number | null;
@@ -29,9 +29,9 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
 	const [isAdding, setIsAdding] = useState(false);
-	const [editingId, setEditingId] = useState<number | null>(null);
+	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editForm, setEditForm] = useState<{ goals: number | null; assists: number | null; penaltyMinutes: number | null }>({ goals: null, assists: null, penaltyMinutes: null });
-	const [newStat, setNewStat] = useState<StatisticFormData>({ playerId: 0, goals: null, assists: null, penaltyMinutes: null });
+	const [newStat, setNewStat] = useState<StatisticFormData>({ playerId: '', goals: null, assists: null, penaltyMinutes: null });
 
 	useEffect(() => {
 		loadData();
@@ -71,7 +71,7 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 				penaltyMinutes: newStat.penaltyMinutes
 			});
 			setStatistics([...statistics, res.data]);
-			setNewStat({ playerId: 0, goals: null, assists: null, penaltyMinutes: null });
+			setNewStat({ playerId: '', goals: null, assists: null, penaltyMinutes: null });
 			setIsAdding(false);
 		} catch (err) {
 			console.error('Failed to create statistic:', err);
@@ -79,7 +79,7 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 		}
 	};
 
-	const handleUpdateStatistic = async (id: number) => {
+	const handleUpdateStatistic = async (id: string) => {
 		setError('');
 		try {
 			const res = await gameStatisticApi.update(id, {
@@ -95,7 +95,7 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 		}
 	};
 
-	const handleDeleteStatistic = async (id: number) => {
+	const handleDeleteStatistic = async (id: string) => {
 		if (!confirm(t('admin.confirm.deleteStatistic'))) return;
 		setError('');
 		try {
@@ -112,7 +112,7 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 		setEditForm({ goals: stat.goals ?? null, assists: stat.assists ?? null, penaltyMinutes: stat.penaltyMinutes ?? null });
 	};
 
-	const getPlayerTeamName = (playerId: number) => {
+	const getPlayerTeamName = (playerId: string) => {
 		const homePlayer = homePlayers.find(p => p.id === playerId);
 		if (homePlayer) return game.homeTeam?.name;
 		return game.awayTeam?.name;
@@ -238,7 +238,7 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 													labelId="select-player-label"
 													label={t('admin.tabs.statistics.selectPlayer')}
 													value={newStat.playerId || ''}
-													onChange={(e) => setNewStat({ ...newStat, playerId: Number(e.target.value) })}
+													onChange={(e) => setNewStat({ ...newStat, playerId: e.target.value })}
 												>
 													{homePlayers.filter(p => !usedPlayerIds.includes(p.id)).length > 0 && (
 														<MenuItem disabled className="font-semibold bg-gray-100">

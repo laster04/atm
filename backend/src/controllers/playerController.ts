@@ -6,12 +6,13 @@ import {
   UpdatePlayerRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
+import { toId } from '../utils/ids.js';
 
 export const getPlayersByTeamId = async (req: Request, res: Response): Promise<void> => {
   try {
     const { teamId } = req.params;
     const players = await prisma.player.findMany({
-      where: { teamId: parseInt(teamId) },
+      where: { teamId: teamId },
       orderBy: { number: 'asc' }
     });
     res.json(players);
@@ -25,7 +26,7 @@ export const getPlayerById = async (req: Request, res: Response): Promise<void> 
   try {
     const { id } = req.params;
     const player = await prisma.player.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         team: {
           include: {
@@ -71,7 +72,7 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     const team = await prisma.team.findUnique({
-      where: { id: parseInt(teamId) },
+      where: { id: teamId },
       include: {
         seasonTeams: {
           include: { season: { include: { league: { select: { managerId: true } } } } }
@@ -106,7 +107,7 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
         position,
         bornYear: bornYearValue,
         note: note || null,
-        teamId: parseInt(teamId)
+        teamId: teamId
       }
     });
 
@@ -124,7 +125,7 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
 
     if (req.user!.role === 'TEAM_MANAGER' || req.user!.role === 'SEASON_MANAGER') {
       const player = await prisma.player.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: id },
         include: {
           team: {
             include: {
@@ -161,7 +162,7 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
       : undefined;
 
     const player = await prisma.player.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name && { name }),
         ...(numberValue !== undefined && { number: numberValue }),
@@ -188,7 +189,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
 
     if (req.user!.role === 'TEAM_MANAGER' || req.user!.role === 'SEASON_MANAGER') {
       const player = await prisma.player.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: id },
         include: {
           team: {
             include: {
@@ -216,7 +217,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
       }
     }
 
-    await prisma.player.delete({ where: { id: parseInt(id) } });
+    await prisma.player.delete({ where: { id: id } });
     res.json({ message: 'Player deleted successfully' });
   } catch (error) {
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
@@ -231,7 +232,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
 export const movePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { targetTeamId } = req.body;
+    const targetTeamId = toId(req.body.targetTeamId);
 
     if (!targetTeamId) {
       res.status(400).json({ error: 'Target team ID is required' });
@@ -240,7 +241,7 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
 
     // Get player with current team and season/league info
     const player = await prisma.player.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         team: {
           include: {
@@ -261,7 +262,7 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
 
     // Get target team with season/league info
     const targetTeam = await prisma.team.findUnique({
-      where: { id: parseInt(targetTeamId) },
+      where: { id: targetTeamId },
       include: {
         seasonTeams: {
           include: {
@@ -289,15 +290,15 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     // Prevent moving to the same team
-    if (player.teamId === parseInt(targetTeamId)) {
+    if (player.teamId === targetTeamId) {
       res.status(400).json({ error: 'Player is already on this team' });
       return;
     }
 
     // Move the player
     const updatedPlayer = await prisma.player.update({
-      where: { id: parseInt(id) },
-      data: { teamId: parseInt(targetTeamId) },
+      where: { id: id },
+      data: { teamId: targetTeamId },
       include: {
         team: {
           include: {

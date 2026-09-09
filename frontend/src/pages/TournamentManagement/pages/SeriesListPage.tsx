@@ -51,7 +51,7 @@ export default function SeriesListPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm(t('tm.series.deleteConfirm'))) return;
     try {
       await tournamentSeriesApi.delete(id);

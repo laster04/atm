@@ -12,7 +12,7 @@ interface InviteLeagueManagerFormData {
 }
 
 interface InviteLeagueManagerModalProps {
-  leagueId: number;
+  leagueId: string;
   onSuccess: (league: League) => void;
   onClose: () => void;
 }

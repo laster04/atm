@@ -25,14 +25,14 @@ async function getAdminToken(): Promise<string> {
 }
 
 let token: string;
-let leagueId: number;
-let seasonId: number;
-let draftSeasonId: number;
-let teamId: number;
-let teamId2: number;
-let playerId: number;
-let playerId2: number;
-let gameId: number;
+let leagueId: string;
+let seasonId: string;
+let draftSeasonId: string;
+let teamId: string;
+let teamId2: string;
+let playerId: string;
+let playerId2: string;
+let gameId: string;
 
 beforeAll(async () => {
   token = await getAdminToken();
@@ -182,7 +182,7 @@ describe('Season Archive', () => {
     const res = await request(app).get(`/api/seasons/${seasonId}/archived-standings`).expect(200);
 
     expect(res.body.length).toBe(2);
-    const winner = res.body.find((s: { team: { id: number } }) => s.team.id === teamId);
+    const winner = res.body.find((s: { team: { id: string } }) => s.team.id === teamId);
     expect(winner).toBeDefined();
     expect(winner.wins).toBe(1);
     expect(winner.points).toBe(2);
@@ -193,7 +193,7 @@ describe('Season Archive', () => {
     const res = await request(app).get(`/api/game-statistics/season/${seasonId}/archived`).expect(200);
 
     expect(res.body.length).toBe(2);
-    const scorer = res.body.find((s: { player: { id: number } }) => s.player.id === playerId);
+    const scorer = res.body.find((s: { player: { id: string } }) => s.player.id === playerId);
     expect(scorer).toBeDefined();
     expect(scorer.goals).toBe(2);
     expect(scorer.assists).toBe(1);

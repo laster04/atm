@@ -19,8 +19,8 @@ export default function GamesPage() {
 	const { isAdmin, isSeasonManager } = useAuth();
 
 	const [seasons, setSeasons] = useState<Season[]>([]);
-	const [teamsBySeason, setTeamsBySeason] = useState<Record<number, Team[]>>({});
-	const [gamesBySeason, setGamesBySeason] = useState<Record<number, Game[]>>({});
+	const [teamsBySeason, setTeamsBySeason] = useState<Record<string, Team[]>>({});
+	const [gamesBySeason, setGamesBySeason] = useState<Record<string, Game[]>>({});
 	const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
 	const [error, setError] = useState('');
 
@@ -45,7 +45,7 @@ export default function GamesPage() {
 		if (seasons.length > 0 && !selectedSeason) {
 			const seasonIdParam = searchParams.get('seasonId');
 			if (seasonIdParam) {
-				const season = seasons.find((s) => s.id === parseInt(seasonIdParam));
+				const season = seasons.find((s) => s.id === seasonIdParam);
 				if (season) {
 					setSelectedSeason(season);
 					return;
@@ -125,7 +125,7 @@ export default function GamesPage() {
 		}
 	};
 
-	const handleUpdateGame = async (id: number, data: GameFormData) => {
+	const handleUpdateGame = async (id: string, data: GameFormData) => {
 		setError('');
 		try {
 			const res = await gameApi.update(id, {
@@ -152,7 +152,7 @@ export default function GamesPage() {
 		}
 	};
 
-	const handleDeleteGame = async (id: number) => {
+	const handleDeleteGame = async (id: string) => {
 		if (!confirm(t('admin.confirm.deleteGame'))) return;
 		if (!selectedSeason) return;
 		try {
@@ -167,7 +167,7 @@ export default function GamesPage() {
 		}
 	};
 
-	const handleSeasonChange = (seasonId: number) => {
+	const handleSeasonChange = (seasonId: string) => {
 		const season = seasons.find((s) => s.id === seasonId);
 		if (season) setSelectedSeason(season);
 	};

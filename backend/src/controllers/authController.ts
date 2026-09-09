@@ -458,7 +458,7 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
     const { id } = req.params;
     const { email, password, name, role, active } = req.body as UpdateUserRequest;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+    const existingUser = await prisma.user.findUnique({ where: { id: id } });
     if (!existingUser) {
       res.status(404).json({ error: 'User not found' });
       return;
@@ -481,7 +481,7 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
     if (password) updateData.password = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: updateData,
       select: { id: true, email: true, name: true, role: true, active: true }
     });
@@ -496,7 +496,7 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
 export const deleteUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = parseInt(id);
+    const userId = id;
 
     // Prevent self-deletion
     if (req.user!.id === userId) {

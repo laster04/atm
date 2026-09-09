@@ -14,7 +14,7 @@ export const getTeamsByTournament = async (req: Request, res: Response): Promise
   try {
     const { tournamentId } = req.params;
     const teams = await prisma.tournamentTeam.findMany({
-      where: { tournamentId: parseInt(tournamentId) },
+      where: { tournamentId: tournamentId },
       include: {
         _count: { select: { players: true } },
         groupTeams: { include: { group: { select: { id: true, name: true } } } },
@@ -32,7 +32,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
   try {
     const { id } = req.params;
     const team = await prisma.tournamentTeam.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         players: { orderBy: [{ number: 'asc' }, { name: 'asc' }] },
         groupTeams: { include: { group: true } },
@@ -54,7 +54,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
     const team = await prisma.tournamentTeam.create({
-      data: { name, logo, primaryColor, country, tournamentId: parseInt(tournamentId) },
+      data: { name, logo, primaryColor, country, tournamentId: tournamentId },
     });
     res.status(201).json(team);
   } catch (error) {
@@ -69,7 +69,7 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
     const { name, logo, primaryColor, country } = req.body as UpdateTournamentTeamRequest;
 
     const team = await prisma.tournamentTeam.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(logo !== undefined && { logo }),
@@ -87,7 +87,7 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
 export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.tournamentTeam.delete({ where: { id: parseInt(id) } });
+    await prisma.tournamentTeam.delete({ where: { id: id } });
     res.json({ message: 'Team deleted' });
   } catch (error) {
     console.error('Delete tournament team error:', error);
@@ -101,7 +101,7 @@ export const getPlayersByTeam = async (req: Request, res: Response): Promise<voi
   try {
     const { teamId } = req.params;
     const players = await prisma.tournamentPlayer.findMany({
-      where: { teamId: parseInt(teamId) },
+      where: { teamId: teamId },
       orderBy: [{ number: 'asc' }, { name: 'asc' }],
     });
     res.json(players);
@@ -118,7 +118,7 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
     const player = await prisma.tournamentPlayer.create({
-      data: { name, number, position, bornYear, note, teamId: parseInt(teamId) },
+      data: { name, number, position, bornYear, note, teamId: teamId },
     });
     res.status(201).json(player);
   } catch (error) {
@@ -133,7 +133,7 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
     const { name, number, position, bornYear, note } = req.body as UpdateTournamentPlayerRequest;
 
     const player = await prisma.tournamentPlayer.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(number !== undefined && { number }),
@@ -152,7 +152,7 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
 export const deletePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.tournamentPlayer.delete({ where: { id: parseInt(id) } });
+    await prisma.tournamentPlayer.delete({ where: { id: id } });
     res.json({ message: 'Player deleted' });
   } catch (error) {
     console.error('Delete tournament player error:', error);

@@ -13,7 +13,7 @@ export const getTournamentsBySeriesId = async (req: Request, res: Response): Pro
   try {
     const { seriesId } = req.params;
     const tournaments = await prisma.tournament.findMany({
-      where: { seriesId: parseInt(seriesId) },
+      where: { seriesId: seriesId },
       include: tournamentInclude,
       orderBy: [{ year: 'desc' }, { startDate: 'desc' }],
     });
@@ -28,7 +28,7 @@ export const getTournamentById = async (req: Request, res: Response): Promise<vo
   try {
     const { id } = req.params;
     const tournament = await prisma.tournament.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         series: { select: { id: true, name: true, sportType: true, logo: true } },
         teams: { orderBy: { name: 'asc' } },
@@ -62,7 +62,7 @@ export const createTournament = async (req: AuthRequest, res: Response): Promise
     const { name, year, startDate, endDate, location } = req.body as CreateTournamentRequest;
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
-    const series = await prisma.tournamentSeries.findUnique({ where: { id: parseInt(seriesId) } });
+    const series = await prisma.tournamentSeries.findUnique({ where: { id: seriesId } });
     if (!series) { res.status(404).json({ error: 'Tournament series not found' }); return; }
 
     const tournament = await prisma.tournament.create({
@@ -72,7 +72,7 @@ export const createTournament = async (req: AuthRequest, res: Response): Promise
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         location: location ?? null,
-        seriesId: parseInt(seriesId),
+        seriesId: seriesId,
       },
       include: tournamentInclude,
     });
@@ -89,7 +89,7 @@ export const updateTournament = async (req: AuthRequest, res: Response): Promise
     const { name, year, status, startDate, endDate, location } = req.body as UpdateTournamentRequest;
 
     const tournament = await prisma.tournament.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(year !== undefined && { year }),
@@ -110,7 +110,7 @@ export const updateTournament = async (req: AuthRequest, res: Response): Promise
 export const deleteTournament = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.tournament.delete({ where: { id: parseInt(id) } });
+    await prisma.tournament.delete({ where: { id: id } });
     res.json({ message: 'Tournament deleted' });
   } catch (error) {
     console.error('Delete tournament error:', error);
@@ -122,9 +122,9 @@ export const getTournamentStandings = async (req: Request, res: Response): Promi
   try {
     const { id } = req.params;
     const { groupId } = req.query;
-    const parsedGroupId = groupId ? parseInt(groupId as string) : null;
+    const parsedGroupId = groupId ? groupId as string : null;
 
-    const standings = await computeGroupStandings(parseInt(id), parsedGroupId);
+    const standings = await computeGroupStandings(id, parsedGroupId);
     res.json(standings);
   } catch (error) {
     console.error('Get tournament standings error:', error);

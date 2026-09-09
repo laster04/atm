@@ -15,8 +15,8 @@ import InviteLeagueManagerModal from './InviteLeagueManagerModal.tsx';
 interface LeaguesTableProps {
 	leagues: League[];
 	onCreateLeague?: (data: LeagueFormData) => void;
-	onUpdateLeague?: (id: number, data: LeagueFormData) => void;
-	onDeleteLeague?: (id: number) => void;
+	onUpdateLeague?: (id: string, data: LeagueFormData) => void;
+	onDeleteLeague?: (id: string) => void;
 	onInviteManager?: (league: League) => void;
 }
 

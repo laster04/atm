@@ -75,7 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isSeasonManager = () => user?.role === Role.SEASON_MANAGER;
   const isTeamManager = () => user?.role === Role.TEAM_MANAGER;
   const isTournamentManager = () => user?.role === Role.TOURNAMENT_MANAGER;
-  const canManageTeam = (teamManagerId?: number | null) =>
+  const canManageTeam = (teamManagerId?: string | null) =>
     isAdmin() || isSeasonManager() || (isTeamManager() && user?.id === teamManagerId);
 
   return (

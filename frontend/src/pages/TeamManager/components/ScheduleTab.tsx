@@ -8,7 +8,7 @@ type Tab = 'upcoming' | 'played' | 'other';
 
 interface ScheduleTabProps {
 	games: Game[];
-	teamId: number;
+	teamId: string;
 	teamColor?: string | null;
 }
 

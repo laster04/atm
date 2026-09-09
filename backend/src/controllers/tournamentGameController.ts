@@ -8,6 +8,7 @@ import {
   UpdateTournamentGameStatisticRequest,
 } from '../types/index.js';
 import { advancePlayoffBracket, resolvePlayoffSeeds } from './tournamentPlayoffController.js';
+import { toId, toNullableId } from '../utils/ids.js';
 
 const gameInclude = {
   homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, country: true } },
@@ -24,9 +25,9 @@ export const getGamesByTournament = async (req: Request, res: Response): Promise
 
     const games = await prisma.tournamentGame.findMany({
       where: {
-        tournamentId: parseInt(tournamentId),
+        tournamentId: tournamentId,
         ...(phase && { phase: phase as any }),
-        ...(groupId && { groupId: parseInt(groupId as string) }),
+        ...(groupId && { groupId: groupId as string }),
       },
       include: gameInclude,
       orderBy: [{ phase: 'asc' }, { date: 'asc' }],
@@ -42,7 +43,7 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
   try {
     const { id } = req.params;
     const game = await prisma.tournamentGame.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         ...gameInclude,
         statistics: {
@@ -62,15 +63,18 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
 export const createGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { tournamentId } = req.params;
-    const { phase, groupId, homeTeamId, awayTeamId, date, location, bracketSlot, note } =
+    const { phase, date, location, bracketSlot, note } =
       req.body as CreateTournamentGameRequest;
+    const groupId = toNullableId(req.body.groupId);
+    const homeTeamId = toNullableId(req.body.homeTeamId);
+    const awayTeamId = toNullableId(req.body.awayTeamId);
 
     if (!phase) { res.status(400).json({ error: 'Phase is required' }); return; }
 
     const game = await prisma.tournamentGame.create({
       data: {
         phase,
-        tournamentId: parseInt(tournamentId),
+        tournamentId: tournamentId,
         groupId: groupId ?? null,
         homeTeamId: homeTeamId ?? null,
         awayTeamId: awayTeamId ?? null,
@@ -92,10 +96,12 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
 export const updateGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { homeTeamId, awayTeamId, homeScore, awayScore, date, location, status, bracketSlot, note } =
+    const { homeScore, awayScore, date, location, status, bracketSlot, note } =
       req.body as UpdateTournamentGameRequest;
+    const homeTeamId = toNullableId(req.body.homeTeamId);
+    const awayTeamId = toNullableId(req.body.awayTeamId);
 
-    const existing = await prisma.tournamentGame.findUnique({ where: { id: parseInt(id) } });
+    const existing = await prisma.tournamentGame.findUnique({ where: { id: id } });
     if (!existing) { res.status(404).json({ error: 'Game not found' }); return; }
 
     // A playoff slot generated before its teams are known (seed-only, see
@@ -114,7 +120,7 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const game = await prisma.tournamentGame.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(homeTeamId !== undefined && { homeTeamId }),
         ...(awayTeamId !== undefined && { awayTeamId }),
@@ -142,7 +148,7 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
 export const deleteGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.tournamentGame.delete({ where: { id: parseInt(id) } });
+    await prisma.tournamentGame.delete({ where: { id: id } });
     res.json({ message: 'Game deleted' });
   } catch (error) {
     console.error('Delete tournament game error:', error);
@@ -156,7 +162,7 @@ export const getStatsByGame = async (req: Request, res: Response): Promise<void>
   try {
     const { id } = req.params;
     const stats = await prisma.tournamentGameStatistic.findMany({
-      where: { gameId: parseInt(id) },
+      where: { gameId: id },
       include: { player: { include: { team: true } } },
     });
     res.json(stats);
@@ -169,11 +175,12 @@ export const getStatsByGame = async (req: Request, res: Response): Promise<void>
 export const createStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { playerId, goals, assists } = req.body as CreateTournamentGameStatisticRequest;
+    const { goals, assists } = req.body as CreateTournamentGameStatisticRequest;
+    const playerId = toId(req.body.playerId);
     if (!playerId) { res.status(400).json({ error: 'playerId is required' }); return; }
 
     const existing = await prisma.tournamentGameStatistic.findUnique({
-      where: { gameId_playerId: { gameId: parseInt(id), playerId } },
+      where: { gameId_playerId: { gameId: id, playerId } },
     });
     if (existing) {
       res.status(409).json({ error: 'Statistic already exists for this player in this game' });
@@ -181,7 +188,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
     }
 
     const stat = await prisma.tournamentGameStatistic.create({
-      data: { gameId: parseInt(id), playerId, goals, assists },
+      data: { gameId: id, playerId, goals, assists },
       include: { player: true },
     });
     res.status(201).json(stat);
@@ -197,7 +204,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
     const { goals, assists } = req.body as UpdateTournamentGameStatisticRequest;
 
     const stat = await prisma.tournamentGameStatistic.update({
-      where: { id: parseInt(statId) },
+      where: { id: statId },
       data: {
         ...(goals !== undefined && { goals }),
         ...(assists !== undefined && { assists }),
@@ -214,7 +221,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { statId } = req.params;
-    await prisma.tournamentGameStatistic.delete({ where: { id: parseInt(statId) } });
+    await prisma.tournamentGameStatistic.delete({ where: { id: statId } });
     res.json({ message: 'Statistic deleted' });
   } catch (error) {
     console.error('Delete tournament statistic error:', error);
@@ -228,11 +235,11 @@ export const getTopScorersByTournament = async (req: Request, res: Response): Pr
     const limit = parseInt(req.query.limit as string) || 10;
 
     const stats = await prisma.tournamentGameStatistic.findMany({
-      where: { game: { tournamentId: parseInt(tournamentId) } },
+      where: { game: { tournamentId: tournamentId } },
       include: { player: { include: { team: true } } },
     });
 
-    const playerMap = new Map<number, { player: any; goals: number; assists: number; points: number; gamesPlayed: number }>();
+    const playerMap = new Map<string, { player: any; goals: number; assists: number; points: number; gamesPlayed: number }>();
     for (const s of stats) {
       const existing = playerMap.get(s.playerId);
       if (existing) {

@@ -25,14 +25,14 @@ interface PeriodScores {
 }
 
 interface PlayerStatForm {
-	playerId: number;
+	playerId: string;
 	playerName: string;
 	playerNumber: number | null;
 	played: boolean;
 	goals: number;
 	assists: number;
 	penaltyMinutes: number;
-	existingStatId?: number;
+	existingStatId?: string;
 }
 
 export default function HockeyGameStatisticPage(): React.JSX.Element {
@@ -80,7 +80,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 				});
 
 				const existingStats = existingStatsResp.data;
-				const statsMap = new Map<number, HockeyGameStatistic>();
+				const statsMap = new Map<string, HockeyGameStatistic>();
 				existingStats.forEach(stat => statsMap.set(stat.playerId, stat));
 
 				// Fetch players for both teams
@@ -132,7 +132,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 
 	const updatePlayerStat = (
 		team: 'home' | 'away',
-		playerId: number,
+		playerId: string,
 		field: keyof PlayerStatForm,
 		value: boolean | number
 	) => {
@@ -187,7 +187,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 
 			// Refresh data to get updated IDs
 			const existingStatsResp = await gameStatisticApi.getByGame(id);
-			const statsMap = new Map<number, HockeyGameStatistic>();
+			const statsMap = new Map<string, HockeyGameStatistic>();
 			existingStatsResp.data.forEach(stat => statsMap.set(stat.playerId, stat));
 
 			setHomeTeamStats(prev => prev.map(stat => ({

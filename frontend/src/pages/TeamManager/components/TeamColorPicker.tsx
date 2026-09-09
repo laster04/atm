@@ -8,7 +8,7 @@ import { Label } from "@/components/base/label";
 import { Input } from "@/components/base/input";
 
 interface TeamColorPickerProps {
-	teamId: number;
+	teamId: string;
 	teamName: string;
 	initialColor: string | null | undefined;
 	points?: number;

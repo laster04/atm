@@ -7,18 +7,19 @@ import {
   GenerateScheduleRequest,
 } from '../types/index.js';
 import { Prisma, GameStatus } from '@prisma/client';
+import { toId } from '../utils/ids.js';
 
 export const getGamesBySeasonId = async (req: Request, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
     const games = await prisma.game.findMany({
-      where: { seasonId: parseInt(seasonId) },
+      where: { seasonId: seasonId },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
         awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true } }
       },
       // id breaks ties so undated generated games keep the order they were scheduled in
-      orderBy: [{ round: 'asc' }, { date: 'asc' }, { id: 'asc' }]
+      orderBy: [{ round: 'asc' }, { date: 'asc' }, { createdAt: 'asc' }]
     });
     res.json(games);
   } catch (error) {
@@ -31,7 +32,7 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
   try {
     const { id } = req.params;
     const game = await prisma.game.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         season: true,
         homeTeam: { select: { id: true, name: true, logo: true } },
@@ -54,7 +55,9 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
 export const createGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { homeTeamId, awayTeamId, date, location, round } = req.body as CreateGameRequest;
+    const { date, location, round } = req.body as CreateGameRequest;
+    const homeTeamId = toId(req.body.homeTeamId);
+    const awayTeamId = toId(req.body.awayTeamId);
 
     if (!homeTeamId || !awayTeamId) {
       res.status(400).json({ error: 'Home team and away team are required' });
@@ -67,7 +70,7 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const season = await prisma.season.findUnique({
-      where: { id: parseInt(seasonId) },
+      where: { id: seasonId },
       include: { league: { select: { managerId: true } } }
     });
     if (!season) {
@@ -85,15 +88,13 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const homeTeamIdNum = typeof homeTeamId === 'string' ? parseInt(homeTeamId) : homeTeamId;
-    const awayTeamIdNum = typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId;
     const roundNum = round ? (typeof round === 'string' ? parseInt(round) : round) : null;
 
     // Validate both teams are in this season
     const teamsInSeason = await prisma.seasonTeam.findMany({
       where: {
-        seasonId: parseInt(seasonId),
-        teamId: { in: [homeTeamIdNum, awayTeamIdNum] }
+        seasonId: seasonId,
+        teamId: { in: [homeTeamId, awayTeamId] }
       }
     });
     if (teamsInSeason.length < 2) {
@@ -103,9 +104,9 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
 
     const game = await prisma.game.create({
       data: {
-        seasonId: parseInt(seasonId),
-        homeTeamId: homeTeamIdNum,
-        awayTeamId: awayTeamIdNum,
+        seasonId: seasonId,
+        homeTeamId: homeTeamId,
+        awayTeamId: awayTeamId,
         date: date ? new Date(date) : null,
         location,
         round: roundNum
@@ -136,7 +137,7 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     } = req.body as UpdateGameRequest;
 
     const existingGame = await prisma.game.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: { season: { include: { league: { select: { managerId: true } } } } }
     });
 
@@ -155,15 +156,13 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const homeTeamIdNum = homeTeamId ? (typeof homeTeamId === 'string' ? parseInt(homeTeamId) : homeTeamId) : undefined;
-    const awayTeamIdNum = awayTeamId ? (typeof awayTeamId === 'string' ? parseInt(awayTeamId) : awayTeamId) : undefined;
     const roundNum = round !== undefined ? (round ? (typeof round === 'string' ? parseInt(round) : round) : null) : undefined;
 
     const game = await prisma.game.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
-        ...(homeTeamIdNum && { homeTeamId: homeTeamIdNum }),
-        ...(awayTeamIdNum && { awayTeamId: awayTeamIdNum }),
+        ...(homeTeamId && { homeTeamId: homeTeamId }),
+        ...(awayTeamId && { awayTeamId: awayTeamId }),
         // date can be explicitly cleared (null/'') when a game is postponed to an unknown date
         ...(date !== undefined && { date: date ? new Date(date) : null }),
         ...(location !== undefined && { location }),
@@ -196,7 +195,7 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
     const { id } = req.params;
 
     const game = await prisma.game.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: { season: { include: { league: { select: { managerId: true } } } } }
     });
 
@@ -215,7 +214,7 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    await prisma.game.delete({ where: { id: parseInt(id) } });
+    await prisma.game.delete({ where: { id: id } });
     res.json({ message: 'Game deleted successfully' });
   } catch (error) {
     console.error('Delete game error:', error);
@@ -229,7 +228,7 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
     const { rounds: requestedRounds } = req.body as GenerateScheduleRequest;
 
     const season = await prisma.season.findUnique({
-      where: { id: parseInt(seasonId) },
+      where: { id: seasonId },
       include: {
         seasonTeams: { include: { team: true } },
         league: { select: { managerId: true } }
@@ -285,7 +284,7 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
           }
 
           games.push({
-            seasonId: parseInt(seasonId),
+            seasonId: seasonId,
             homeTeamId,
             awayTeamId,
             date: null,
@@ -305,18 +304,18 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
     // Games are read back in insertion order, so the delete and the insert have
     // to succeed or fail together to avoid leaving a half-generated schedule.
     await prisma.$transaction([
-      prisma.game.deleteMany({ where: { seasonId: parseInt(seasonId) } }),
+      prisma.game.deleteMany({ where: { seasonId: seasonId } }),
       prisma.game.createMany({ data: scheduledGames })
     ]);
 
 
     const createdGames = await prisma.game.findMany({
-      where: { seasonId: parseInt(seasonId) },
+      where: { seasonId: seasonId },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true } },
         awayTeam: { select: { id: true, name: true, logo: true } }
       },
-      orderBy: [{ round: 'asc' }, { id: 'asc' }]
+      orderBy: [{ round: 'asc' }, { createdAt: 'asc' }]
     });
 
     res.status(201).json({
@@ -363,8 +362,8 @@ function fisherYatesShuffle<T>(array: T[]): T[] {
 function orderGamesWithRest(games: ScheduledGame[], previousGame?: ScheduledGame): ScheduledGame[] {
   const remaining = fisherYatesShuffle(games);
 
-  const gamesLeftByTeam = new Map<number, number>();
-  const addGamesLeft = (teamId: number, delta: number): void => {
+  const gamesLeftByTeam = new Map<string, number>();
+  const addGamesLeft = (teamId: string, delta: number): void => {
     gamesLeftByTeam.set(teamId, (gamesLeftByTeam.get(teamId) ?? 0) + delta);
   };
   for (const game of remaining) {

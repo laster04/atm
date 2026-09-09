@@ -25,14 +25,14 @@ async function getAdminToken(): Promise<string> {
 }
 
 let token: string;
-let leagueId: number;
-let liveCompletedSeasonId: number;
-let archivedSeasonId: number;
-let draftSeasonId: number;
-let newSeasonId: number;
-let teamId: number;
-let teamId2: number;
-let archivedTeamId: number;
+let leagueId: string;
+let liveCompletedSeasonId: string;
+let archivedSeasonId: string;
+let draftSeasonId: string;
+let newSeasonId: string;
+let teamId: string;
+let teamId2: string;
+let archivedTeamId: string;
 
 beforeAll(async () => {
   token = await getAdminToken();
@@ -140,7 +140,7 @@ describe('Season copy-teams', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    const ids = res.body.map((t: { id: number }) => t.id);
+    const ids = res.body.map((t: { id: string }) => t.id);
     expect(ids).toContain(teamId);
     expect(ids).toContain(teamId2);
   });
@@ -151,7 +151,7 @@ describe('Season copy-teams', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    const ids = res.body.map((t: { id: number }) => t.id);
+    const ids = res.body.map((t: { id: string }) => t.id);
     expect(ids).toContain(archivedTeamId);
     expect(ids.length).toBe(2);
   });
@@ -163,7 +163,7 @@ describe('Season copy-teams', () => {
       .send({ teamIds: [teamId, archivedTeamId] })
       .expect(201);
 
-    const ids = res.body.teams.map((t: { id: number }) => t.id);
+    const ids = res.body.teams.map((t: { id: string }) => t.id);
     expect(ids).toContain(teamId);
     expect(ids).toContain(archivedTeamId);
 

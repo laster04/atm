@@ -52,7 +52,7 @@ export default function LeaguesPage() {
 		}
 	};
 
-	const handleUpdateLeague = async (id: number, data: LeagueFormData) => {
+	const handleUpdateLeague = async (id: string, data: LeagueFormData) => {
 		setError('');
 		try {
 			const res = await leagueApi.update(id, data);
@@ -63,7 +63,7 @@ export default function LeaguesPage() {
 		}
 	};
 
-	const handleDeleteLeague = async (id: number) => {
+	const handleDeleteLeague = async (id: string) => {
 		if (!confirm(t('admin.confirm.deleteLeague'))) return;
 		try {
 			await leagueApi.delete(id);

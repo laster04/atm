@@ -10,7 +10,7 @@ import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 import TopScorers from './TopScorers';
 
 interface StatsOverviewProps {
-	seasonId: number;
+	seasonId: string;
 	standings: Standing[];
 	games: Game[];
 	archived?: boolean;

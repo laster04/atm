@@ -61,9 +61,9 @@ export const authApi = {
     api.get<User[]>('/auth/users', { params: filters }),
   createUser: (data: { email: string; password: string; name: string; role?: string; active?: boolean; sendActivationEmail?: boolean }) =>
     api.post<User>('/auth/users', data),
-  updateUser: (id: number, data: { email?: string; password?: string; name?: string; role?: string; active?: boolean }) =>
+  updateUser: (id: string, data: { email?: string; password?: string; name?: string; role?: string; active?: boolean }) =>
     api.put<User>(`/auth/users/${id}`, data),
-  deleteUser: (id: number) => api.delete(`/auth/users/${id}`)
+  deleteUser: (id: string) => api.delete(`/auth/users/${id}`)
 };
 
 export const leagueApi = {
@@ -90,7 +90,7 @@ export const seasonApi = {
   getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`),
   getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`),
   getCopyableTeams: (id: string | number) => api.get<Team[]>(`/seasons/${id}/copyable-teams`),
-  copyTeams: (id: string | number, teamIds: number[]) =>
+  copyTeams: (id: string | number, teamIds: string[]) =>
     api.post<{ message: string; teams: Team[] }>(`/seasons/${id}/copy-teams`, { teamIds })
 };
 
@@ -119,7 +119,7 @@ export const playerApi = {
     api.post<Player>(`/players/team/${teamId}`, data),
   update: (id: string | number, data: Partial<Player>) => api.put<Player>(`/players/${id}`, data),
   delete: (id: string | number) => api.delete(`/players/${id}`),
-  move: (id: string | number, targetTeamId: number) =>
+  move: (id: string | number, targetTeamId: string) =>
     api.patch<Player>(`/players/${id}/move`, { targetTeamId })
 };
 
@@ -146,7 +146,7 @@ export const gameStatisticApi = {
       api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/team/${teamId}`),
   getArchivedPlayerStats: (seasonId: string | number, teamId?: string | number) =>
       api.get<ArchivedPlayerStat[]>(`/game-statistics/season/${seasonId}/archived`, { params: { teamId } }),
-  create: (gameId: string | number, data: { playerId: number; goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
+  create: (gameId: string | number, data: { playerId: string; goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
     api.post<HockeyGameStatistic>(`/game-statistics/game/${gameId}`, data),
   update: (id: string | number, data: { goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
     api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
@@ -173,7 +173,7 @@ export const tournamentApi = {
   update: (id: string | number, data: Partial<Tournament>) =>
     api.put<Tournament>(`/tournaments/${id}`, data),
   delete: (id: string | number) => api.delete(`/tournaments/${id}`),
-  getStandings: (id: string | number, groupId?: number) =>
+  getStandings: (id: string | number, groupId?: string) =>
     api.get<TournamentStanding[]>(`/tournaments/${id}/standings`, { params: groupId ? { groupId } : undefined }),
   getTopScorers: (id: string | number, limit?: number) =>
     api.get<TournamentTopScorer[]>(`/tournaments/${id}/scorers`, { params: { limit } }),
@@ -212,7 +212,7 @@ export const tournamentGroupApi = {
   update: (id: string | number, data: { name: string }) =>
     api.put<TournamentGroup>(`/tournaments/groups/${id}`, data),
   delete: (id: string | number) => api.delete(`/tournaments/groups/${id}`),
-  assignTeam: (groupId: string | number, teamId: number) =>
+  assignTeam: (groupId: string | number, teamId: string) =>
     api.post<TournamentGroup>(`/tournaments/groups/${groupId}/teams`, { teamId }),
   removeTeam: (groupId: string | number, teamId: string | number) =>
     api.delete(`/tournaments/groups/${groupId}/teams/${teamId}`),
@@ -234,7 +234,7 @@ export const tournamentPlayoffApi = {
 
 // ── Tournament Games ────────────────────────────────────────
 export const tournamentGameApi = {
-  getByTournament: (tournamentId: string | number, params?: { phase?: string; groupId?: number }) =>
+  getByTournament: (tournamentId: string | number, params?: { phase?: string; groupId?: string }) =>
     api.get<TournamentGame[]>(`/tournaments/${tournamentId}/games`, { params }),
   getById: (id: string | number) => api.get<TournamentGame>(`/tournaments/games/${id}`),
   create: (tournamentId: string | number, data: Partial<TournamentGame>) =>
@@ -246,7 +246,7 @@ export const tournamentGameApi = {
     api.get<TournamentGameStatistic[]>(`/tournaments/games/${gameId}/statistics`),
   createStatistic: (
     gameId: string | number,
-    data: { playerId: number; goals?: number | null; assists?: number | null }
+    data: { playerId: string; goals?: number | null; assists?: number | null }
   ) => api.post<TournamentGameStatistic>(`/tournaments/games/${gameId}/statistics`, data),
   updateStatistic: (
     gameId: string | number,

@@ -9,6 +9,7 @@ import {
   UpdateTeamRequest,
   InviteManagerRequest,
 } from '../types/index.js';
+import { toNullableId } from '../utils/ids.js';
 import { Prisma } from '@prisma/client';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -68,7 +69,7 @@ export const getTeamsBySeasonId = async (req: Request, res: Response): Promise<v
   try {
     const { seasonId } = req.params;
     const teams = await prisma.team.findMany({
-      where: { seasonTeams: { some: { seasonId: parseInt(seasonId) } } },
+      where: { seasonTeams: { some: { seasonId: seasonId } } },
       include: {
         _count: { select: { players: true } },
         manager: { select: { id: true, name: true, email: true } }
@@ -86,7 +87,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
   try {
     const { id } = req.params;
     const team = await prisma.team.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         seasonTeams: {
           include: {
@@ -123,7 +124,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
     // push every unscheduled game ahead of real fixtures (and, because the two
     // relations are concatenated, make the first N games all home games).
     const allGames = [...team.homeGames, ...team.awayGames].sort((a, b) => {
-      if (!a.date && !b.date) return a.id - b.id;
+      if (!a.date && !b.date) return a.createdAt.getTime() - b.createdAt.getTime();
       if (!a.date) return 1;
       if (!b.date) return -1;
       return new Date(a.date).getTime() - new Date(b.date).getTime();
@@ -145,7 +146,8 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
 export const createTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { name, logo, managerId } = req.body as CreateTeamRequest;
+    const { name, logo } = req.body as CreateTeamRequest;
+    const managerId = toNullableId(req.body.managerId);
 
     if (!name) {
       res.status(400).json({ error: 'Team name is required' });
@@ -153,7 +155,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const season = await prisma.season.findUnique({
-      where: { id: parseInt(seasonId) },
+      where: { id: seasonId },
       include: { league: { select: { managerId: true } } }
     });
     if (!season) {
@@ -177,7 +179,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
         data: {
           name,
           logo,
-          managerId: managerId ? parseInt(managerId) : null
+          managerId: managerId ?? null
         },
         include: {
           manager: { select: { id: true, name: true, email: true } }
@@ -186,7 +188,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 
       await tx.seasonTeam.create({
         data: {
-          seasonId: parseInt(seasonId),
+          seasonId: seasonId,
           teamId: newTeam.id
         }
       });
@@ -208,10 +210,11 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 export const updateTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, logo, managerId, primaryColor } = req.body as UpdateTeamRequest;
+    const { name, logo, primaryColor } = req.body as UpdateTeamRequest;
+    const managerId = toNullableId(req.body.managerId);
 
     const existingTeam = await prisma.team.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         seasonTeams: {
           include: {
@@ -244,12 +247,12 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const team = await prisma.team.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(name && { name }),
         ...(logo !== undefined && { logo }),
         ...(primaryColor !== undefined && { primaryColor }),
-        ...(managerId !== undefined && { managerId: managerId ? parseInt(managerId) : null }),
+        ...(managerId !== undefined && { managerId }),
       },
       include: {
         manager: { select: { id: true, name: true, email: true } }
@@ -276,7 +279,7 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
     const { id } = req.params;
 
     const team = await prisma.team.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         seasonTeams: {
           include: {
@@ -302,7 +305,7 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
       }
     }
 
-    await prisma.team.delete({ where: { id: parseInt(id) } });
+    await prisma.team.delete({ where: { id: id } });
     res.json({ message: 'Team deleted successfully' });
   } catch (error) {
     console.error('Delete team error:', error);
@@ -314,14 +317,14 @@ export const addTeamToSeason = async (req: AuthRequest, res: Response): Promise<
   try {
     const { id, seasonId } = req.params;
 
-    const team = await prisma.team.findUnique({ where: { id: parseInt(id) } });
+    const team = await prisma.team.findUnique({ where: { id: id } });
     if (!team) {
       res.status(404).json({ error: 'Team not found' });
       return;
     }
 
     const season = await prisma.season.findUnique({
-      where: { id: parseInt(seasonId) },
+      where: { id: seasonId },
       include: { league: { select: { managerId: true } } }
     });
     if (!season) {
@@ -340,8 +343,8 @@ export const addTeamToSeason = async (req: AuthRequest, res: Response): Promise<
 
     await prisma.seasonTeam.create({
       data: {
-        seasonId: parseInt(seasonId),
-        teamId: parseInt(id)
+        seasonId: seasonId,
+        teamId: id
       }
     });
 
@@ -363,8 +366,8 @@ export const removeTeamFromSeason = async (req: AuthRequest, res: Response): Pro
     const seasonTeam = await prisma.seasonTeam.findUnique({
       where: {
         seasonId_teamId: {
-          seasonId: parseInt(seasonId),
-          teamId: parseInt(id)
+          seasonId: seasonId,
+          teamId: id
         }
       },
       include: {
@@ -390,10 +393,10 @@ export const removeTeamFromSeason = async (req: AuthRequest, res: Response): Pro
     await prisma.$transaction(async (tx) => {
       await tx.game.deleteMany({
         where: {
-          seasonId: parseInt(seasonId),
+          seasonId: seasonId,
           OR: [
-            { homeTeamId: parseInt(id) },
-            { awayTeamId: parseInt(id) }
+            { homeTeamId: id },
+            { awayTeamId: id }
           ]
         }
       });
@@ -401,8 +404,8 @@ export const removeTeamFromSeason = async (req: AuthRequest, res: Response): Pro
       await tx.seasonTeam.delete({
         where: {
           seasonId_teamId: {
-            seasonId: parseInt(seasonId),
-            teamId: parseInt(id)
+            seasonId: seasonId,
+            teamId: id
           }
         }
       });
@@ -419,7 +422,7 @@ export const getTeamsAvailableForSeason = async (req: Request, res: Response): P
   try {
     const { seasonId } = req.params;
 
-    const season = await prisma.season.findUnique({ where: { id: parseInt(seasonId) } });
+    const season = await prisma.season.findUnique({ where: { id: seasonId } });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
       return;
@@ -428,7 +431,7 @@ export const getTeamsAvailableForSeason = async (req: Request, res: Response): P
     // Get teams that are NOT already in this season
     const teams = await prisma.team.findMany({
       where: {
-        seasonTeams: { none: { seasonId: parseInt(seasonId) } }
+        seasonTeams: { none: { seasonId: seasonId } }
       },
       include: {
         _count: { select: { players: true } },
@@ -455,7 +458,7 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     const team = await prisma.team.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         seasonTeams: {
           include: {
@@ -510,7 +513,7 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
 
     // Assign as team manager
     const updatedTeam = await prisma.team.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: { managerId: newUser.id },
       include: {
         seasonTeams: {

@@ -72,8 +72,8 @@ export default function TournamentManagePage() {
   const [error, setError] = useState('');
 
   // team players expand state
-  const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
-  const [teamPlayers, setTeamPlayers] = useState<Record<number, TournamentPlayer[]>>({});
+  const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
+  const [teamPlayers, setTeamPlayers] = useState<Record<string, TournamentPlayer[]>>({});
 
   // modals
   const [teamModal, setTeamModal] = useState(false);
@@ -81,7 +81,7 @@ export default function TournamentManagePage() {
   const [teamForm, setTeamForm] = useState({ name: '', country: '', primaryColor: '', logo: '' });
 
   const [playerModal, setPlayerModal] = useState(false);
-  const [playerTeamId, setPlayerTeamId] = useState<number | null>(null);
+  const [playerTeamId, setPlayerTeamId] = useState<string | null>(null);
   const [editingPlayer, setEditingPlayer] = useState<TournamentPlayer | null>(null);
   const [playerForm, setPlayerForm] = useState({ name: '', number: '', position: '', bornYear: '' });
 
@@ -90,8 +90,8 @@ export default function TournamentManagePage() {
   const [groupName, setGroupName] = useState('');
 
   const [assignModal, setAssignModal] = useState(false);
-  const [assignGroupId, setAssignGroupId] = useState<number | null>(null);
-  const [assignTeamIds, setAssignTeamIds] = useState<number[]>([]);
+  const [assignGroupId, setAssignGroupId] = useState<string | null>(null);
+  const [assignTeamIds, setAssignTeamIds] = useState<string[]>([]);
 
   const [scheduleModal, setScheduleModal] = useState(false);
   const [scheduleForm, setScheduleForm] = useState({
@@ -142,7 +142,7 @@ export default function TournamentManagePage() {
   useEffect(() => { load(); }, [id]);
 
   // ── expand team players ────────────────────────────────────
-  const toggleTeam = async (teamId: number) => {
+  const toggleTeam = async (teamId: string) => {
     if (expandedTeam === teamId) { setExpandedTeam(null); return; }
     setExpandedTeam(teamId);
     if (!teamPlayers[teamId]) {
@@ -151,7 +151,7 @@ export default function TournamentManagePage() {
     }
   };
 
-  const refreshPlayers = async (teamId: number) => {
+  const refreshPlayers = async (teamId: string) => {
     const res = await tournamentPlayerApi.getByTeam(teamId);
     setTeamPlayers(prev => ({ ...prev, [teamId]: res.data }));
   };
@@ -177,14 +177,14 @@ export default function TournamentManagePage() {
     finally { setSaving(false); }
   };
 
-  const deleteTeam = async (tid: number) => {
+  const deleteTeam = async (tid: string) => {
     if (!confirm(t('tm.tournament.teams.deleteConfirm', { context: tennisCtx }))) return;
     try { await tournamentTeamApi.delete(tid); setTeams(prev => prev.filter(t => t.id !== tid)); }
     catch { setError(t('tm.tournament.teams.errors.delete')); }
   };
 
   // ── player CRUD ────────────────────────────────────────────
-  const openPlayerCreate = (teamId: number) => { setEditingPlayer(null); setPlayerTeamId(teamId); setPlayerForm({ name: '', number: '', position: '', bornYear: '' }); setPlayerModal(true); };
+  const openPlayerCreate = (teamId: string) => { setEditingPlayer(null); setPlayerTeamId(teamId); setPlayerForm({ name: '', number: '', position: '', bornYear: '' }); setPlayerModal(true); };
   const openPlayerEdit = (p: TournamentPlayer) => { setEditingPlayer(p); setPlayerTeamId(p.teamId); setPlayerForm({ name: p.name, number: p.number?.toString() ?? '', position: p.position ?? '', bornYear: p.bornYear?.toString() ?? '' }); setPlayerModal(true); };
 
   const savePlayer = async () => {
@@ -204,7 +204,7 @@ export default function TournamentManagePage() {
     finally { setSaving(false); }
   };
 
-  const deletePlayer = async (playerId: number, teamId: number) => {
+  const deletePlayer = async (playerId: string, teamId: string) => {
     if (!confirm(t('tm.tournament.players.deleteConfirm'))) return;
     try { await tournamentPlayerApi.delete(playerId); await refreshPlayers(teamId); }
     catch { setError(t('tm.tournament.players.errors.delete')); }
@@ -230,7 +230,7 @@ export default function TournamentManagePage() {
     finally { setSaving(false); }
   };
 
-  const deleteGroup = async (gid: number) => {
+  const deleteGroup = async (gid: string) => {
     if (!confirm(t('tm.tournament.groups.deleteConfirm'))) return;
     try { await tournamentGroupApi.delete(gid); setGroups(prev => prev.filter(g => g.id !== gid)); }
     catch { setError(t('tm.tournament.groups.errors.delete')); }
@@ -290,9 +290,9 @@ export default function TournamentManagePage() {
   };
 
   // ── assign teams to group ──────────────────────────────────
-  const openAssign = (gid: number) => { setAssignGroupId(gid); setAssignTeamIds([]); setAssignModal(true); };
+  const openAssign = (gid: string) => { setAssignGroupId(gid); setAssignTeamIds([]); setAssignModal(true); };
 
-  const toggleAssignTeam = (tid: number) => {
+  const toggleAssignTeam = (tid: string) => {
     setAssignTeamIds(prev => prev.includes(tid) ? prev.filter(id => id !== tid) : [...prev, tid]);
   };
 
@@ -313,7 +313,7 @@ export default function TournamentManagePage() {
     finally { setSaving(false); }
   };
 
-  const removeFromGroup = async (gid: number, tid: number) => {
+  const removeFromGroup = async (gid: string, tid: string) => {
     try {
       await tournamentGroupApi.removeTeam(gid, tid);
       setGroups(prev => prev.map(g => g.id === gid ? { ...g, teams: g.teams?.filter(t => t.team.id !== tid) } : g));
@@ -367,8 +367,8 @@ export default function TournamentManagePage() {
     try {
       const payload = {
         phase: playoffForm.phase,
-        homeTeamId: playoffForm.homeTeamId ? parseInt(playoffForm.homeTeamId) : null,
-        awayTeamId: playoffForm.awayTeamId ? parseInt(playoffForm.awayTeamId) : null,
+        homeTeamId: playoffForm.homeTeamId ? playoffForm.homeTeamId : null,
+        awayTeamId: playoffForm.awayTeamId ? playoffForm.awayTeamId : null,
         bracketSlot: playoffForm.bracketSlot ? parseInt(playoffForm.bracketSlot) : null,
         homeScore: playoffForm.homeScore !== '' ? parseInt(playoffForm.homeScore) : null,
         awayScore: playoffForm.awayScore !== '' ? parseInt(playoffForm.awayScore) : null,
@@ -387,7 +387,7 @@ export default function TournamentManagePage() {
     finally { setSaving(false); }
   };
 
-  const deletePlayoff = async (gid: number) => {
+  const deletePlayoff = async (gid: string) => {
     if (!confirm(t('tm.tournament.playoff.deleteConfirm'))) return;
     try { await tournamentGameApi.delete(gid); setPlayoffGames(prev => prev.filter(g => g.id !== gid)); }
     catch { setError(t('tm.tournament.playoff.errors.delete')); }
