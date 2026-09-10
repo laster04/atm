@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { authApi } from '@/services/api';
+import { normalizeEmail } from '@/utils/email';
 import { AxiosError } from 'axios';
 import { CheckCircle, Mail, Trophy } from 'lucide-react';
 
@@ -34,8 +35,9 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      await authApi.register({ email: data.email, password: data.password, name: data.name, role });
-      setRegisteredEmail(data.email);
+      const email = normalizeEmail(data.email);
+      await authApi.register({ email, password: data.password, name: data.name, role });
+      setRegisteredEmail(email);
       setSuccess(true);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;

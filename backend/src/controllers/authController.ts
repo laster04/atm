@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
+import { normalizeEmail } from '../utils/email.js';
 import {
   AuthRequest,
   RegisterRequest,
@@ -28,12 +29,14 @@ const getActivationTokenExpiry = (): Date => {
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name, role: requestedRole } = req.body as RegisterRequest & { role?: string };
+    const { email: rawEmail, password, name, role: requestedRole } = req.body as RegisterRequest & { role?: string };
 
-    if (!email || !password || !name) {
+    if (!rawEmail || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const SELF_REGISTERABLE_ROLES: Role[] = ['TOURNAMENT_MANAGER'];
     const role: Role = requestedRole && SELF_REGISTERABLE_ROLES.includes(requestedRole as Role)
@@ -79,12 +82,14 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body as LoginRequest;
+    const { email: rawEmail, password } = req.body as LoginRequest;
 
-    if (!email || !password) {
+    if (!rawEmail || !password) {
       res.status(400).json({ error: 'Email and password are required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -179,12 +184,14 @@ export const activateAccount = async (req: AuthRequest, res: Response): Promise<
 
 export const resendActivationEmail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email } = req.body;
+    const { email: rawEmail } = req.body;
 
-    if (!email) {
+    if (!rawEmail) {
       res.status(400).json({ error: 'Email is required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -230,12 +237,14 @@ const getPasswordResetTokenExpiry = (): Date => {
 
 export const requestPasswordReset = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email } = req.body;
+    const { email: rawEmail } = req.body;
 
-    if (!email) {
+    if (!rawEmail) {
       res.status(400).json({ error: 'Email is required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -406,12 +415,14 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const createUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name, role, active, sendActivationEmail } = req.body as CreateUserRequest & { sendActivationEmail?: boolean };
+    const { email: rawEmail, password, name, role, active, sendActivationEmail } = req.body as CreateUserRequest & { sendActivationEmail?: boolean };
 
-    if (!email || !password || !name) {
+    if (!rawEmail || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -456,7 +467,8 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
 export const updateUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { email, password, name, role, active } = req.body as UpdateUserRequest;
+    const { email: rawEmail, password, name, role, active } = req.body as UpdateUserRequest;
+    const email = rawEmail ? normalizeEmail(rawEmail) : undefined;
 
     const existingUser = await prisma.user.findUnique({ where: { id: id } });
     if (!existingUser) {
