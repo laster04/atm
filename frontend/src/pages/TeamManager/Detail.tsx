@@ -24,7 +24,7 @@ export default function Detail() {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { isAdmin, canManageTeam } = useAuth();
+	const { canManageTeam } = useAuth();
 
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
 	const [team, setTeam] = useState<Team | null>(null);
@@ -62,12 +62,11 @@ export default function Detail() {
 		fetchData();
 	}, [team]);
 
+	// Reached from three places now — the manager's own team list, a season's
+	// Teams tab, and a deep link — so the caller's history is the only correct
+	// destination.
 	const handleBack = () => {
-		if (isAdmin()) {
-			navigate('/admin/teams')
-		} else {
-			navigate('/team-management/my-teams');
-		}
+		navigate(-1);
 	};
 
 	const tabs = [

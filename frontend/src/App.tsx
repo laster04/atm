@@ -22,7 +22,7 @@ import { SeasonManagerLayout, SeasonManagerIndex, MySeasonsPage, SeasonManagePag
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
-import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, TeamsPage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
+import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, MorePage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
 import { TournamentManagementLayout, TournamentManagementIndex, SeriesListPage, SeriesDetailPage, TournamentManagePage } from './pages/TournamentManagement';
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 import './index.css';
@@ -82,10 +82,10 @@ function AppContent() {
             <Route path="users" element={<UsersPage />} />
             <Route path="leagues" element={<LeaguesPage />} />
             <Route path="seasons" element={<SeasonsPage />} />
-            <Route path="teams" element={<TeamsPage />} />
             <Route path="players" element={<PlayersPage />} />
             <Route path="players/:id" element={<PlayerDetailPage />} />
             <Route path="games" element={<GamesPage />} />
+            <Route path="more" element={<MorePage />} />
           </Route>
         </Routes>
       </main>

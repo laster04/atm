@@ -35,8 +35,10 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
       where: { id: id },
       include: {
         season: true,
-        homeTeam: { select: { id: true, name: true, logo: true } },
-        awayTeam: { select: { id: true, name: true, logo: true } }
+        // The statistics screen colours itself by team and decides who may edit
+        // which line-up, so a single game carries the colour and the manager.
+        homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } },
+        awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } }
       }
     });
 
@@ -178,8 +180,8 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         ...(roundNum !== undefined && { round: roundNum })
       },
       include: {
-        homeTeam: { select: { id: true, name: true, logo: true } },
-        awayTeam: { select: { id: true, name: true, logo: true } }
+        homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } },
+        awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } }
       }
     });
 

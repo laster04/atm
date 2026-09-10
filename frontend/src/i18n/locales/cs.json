@@ -894,7 +894,10 @@
       "new": "+ Nova",
       "noSeasons": "Zatim zadne sezony",
       "teamsIn": "Tymy v {{name}}",
-      "selectSeason": "Vyberte sezonu pro spravu tymu"
+      "selectSeason": "Vyberte sezonu pro spravu tymu",
+      "allLeagues": "Všechny ligy",
+      "empty": "V tomto výběru nejsou žádné sezóny",
+      "rowActions": "Akce sezóny"
     },
     "teams": {
       "addTeam": "+ Pridat tym",
@@ -981,11 +984,11 @@
       "movePlayerBtn": "Přesunout hráče"
     },
     "roles": {
-      "ADMIN": "Administrator",
-      "SEASON_MANAGER": "Manazer sezony",
-      "TEAM_MANAGER": "Manazer tymu",
-      "TOURNAMENT_MANAGER": "Manazer turnaje",
-      "VIEWER": "Divak"
+      "ADMIN": "Administrátor",
+      "SEASON_MANAGER": "Manažer sezóny",
+      "TEAM_MANAGER": "Manažer týmu",
+      "TOURNAMENT_MANAGER": "Manažer turnaje",
+      "VIEWER": "Divák"
     },
     "confirm": {
       "deleteLeague": "Opravdu chcete smazat tuto ligu?",
@@ -1020,6 +1023,23 @@
       "movePlayer": "Přesun hráče selhal",
       "archiveSeason": "Archivace sezóny selhala",
       "copyTeams": "Sezóna byla vytvořena, ale kopírování týmů selhalo"
+    },
+    "nav": {
+      "users": "Uživatelé",
+      "leagues": "Ligy",
+      "seasons": "Sezóny",
+      "more": "Více",
+      "players": "Hráči",
+      "games": "Zápasy"
+    },
+    "more": {
+      "acrossSeasons": "Napříč sezónami",
+      "playersHint": "Hledat hráče ve všech týmech a přesouvat je",
+      "gamesHint": "Všechny zápasy bez ohledu na sezónu",
+      "seasonWork": "Správa sezóny",
+      "seasonWorkTitle": "Týmy, termíny a výsledky",
+      "seasonWorkHint": "Spravují se v detailu sezóny, ne v globální tabulce.",
+      "openSeasons": "Otevřít sezóny"
     }
   },
   "language": {
@@ -1349,6 +1369,28 @@
     }
   },
   "gameStatistic": {
-    "penaltyMinutes": "TM"
+    "penaltyMinutes": "TM",
+    "title": "Statistiky zápasu",
+    "score": "Skóre",
+    "total": "Celkem",
+    "period1": "1.T",
+    "period2": "2.T",
+    "period3": "3.T",
+    "home": "Domácí",
+    "away": "Hosté",
+    "goals": "Góly",
+    "assists": "Asistence",
+    "lineup": "Sestava",
+    "viewOnly": "Jen ke čtení",
+    "noPlayers": "V tomto týmu nejsou žádní hráči",
+    "notFound": "Zápas nenalezen",
+    "unauthorized": "Nemáte oprávnění k této stránce",
+    "fetchError": "Nepodařilo se načíst data zápasu",
+    "saveSuccess": "Statistiky byly úspěšně uloženy",
+    "saveError": "Nepodařilo se uložit statistiky",
+    "allSaved": "Vše uloženo",
+    "unsavedChanges_one": "{{count}} neuložená změna",
+    "unsavedChanges_few": "{{count}} neuložené změny",
+    "unsavedChanges_other": "{{count}} neuložených změn"
   }
 }
