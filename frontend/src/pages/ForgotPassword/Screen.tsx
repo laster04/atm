@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { Mail, CheckCircle, ArrowLeft } from 'lucide-react';
 import { authApi } from '@/services/api';
+import { normalizeEmail } from '@/utils/email';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/base/card';
 import { Button } from '@/components/base/button';
@@ -31,8 +32,9 @@ export default function ForgotPasswordScreen() {
     setLoading(true);
 
     try {
-      await authApi.forgotPassword(data.email);
-      setSubmittedEmail(data.email);
+      const email = normalizeEmail(data.email);
+      await authApi.forgotPassword(email);
+      setSubmittedEmail(email);
       setSuccess(true);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;

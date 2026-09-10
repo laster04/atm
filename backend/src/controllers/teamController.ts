@@ -10,6 +10,7 @@ import {
   InviteManagerRequest,
 } from '../types/index.js';
 import { toNullableId } from '../utils/ids.js';
+import { normalizeEmail } from '../utils/email.js';
 import { Prisma } from '@prisma/client';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -450,12 +451,14 @@ export const getTeamsAvailableForSeason = async (req: Request, res: Response): P
 export const inviteManager = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { email, name, locale } = req.body as InviteManagerRequest;
+    const { email: rawEmail, name, locale } = req.body as InviteManagerRequest;
 
-    if (!email || !name) {
+    if (!rawEmail || !name) {
       res.status(400).json({ error: 'Email and name are required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const team = await prisma.team.findUnique({
       where: { id: id },

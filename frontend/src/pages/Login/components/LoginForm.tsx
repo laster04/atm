@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../../context/AuthContext';
+import { normalizeEmail } from '../../../utils/email';
 import { AxiosError } from 'axios';
 import { Button } from '@components/base/button';
 import { Input } from '@components/base/input';
@@ -27,7 +28,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      await login(data.email, data.password);
+      await login(normalizeEmail(data.email), data.password);
       navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;

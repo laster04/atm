@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
+import { normalizeEmail } from '../utils/email.js';
 import {
   AuthRequest,
   CreateLeagueRequest,
@@ -182,12 +183,14 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
 export const inviteManager = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { email, name, locale } = req.body as InviteManagerRequest;
+    const { email: rawEmail, name, locale } = req.body as InviteManagerRequest;
 
-    if (!email || !name) {
+    if (!rawEmail || !name) {
       res.status(400).json({ error: 'Email and name are required' });
       return;
     }
+
+    const email = normalizeEmail(rawEmail);
 
     const league = await prisma.league.findUnique({ where: { id: id } });
     if (!league) {
