@@ -11,6 +11,9 @@ import {
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { canManageLeague, isAdmin } from '../services/access.js';
+import { computeTable } from '../services/standings/compute.js';
+import { ScoringPolicy } from '../services/scoring/policy.js';
+import { policyFromRows, resolveSeasonPolicy } from '../services/scoring/resolve.js';
 
 type StandingGame = {
   homeTeamId: string;
@@ -19,50 +22,28 @@ type StandingGame = {
   awayScore: number | null;
 };
 
-export function computeStandings(teams: StandingTeamRef[], games: StandingGame[]): Standing[] {
-  return teams.map(team => {
-    let wins = 0, losses = 0, draws = 0, goalsFor = 0, goalsAgainst = 0;
-
-    games.forEach(game => {
-      if (game.homeTeamId === team.id) {
-        goalsFor += game.homeScore || 0;
-        goalsAgainst += game.awayScore || 0;
-        if ((game.homeScore || 0) > (game.awayScore || 0)) wins++;
-        else if ((game.homeScore || 0) < (game.awayScore || 0)) losses++;
-        else draws++;
-      } else if (game.awayTeamId === team.id) {
-        goalsFor += game.awayScore || 0;
-        goalsAgainst += game.homeScore || 0;
-        if ((game.awayScore || 0) > (game.homeScore || 0)) wins++;
-        else if ((game.awayScore || 0) < (game.homeScore || 0)) losses++;
-        else draws++;
-      }
-    });
-
-    const points = wins * 2 + draws;
-    const played = wins + losses + draws;
-    const goalDifference = goalsFor - goalsAgainst;
-
-    return {
-      team,
-      played,
-      wins,
-      draws,
-      losses,
-      goalsFor,
-      goalsAgainst,
-      goalDifference,
-      points
-    };
-  });
-}
-
-export function sortStandings(standings: Standing[]): Standing[] {
-  return [...standings].sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points;
-    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
-    return b.goalsFor - a.goalsFor;
-  });
+/**
+ * Season standings are a thin adapter over the shared table service: it owns how
+ * results become points and how ties break, this owns only the Standing shape
+ * the season API has always returned. The policy comes from the season/league,
+ * so "two points for a win" is no longer a fact of this file.
+ */
+export function computeStandings(
+  teams: StandingTeamRef[],
+  games: StandingGame[],
+  policy: ScoringPolicy
+): Standing[] {
+  return computeTable(teams, games, policy).map(row => ({
+    team: row.team,
+    played: row.played,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsFor: row.goalsFor,
+    goalsAgainst: row.goalsAgainst,
+    goalDifference: row.goalDifference,
+    points: row.points,
+  }));
 }
 
 export const getAllSeasons = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -289,7 +270,10 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
     const { id } = req.params;
     const seasonId = id;
 
-    const season = await prisma.season.findUnique({ where: { id: seasonId } });
+    const season = await prisma.season.findUnique({
+      where: { id: seasonId },
+      select: { id: true, scoring: true, league: { select: { scoring: true, sportType: true } } },
+    });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
       return;
@@ -305,7 +289,7 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
       where: { seasonId, status: 'COMPLETED' }
     });
 
-    const standings = sortStandings(computeStandings(teams, games));
+    const standings = computeStandings(teams, games, policyFromRows(season, season.league, 'LEAGUE'));
 
     res.json(standings);
   } catch (error) {
@@ -349,7 +333,7 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
     });
 
     // Calculate standings for all teams to determine rank
-    const allStandings = sortStandings(computeStandings(allTeams, games));
+    const allStandings = computeStandings(allTeams, games, await resolveSeasonPolicy(seasonId));
 
     const rank = allStandings.findIndex(s => s.team.id === teamIdNum) + 1;
     const teamStanding = allStandings.find(s => s.team.id === teamIdNum);
@@ -374,12 +358,16 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
 
     const season = await prisma.season.findUnique({
       where: { id: seasonId },
-      include: { league: { select: { managerId: true } } }
+      include: { league: { select: { managerId: true, scoring: true, sportType: true } } }
     });
     if (!season) {
       res.status(404).json({ error: 'Season not found' });
       return;
     }
+
+    // Resolved before the transaction: the archive must freeze the table exactly
+    // as the season was scored, not as the sport default happens to score today.
+    const archivePolicy = policyFromRows(season, season.league, 'LEAGUE');
 
     if (season.status !== 'COMPLETED') {
       res.status(400).json({ error: 'Only completed seasons can be archived' });
@@ -400,7 +388,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
       // Every game in the season is removed on archive, but only COMPLETED games count toward standings
       const allGames = await tx.game.findMany({ where: { seasonId } });
       const completedGames = allGames.filter(g => g.status === 'COMPLETED');
-      const standings = sortStandings(computeStandings(teams, completedGames));
+      const standings = computeStandings(teams, completedGames, archivePolicy);
 
       if (standings.length > 0) {
         await tx.seasonArchiveStanding.createMany({

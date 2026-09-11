@@ -62,6 +62,7 @@ model User {
   managedLeagues          League[]
   managedTeams            Team[]
   managedTournamentSeries TournamentSeries[]
+  playerProfiles          Player[]
 
   @@map("users")
 }
@@ -72,6 +73,9 @@ model League {
   sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
   description String?
+  // Scoring override for every season of this league. Null falls back to the
+  // sport default in services/scoring/policy.ts. A season may override again.
+  scoring     Json?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
@@ -89,6 +93,8 @@ model Season {
   startDate  DateTime     @map("start_date")
   endDate    DateTime     @map("end_date")
   status     SeasonStatus @default(DRAFT)
+  // Overrides the league's scoring for this season only; null inherits.
+  scoring    Json?
   archivedAt DateTime?    @map("archived_at")
   createdAt  DateTime     @default(now()) @map("created_at")
   updatedAt  DateTime     @updatedAt @map("updated_at")
@@ -154,8 +160,17 @@ model Player {
   team      Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade)
   statistic HockeyGameStatistic[] @relation("PlayerStatistic")
 
+  // A roster row exists whether or not the person behind it has an account.
+  // Claiming links the two so the player can sign in and see their own team;
+  // unlinking must leave the roster row and its history intact.
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   archivedStats SeasonArchivePlayerStat[]
 
+  // One person may hold a roster spot in several teams, but only one per team.
+  @@unique([teamId, userId])
+  @@index([userId])
   @@map("players")
 }
 
@@ -279,6 +294,9 @@ model TournamentSeries {
   sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
   description String?
+  // Scoring override inherited by every tournament in the series; null falls
+  // back to the sport default.
+  scoring     Json?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
@@ -295,6 +313,8 @@ model Tournament {
   name      String
   year      Int?
   status    TournamentStatus @default(DRAFT)
+  // Overrides the series scoring for this tournament only; null inherits.
+  scoring   Json?
   startDate DateTime?        @map("start_date")
   endDate   DateTime?        @map("end_date")
   location  String?
