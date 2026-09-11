@@ -1,9 +1,15 @@
+// Role only separates a global administrator from a regular account. Whether a
+// user manages a league, a team or a tournament series comes from User.manages,
+// which counts the manager relations they actually hold.
 export enum Role {
   ADMIN = 'ADMIN',
-  SEASON_MANAGER = 'SEASON_MANAGER',
-  TEAM_MANAGER = 'TEAM_MANAGER',
-  TOURNAMENT_MANAGER = 'TOURNAMENT_MANAGER',
-  VIEWER = 'VIEWER',
+  USER = 'USER',
+}
+
+export interface ManagedCounts {
+  leagues: number;
+  teams: number;
+  series: number;
 }
 export enum SeasonStatus {
   DRAFT = 'DRAFT',
@@ -39,6 +45,8 @@ export interface User {
   emailVerified?: boolean;
   onboardingCompletedAt?: string | null;
   teamTourCompletedAt?: string | null;
+  /** Only present on the signed-in user, from /auth/me and /auth/login. */
+  manages?: ManagedCounts;
 }
 
 export interface League {

@@ -150,9 +150,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 								onChange={(e) => handleFilterChange('role', e.target.value === 'all' ? undefined : e.target.value)}
 							>
 								<MenuItem value="all">{t('admin.tabs.user.allRoles')}</MenuItem>
-								<MenuItem value={Role.VIEWER}>{t('admin.roles.VIEWER')}</MenuItem>
-								<MenuItem value={Role.TEAM_MANAGER}>{t('admin.roles.TEAM_MANAGER')}</MenuItem>
-								<MenuItem value={Role.SEASON_MANAGER}>{t('admin.roles.SEASON_MANAGER')}</MenuItem>
+								<MenuItem value={Role.USER}>{t('admin.roles.USER')}</MenuItem>
 								<MenuItem value={Role.ADMIN}>{t('admin.roles.ADMIN')}</MenuItem>
 							</Select>
 						</FormControl>

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest, CreateTournamentSeriesRequest, UpdateTournamentSeriesRequest } from '../types/index.js';
 import { toNullableId } from '../utils/ids.js';
+import { isAdmin } from '../services/access.js';
 
 const seriesInclude = {
   manager: { select: { id: true, name: true, email: true } },
@@ -48,8 +49,12 @@ export const createSeries = async (req: AuthRequest, res: Response): Promise<voi
     const managerId = toNullableId(req.body.managerId);
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
+    // The creator owns the series; only an admin may hand it to someone else.
+    // TODO(free-tier): cap how many series a non-admin may own once quotas land.
+    const ownerId = isAdmin(req.user!) ? (managerId ?? null) : req.user!.id;
+
     const series = await prisma.tournamentSeries.create({
-      data: { name, sportType, logo, description, managerId: managerId ?? null },
+      data: { name, sportType, logo, description, managerId: ownerId },
       include: seriesInclude,
     });
     res.status(201).json(series);

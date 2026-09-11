@@ -10,6 +10,7 @@ import {
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
+import { canManageLeague, isAdmin } from '../services/access.js';
 
 type StandingGame = {
   homeTeamId: string;
@@ -78,7 +79,7 @@ export const getAllSeasons = async (req: AuthRequest, res: Response): Promise<vo
     const filtered = seasons.filter((season) => {
       if (season.status !== 'DRAFT') return true;
       if (!req.user) return false;
-      if (req.user.role === 'ADMIN') return true;
+      if (isAdmin(req.user)) return true;
       return season.league.managerId != null && season.league.managerId === req.user.id;
     });
 
@@ -159,8 +160,7 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Season managers can only create seasons in their own leagues
-    if (req.user!.role === 'SEASON_MANAGER' && league.managerId !== req.user!.id) {
+    if (!(await canManageLeague(req.user!, leagueId))) {
       res.status(403).json({ error: 'Not authorized to create seasons in this league' });
       return;
     }
@@ -201,12 +201,6 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Season managers can only update seasons in their own leagues
-    if (req.user!.role === 'SEASON_MANAGER' && existingSeason.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to update this season' });
-      return;
-    }
-
     // Archived seasons are a permanent record: name/dates can still be edited, but not status or league.
     // Compare against the stored value (not just presence) since the edit form always resubmits the full payload.
     if (existingSeason.archivedAt) {
@@ -225,7 +219,7 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
         res.status(400).json({ error: 'League not found' });
         return;
       }
-      if (req.user!.role === 'SEASON_MANAGER' && league.managerId !== req.user!.id) {
+      if (!(await canManageLeague(req.user!, leagueId))) {
         res.status(403).json({ error: 'Not authorized to move season to this league' });
         return;
       }
@@ -272,24 +266,10 @@ export const deleteSeason = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Season managers can only delete seasons in their own leagues that haven't started yet
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const season = await prisma.season.findUnique({
-        where: { id: id },
-        include: { league: { select: { managerId: true } } }
-      });
-      if (!season) {
-        res.status(404).json({ error: 'Season not found' });
-        return;
-      }
-      if (season.league.managerId !== req.user!.id) {
-        res.status(403).json({ error: 'Not authorized to delete this season' });
-        return;
-      }
-      if (new Date(season.startDate) <= new Date()) {
-        res.status(403).json({ error: 'Cannot delete a season that has already started' });
-        return;
-      }
+    // Only an admin may delete a season that has already started.
+    if (!isAdmin(req.user!) && new Date(seasonToDelete.startDate) <= new Date()) {
+      res.status(403).json({ error: 'Cannot delete a season that has already started' });
+      return;
     }
 
     await prisma.season.delete({ where: { id: id } });
@@ -401,10 +381,6 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to archive this season' });
-      return;
-    }
     if (season.status !== 'COMPLETED') {
       res.status(400).json({ error: 'Only completed seasons can be archived' });
       return;
@@ -660,10 +636,6 @@ export const copyTeamsToSeason = async (req: AuthRequest, res: Response): Promis
       res.status(404).json({ error: 'Season not found' });
       return;
     }
-    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to add teams to this season' });
-      return;
-    }
     if (season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -717,7 +689,7 @@ export const getSeasonsByLeague = async (req: AuthRequest, res: Response): Promi
     const filtered = seasons.filter((season) => {
       if (season.status !== 'DRAFT') return true;
       if (!req.user) return false;
-      if (req.user.role === 'ADMIN') return true;
+      if (isAdmin(req.user)) return true;
       return league.managerId != null && league.managerId === req.user.id;
     });
 

@@ -71,12 +71,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(res.data.user);
   };
 
+  // These describe what the user actually manages, not a role they were given.
+  // One account can be several of them at once - running a league and managing a
+  // team are separate relations. The server re-checks every request; these only
+  // decide what the UI offers.
   const isAdmin = () => user?.role === Role.ADMIN;
-  const isSeasonManager = () => user?.role === Role.SEASON_MANAGER;
-  const isTeamManager = () => user?.role === Role.TEAM_MANAGER;
-  const isTournamentManager = () => user?.role === Role.TOURNAMENT_MANAGER;
+  const isSeasonManager = () => isAdmin() || (user?.manages?.leagues ?? 0) > 0;
+  const isTeamManager = () => isAdmin() || (user?.manages?.teams ?? 0) > 0;
+  const isTournamentManager = () => isAdmin() || (user?.manages?.series ?? 0) > 0;
   const canManageTeam = (teamManagerId?: string | null) =>
-    isAdmin() || isSeasonManager() || (isTeamManager() && user?.id === teamManagerId);
+    isAdmin() || user?.id === teamManagerId || (user?.manages?.leagues ?? 0) > 0;
 
   return (
     <AuthContext.Provider value={{

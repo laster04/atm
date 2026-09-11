@@ -975,10 +975,7 @@
     },
     "roles": {
       "ADMIN": "Admin",
-      "SEASON_MANAGER": "Season Manager",
-      "TEAM_MANAGER": "Team Manager",
-      "TOURNAMENT_MANAGER": "Tournament Manager",
-      "VIEWER": "Viewer"
+      "USER": "User"
     },
     "confirm": {
       "deleteLeague": "Are you sure you want to delete this league?",
@@ -1031,6 +1028,12 @@
       "seasonWorkHint": "Managed inside a season, not in a global table.",
       "openSeasons": "Open seasons"
     }
+  },
+  "hats": {
+    "none": "No teams yet",
+    "leagueManager": "League Manager",
+    "teamManager": "Team Manager",
+    "tournamentManager": "Tournament Manager"
   },
   "language": {
     "en": "EN",

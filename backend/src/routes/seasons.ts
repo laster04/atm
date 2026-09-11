@@ -14,7 +14,8 @@ import {
   getCopyableTeams,
   copyTeamsToSeason
 } from '../controllers/seasonController.js';
-import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { requireSeasonAccess } from '../middleware/access.js';
 
 const router = Router();
 
@@ -27,10 +28,11 @@ router.get('/:id/standings/:teamId', getTeamStanding);
 router.get('/:id/archived-standings', getArchivedStandings);
 router.get('/:id/copyable-teams', authenticate, getCopyableTeams);
 
-router.post('/', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createSeason);
-router.post('/:id/archive', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), archiveSeason);
-router.post('/:id/copy-teams', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), copyTeamsToSeason);
-router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), updateSeason);
-router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteSeason);
+// createSeason checks access against the target league from the request body.
+router.post('/', authenticate, createSeason);
+router.post('/:id/archive', authenticate, requireSeasonAccess(), archiveSeason);
+router.post('/:id/copy-teams', authenticate, requireSeasonAccess(), copyTeamsToSeason);
+router.put('/:id', authenticate, requireSeasonAccess(), updateSeason);
+router.delete('/:id', authenticate, requireSeasonAccess(), deleteSeason);
 
 export default router;

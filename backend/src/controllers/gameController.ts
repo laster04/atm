@@ -80,11 +80,6 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only create games in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to create games in this season' });
-      return;
-    }
     if (season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -148,11 +143,6 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only update games in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && existingGame.season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to update this game' });
-      return;
-    }
     if (existingGame.season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -206,11 +196,6 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only delete games in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && game.season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to delete this game' });
-      return;
-    }
     if (game.season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -242,11 +227,6 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    // Season managers can only generate schedule for their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to generate schedule for this season' });
-      return;
-    }
 
     const teams = season.seasonTeams.map(st => st.team);
     if (teams.length < 2) {

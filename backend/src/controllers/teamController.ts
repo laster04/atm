@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
+import { resolveInvitee } from '../services/invite.js';
+import { canAdministerTeam } from '../services/access.js';
 import {
   AuthRequest,
   CreateTeamRequest,
@@ -164,11 +164,6 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only add teams to their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to add teams to this season' });
-      return;
-    }
     if (season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -230,20 +225,12 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only update teams in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const hasAccess = existingTeam.seasonTeams.some(
-        st => st.season.league.managerId === req.user!.id
-      );
-      if (!hasAccess) {
-        res.status(403).json({ error: 'Not authorized to update this team' });
-        return;
-      }
-    }
 
-    // Team managers can only update their own teams
-    if (req.user!.role === 'TEAM_MANAGER' && existingTeam.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to update this team' });
+    // requireTeamAccess lets the team's own manager edit the team, but handing the
+    // team to a different manager is reserved for the league side.
+    if (managerId !== undefined && managerId !== existingTeam.managerId
+        && !(await canAdministerTeam(req.user!, id))) {
+      res.status(403).json({ error: 'Not authorized to change the manager of this team' });
       return;
     }
 
@@ -295,16 +282,6 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Season managers can only delete teams in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const hasAccess = team.seasonTeams.some(
-        st => st.season.league.managerId === req.user!.id
-      );
-      if (!hasAccess) {
-        res.status(403).json({ error: 'Not authorized to delete this team' });
-        return;
-      }
-    }
 
     await prisma.team.delete({ where: { id: id } });
     res.json({ message: 'Team deleted successfully' });
@@ -333,10 +310,6 @@ export const addTeamToSeason = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    if (req.user!.role === 'SEASON_MANAGER' && season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to add teams to this season' });
-      return;
-    }
     if (season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -381,10 +354,6 @@ export const removeTeamFromSeason = async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    if (req.user!.role === 'SEASON_MANAGER' && seasonTeam.season.league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to remove teams from this season' });
-      return;
-    }
     if (seasonTeam.season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
       return;
@@ -475,49 +444,13 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    // Season managers can only invite managers for teams in their own leagues' seasons
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const hasAccess = team.seasonTeams.some(
-        st => st.season.league.managerId === req.user!.id
-      );
-      if (!hasAccess) {
-        res.status(403).json({ error: 'Not authorized to invite a manager for this team' });
-        return;
-      }
-    }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      res.status(400).json({ error: 'A user with this email already exists' });
-      return;
-    }
-
-    // Create user with random password and password reset token
-    const randomPassword = crypto.randomBytes(32).toString('hex');
-    const hashedPassword = await bcrypt.hash(randomPassword, 10);
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date();
-    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1);
-
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        role: 'TEAM_MANAGER',
-        active: true,
-        emailVerified: true,
-        emailVerifiedAt: new Date(),
-        passwordResetToken: resetToken,
-        passwordResetTokenExpiresAt: resetTokenExpiry,
-      },
-      select: { id: true, email: true, name: true, role: true },
-    });
+    const invitee = await resolveInvitee(email, name);
 
     // Assign as team manager
     const updatedTeam = await prisma.team.update({
       where: { id: id },
-      data: { managerId: newUser.id },
+      data: { managerId: invitee.id },
       include: {
         seasonTeams: {
           include: {
@@ -541,10 +474,13 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       }
     });
 
-    // Send invitation email
-    emailService.sendManagerInviteEmail(email, name, team.name, resetToken, locale).catch((err) => {
-      console.error('Failed to send manager invite email:', err);
-    });
+    // Only a freshly created account needs the set-your-password link; an existing
+    // user simply gains the team relation alongside whatever they already manage.
+    if (invitee.resetToken) {
+      emailService.sendManagerInviteEmail(email, name, team.name, invitee.resetToken, locale).catch((err) => {
+        console.error('Failed to send manager invite email:', err);
+      });
+    }
 
     const allGames = [...updatedTeam.homeGames, ...updatedTeam.awayGames].sort(
       (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()

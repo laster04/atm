@@ -11,7 +11,8 @@ import {
   removeTeamFromSeason,
   getTeamsAvailableForSeason
 } from '../controllers/teamController.js';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
+import { requireSeasonAccess, requireTeamAccess, requireTeamAdmin } from '../middleware/access.js';
 
 const router = Router();
 
@@ -20,11 +21,15 @@ router.get('/season/:seasonId', getTeamsBySeasonId);
 router.get('/available/:seasonId', getTeamsAvailableForSeason);
 router.get('/:id', getTeamById);
 
-router.post('/season/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), createTeam);
-router.post('/:id/seasons/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), addTeamToSeason);
-router.delete('/:id/seasons/:seasonId', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), removeTeamFromSeason);
-router.put('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER', 'TEAM_MANAGER'), updateTeam);
-router.delete('/:id', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), deleteTeam);
-router.post('/:id/invite-manager', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), inviteManager);
+// Entering/removing a team from a season, and deleting it outright, are league
+// decisions, so they are guarded by the season rather than by the team.
+router.post('/season/:seasonId', authenticate, requireSeasonAccess('seasonId'), createTeam);
+router.post('/:id/seasons/:seasonId', authenticate, requireSeasonAccess('seasonId'), addTeamToSeason);
+router.delete('/:id/seasons/:seasonId', authenticate, requireSeasonAccess('seasonId'), removeTeamFromSeason);
+router.put('/:id', authenticate, requireTeamAccess(), updateTeam);
+// Deleting a team or naming its manager is a league decision, so the team's own
+// manager cannot do either.
+router.delete('/:id', authenticate, requireTeamAdmin(), deleteTeam);
+router.post('/:id/invite-manager', authenticate, requireTeamAdmin(), inviteManager);
 
 export default router;

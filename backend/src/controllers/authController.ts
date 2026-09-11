@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { normalizeEmail } from '../utils/email.js';
+import { getManagedCounts } from '../services/access.js';
 import {
   AuthRequest,
   RegisterRequest,
@@ -29,7 +30,7 @@ const getActivationTokenExpiry = (): Date => {
 
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email: rawEmail, password, name, role: requestedRole } = req.body as RegisterRequest & { role?: string };
+    const { email: rawEmail, password, name } = req.body as RegisterRequest;
 
     if (!rawEmail || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
@@ -38,10 +39,11 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 
     const email = normalizeEmail(rawEmail);
 
-    const SELF_REGISTERABLE_ROLES: Role[] = ['TOURNAMENT_MANAGER'];
-    const role: Role = requestedRole && SELF_REGISTERABLE_ROLES.includes(requestedRole as Role)
-      ? (requestedRole as Role)
-      : 'VIEWER';
+    // Self-registration never grants privileges: what a new account can manage
+    // follows from the leagues, teams and series it goes on to own or be invited
+    // to. TODO: the planned "what do you want to do?" step on the registration
+    // form should shape onboarding, not the role.
+    const role: Role = 'USER';
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -123,6 +125,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
         role: user.role,
         onboardingCompletedAt: user.onboardingCompletedAt,
         teamTourCompletedAt: user.teamTourCompletedAt,
+        manages: await getManagedCounts(user.id),
       },
       token
     });
@@ -331,7 +334,7 @@ export const resetPassword = async (req: AuthRequest, res: Response): Promise<vo
 };
 
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
-  res.json({ user: req.user });
+  res.json({ user: { ...req.user!, manages: await getManagedCounts(req.user!.id) } });
 };
 
 export const completeOnboarding = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -342,7 +345,7 @@ export const completeOnboarding = async (req: AuthRequest, res: Response): Promi
       select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
-    res.json({ user });
+    res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
   } catch (error) {
     console.error('Complete onboarding error:', error);
     res.status(500).json({ error: 'Failed to complete onboarding' });
@@ -357,7 +360,7 @@ export const completeTeamTour = async (req: AuthRequest, res: Response): Promise
       select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
-    res.json({ user });
+    res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
   } catch (error) {
     console.error('Complete team tour error:', error);
     res.status(500).json({ error: 'Failed to complete team tour' });
@@ -378,7 +381,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       select: { id: true, email: true, name: true, role: true }
     });
 
-    res.json({ user });
+    res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Profile update failed' });
@@ -441,7 +444,7 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
         email,
         password: hashedPassword,
         name,
-        role: role || 'VIEWER',
+        role: role || 'USER',
         active: active ?? true,
         emailVerified: !shouldSendActivation,
         emailVerifiedAt: !shouldSendActivation ? new Date() : null,

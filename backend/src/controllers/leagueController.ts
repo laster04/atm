@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
+import { resolveInvitee } from '../services/invite.js';
 import { normalizeEmail } from '../utils/email.js';
+import { toNullableId } from '../utils/ids.js';
+import { isAdmin } from '../services/access.js';
 import {
   AuthRequest,
   CreateLeagueRequest,
@@ -82,8 +83,9 @@ export const createLeague = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Auto-set managerId for SEASON_MANAGER role
-    const managerId = req.user!.role === 'SEASON_MANAGER' ? req.user!.id : null;
+    // The creator owns the league; only an admin may hand it to someone else.
+    // TODO(free-tier): cap how many leagues a non-admin may own once quotas land.
+    const managerId = isAdmin(req.user!) ? (toNullableId(req.body.managerId) ?? null) : req.user!.id;
 
     const league = await prisma.league.create({
       data: {
@@ -109,15 +111,6 @@ export const updateLeague = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const { id } = req.params;
     const { name, sportType, logo, description } = req.body as UpdateLeagueRequest;
-
-    // Season managers can only update their own leagues
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const league = await prisma.league.findUnique({ where: { id: id } });
-      if (!league || league.managerId !== req.user!.id) {
-        res.status(403).json({ error: 'Not authorized to update this league' });
-        return;
-      }
-    }
 
     const league = await prisma.league.update({
       where: { id: id },
@@ -153,12 +146,6 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
     });
     if (!league) {
       res.status(404).json({ error: 'League not found' });
-      return;
-    }
-
-    // Season managers can only delete their own leagues
-    if (req.user!.role === 'SEASON_MANAGER' && league.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to delete this league' });
       return;
     }
 
@@ -198,48 +185,25 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      res.status(400).json({ error: 'A user with this email already exists' });
-      return;
-    }
-
-    // Create user with random password and password reset token
-    const randomPassword = crypto.randomBytes(32).toString('hex');
-    const hashedPassword = await bcrypt.hash(randomPassword, 10);
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date();
-    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1);
-
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        role: 'SEASON_MANAGER',
-        active: true,
-        emailVerified: true,
-        emailVerifiedAt: new Date(),
-        passwordResetToken: resetToken,
-        passwordResetTokenExpiresAt: resetTokenExpiry,
-      },
-      select: { id: true, email: true, name: true, role: true },
-    });
+    const invitee = await resolveInvitee(email, name);
 
     // Assign as league manager
     const updatedLeague = await prisma.league.update({
       where: { id: id },
-      data: { managerId: newUser.id },
+      data: { managerId: invitee.id },
       include: {
         _count: { select: { seasons: true } },
         manager: { select: { id: true, name: true, email: true } }
       }
     });
 
-    // Send invitation email
-    emailService.sendLeagueManagerInviteEmail(email, name, league.name, resetToken, locale).catch((err) => {
-      console.error('Failed to send league manager invite email:', err);
-    });
+    // Only a freshly created account needs the set-your-password link; an
+    // existing user just gains the relation.
+    if (invitee.resetToken) {
+      emailService.sendLeagueManagerInviteEmail(email, name, league.name, invitee.resetToken, locale).catch((err) => {
+        console.error('Failed to send league manager invite email:', err);
+      });
+    }
 
     res.status(201).json(updatedLeague);
   } catch (error) {

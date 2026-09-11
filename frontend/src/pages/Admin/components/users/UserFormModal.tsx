@@ -31,7 +31,7 @@ export default function UserFormModal({ user, onSubmit, onClose }: UserFormModal
 		name: user?.name || '',
 		email: user?.email || '',
 		password: '',
-		role: user?.role || Role.VIEWER,
+		role: user?.role || Role.USER,
 		active: user?.active ?? false,
 	};
 	const form = useForm<UserFormData>({
@@ -72,10 +72,7 @@ export default function UserFormModal({ user, onSubmit, onClose }: UserFormModal
 								label={t('admin.modal.userRole')}
 								{...form.register('role')}
 								defaultValue={initUserValues.role}>
-								<MenuItem value={Role.VIEWER}>{t('admin.roles.VIEWER')}</MenuItem>
-								<MenuItem value={Role.TEAM_MANAGER}>{t('admin.roles.TEAM_MANAGER')}</MenuItem>
-								<MenuItem value={Role.SEASON_MANAGER}>{t('admin.roles.SEASON_MANAGER')}</MenuItem>
-								<MenuItem value={Role.TOURNAMENT_MANAGER}>{t('admin.roles.TOURNAMENT_MANAGER')}</MenuItem>
+								<MenuItem value={Role.USER}>{t('admin.roles.USER')}</MenuItem>
 								<MenuItem value={Role.ADMIN}>{t('admin.roles.ADMIN')}</MenuItem>
 							</Select>
 						</FormControl>
