@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Plus, User as UserIcon } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { authApi, teamApi } from '@/services/api';
-import { Role, type Season, type Team, type User } from '@types';
+import { teamApi } from '@/services/api';
+import type { Season, Team } from '@types';
 import TeamFormModal, { type TeamFormData } from '@/pages/Admin/components/teams/TeamFormModal';
 import { SEASON_ACCENT, initials } from './util';
 
@@ -18,22 +18,12 @@ export default function TeamsTab({ season, teams, onTeamsChange }: TeamsTabProps
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [showForm, setShowForm] = useState(false);
-	const [teamManagers, setTeamManagers] = useState<User[]>([]);
 	const [error, setError] = useState('');
-
-	useEffect(() => {
-		authApi.getUsers({ role: Role.TEAM_MANAGER })
-			.then((res) => setTeamManagers(res.data))
-			.catch((err) => console.error(err));
-	}, []);
 
 	const handleCreate = async (data: TeamFormData) => {
 		setError('');
 		try {
-			const res = await teamApi.create(season.id, {
-				name: data.name,
-				managerId: data.managerId ? data.managerId : undefined,
-			});
+			const res = await teamApi.create(season.id, { name: data.name });
 			onTeamsChange([...teams, res.data]);
 			setShowForm(false);
 		} catch (err) {
@@ -104,7 +94,6 @@ export default function TeamsTab({ season, teams, onTeamsChange }: TeamsTabProps
 
 			{showForm && (
 				<TeamFormModal
-					teamManagers={teamManagers}
 					onSubmit={handleCreate}
 					onClose={() => setShowForm(false)}
 				/>

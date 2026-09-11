@@ -7,13 +7,21 @@ import {
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
+import { isAdmin } from '../services/access.js';
 
 /**
- * TEAM_MANAGERs may only touch statistics for players on a team they manage.
- * ADMIN and SEASON_MANAGER are already scoped by the route's authorize().
+ * A statistic row belongs to one player on one team in one game, so two people
+ * legitimately own it: the manager of the league the game is played in, and the
+ * manager of the player's own team. Either is enough.
  */
-const deniedForTeamManager = (req: AuthRequest, teamManagerId: string | null): boolean =>
-	req.user!.role === 'TEAM_MANAGER' && teamManagerId !== req.user!.id;
+const mayRecord = (
+	req: AuthRequest,
+	leagueManagerId: string | null,
+	teamManagerId: string | null
+): boolean =>
+	isAdmin(req.user!) ||
+	leagueManagerId === req.user!.id ||
+	teamManagerId === req.user!.id;
 
 export const getStatisticsByGameId = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -103,7 +111,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 
 		const game = await prisma.game.findUnique({
 			where: { id: gameId },
-			include: { season: true }
+			include: { season: { include: { league: { select: { managerId: true } } } } }
 		});
 		if (!game) {
 			res.status(404).json({ error: 'Game not found' });
@@ -138,7 +146,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		if (deniedForTeamManager(req, player.team.managerId)) {
+		if (!mayRecord(req, game.season.league.managerId, player.team.managerId)) {
 			res.status(403).json({ error: 'Not authorized to record statistics for this player' });
 			return;
 		}
@@ -190,7 +198,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
 			where: { id: id },
 			include: {
-				game: { include: { season: true } },
+				game: { include: { season: { include: { league: { select: { managerId: true } } } } } },
 				player: { include: { team: { select: { managerId: true } } } }
 			}
 		});
@@ -202,7 +210,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 			res.status(400).json({ error: 'Cannot modify an archived season' });
 			return;
 		}
-		if (deniedForTeamManager(req, existingStatistic.player.team.managerId)) {
+		if (!mayRecord(req, existingStatistic.game.season.league.managerId, existingStatistic.player.team.managerId)) {
 			res.status(403).json({ error: 'Not authorized to modify this statistic' });
 			return;
 		}
@@ -239,7 +247,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
 			where: { id: id },
 			include: {
-				game: { include: { season: true } },
+				game: { include: { season: { include: { league: { select: { managerId: true } } } } } },
 				player: { include: { team: { select: { managerId: true } } } }
 			}
 		});
@@ -251,7 +259,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 			res.status(400).json({ error: 'Cannot modify an archived season' });
 			return;
 		}
-		if (deniedForTeamManager(req, existingStatistic.player.team.managerId)) {
+		if (!mayRecord(req, existingStatistic.game.season.league.managerId, existingStatistic.player.team.managerId)) {
 			res.status(403).json({ error: 'Not authorized to modify this statistic' });
 			return;
 		}

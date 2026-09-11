@@ -7,6 +7,7 @@ import {
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
+import { canManageTeam } from '../services/access.js';
 
 export const getPlayersByTeamId = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -84,19 +85,6 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    if (req.user!.role === 'TEAM_MANAGER' && team.managerId !== req.user!.id) {
-      res.status(403).json({ error: 'Not authorized to add players to this team' });
-      return;
-    }
-
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const hasAccess = team.seasonTeams.some(st => st.season.league.managerId === req.user!.id);
-      if (!hasAccess) {
-        res.status(403).json({ error: 'Not authorized to add players to this team' });
-        return;
-      }
-    }
-
     const numberValue = number ? (typeof number === 'string' ? parseInt(number) : number) : null;
     const bornYearValue = bornYear ? (typeof bornYear === 'string' ? parseInt(bornYear) : bornYear) : null;
 
@@ -122,36 +110,6 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const { id } = req.params;
     const { name, number, position, bornYear, note } = req.body as UpdatePlayerRequest;
-
-    if (req.user!.role === 'TEAM_MANAGER' || req.user!.role === 'SEASON_MANAGER') {
-      const player = await prisma.player.findUnique({
-        where: { id: id },
-        include: {
-          team: {
-            include: {
-              seasonTeams: {
-                include: { season: { include: { league: { select: { managerId: true } } } } }
-              }
-            }
-          }
-        }
-      });
-      if (!player) {
-        res.status(403).json({ error: 'Not authorized to update this player' });
-        return;
-      }
-      if (req.user!.role === 'TEAM_MANAGER' && player.team.managerId !== req.user!.id) {
-        res.status(403).json({ error: 'Not authorized to update this player' });
-        return;
-      }
-      if (req.user!.role === 'SEASON_MANAGER') {
-        const hasAccess = player.team.seasonTeams.some(st => st.season.league.managerId === req.user!.id);
-        if (!hasAccess) {
-          res.status(403).json({ error: 'Not authorized to update this player' });
-          return;
-        }
-      }
-    }
 
     const numberValue = number !== undefined
       ? (number ? (typeof number === 'string' ? parseInt(number) : number) : null)
@@ -186,36 +144,6 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
 export const deletePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
-    if (req.user!.role === 'TEAM_MANAGER' || req.user!.role === 'SEASON_MANAGER') {
-      const player = await prisma.player.findUnique({
-        where: { id: id },
-        include: {
-          team: {
-            include: {
-              seasonTeams: {
-                include: { season: { include: { league: { select: { managerId: true } } } } }
-              }
-            }
-          }
-        }
-      });
-      if (!player) {
-        res.status(403).json({ error: 'Not authorized to delete this player' });
-        return;
-      }
-      if (req.user!.role === 'TEAM_MANAGER' && player.team.managerId !== req.user!.id) {
-        res.status(403).json({ error: 'Not authorized to delete this player' });
-        return;
-      }
-      if (req.user!.role === 'SEASON_MANAGER') {
-        const hasAccess = player.team.seasonTeams.some(st => st.season.league.managerId === req.user!.id);
-        if (!hasAccess) {
-          res.status(403).json({ error: 'Not authorized to delete this player' });
-          return;
-        }
-      }
-    }
 
     await prisma.player.delete({ where: { id: id } });
     res.json({ message: 'Player deleted successfully' });
@@ -277,16 +205,10 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Check authorization for SEASON_MANAGER
-    if (req.user!.role === 'SEASON_MANAGER') {
-      const sourceLeagueManagerIds = player.team.seasonTeams.map(st => st.season.league.managerId);
-      const targetLeagueManagerIds = targetTeam.seasonTeams.map(st => st.season.league.managerId);
-
-      // SEASON_MANAGER can only move players within leagues they manage
-      if (!sourceLeagueManagerIds.includes(req.user!.id) || !targetLeagueManagerIds.includes(req.user!.id)) {
-        res.status(403).json({ error: 'Not authorized to move players between these teams' });
-        return;
-      }
+    // requirePlayerAccess covered the source team; the destination needs its own check.
+    if (!(await canManageTeam(req.user!, targetTeamId))) {
+      res.status(403).json({ error: 'Not authorized to move players between these teams' });
+      return;
     }
 
     // Prevent moving to the same team

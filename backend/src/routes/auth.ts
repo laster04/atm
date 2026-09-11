@@ -29,7 +29,7 @@ router.get('/me', authenticate, getMe);
 router.post('/complete-onboarding', authenticate, completeOnboarding);
 router.post('/complete-team-tour', authenticate, completeTeamTour);
 router.put('/profile', authenticate, updateProfile);
-router.get('/users', authenticate, authorize('ADMIN', 'SEASON_MANAGER'), getUsers);
+router.get('/users', authenticate, authorize('ADMIN'), getUsers);
 router.post('/users', authenticate, authorize('ADMIN'), createUser);
 router.put('/users/:id', authenticate, authorize('ADMIN'), updateUser);
 router.delete('/users/:id', authenticate, authorize('ADMIN'), deleteUser);

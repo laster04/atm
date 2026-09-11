@@ -34,19 +34,18 @@ export default function Navbar() {
 		navigate('/login');
 	}
 
-	const getRoleBadgeVariant = (role: Role | undefined) => {
-		switch (role) {
-			case Role.ADMIN:
-				return 'destructive' as const;
-			case Role.SEASON_MANAGER:
-				return 'default' as const;
-			case Role.TEAM_MANAGER:
-				return 'secondary' as const;
-			case Role.TOURNAMENT_MANAGER:
-				return 'secondary' as const;
-			default:
-				return 'outline' as const;
+	// One account can hold several of these at once, so the badge is a list rather
+	// than a single label derived from a role.
+	const hats = (): { key: string; variant: 'destructive' | 'default' | 'secondary' }[] => {
+		if (user?.role === Role.ADMIN) {
+			return [{ key: 'admin.roles.ADMIN', variant: 'destructive' }];
 		}
+		const manages = user?.manages;
+		const badges: { key: string; variant: 'default' | 'secondary' }[] = [];
+		if ((manages?.leagues ?? 0) > 0) badges.push({ key: 'hats.leagueManager', variant: 'default' });
+		if ((manages?.teams ?? 0) > 0) badges.push({ key: 'hats.teamManager', variant: 'secondary' });
+		if ((manages?.series ?? 0) > 0) badges.push({ key: 'hats.tournamentManager', variant: 'secondary' });
+		return badges;
 	};
 
 	return (
@@ -89,9 +88,13 @@ export default function Navbar() {
 											<DropdownMenuLabel>
 												<div className="flex flex-col space-y-1">
 													<p className="text-sm font-medium">{t('nav.loggedInAs')}</p>
-													<Badge variant={getRoleBadgeVariant(user?.role)} className="w-fit">
-														{user?.role ? t(`admin.roles.${user.role}`) : ''}
-													</Badge>
+													<div className="flex flex-wrap gap-1">
+														{hats().map((hat) => (
+															<Badge key={hat.key} variant={hat.variant} className="w-fit">
+																{t(hat.key)}
+															</Badge>
+														))}
+													</div>
 													<p className="text-xs font-normal text-muted-foreground truncate">{user.email}</p>
 												</div>
 											</DropdownMenuLabel>

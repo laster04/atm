@@ -8,12 +8,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Role only separates a global administrator from a regular account. What a
+// user may manage comes from the manager relations below (League.manager,
+// Team.manager, TournamentSeries.manager), never from this enum.
 enum Role {
   ADMIN
-  SEASON_MANAGER
-  TEAM_MANAGER
-  TOURNAMENT_MANAGER
-  VIEWER
+  USER
 }
 
 enum SeasonStatus {
@@ -46,7 +46,7 @@ model User {
   email                       String    @unique
   password                    String
   name                        String
-  role                        Role      @default(VIEWER)
+  role                        Role      @default(USER)
   active                      Boolean   @default(true)
   emailVerified               Boolean   @default(false) @map("email_verified")
   emailVerifiedAt             DateTime? @map("email_verified_at")
