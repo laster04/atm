@@ -90,6 +90,16 @@ export const canManageGame = async (user: AuthUser, gameId: string): Promise<boo
   return canManageSeason(user, game.seasonId);
 };
 
+export const canManageMatchEvent = async (user: AuthUser, eventId: string): Promise<boolean> => {
+  if (isAdmin(user)) return true;
+  const event = await prisma.matchEvent.findUnique({
+    where: { id: eventId },
+    select: { game: { select: { seasonId: true } } },
+  });
+  if (!event) return false;
+  return canManageSeason(user, event.game.seasonId);
+};
+
 export const canManageSeries = async (user: AuthUser, seriesId: string): Promise<boolean> => {
   if (isAdmin(user)) return true;
   const series = await prisma.tournamentSeries.findUnique({

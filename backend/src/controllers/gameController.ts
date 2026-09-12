@@ -148,6 +148,21 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // Scores of a game with an event log are derived from that log. Accepting a
+    // hand-edited score here would last only until the next event was recorded.
+    const editsScore = [
+      homeScore, awayScore,
+      period1HomeScore, period1AwayScore,
+      period2HomeScore, period2AwayScore,
+      period3HomeScore, period3AwayScore,
+    ].some(value => value !== undefined);
+    if (existingGame.eventsAuthoritative && editsScore) {
+      res.status(409).json({
+        error: 'This game\'s score comes from its event log. Edit the events instead.',
+      });
+      return;
+    }
+
     const roundNum = round !== undefined ? (round ? (typeof round === 'string' ? parseInt(round) : round) : null) : undefined;
 
     const game = await prisma.game.update({

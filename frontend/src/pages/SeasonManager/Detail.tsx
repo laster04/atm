@@ -13,6 +13,7 @@ import StandingsTab from './components/StandingsTab';
 import MoreTab from './components/MoreTab';
 import RoundDatesSheet from './components/RoundDatesSheet';
 import ResultSheet from './components/ResultSheet';
+import MatchReportSheet from './components/MatchReportSheet';
 import { SEASON_ACCENT, SEASON_STATUS_TONE, isPlayed, needsDate, teamCount } from './components/util';
 
 export type SeasonTab = 'overview' | 'games' | 'teams' | 'table' | 'more';
@@ -34,6 +35,7 @@ export default function Detail() {
 	const [datesRound, setDatesRound] = useState<number | null>(null);
 	/** Fixture whose result is being recorded, or null when the sheet is closed. */
 	const [resultGame, setResultGame] = useState<Game | null>(null);
+	const [reportGame, setReportGame] = useState<Game | null>(null);
 
 	useEffect(() => {
 		if (!id) return;
@@ -228,6 +230,7 @@ export default function Detail() {
 							teamCount={counts.teams}
 							gameCount={counts.games}
 							onGamesChange={setGames}
+							onSeasonChange={setSeason}
 						/>
 					)}
 				</div>
@@ -266,9 +269,28 @@ export default function Detail() {
 				<ResultSheet
 					game={resultGame}
 					onClose={() => setResultGame(null)}
+					onOpenReport={() => {
+						setReportGame(resultGame);
+						setResultGame(null);
+					}}
 					onSaved={(updated) => {
 						applyGames([updated]);
 						setResultGame(null);
+					}}
+				/>
+			)}
+
+			{reportGame && (
+				<MatchReportSheet
+					game={reportGame}
+					onClose={() => setReportGame(null)}
+					// The report derives the score server-side, so the fixture row is
+					// re-read rather than patched from what was typed.
+					onChanged={() => {
+						void gameApi.getById(reportGame.id).then((res) => {
+							applyGames([res.data]);
+							setReportGame(res.data);
+						});
 					}}
 				/>
 			)}

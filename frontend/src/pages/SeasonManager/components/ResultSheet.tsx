@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Minus, Plus, Save, X } from 'lucide-react';
+import { ClipboardList, Lock, Minus, Plus, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
 import { GameStatus, type Game } from '@types';
@@ -10,6 +10,7 @@ interface ResultSheetProps {
 	game: Game;
 	onClose: () => void;
 	onSaved: (game: Game) => void;
+	onOpenReport: () => void;
 }
 
 const STATUSES = [
@@ -19,8 +20,13 @@ const STATUSES = [
 	GameStatus.CANCELLED,
 ];
 
-export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps) {
+export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: ResultSheetProps) {
 	const { t, i18n } = useTranslation();
+
+	// A game with a match report has its score computed from that report. Editing
+	// the figures here would be overwritten by the next event, so they are shown
+	// but not offered for editing, and the save omits them.
+	const derived = game.eventsAuthoritative === true;
 
 	const [homeScore, setHomeScore] = useState(game.homeScore ?? 0);
 	const [awayScore, setAwayScore] = useState(game.awayScore ?? 0);
@@ -66,17 +72,22 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 		setError('');
 		setSaving(true);
 		try {
-			const res = await gameApi.update(game.id, {
-				homeScore,
-				awayScore,
-				period1HomeScore: periods[0][0],
-				period1AwayScore: periods[0][1],
-				period2HomeScore: periods[1][0],
-				period2AwayScore: periods[1][1],
-				period3HomeScore: periods[2][0],
-				period3AwayScore: periods[2][1],
-				status,
-			});
+			const res = await gameApi.update(
+				game.id,
+				derived
+					? { status }
+					: {
+							homeScore,
+							awayScore,
+							period1HomeScore: periods[0][0],
+							period1AwayScore: periods[0][1],
+							period2HomeScore: periods[1][0],
+							period2AwayScore: periods[1][1],
+							period3HomeScore: periods[2][0],
+							period3AwayScore: periods[2][1],
+							status,
+						}
+			);
 			onSaved(res.data);
 		} catch (err) {
 			const axiosError = err as AxiosError<{ error: string }>;
@@ -109,21 +120,25 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 				<span className="text-[11px] uppercase tracking-wide text-muted-foreground">{side}</span>
 			</span>
 			<span className="flex shrink-0 items-center gap-1.5">
-				<button
-					onClick={() => onChange(Math.max(0, value - 1))}
-					className="flex size-11 items-center justify-center rounded-[11px] border border-border"
-					aria-label="-"
-				>
-					<Minus className="size-4" aria-hidden />
-				</button>
+				{!derived && (
+					<button
+						onClick={() => onChange(Math.max(0, value - 1))}
+						className="flex size-11 items-center justify-center rounded-[11px] border border-border"
+						aria-label="-"
+					>
+						<Minus className="size-4" aria-hidden />
+					</button>
+				)}
 				<span className="w-9 text-center text-2xl font-bold tabular-nums">{value}</span>
-				<button
-					onClick={() => onChange(value + 1)}
-					className="flex size-11 items-center justify-center rounded-[11px] border border-border"
-					aria-label="+"
-				>
-					<Plus className="size-4" aria-hidden />
-				</button>
+				{!derived && (
+					<button
+						onClick={() => onChange(value + 1)}
+						className="flex size-11 items-center justify-center rounded-[11px] border border-border"
+						aria-label="+"
+					>
+						<Plus className="size-4" aria-hidden />
+					</button>
+				)}
 			</span>
 		</div>
 	);
@@ -146,6 +161,24 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 			</div>
 
 			<div className="flex flex-1 flex-col gap-3.5 overflow-y-auto p-4">
+				{/* Where the figures below come from, and how to change them */}
+				{derived && (
+					<div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3.5">
+						<Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+						<p className="text-[12.5px] leading-snug text-muted-foreground">
+							{t('seasonManagement.result.derivedNote')}
+						</p>
+					</div>
+				)}
+				<button
+					onClick={onOpenReport}
+					className="flex h-11 items-center justify-center gap-2 rounded-[10px] border text-[14.5px] font-semibold"
+					style={{ borderColor: SEASON_ACCENT, color: SEASON_ACCENT }}
+				>
+					<ClipboardList className="size-4" aria-hidden />
+					{t('seasonManagement.result.openReport')}
+				</button>
+
 				{/* Final score */}
 				<div className="flex flex-col gap-3.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">
 					<span className="tm-section-label">{t('seasonManagement.result.finalScore')}</span>
@@ -170,7 +203,9 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 					<div className="flex items-baseline justify-between">
 						<span className="tm-section-label">{t('seasonManagement.result.periods')}</span>
 						<span className="text-[12.5px] text-muted-foreground">
-							{t('seasonManagement.result.optional')}
+							{derived
+								? t('seasonManagement.result.fromReport')
+								: t('seasonManagement.result.optional')}
 						</span>
 					</div>
 					<div className="tm-rows-card">
@@ -186,6 +221,7 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 										min={0}
 										inputMode="numeric"
 										value={pair[0] ?? ''}
+										readOnly={derived}
 										onChange={(e) => setPeriod(index, 0, e.target.value)}
 										className="sm-score-input h-11 w-14 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
 									/>
@@ -195,6 +231,7 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 										min={0}
 										inputMode="numeric"
 										value={pair[1] ?? ''}
+										readOnly={derived}
 										onChange={(e) => setPeriod(index, 1, e.target.value)}
 										className="sm-score-input h-11 w-14 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
 									/>
@@ -245,7 +282,7 @@ export default function ResultSheet({ game, onClose, onSaved }: ResultSheetProps
 					style={{ backgroundColor: SEASON_ACCENT }}
 				>
 					<Save className="size-4" aria-hidden />
-					{t('seasonManagement.result.save')}
+					{derived ? t('seasonManagement.result.saveStatus') : t('seasonManagement.result.save')}
 				</button>
 			</div>
 		</div>

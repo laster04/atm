@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
-  ArchivedStanding, ArchivedPlayerStat,
+  ArchivedStanding, ArchivedPlayerStat, MatchEvent, MatchEventInput, MyPlayerProfile,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
@@ -120,7 +120,24 @@ export const playerApi = {
   update: (id: string | number, data: Partial<Player>) => api.put<Player>(`/players/${id}`, data),
   delete: (id: string | number) => api.delete(`/players/${id}`),
   move: (id: string | number, targetTeamId: string) =>
-    api.patch<Player>(`/players/${id}/move`, { targetTeamId })
+    api.patch<Player>(`/players/${id}/move`, { targetTeamId }),
+  // Roster spots the signed-in user holds, for a player who manages nothing.
+  getMine: () => api.get<MyPlayerProfile[]>('/players/me'),
+  // Links a roster row to an account that already exists; never creates one.
+  linkAccount: (id: string | number, email: string) =>
+    api.patch<Player>(`/players/${id}/link`, { email }),
+  unlinkAccount: (id: string | number) => api.delete<Player>(`/players/${id}/link`)
+};
+
+// ── Match report ────────────────────────────────────────────
+// The event log a league game's score and player statistics are derived from.
+export const matchEventApi = {
+  getByGame: (gameId: string | number) => api.get<MatchEvent[]>(`/games/${gameId}/events`),
+  create: (gameId: string | number, data: MatchEventInput) =>
+    api.post<MatchEvent>(`/games/${gameId}/events`, data),
+  update: (id: string | number, data: Partial<MatchEventInput>) =>
+    api.put<MatchEvent>(`/games/events/${id}`, data),
+  delete: (id: string | number) => api.delete(`/games/events/${id}`)
 };
 
 export const gameApi = {

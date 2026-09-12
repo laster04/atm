@@ -12,7 +12,8 @@
     "games": "zapasu",
     "players": "hracu",
     "seasons": "sezon",
-    "all": "Vse"
+    "all": "Vse",
+    "close": "Zavřít"
   },
   "nav": {
     "brand": "Sportovni Planovac",
@@ -600,6 +601,15 @@
         "navy": "Námořnická",
         "teal": "Tyrkysová"
       }
+    },
+    "account": {
+      "title": "Účet",
+      "hint": "Propojte hráče s účtem, se kterým se zaregistroval, aby se mohl přihlásit a vidět svůj tým.",
+      "emailPlaceholder": "E-mailová adresa",
+      "link": "Propojit",
+      "unlink": "Zrušit propojení",
+      "linked": "Propojený účet",
+      "error": "Propojení účtu se nepodařilo změnit"
     }
   },
   "seasonManagement": {
@@ -708,7 +718,11 @@
       "period": "T{{n}}",
       "status": "Stav",
       "save": "Uložit výsledek",
-      "saveError": "Nepodařilo se uložit výsledek"
+      "saveError": "Nepodařilo se uložit výsledek",
+      "derivedNote": "Toto skóre se počítá ze zápisu o utkání. Změníte ho úpravou zápisu.",
+      "openReport": "Zápis o utkání",
+      "fromReport": "ze zápisu",
+      "saveStatus": "Uložit stav"
     },
     "teams": {
       "count_one": "{{count}} v této sezóně",
@@ -739,7 +753,61 @@
       "generateHint": "Vytvoří zápasy pro všechna kola",
       "regenerateHint": "Nahradí stávající zápasy",
       "generateError": "Nepodařilo se vygenerovat rozpis",
-      "publicPage": "Zobrazit veřejnou stránku"
+      "publicPage": "Zobrazit veřejnou stránku",
+      "scoring": "Bodování",
+      "scoringInherited": "Používá výchozí nastavení pro tento sport",
+      "scoringCustom": "{{win}} za výhru, {{draw}} za remízu"
+    },
+    "report": {
+      "title": "Zápis o utkání",
+      "derivedNote": "Skóre, skóre po třetinách i statistiky hráčů se počítají z toho, co sem zapíšete.",
+      "empty": "Zatím nic zapsáno. Začněte přidáním gólu nebo trestu.",
+      "loadError": "Zápis o utkání se nepodařilo načíst",
+      "saveError": "Záznam se nepodařilo uložit",
+      "deleteError": "Záznam se nepodařilo odstranit",
+      "period": "{{n}}. třetina",
+      "periodLabel": "Třetina",
+      "atMinute": "{{n}}'",
+      "minutes": "{{n}} min",
+      "minute": "Minuta",
+      "unattributed": "Bez hráče",
+      "addGoal": "Gól",
+      "addPenalty": "Trest",
+      "newGoal": "Nový gól",
+      "newPenalty": "Nový trest",
+      "scorer": "Střelec",
+      "penalised": "Hráč",
+      "assist": "Asistence",
+      "secondAssist": "Druhá asistence",
+      "noAssist": "Žádná",
+      "penaltyMinutes": "Trestné minuty",
+      "add": "Přidat"
+    },
+    "scoring": {
+      "title": "Bodování",
+      "inheritedNote": "Sezóna používá výchozí bodování. Jakoukoli změnou níže jí nastavíte vlastní pravidla.",
+      "customNote": "Sezóna má vlastní pravidla bodování.",
+      "points": "Body",
+      "win": "Výhra",
+      "draw": "Remíza",
+      "loss": "Prohra",
+      "allowDraws": "Povolit remízy",
+      "allowDrawsHint": "Vypněte u sportů, kde remíza není možná",
+      "tiebreakers": "Rozhodování při shodě",
+      "inOrder": "v tomto pořadí",
+      "noTiebreakers": "Týmy se shodným počtem bodů zůstanou v současném pořadí",
+      "moveUp": "Posunout nahoru",
+      "moveDown": "Posunout dolů",
+      "reset": "Vrátit výchozí nastavení",
+      "save": "Uložit pravidla",
+      "saveError": "Pravidla bodování se nepodařilo uložit",
+      "tb": {
+        "GOAL_DIFF": "Rozdíl skóre",
+        "GOALS_FOR": "Vstřelené góly",
+        "HEAD_TO_HEAD": "Vzájemný zápas",
+        "WINS": "Počet výher",
+        "PLAYED": "Méně odehraných zápasů"
+      }
     }
   },
   "admin": {

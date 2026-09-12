@@ -8,6 +8,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { canManageTeam } from '../services/access.js';
+import { normalizeEmail } from '../utils/email.js';
 
 export const getPlayersByTeamId = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -245,5 +246,135 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
   } catch (error) {
     console.error('Move player error:', error);
     res.status(500).json({ error: 'Failed to move player' });
+  }
+};
+
+/**
+ * Links a roster row to the account of the person who holds it. A roster row is
+ * created by a manager typing a name and exists whether or not that person ever
+ * signs up, so the link is a separate, reversible step rather than part of
+ * creating the player.
+ *
+ * Only an account that already exists can be linked: silently creating one from
+ * a typo in an email field would hand a stranger a seat on the team.
+ */
+export const linkPlayerToUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { email } = req.body as { email?: string };
+
+    if (!email || typeof email !== 'string' || !email.trim()) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+
+    const player = await prisma.player.findUnique({
+      where: { id },
+      select: { id: true, teamId: true, userId: true },
+    });
+    if (!player) {
+      res.status(404).json({ error: 'Player not found' });
+      return;
+    }
+    if (player.userId) {
+      res.status(409).json({ error: 'Player is already linked to an account' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: normalizeEmail(email) },
+      select: { id: true, active: true },
+    });
+    if (!user) {
+      res.status(404).json({ error: 'No account with that email' });
+      return;
+    }
+    if (!user.active) {
+      res.status(400).json({ error: 'That account is deactivated' });
+      return;
+    }
+
+    // One person cannot hold two roster spots in the same team.
+    const alreadyOnTeam = await prisma.player.findFirst({
+      where: { teamId: player.teamId, userId: user.id },
+      select: { id: true },
+    });
+    if (alreadyOnTeam) {
+      res.status(409).json({ error: 'That account is already linked to a player in this team' });
+      return;
+    }
+
+    const updated = await prisma.player.update({
+      where: { id },
+      data: { userId: user.id },
+      include: { user: { select: { id: true, name: true, email: true } } },
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Link player error:', error);
+    res.status(500).json({ error: 'Failed to link player' });
+  }
+};
+
+/**
+ * Unlinks without touching the roster row: the player, their number and their
+ * recorded games all stay, only the account association goes.
+ */
+export const unlinkPlayerFromUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const player = await prisma.player.findUnique({ where: { id }, select: { id: true } });
+    if (!player) {
+      res.status(404).json({ error: 'Player not found' });
+      return;
+    }
+
+    const updated = await prisma.player.update({ where: { id }, data: { userId: null } });
+    res.json(updated);
+  } catch (error) {
+    console.error('Unlink player error:', error);
+    res.status(500).json({ error: 'Failed to unlink player' });
+  }
+};
+
+/**
+ * Every roster spot the signed-in user holds. This is what lets a player who
+ * manages nothing still have somewhere to land after logging in.
+ */
+export const getMyPlayerProfiles = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const players = await prisma.player.findMany({
+      where: { userId: req.user!.id },
+      include: {
+        team: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+            primaryColor: true,
+            seasonTeams: {
+              select: { season: { select: { id: true, name: true, status: true, startDate: true } } },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    res.json(
+      players.map(player => ({
+        ...player,
+        team: {
+          ...player.team,
+          seasons: player.team.seasonTeams.map(st => st.season),
+          seasonTeams: undefined,
+        },
+      }))
+    );
+  } catch (error) {
+    console.error('Get my player profiles error:', error);
+    res.status(500).json({ error: 'Failed to fetch player profiles' });
   }
 };

@@ -118,6 +118,13 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
+		if (game.eventsAuthoritative) {
+			res.status(409).json({
+				error: 'This game\'s statistics come from its event log. Edit the events instead.'
+			});
+			return;
+		}
+
 		const player = await prisma.player.findUnique({
 			where: { id: String(playerId) },
 			include: { team: true }
@@ -206,6 +213,13 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 			res.status(404).json({ error: 'Statistic not found' });
 			return;
 		}
+
+		if (existingStatistic.game.eventsAuthoritative) {
+			res.status(409).json({
+				error: 'This game\'s statistics come from its event log. Edit the events instead.'
+			});
+			return;
+		}
 		if (existingStatistic.game.season.archivedAt) {
 			res.status(400).json({ error: 'Cannot modify an archived season' });
 			return;
@@ -253,6 +267,13 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 		});
 		if (!existingStatistic) {
 			res.status(404).json({ error: 'Statistic not found' });
+			return;
+		}
+
+		if (existingStatistic.game.eventsAuthoritative) {
+			res.status(409).json({
+				error: 'This game\'s statistics come from its event log. Edit the events instead.'
+			});
 			return;
 		}
 		if (existingStatistic.game.season.archivedAt) {

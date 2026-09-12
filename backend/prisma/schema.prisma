@@ -62,6 +62,8 @@ model User {
   managedLeagues          League[]
   managedTeams            Team[]
   managedTournamentSeries TournamentSeries[]
+  playerProfiles          Player[]
+  recordedMatchEvents     MatchEvent[]       @relation("MatchEventRecorder")
 
   @@map("users")
 }
@@ -72,6 +74,9 @@ model League {
   sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
   description String?
+  // Scoring override for every season of this league. Null falls back to the
+  // sport default in services/scoring/policy.ts. A season may override again.
+  scoring     Json?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
@@ -89,6 +94,8 @@ model Season {
   startDate  DateTime     @map("start_date")
   endDate    DateTime     @map("end_date")
   status     SeasonStatus @default(DRAFT)
+  // Overrides the league's scoring for this season only; null inherits.
+  scoring    Json?
   archivedAt DateTime?    @map("archived_at")
   createdAt  DateTime     @default(now()) @map("created_at")
   updatedAt  DateTime     @updatedAt @map("updated_at")
@@ -133,6 +140,7 @@ model Team {
   players     Player[]
   homeGames   Game[]       @relation("HomeTeam")
   awayGames   Game[]       @relation("AwayTeam")
+  matchEvents MatchEvent[] @relation("MatchEventTeam")
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
@@ -154,8 +162,21 @@ model Player {
   team      Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade)
   statistic HockeyGameStatistic[] @relation("PlayerStatistic")
 
+  // A roster row exists whether or not the person behind it has an account.
+  // Claiming links the two so the player can sign in and see their own team;
+  // unlinking must leave the roster row and its history intact.
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   archivedStats SeasonArchivePlayerStat[]
 
+  matchEvents          MatchEvent[] @relation("MatchEventPlayer")
+  matchEventAssists    MatchEvent[] @relation("MatchEventAssist")
+  matchEventAssists2nd  MatchEvent[] @relation("MatchEventSecondaryAssist")
+
+  // One person may hold a roster spot in several teams, but only one per team.
+  @@unique([teamId, userId])
+  @@index([userId])
   @@map("players")
 }
 
@@ -173,6 +194,10 @@ model Game {
   period3AwayScore Int?       @map("period3_away_score")
   status           GameStatus @default(SCHEDULED)
   round            Int?
+  // True once this game has an event log. Its scores and player statistics are
+  // then derived from that log and must not be edited directly. Games recorded
+  // before the log existed stay false and keep their hand-entered figures.
+  eventsAuthoritative Boolean @default(false) @map("events_authoritative")
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 
@@ -185,8 +210,70 @@ model Game {
   awayTeamId String                @map("away_team_id")
   awayTeam   Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
   statistic  HockeyGameStatistic[] @relation("GameStatistic")
+  events     MatchEvent[]
 
   @@map("games")
+}
+
+// What happened in a game, as it happened. Player statistics, the final score
+// and the period scores are all derived from these rows, so a correction is
+// made once here rather than in four places that can disagree.
+enum MatchEventType {
+  GOAL
+  PENALTY
+  GOALIE_CHANGE
+  TIMEOUT
+  PERIOD_START
+  PERIOD_END
+  SHOOTOUT_ATTEMPT
+}
+
+model MatchEvent {
+  id     String         @id @default(uuid())
+  type   MatchEventType
+  // Period 1..n, counted from the start of the game. Overtime and shootout
+  // continue the count rather than needing a flag of their own.
+  period Int            @default(1)
+  // Elapsed time within the period. Optional: a scoresheet is often filled in
+  // afterwards from memory, with the order known but not the clock.
+  minute Int?
+  second Int?
+
+  gameId String @map("game_id")
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  // Which side the event belongs to. Required even when no player is named, so
+  // a goal still counts toward the right team if its scorer is later removed.
+  teamId String @map("team_id")
+  team   Team   @relation("MatchEventTeam", fields: [teamId], references: [id], onDelete: Restrict)
+
+  // The player the event is credited to: scorer, penalised player, goalie going
+  // in. Null once that roster row is deleted - the event itself still happened.
+  playerId String? @map("player_id")
+  player   Player? @relation("MatchEventPlayer", fields: [playerId], references: [id], onDelete: SetNull)
+
+  assistPlayerId String? @map("assist_player_id")
+  assistPlayer   Player? @relation("MatchEventAssist", fields: [assistPlayerId], references: [id], onDelete: SetNull)
+
+  secondaryAssistPlayerId String? @map("secondary_assist_player_id")
+  secondaryAssistPlayer   Player? @relation("MatchEventSecondaryAssist", fields: [secondaryAssistPlayerId], references: [id], onDelete: SetNull)
+
+  // PENALTY only.
+  penaltyMinutes Int?    @map("penalty_minutes")
+  penaltyType    String? @map("penalty_type")
+
+  note String?
+
+  // Who recorded it. Kept when the account goes so the trail does not vanish
+  // with the person.
+  recordedById String?  @map("recorded_by_id")
+  recordedBy   User?    @relation("MatchEventRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([gameId])
+  @@index([playerId])
+  @@map("match_events")
 }
 
 model HockeyGameStatistic {
@@ -279,6 +366,9 @@ model TournamentSeries {
   sportType   SportType @default(OTHER) @map("sport_type")
   logo        String?
   description String?
+  // Scoring override inherited by every tournament in the series; null falls
+  // back to the sport default.
+  scoring     Json?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
@@ -295,6 +385,8 @@ model Tournament {
   name      String
   year      Int?
   status    TournamentStatus @default(DRAFT)
+  // Overrides the series scoring for this tournament only; null inherits.
+  scoring   Json?
   startDate DateTime?        @map("start_date")
   endDate   DateTime?        @map("end_date")
   location  String?
