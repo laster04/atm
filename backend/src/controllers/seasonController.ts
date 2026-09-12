@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import {
   AuthRequest,
+  LiveProjection,
   CreateSeasonRequest,
   UpdateSeasonRequest,
   Standing,
@@ -27,23 +28,60 @@ type StandingGame = {
  * results become points and how ties break, this owns only the Standing shape
  * the season API has always returned. The policy comes from the season/league,
  * so "two points for a win" is no longer a fact of this file.
+ *
+ * `inProgress` are games being played right now. They never touch the official
+ * table; they are used to work out where each team would stand if those games
+ * ended as they are, which is what the live view shows.
  */
 export function computeStandings(
   teams: StandingTeamRef[],
   games: StandingGame[],
-  policy: ScoringPolicy
+  policy: ScoringPolicy,
+  inProgress: StandingGame[] = []
 ): Standing[] {
-  return computeTable(teams, games, policy).map(row => ({
-    team: row.team,
-    played: row.played,
-    wins: row.wins,
-    draws: row.draws,
-    losses: row.losses,
-    goalsFor: row.goalsFor,
-    goalsAgainst: row.goalsAgainst,
-    goalDifference: row.goalDifference,
-    points: row.points,
-  }));
+  const official = computeTable(teams, games, policy);
+
+  // A game with nothing on the scoreboard yet says nothing about where anyone
+  // would finish, so it is left out rather than counted as a goalless draw.
+  const scored = inProgress.filter(game => game.homeScore != null && game.awayScore != null);
+  const projected = scored.length > 0 ? computeTable(teams, [...games, ...scored], policy) : null;
+
+  const projectedByTeam = new Map(
+    (projected ?? []).map((row, index) => [row.teamId, { row, rank: index + 1 }])
+  );
+  const playing = new Set(
+    scored.flatMap(game => [game.homeTeamId, game.awayTeamId]).filter((id): id is string => id != null)
+  );
+
+  return official.map((row, index) => {
+    const rank = index + 1;
+    const ahead = projectedByTeam.get(row.teamId);
+
+    const live: LiveProjection | null = ahead
+      ? {
+          rank: ahead.rank,
+          points: ahead.row.points,
+          played: ahead.row.played,
+          // Positive means climbing: rank 4 becoming rank 2 is a gain of two.
+          movement: rank - ahead.rank,
+        }
+      : null;
+
+    return {
+      team: row.team,
+      played: row.played,
+      wins: row.wins,
+      draws: row.draws,
+      losses: row.losses,
+      goalsFor: row.goalsFor,
+      goalsAgainst: row.goalsAgainst,
+      goalDifference: row.goalDifference,
+      points: row.points,
+      rank,
+      inPlay: playing.has(row.teamId),
+      live,
+    };
+  });
 }
 
 export const getAllSeasons = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -285,11 +323,17 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
     });
     const teams = seasonTeams.map(st => st.team);
 
-    const games = await prisma.game.findMany({
-      where: { seasonId, status: 'COMPLETED' }
-    });
+    const [games, inProgress] = await Promise.all([
+      prisma.game.findMany({ where: { seasonId, status: 'COMPLETED' } }),
+      prisma.game.findMany({ where: { seasonId, status: 'IN_PROGRESS' } }),
+    ]);
 
-    const standings = computeStandings(teams, games, policyFromRows(season, season.league, 'LEAGUE'));
+    const standings = computeStandings(
+      teams,
+      games,
+      policyFromRows(season, season.league, 'LEAGUE'),
+      inProgress
+    );
 
     res.json(standings);
   } catch (error) {
@@ -550,6 +594,10 @@ export const getArchivedStandings = async (req: Request, res: Response): Promise
       goalDifference: row.goalsFor - row.goalsAgainst,
       points: row.points,
       rank: row.rank,
+      // An archived season is finished: nothing is being played and there is
+      // nothing left for the table to project.
+      inPlay: false,
+      live: null,
       totalTeams: rows.length
     }));
 

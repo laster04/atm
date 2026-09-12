@@ -220,6 +220,14 @@ export interface Game {
   awayTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
 }
 
+export interface LiveProjection {
+  rank: number;
+  points: number;
+  played: number;
+  /** Places gained if the games in progress end as they stand. */
+  movement: number;
+}
+
 export interface Standing {
   team: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
   played: number;
@@ -230,6 +238,12 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Position in the official table, 1-based. */
+  rank: number;
+  /** True while this team has a game in progress. */
+  inPlay: boolean;
+  /** Where the team would stand if the games in progress ended as they are. */
+  live: LiveProjection | null;
 }
 
 export const MatchEventType = {

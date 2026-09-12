@@ -369,7 +369,12 @@
       "goalDifference": "RG",
       "points": "B",
       "noData": "Zatim zadna data v tabulce.",
-      "tableTitle": "Tabulka po {{count}} zápasech"
+      "tableTitle": "Tabulka po {{count}} zápasech",
+      "liveHint": "Právě se hraje. Šipky ukazují, kde by tým skončil, kdyby zápasy teď skončily.",
+      "liveTag": "Živě",
+      "playingNow": "Právě hraje",
+      "wouldClimb": "Postoupil by o {{places}} na {{rank}}. místo",
+      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo"
     },
     "schedule": {
       "noGames": "Zatim zadne naplanovanene zapasy.",
@@ -786,7 +791,12 @@
       "team": "Tým",
       "played": "Z",
       "points": "B",
-      "empty": "Zatím se nehrálo — pořadí je abecední, dokud nepřijdou výsledky."
+      "empty": "Zatím se nehrálo — pořadí je abecední, dokud nepřijdou výsledky.",
+      "liveHint": "Právě se hraje. Šipky ukazují, kde by tým skončil, kdyby zápasy teď skončily.",
+      "liveTag": "Živě",
+      "playingNow": "Právě hraje",
+      "wouldClimb": "Postoupil by o {{places}} na {{rank}}. místo",
+      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo"
     },
     "more": {
       "seasonInfo": "O sezóně",
