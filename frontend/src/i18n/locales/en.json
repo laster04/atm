@@ -12,7 +12,8 @@
     "games": "games",
     "players": "players",
     "seasons": "seasons",
-    "all": "All"
+    "all": "All",
+    "close": "Close"
   },
   "nav": {
     "brand": "Sport Scheduler",
@@ -595,6 +596,15 @@
         "navy": "Navy",
         "teal": "Teal"
       }
+    },
+    "account": {
+      "title": "Account",
+      "hint": "Link this player to the account they registered with, so they can sign in and see the team.",
+      "emailPlaceholder": "Email address",
+      "link": "Link",
+      "unlink": "Unlink account",
+      "linked": "Linked account",
+      "error": "Failed to change the account link"
     }
   },
   "seasonManagement": {
@@ -700,7 +710,11 @@
       "period": "P{{n}}",
       "status": "Status",
       "save": "Save result",
-      "saveError": "Failed to save the result"
+      "saveError": "Failed to save the result",
+      "derivedNote": "This score is calculated from the match report. Edit the report to change it.",
+      "openReport": "Match report",
+      "fromReport": "from report",
+      "saveStatus": "Save status"
     },
     "teams": {
       "count_one": "{{count}} in this season",
@@ -729,7 +743,61 @@
       "generateHint": "Creates the fixtures for every round",
       "regenerateHint": "Replaces the existing fixtures",
       "generateError": "Failed to generate the schedule",
-      "publicPage": "View public page"
+      "publicPage": "View public page",
+      "scoring": "Scoring rules",
+      "scoringInherited": "Using the default for this sport",
+      "scoringCustom": "{{win}} for a win, {{draw}} for a draw"
+    },
+    "report": {
+      "title": "Match report",
+      "derivedNote": "The score, period scores and player statistics are all calculated from what you record here.",
+      "empty": "Nothing recorded yet. Add a goal or a penalty to start the report.",
+      "loadError": "Failed to load the match report",
+      "saveError": "Failed to record that",
+      "deleteError": "Failed to remove that",
+      "period": "Period {{n}}",
+      "periodLabel": "Period",
+      "atMinute": "{{n}}'",
+      "minutes": "{{n}} min",
+      "minute": "Minute",
+      "unattributed": "No player",
+      "addGoal": "Goal",
+      "addPenalty": "Penalty",
+      "newGoal": "New goal",
+      "newPenalty": "New penalty",
+      "scorer": "Scorer",
+      "penalised": "Player",
+      "assist": "Assist",
+      "secondAssist": "Second assist",
+      "noAssist": "None",
+      "penaltyMinutes": "Penalty minutes",
+      "add": "Add"
+    },
+    "scoring": {
+      "title": "Scoring rules",
+      "inheritedNote": "This season uses the default scoring. Change anything below to give it rules of its own.",
+      "customNote": "This season has its own scoring rules.",
+      "points": "Points",
+      "win": "Win",
+      "draw": "Draw",
+      "loss": "Loss",
+      "allowDraws": "Allow draws",
+      "allowDrawsHint": "Turn off for sports that cannot end level",
+      "tiebreakers": "Tiebreakers",
+      "inOrder": "applied in order",
+      "noTiebreakers": "Teams level on points keep their current order",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "reset": "Use the default again",
+      "save": "Save rules",
+      "saveError": "Failed to save the scoring rules",
+      "tb": {
+        "GOAL_DIFF": "Goal difference",
+        "GOALS_FOR": "Goals scored",
+        "HEAD_TO_HEAD": "Head to head",
+        "WINS": "Wins",
+        "PLAYED": "Fewer games played"
+      }
     }
   },
   "admin": {

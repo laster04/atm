@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ExternalLink } from 'lucide-react';
+import { CalendarPlus, ExternalLink, ListOrdered } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
 import type { Game, Season } from '@types';
 import GenerateScheduleModal, { type GenerateScheduleData } from '@/pages/Admin/components/games/GenerateScheduleModal';
+import ScoringSheet from './ScoringSheet';
 import { SEASON_ACCENT } from './util';
 
 interface MoreTabProps {
@@ -13,11 +14,13 @@ interface MoreTabProps {
 	teamCount: number;
 	gameCount: number;
 	onGamesChange: (games: Game[]) => void;
+	onSeasonChange: (season: Season) => void;
 }
 
-export default function MoreTab({ season, teamCount, gameCount, onGamesChange }: MoreTabProps) {
+export default function MoreTab({ season, teamCount, gameCount, onGamesChange, onSeasonChange }: MoreTabProps) {
 	const { t, i18n } = useTranslation();
 	const [showGenerate, setShowGenerate] = useState(false);
+	const [showScoring, setShowScoring] = useState(false);
 	const [error, setError] = useState('');
 
 	const formatDate = (iso: string) =>
@@ -79,6 +82,24 @@ export default function MoreTab({ season, teamCount, gameCount, onGamesChange }:
 					</span>
 				</button>
 
+				<button
+					onClick={() => setShowScoring(true)}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left"
+				>
+					<ListOrdered className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-sm font-semibold">{t('seasonManagement.more.scoring')}</span>
+						<span className="text-xs text-muted-foreground">
+							{season.scoring
+								? t('seasonManagement.more.scoringCustom', {
+										win: season.scoring.winPoints,
+										draw: season.scoring.drawPoints,
+									})
+								: t('seasonManagement.more.scoringInherited')}
+						</span>
+					</span>
+				</button>
+
 				<Link
 					to={`/season-detail/${season.id}`}
 					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5"
@@ -87,6 +108,14 @@ export default function MoreTab({ season, teamCount, gameCount, onGamesChange }:
 					<span className="text-sm font-semibold">{t('seasonManagement.more.publicPage')}</span>
 				</Link>
 			</div>
+
+			{showScoring && (
+				<ScoringSheet
+					season={season}
+					onClose={() => setShowScoring(false)}
+					onSaved={onSeasonChange}
+				/>
+			)}
 
 			{showGenerate && (
 				<GenerateScheduleModal

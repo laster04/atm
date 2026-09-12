@@ -49,10 +49,25 @@ export interface User {
   manages?: ManagedCounts;
 }
 
+/** How results become table points, and how ties are broken. */
+export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED';
+
+export interface ScoringPolicy {
+  winPoints: number;
+  drawPoints: number;
+  lossPoints: number;
+  otWinPoints: number;
+  otLossPoints: number;
+  allowDraws: boolean;
+  tiebreakers: Tiebreaker[];
+}
+
 export interface League {
   id: string;
   name: string;
   sportType: SportType;
+  /** Null inherits the sport default; a season may override again. */
+  scoring?: ScoringPolicy | null;
   logo?: string | null;
   description?: string | null;
   createdAt: string;
@@ -78,6 +93,8 @@ export interface Season {
   startDate: string;
   endDate: string;
   status: SeasonStatus;
+  /** Null inherits the league, which in turn falls back to the sport default. */
+  scoring?: ScoringPolicy | null;
   archivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -120,6 +137,14 @@ export interface Player {
   note?: string | null;
   teamId: string;
   team?: Team;
+  // A roster row exists whether or not the person behind it has an account.
+  userId?: string | null;
+  user?: Pick<User, 'id' | 'name' | 'email'> | null;
+}
+
+/** A roster spot the signed-in user holds, from `GET /players/me`. */
+export interface MyPlayerProfile extends Player {
+  team: Team & { seasons?: Pick<Season, 'id' | 'name' | 'status' | 'startDate'>[] };
 }
 
 export interface Game {
@@ -136,6 +161,9 @@ export interface Game {
   period3AwayScore?: number | null;
   status: GameStatus;
   round?: number | null;
+  // True when this game's scores come from its match report. They are then
+  // read-only: the API refuses a direct edit.
+  eventsAuthoritative?: boolean;
   seasonId: string;
   homeTeamId: string;
   awayTeamId: string;
@@ -154,6 +182,58 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+}
+
+export const MatchEventType = {
+  GOAL: 'GOAL',
+  PENALTY: 'PENALTY',
+  GOALIE_CHANGE: 'GOALIE_CHANGE',
+  TIMEOUT: 'TIMEOUT',
+  PERIOD_START: 'PERIOD_START',
+  PERIOD_END: 'PERIOD_END',
+  SHOOTOUT_ATTEMPT: 'SHOOTOUT_ATTEMPT',
+} as const;
+export type MatchEventType = (typeof MatchEventType)[keyof typeof MatchEventType];
+
+type EventPlayerRef = Pick<Player, 'id' | 'name' | 'number'>;
+
+/**
+ * One line of a match report. A game's score, period scores and player
+ * statistics are all derived from these, so editing one corrects all of them.
+ */
+export interface MatchEvent {
+  id: string;
+  type: MatchEventType;
+  period: number;
+  minute?: number | null;
+  second?: number | null;
+  gameId: string;
+  teamId: string;
+  team?: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+  playerId?: string | null;
+  player?: EventPlayerRef | null;
+  assistPlayerId?: string | null;
+  assistPlayer?: EventPlayerRef | null;
+  secondaryAssistPlayerId?: string | null;
+  secondaryAssistPlayer?: EventPlayerRef | null;
+  penaltyMinutes?: number | null;
+  penaltyType?: string | null;
+  note?: string | null;
+  createdAt: string;
+}
+
+export interface MatchEventInput {
+  type: MatchEventType;
+  teamId: string;
+  period?: number;
+  minute?: number | null;
+  second?: number | null;
+  playerId?: string | null;
+  assistPlayerId?: string | null;
+  secondaryAssistPlayerId?: string | null;
+  penaltyMinutes?: number | null;
+  penaltyType?: string | null;
+  note?: string | null;
 }
 
 export interface HockeyGameStatistic {

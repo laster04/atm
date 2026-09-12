@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Loader2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { playerApi, gameStatisticApi, teamApi } from '@/services/api';
+import PlayerAccountCard from './PlayerAccountCard';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@components/base/card.tsx";
 import { Button } from "@components/base/button.tsx";
@@ -301,6 +302,12 @@ export default function PlayerDetailPage() {
 					</div>
 				))}
 			</div>
+
+			<PlayerAccountCard
+				player={player}
+				accent={team?.primaryColor || '#003E7E'}
+				onChanged={setPlayer}
+			/>
 
 			{player.note && (
 				<div className="flex flex-col gap-1 rounded-xl border border-border bg-card p-3.5">
