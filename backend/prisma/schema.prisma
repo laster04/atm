@@ -54,6 +54,9 @@ model User {
   activationTokenExpiresAt    DateTime? @map("activation_token_expires_at")
   passwordResetToken          String?   @unique @map("password_reset_token")
   passwordResetTokenExpiresAt DateTime? @map("password_reset_token_expires_at")
+  // Opt-out for the round summary. Transactional mail (activation, password
+  // reset, invitations) ignores it - that is post the account asked for.
+  emailDigest                 Boolean   @default(true) @map("email_digest")
   onboardingCompletedAt       DateTime? @map("onboarding_completed_at")
   teamTourCompletedAt         DateTime? @map("team_tour_completed_at")
   createdAt                   DateTime  @default(now()) @map("created_at")
@@ -68,6 +71,7 @@ model User {
   auditEntries            AuditLog[]         @relation("AuditActor")
   createdTeamEvents       TeamEvent[]        @relation("TeamEventCreator")
   attendanceResponses     Attendance[]       @relation("AttendanceResponder")
+  sentDigests             SeasonDigest[]     @relation("DigestSender")
 
   @@map("users")
 }
@@ -112,6 +116,7 @@ model Season {
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
+  digests             SeasonDigest[]
 
   @@map("seasons")
 }
@@ -225,6 +230,25 @@ model Game {
   teamEvents TeamEvent[]
 
   @@map("games")
+}
+
+// A round summary that has gone out, so the same round is not mailed twice by
+// accident and the manager can see when it last went and to how many people.
+model SeasonDigest {
+  id    String @id @default(uuid())
+  round Int
+
+  seasonId String @map("season_id")
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  sentAt         DateTime @default(now()) @map("sent_at")
+  recipientCount Int      @default(0) @map("recipient_count")
+
+  sentById String? @map("sent_by_id")
+  sentBy   User?   @relation("DigestSender", fields: [sentById], references: [id], onDelete: SetNull)
+
+  @@unique([seasonId, round])
+  @@map("season_digests")
 }
 
 // Anything a team turns up to: a league fixture, a training session, a meeting.

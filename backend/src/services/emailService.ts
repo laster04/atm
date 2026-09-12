@@ -369,6 +369,108 @@ class EmailService {
       html,
     });
   }
+  /**
+   * The round summary: what was played, the table it leaves behind, and who is
+   * leading the scoring. Sent to everyone involved in a season who has not
+   * turned it off, so it is built once and mailed to each of them unchanged.
+   */
+  async sendRoundSummaryEmail(
+    to: string,
+    name: string,
+    summary: {
+      seasonId: string;
+      seasonName: string;
+      leagueName: string;
+      round: number;
+      results: { homeTeam: string; awayTeam: string; homeScore: number | null; awayScore: number | null }[];
+      standings: { rank: number; team: string; played: number; points: number }[];
+      topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
+    }
+  ): Promise<boolean> {
+    const accent = '#003E7E';
+    const seasonLink = `${this.getAppUrl()}/season-detail/${summary.seasonId}`;
+
+    const cell = (content: string, opts: { align?: string; bold?: boolean; muted?: boolean } = {}) =>
+      `<td style="padding:7px 8px;font-size:14px;text-align:${opts.align ?? 'left'};` +
+      `font-weight:${opts.bold ? 700 : 400};color:${opts.muted ? COLORS.muted : COLORS.text};` +
+      `border-bottom:1px solid ${COLORS.border};">${content}</td>`;
+
+    const table = (head: string, rows: string) =>
+      `<table role="presentation" style="width:100%;border-collapse:collapse;margin:0 0 24px;">` +
+      `<thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+
+    const th = (content: string, align = 'left') =>
+      `<th style="padding:0 8px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.04em;` +
+      `text-align:${align};color:${COLORS.muted};font-weight:600;">${content}</th>`;
+
+    const resultRows = summary.results
+      .map((game) => {
+        const score =
+          game.homeScore != null && game.awayScore != null
+            ? `${game.homeScore} : ${game.awayScore}`
+            : '&mdash;';
+        return `<tr>${cell(escapeHtml(game.homeTeam), { align: 'right' })}` +
+          `${cell(score, { align: 'center', bold: true })}` +
+          `${cell(escapeHtml(game.awayTeam))}</tr>`;
+      })
+      .join('');
+
+    const standingRows = summary.standings
+      .map(
+        (row) =>
+          `<tr>${cell(String(row.rank), { align: 'right', muted: true })}` +
+          `${cell(escapeHtml(row.team))}` +
+          `${cell(String(row.played), { align: 'center', muted: true })}` +
+          `${cell(String(row.points), { align: 'right', bold: true })}</tr>`
+      )
+      .join('');
+
+    const scorerRows = summary.topScorers
+      .map(
+        (scorer) =>
+          `<tr>${cell(escapeHtml(scorer.name))}` +
+          `${cell(escapeHtml(scorer.team), { muted: true })}` +
+          `${cell(`${scorer.goals}+${scorer.assists}`, { align: 'center', muted: true })}` +
+          `${cell(String(scorer.points), { align: 'right', bold: true })}</tr>`
+      )
+      .join('');
+
+    const body = [
+      this.p(`Hello, <strong>${escapeHtml(name)}</strong>,`),
+      this.p(
+        `Round ${summary.round} of ${escapeHtml(summary.seasonName)} is in. Here is how it went.`,
+        { mb: 24 }
+      ),
+      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">Results</p>`,
+      table('', resultRows),
+      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">Table</p>`,
+      table(`${th('#', 'right')}${th('Team')}${th('P', 'center')}${th('Pts', 'right')}`, standingRows),
+      summary.topScorers.length > 0
+        ? `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">Top scorers</p>` +
+          table(`${th('Player')}${th('Team')}${th('G+A', 'center')}${th('Pts', 'right')}`, scorerRows)
+        : '',
+      this.button('Open the season', seasonLink, accent),
+      this.p('You can turn these summaries off from your ATM dashboard.', {
+        mb: 0,
+        size: 13,
+        color: COLORS.muted,
+      }),
+    ].join('');
+
+    const html = this.buildEmailHtml(
+      accent,
+      'trophy',
+      `${escapeHtml(summary.leagueName)} &mdash; Round ${summary.round}`,
+      body
+    );
+
+    return this.sendEmail({
+      to,
+      subject: `${summary.seasonName} - round ${summary.round} summary`,
+      html,
+    });
+  }
+
 }
 
 export const emailService = new EmailService();

@@ -212,6 +212,11 @@
         "MAYBE": "Možná",
         "NO_RESPONSE": "Bez odpovědi"
       }
+    },
+    "emailPrefs": {
+      "title": "E-maily se souhrnem kola",
+      "hint": "Výsledky, tabulka a nejlepší střelci po každém kole. E-maily k účtu chodí vždy.",
+      "error": "Nastavení se nepodařilo uložit"
     }
   },
   "auth": {
@@ -796,7 +801,9 @@
       "publicPage": "Zobrazit veřejnou stránku",
       "scoring": "Bodování",
       "scoringInherited": "Používá výchozí nastavení pro tento sport",
-      "scoringCustom": "{{win}} za výhru, {{draw}} za remízu"
+      "scoringCustom": "{{win}} za výhru, {{draw}} za remízu",
+      "roundSummary": "Odeslat souhrn kola",
+      "roundSummaryHint": "Pošle e-mailem výsledky a tabulku všem v sezóně"
     },
     "report": {
       "title": "Zápis o utkání",
@@ -869,6 +876,23 @@
         "WINS": "Počet výher",
         "PLAYED": "Méně odehraných zápasů"
       }
+    },
+    "summary": {
+      "title": "Souhrn kola",
+      "intro": "Takto bude vypadat e-mail, který dostanou všichni v sezóně. Před odesláním si ho zkontrolujte.",
+      "round": "Kolo",
+      "noRounds": "Zatím žádná kola. Nejdřív vygenerujte rozpis.",
+      "results": "Výsledky",
+      "table": "Tabulka",
+      "topScorers": "Nejlepší střelci",
+      "recipients": "Půjde {{count}} lidem",
+      "lastSent": "naposled odesláno {{when}}",
+      "send": "Odeslat souhrn",
+      "sendAgain": "Odeslat znovu",
+      "alreadySent": "Toto kolo už bylo odesláno. Dalším stisknutím ho odešlete podruhé.",
+      "sentResult": "Odesláno {{delivered}} z {{attempted}} příjemců.",
+      "previewError": "Souhrn se nepodařilo sestavit",
+      "sendError": "Souhrn se nepodařilo odeslat"
     }
   },
   "admin": {

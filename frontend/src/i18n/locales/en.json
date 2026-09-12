@@ -212,6 +212,11 @@
         "MAYBE": "Maybe",
         "NO_RESPONSE": "No response"
       }
+    },
+    "emailPrefs": {
+      "title": "Round summary emails",
+      "hint": "Results, the table and top scorers after each round. Account emails are always sent.",
+      "error": "Failed to save that"
     }
   },
   "auth": {
@@ -786,7 +791,9 @@
       "publicPage": "View public page",
       "scoring": "Scoring rules",
       "scoringInherited": "Using the default for this sport",
-      "scoringCustom": "{{win}} for a win, {{draw}} for a draw"
+      "scoringCustom": "{{win}} for a win, {{draw}} for a draw",
+      "roundSummary": "Send round summary",
+      "roundSummaryHint": "Emails results and the table to everyone in the season"
     },
     "report": {
       "title": "Match report",
@@ -859,6 +866,23 @@
         "WINS": "Wins",
         "PLAYED": "Fewer games played"
       }
+    },
+    "summary": {
+      "title": "Round summary",
+      "intro": "This is the email everyone in the season will receive. Check it before sending.",
+      "round": "Round",
+      "noRounds": "No rounds yet. Generate a schedule first.",
+      "results": "Results",
+      "table": "Table",
+      "topScorers": "Top scorers",
+      "recipients": "Goes to {{count}} people",
+      "lastSent": "last sent {{when}}",
+      "send": "Send summary",
+      "sendAgain": "Send it again",
+      "alreadySent": "This round has already been sent. Press again to send it a second time.",
+      "sentResult": "Sent to {{delivered}} of {{attempted}} recipients.",
+      "previewError": "Failed to build the summary",
+      "sendError": "Failed to send the summary"
     }
   },
   "admin": {

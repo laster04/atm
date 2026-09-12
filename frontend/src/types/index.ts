@@ -43,6 +43,8 @@ export interface User {
   role: Role;
   active: boolean;
   emailVerified?: boolean;
+  /** Opt-out for the round summary. Transactional mail ignores it. */
+  emailDigest?: boolean;
   onboardingCompletedAt?: string | null;
   teamTourCompletedAt?: string | null;
   /** Only present on the signed-in user, from /auth/me and /auth/login. */
@@ -60,6 +62,47 @@ export interface ScoringPolicy {
   otLossPoints: number;
   allowDraws: boolean;
   tiebreakers: Tiebreaker[];
+}
+
+/** What a round summary email says, as the preview endpoint returns it. */
+export interface RoundSummary {
+  seasonId: string;
+  seasonName: string;
+  leagueName: string;
+  round: number;
+  results: {
+    homeTeam: string;
+    awayTeam: string;
+    homeScore: number | null;
+    awayScore: number | null;
+    playedOn: string | null;
+  }[];
+  standings: {
+    rank: number;
+    team: string;
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsFor: number;
+    goalsAgainst: number;
+    points: number;
+  }[];
+  topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
+}
+
+export interface SeasonDigest {
+  id: string;
+  round: number;
+  sentAt: string;
+  recipientCount: number;
+  sentBy?: Pick<User, 'id' | 'name'> | null;
+}
+
+export interface RoundSummaryPreview {
+  summary: RoundSummary;
+  recipientCount: number;
+  lastSent: SeasonDigest | null;
 }
 
 export interface League {

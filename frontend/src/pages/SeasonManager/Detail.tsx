@@ -227,6 +227,7 @@ export default function Detail() {
 					{activeTab === 'more' && (
 						<MoreTab
 							season={season}
+							games={games}
 							teamCount={counts.teams}
 							gameCount={counts.games}
 							onGamesChange={setGames}
