@@ -494,6 +494,10 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
 
       // Verified — now safe to delete the live season-scoped rows
       await tx.hockeyGameStatistic.deleteMany({ where: { gameId: { in: gameIds } } });
+      // The fixtures mirrored into team calendars go with them. The foreign key
+      // only nulls itself, which would strand every archived fixture in the
+      // calendar of both teams that played it.
+      await tx.teamEvent.deleteMany({ where: { gameId: { in: gameIds } } });
       await tx.game.deleteMany({ where: { seasonId } });
       await tx.seasonTeam.deleteMany({ where: { seasonId } });
 

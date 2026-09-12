@@ -254,3 +254,16 @@ describe('Season Archive', () => {
     expect(res.body.error).toMatch(/archived/i);
   });
 });
+
+describe('archiving and the team calendar', () => {
+  it('takes the archived fixtures out of both teams\' calendars', async () => {
+    const events = await prisma.teamEvent.findMany({ where: { gameId: { not: null } } });
+    const stranded = await prisma.teamEvent.findMany({
+      where: { gameId: null, type: 'MATCH' },
+    });
+    // Nothing mirrored may survive its fixture: a MATCH event with no game
+    // behind it is a fixture that was archived and left behind.
+    expect(stranded).toHaveLength(0);
+    expect(events.every((event) => event.gameId !== null)).toBe(true);
+  });
+});
