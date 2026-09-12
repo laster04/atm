@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
-  ArchivedStanding, ArchivedPlayerStat, MatchEvent, MatchEventInput, MyPlayerProfile,
+  ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
@@ -150,7 +150,12 @@ export const gameApi = {
   generateSchedule: (
     seasonId: string | number,
     data: { rounds: number }
-  ) => api.post<{ message: string; games: Game[] }>(`/games/season/${seasonId}/generate`, data)
+  ) => api.post<{ message: string; games: Game[] }>(`/games/season/${seasonId}/generate`, data),
+  // Closes the match report. Everything about the game is read-only afterwards.
+  confirm: (id: string | number) => api.post<Game>(`/games/${id}/confirm`),
+  // Reopening a published result needs a reason; the trail keeps it.
+  reopen: (id: string | number, reason: string) => api.post<Game>(`/games/${id}/reopen`, { reason }),
+  getAudit: (id: string | number) => api.get<AuditEntry[]>(`/games/${id}/audit`)
 };
 
 export const gameStatisticApi = {

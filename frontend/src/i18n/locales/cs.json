@@ -722,7 +722,8 @@
       "derivedNote": "Toto skóre se počítá ze zápisu o utkání. Změníte ho úpravou zápisu.",
       "openReport": "Zápis o utkání",
       "fromReport": "ze zápisu",
-      "saveStatus": "Uložit stav"
+      "saveStatus": "Uložit stav",
+      "confirmedNote": "Zápas je potvrzený a nelze ho měnit. Nejdřív otevřete zápis o utkání a odemkněte ho."
     },
     "teams": {
       "count_one": "{{count}} v této sezóně",
@@ -781,7 +782,28 @@
       "secondAssist": "Druhá asistence",
       "noAssist": "Žádná",
       "penaltyMinutes": "Trestné minuty",
-      "add": "Přidat"
+      "add": "Přidat",
+      "confirmedTitle": "Zápis potvrzen",
+      "confirmedNote": "Výsledek je konečný. Pro opravu je potřeba zápis znovu otevřít.",
+      "confirm": "Potvrdit zápis",
+      "confirmError": "Zápis se nepodařilo potvrdit",
+      "reopen": "Znovu otevřít",
+      "reopenTitle": "Znovu otevřít zápis",
+      "reopenHint": "Výsledek už byl zveřejněn. Uveďte, proč se mění.",
+      "reasonPlaceholder": "Důvod opravy",
+      "reopenError": "Zápis se nepodařilo znovu otevřít",
+      "showHistory": "Zobrazit historii",
+      "hideHistory": "Skrýt historii",
+      "noHistory": "Zatím nic nezaznamenáno",
+      "auditError": "Historii se nepodařilo načíst",
+      "audit": {
+        "CREATE": "Přidáno do zápisu",
+        "UPDATE": "Opraveno v zápisu",
+        "DELETE": "Odebráno ze zápisu",
+        "CONFIRM": "Zápis potvrzen",
+        "REOPEN": "Zápis znovu otevřen",
+        "unknownActor": "Smazaný účet"
+      }
     },
     "scoring": {
       "title": "Bodování",

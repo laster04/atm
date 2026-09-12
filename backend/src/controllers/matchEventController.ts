@@ -3,6 +3,7 @@ import { MatchEventType, Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { recomputeGameFromEvents } from '../services/matchEvents/derive.js';
+import { recordAudit } from '../services/audit/record.js';
 
 const EVENT_TYPES = Object.values(MatchEventType);
 
@@ -105,6 +106,29 @@ const toData = (body: EventBody) => ({
   note: body.note || null,
 });
 
+/** The shape a report change takes in the audit trail. */
+const auditView = (event: {
+  id: string;
+  type: MatchEventType;
+  period: number;
+  minute: number | null;
+  teamId: string;
+  playerId: string | null;
+  assistPlayerId: string | null;
+  secondaryAssistPlayerId: string | null;
+  penaltyMinutes: number | null;
+}) => ({
+  eventId: event.id,
+  type: event.type,
+  period: event.period,
+  minute: event.minute,
+  teamId: event.teamId,
+  playerId: event.playerId,
+  assistPlayerId: event.assistPlayerId,
+  secondaryAssistPlayerId: event.secondaryAssistPlayerId,
+  penaltyMinutes: event.penaltyMinutes,
+});
+
 const eventInclude = {
   team: { select: { id: true, name: true, logo: true, primaryColor: true } },
   player: { select: { id: true, name: true, number: true } },
@@ -141,10 +165,18 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
 
     const game = await prisma.game.findUnique({
       where: { id: gameId },
-      select: { id: true, homeTeamId: true, awayTeamId: true, eventsAuthoritative: true },
+      select: {
+        id: true, homeTeamId: true, awayTeamId: true,
+        eventsAuthoritative: true, confirmedAt: true,
+      },
     });
     if (!game) {
       res.status(404).json({ error: 'Game not found' });
+      return;
+    }
+
+    if (game.confirmedAt) {
+      res.status(409).json({ error: 'This game is confirmed. Reopen it before changing the report.' });
       return;
     }
 
@@ -179,6 +211,16 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
         include: eventInclude,
       });
       await recomputeGameFromEvents(tx, gameId);
+      await recordAudit(
+        {
+          entityType: 'Game',
+          entityId: gameId,
+          action: 'CREATE',
+          after: auditView(created),
+          actorId: req.user?.id ?? null,
+        },
+        tx
+      );
       return created;
     });
 
@@ -194,10 +236,7 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
     const { id } = req.params;
     const body = req.body as EventBody;
 
-    const existing = await prisma.matchEvent.findUnique({
-      where: { id },
-      select: { id: true, gameId: true, type: true, teamId: true },
-    });
+    const existing = await prisma.matchEvent.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Match event not found' });
       return;
@@ -205,10 +244,15 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
 
     const game = await prisma.game.findUnique({
       where: { id: existing.gameId },
-      select: { id: true, homeTeamId: true, awayTeamId: true },
+      select: { id: true, homeTeamId: true, awayTeamId: true, confirmedAt: true },
     });
     if (!game) {
       res.status(404).json({ error: 'Game not found' });
+      return;
+    }
+
+    if (game.confirmedAt) {
+      res.status(409).json({ error: 'This game is confirmed. Reopen it before changing the report.' });
       return;
     }
 
@@ -232,6 +276,17 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
         include: eventInclude,
       });
       await recomputeGameFromEvents(tx, existing.gameId);
+      await recordAudit(
+        {
+          entityType: 'Game',
+          entityId: existing.gameId,
+          action: 'UPDATE',
+          before: auditView(existing),
+          after: auditView(updated),
+          actorId: req.user?.id ?? null,
+        },
+        tx
+      );
       return updated;
     });
 
@@ -246,18 +301,34 @@ export const deleteEvent = async (req: AuthRequest, res: Response): Promise<void
   try {
     const { id } = req.params;
 
-    const existing = await prisma.matchEvent.findUnique({
-      where: { id },
-      select: { id: true, gameId: true },
-    });
+    const existing = await prisma.matchEvent.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Match event not found' });
+      return;
+    }
+
+    const game = await prisma.game.findUnique({
+      where: { id: existing.gameId },
+      select: { confirmedAt: true },
+    });
+    if (game?.confirmedAt) {
+      res.status(409).json({ error: 'This game is confirmed. Reopen it before changing the report.' });
       return;
     }
 
     await prisma.$transaction(async tx => {
       await tx.matchEvent.delete({ where: { id } });
       await recomputeGameFromEvents(tx, existing.gameId);
+      await recordAudit(
+        {
+          entityType: 'Game',
+          entityId: existing.gameId,
+          action: 'DELETE',
+          before: auditView(existing),
+          actorId: req.user?.id ?? null,
+        },
+        tx
+      );
     });
 
     res.json({ message: 'Match event deleted' });

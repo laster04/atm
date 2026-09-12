@@ -164,6 +164,11 @@ export interface Game {
   // True when this game's scores come from its match report. They are then
   // read-only: the API refuses a direct edit.
   eventsAuthoritative?: boolean;
+  // Set once the report is closed. Everything about the game is then read-only
+  // until someone with season access reopens it with a reason.
+  confirmedAt?: string | null;
+  confirmedById?: string | null;
+  confirmedBy?: Pick<User, 'id' | 'name'> | null;
   seasonId: string;
   homeTeamId: string;
   awayTeamId: string;
@@ -219,6 +224,21 @@ export interface MatchEvent {
   penaltyMinutes?: number | null;
   penaltyType?: string | null;
   note?: string | null;
+  createdAt: string;
+}
+
+export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'CONFIRM' | 'REOPEN';
+
+/** One line of the administrative trail behind a record. */
+export interface AuditEntry {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: AuditAction;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+  reason?: string | null;
+  actor?: Pick<User, 'id' | 'name' | 'email'> | null;
   createdAt: string;
 }
 

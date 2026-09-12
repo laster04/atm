@@ -64,6 +64,8 @@ model User {
   managedTournamentSeries TournamentSeries[]
   playerProfiles          Player[]
   recordedMatchEvents     MatchEvent[]       @relation("MatchEventRecorder")
+  confirmedGames          Game[]             @relation("GameConfirmer")
+  auditEntries            AuditLog[]         @relation("AuditActor")
 
   @@map("users")
 }
@@ -198,6 +200,11 @@ model Game {
   // then derived from that log and must not be edited directly. Games recorded
   // before the log existed stay false and keep their hand-entered figures.
   eventsAuthoritative Boolean @default(false) @map("events_authoritative")
+  // A confirmed game is a closed record: its report cannot be changed until
+  // someone with season access reopens it and says why.
+  confirmedAt   DateTime? @map("confirmed_at")
+  confirmedById String?   @map("confirmed_by_id")
+  confirmedBy   User?     @relation("GameConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 
@@ -213,6 +220,32 @@ model Game {
   events     MatchEvent[]
 
   @@map("games")
+}
+
+// An administrative change worth being able to explain later: who did it, when,
+// what the record looked like before and after, and why.
+//
+// Deliberately not a foreign key to the thing it describes. An audit row has to
+// outlive the row it is about, so deleting a game must not take the record of
+// its deletion with it.
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  action     String
+  before     Json?
+  after      Json?
+  // Required by the routes that reopen a confirmed record, optional elsewhere.
+  reason     String?
+
+  actorId String? @map("actor_id")
+  actor   User?   @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@map("audit_log")
 }
 
 // What happened in a game, as it happened. Player statistics, the final score

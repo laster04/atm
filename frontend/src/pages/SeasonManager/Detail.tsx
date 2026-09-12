@@ -292,6 +292,12 @@ export default function Detail() {
 							setReportGame(res.data);
 						});
 					}}
+					// Confirming or reopening returns the game itself, so there is
+					// nothing to re-read.
+					onGameChanged={(updated) => {
+						applyGames([updated]);
+						setReportGame(updated);
+					}}
 				/>
 			)}
 		</div>

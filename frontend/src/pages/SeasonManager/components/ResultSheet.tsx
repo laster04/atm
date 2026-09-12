@@ -27,6 +27,9 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 	// the figures here would be overwritten by the next event, so they are shown
 	// but not offered for editing, and the save omits them.
 	const derived = game.eventsAuthoritative === true;
+	// A confirmed game refuses every edit, including the status, until it is
+	// reopened from the match report.
+	const confirmed = game.confirmedAt != null;
 
 	const [homeScore, setHomeScore] = useState(game.homeScore ?? 0);
 	const [awayScore, setAwayScore] = useState(game.awayScore ?? 0);
@@ -162,11 +165,13 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 
 			<div className="flex flex-1 flex-col gap-3.5 overflow-y-auto p-4">
 				{/* Where the figures below come from, and how to change them */}
-				{derived && (
+				{(derived || confirmed) && (
 					<div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3.5">
 						<Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
 						<p className="text-[12.5px] leading-snug text-muted-foreground">
-							{t('seasonManagement.result.derivedNote')}
+							{confirmed
+								? t('seasonManagement.result.confirmedNote')
+								: t('seasonManagement.result.derivedNote')}
 						</p>
 					</div>
 				)}
@@ -277,7 +282,7 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 				</button>
 				<button
 					onClick={handleSave}
-					disabled={saving}
+					disabled={saving || confirmed}
 					className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] text-[15px] font-semibold text-white disabled:opacity-60"
 					style={{ backgroundColor: SEASON_ACCENT }}
 				>

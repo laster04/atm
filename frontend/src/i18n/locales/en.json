@@ -714,7 +714,8 @@
       "derivedNote": "This score is calculated from the match report. Edit the report to change it.",
       "openReport": "Match report",
       "fromReport": "from report",
-      "saveStatus": "Save status"
+      "saveStatus": "Save status",
+      "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first."
     },
     "teams": {
       "count_one": "{{count}} in this season",
@@ -771,7 +772,28 @@
       "secondAssist": "Second assist",
       "noAssist": "None",
       "penaltyMinutes": "Penalty minutes",
-      "add": "Add"
+      "add": "Add",
+      "confirmedTitle": "Report confirmed",
+      "confirmedNote": "The result is final. Reopen the report to correct anything.",
+      "confirm": "Confirm report",
+      "confirmError": "Failed to confirm the report",
+      "reopen": "Reopen",
+      "reopenTitle": "Reopen the report",
+      "reopenHint": "The result has already been published. Say why it is being changed.",
+      "reasonPlaceholder": "Reason for the correction",
+      "reopenError": "Failed to reopen the report",
+      "showHistory": "Show history",
+      "hideHistory": "Hide history",
+      "noHistory": "Nothing recorded yet",
+      "auditError": "Failed to load the history",
+      "audit": {
+        "CREATE": "Added to the report",
+        "UPDATE": "Corrected in the report",
+        "DELETE": "Removed from the report",
+        "CONFIRM": "Report confirmed",
+        "REOPEN": "Report reopened",
+        "unknownActor": "Removed account"
+      }
     },
     "scoring": {
       "title": "Scoring rules",
