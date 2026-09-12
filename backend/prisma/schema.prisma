@@ -66,6 +66,8 @@ model User {
   recordedMatchEvents     MatchEvent[]       @relation("MatchEventRecorder")
   confirmedGames          Game[]             @relation("GameConfirmer")
   auditEntries            AuditLog[]         @relation("AuditActor")
+  createdTeamEvents       TeamEvent[]        @relation("TeamEventCreator")
+  attendanceResponses     Attendance[]       @relation("AttendanceResponder")
 
   @@map("users")
 }
@@ -143,6 +145,7 @@ model Team {
   homeGames   Game[]       @relation("HomeTeam")
   awayGames   Game[]       @relation("AwayTeam")
   matchEvents MatchEvent[] @relation("MatchEventTeam")
+  teamEvents  TeamEvent[]
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
@@ -175,6 +178,7 @@ model Player {
   matchEvents          MatchEvent[] @relation("MatchEventPlayer")
   matchEventAssists    MatchEvent[] @relation("MatchEventAssist")
   matchEventAssists2nd  MatchEvent[] @relation("MatchEventSecondaryAssist")
+  attendances           Attendance[]
 
   // One person may hold a roster spot in several teams, but only one per team.
   @@unique([teamId, userId])
@@ -218,8 +222,82 @@ model Game {
   awayTeam   Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
   statistic  HockeyGameStatistic[] @relation("GameStatistic")
   events     MatchEvent[]
+  teamEvents TeamEvent[]
 
   @@map("games")
+}
+
+// Anything a team turns up to: a league fixture, a training session, a meeting.
+// A fixture is mirrored here rather than replaced, so the calendar a player sees
+// is one list while the competition keeps owning its own schedule.
+enum TeamEventType {
+  MATCH
+  TRAINING
+  MEETING
+  OTHER
+}
+
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+  MAYBE
+  NO_RESPONSE
+}
+
+model TeamEvent {
+  id          String        @id @default(uuid())
+  type        TeamEventType @default(OTHER)
+  title       String
+  description String?
+  startsAt    DateTime      @map("starts_at")
+  endsAt      DateTime?     @map("ends_at")
+  location    String?
+
+  teamId String @map("team_id")
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  // Set when this event mirrors a league fixture. Cleared rather than deleted if
+  // the fixture goes, because the team may still have met that evening.
+  gameId String? @map("game_id")
+  game   Game?   @relation(fields: [gameId], references: [id], onDelete: SetNull)
+
+  createdById String?  @map("created_by_id")
+  createdBy   User?    @relation("TeamEventCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  attendances Attendance[]
+
+  // One team cannot hold two events for the same fixture.
+  @@unique([teamId, gameId])
+  @@index([teamId, startsAt])
+  @@map("team_events")
+}
+
+// Who is coming. Keyed on the roster row rather than on an account: most players
+// never sign in, and a manager answers for them.
+model Attendance {
+  id     String           @id @default(uuid())
+  status AttendanceStatus @default(NO_RESPONSE)
+  note   String?
+
+  eventId String    @map("event_id")
+  event   TeamEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  playerId String @map("player_id")
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  // Who actually answered: the player, or the manager answering on their behalf.
+  respondedById String?   @map("responded_by_id")
+  respondedBy   User?     @relation("AttendanceResponder", fields: [respondedById], references: [id], onDelete: SetNull)
+  respondedAt   DateTime? @map("responded_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([eventId, playerId])
+  @@index([playerId])
+  @@map("attendances")
 }
 
 // An administrative change worth being able to explain later: who did it, when,

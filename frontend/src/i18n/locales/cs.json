@@ -201,6 +201,17 @@
           "feature7": "Možnosti white-label"
         }
       }
+    },
+    "myEvents": {
+      "title": "Vaše nejbližší akce",
+      "loadError": "Vaše akce se nepodařilo načíst",
+      "answerError": "Odpověď se nepodařilo uložit",
+      "status": {
+        "ATTENDING": "Přijdu",
+        "NOT_ATTENDING": "Nepřijdu",
+        "MAYBE": "Možná",
+        "NO_RESPONSE": "Bez odpovědi"
+      }
     }
   },
   "auth": {
@@ -497,7 +508,8 @@
         "overview": "Přehled",
         "roster": "Soupiska",
         "schedule": "Rozpis",
-        "settings": "Nastavení"
+        "settings": "Nastavení",
+        "events": "Kalendář"
       },
       "sortNumber": "Číslo",
       "searchPlayers": "Hledat hráče",
@@ -610,6 +622,33 @@
       "unlink": "Zrušit propojení",
       "linked": "Propojený účet",
       "error": "Propojení účtu se nepodařilo změnit"
+    },
+    "events": {
+      "add": "Nová akce",
+      "newEvent": "Nová akce",
+      "titlePlaceholder": "O co jde?",
+      "locationPlaceholder": "Kde? (nepovinné)",
+      "upcoming": "Nadcházející",
+      "past": "Proběhlé",
+      "empty": "Zatím žádné akce. Přidejte trénink nebo schůzku.",
+      "emptyRoster": "V soupisce zatím není koho se zeptat.",
+      "delete": "Smazat akci",
+      "loadError": "Kalendář se nepodařilo načíst",
+      "saveError": "Akci se nepodařilo uložit",
+      "deleteError": "Akci se nepodařilo smazat",
+      "answerError": "Odpověď se nepodařilo uložit",
+      "type": {
+        "MATCH": "Zápas",
+        "TRAINING": "Trénink",
+        "MEETING": "Schůzka",
+        "OTHER": "Jiné"
+      },
+      "status": {
+        "ATTENDING": "Přijdu",
+        "NOT_ATTENDING": "Nepřijdu",
+        "MAYBE": "Možná",
+        "NO_RESPONSE": "Bez odpovědi"
+      }
     }
   },
   "seasonManagement": {

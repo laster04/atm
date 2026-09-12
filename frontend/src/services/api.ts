@@ -2,6 +2,7 @@ import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
+  Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
@@ -173,6 +174,26 @@ export const gameStatisticApi = {
   update: (id: string | number, data: { goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
     api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
   delete: (id: string | number) => api.delete(`/game-statistics/${id}`)
+};
+
+// ── Team calendar ───────────────────────────────────────────
+export const teamEventApi = {
+  getByTeam: (teamId: string | number) => api.get<TeamEvent[]>(`/events/team/${teamId}`),
+  create: (teamId: string | number, data: TeamEventInput) =>
+    api.post<TeamEvent>(`/events/team/${teamId}`, data),
+  update: (id: string | number, data: Partial<TeamEventInput>) =>
+    api.put<TeamEvent>(`/events/${id}`, data),
+  delete: (id: string | number) => api.delete(`/events/${id}`),
+  // A manager may answer for anyone on the team; a linked player only for
+  // themselves. The server decides which of the two the caller is.
+  setAttendance: (
+    eventId: string | number,
+    playerId: string | number,
+    status: AttendanceStatus,
+    note?: string | null
+  ) => api.put<Attendance>(`/events/${eventId}/attendance/${playerId}`, { status, note }),
+  // Upcoming events across every roster spot the signed-in user holds.
+  getMine: () => api.get<MyTeamEvent[]>('/events/mine')
 };
 
 // ── Tournament Series ───────────────────────────────────────

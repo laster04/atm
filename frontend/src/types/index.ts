@@ -227,6 +227,62 @@ export interface MatchEvent {
   createdAt: string;
 }
 
+export const TeamEventType = {
+  MATCH: 'MATCH',
+  TRAINING: 'TRAINING',
+  MEETING: 'MEETING',
+  OTHER: 'OTHER',
+} as const;
+export type TeamEventType = (typeof TeamEventType)[keyof typeof TeamEventType];
+
+export const AttendanceStatus = {
+  ATTENDING: 'ATTENDING',
+  NOT_ATTENDING: 'NOT_ATTENDING',
+  MAYBE: 'MAYBE',
+  NO_RESPONSE: 'NO_RESPONSE',
+} as const;
+export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus];
+
+export interface Attendance {
+  id: string;
+  eventId: string;
+  playerId: string;
+  status: AttendanceStatus;
+  note?: string | null;
+  respondedAt?: string | null;
+  player?: Pick<Player, 'id' | 'name' | 'number' | 'userId'>;
+}
+
+/** Anything the team turns up to, including a mirrored league fixture. */
+export interface TeamEvent {
+  id: string;
+  type: TeamEventType;
+  title: string;
+  description?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
+  location?: string | null;
+  teamId: string;
+  gameId?: string | null;
+  attendances?: Attendance[];
+}
+
+/** One upcoming event as the signed-in player sees it, from `GET /events/mine`. */
+export interface MyTeamEvent extends Omit<TeamEvent, 'attendances'> {
+  team: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+  myAttendance: Pick<Attendance, 'id' | 'playerId' | 'status' | 'note'> | null;
+}
+
+export interface TeamEventInput {
+  type?: TeamEventType;
+  title: string;
+  description?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
+  location?: string | null;
+  gameId?: string | null;
+}
+
 export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'CONFIRM' | 'REOPEN';
 
 /** One line of the administrative trail behind a record. */

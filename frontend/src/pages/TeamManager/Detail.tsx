@@ -6,6 +6,7 @@ import {
 	Home,
 	Users,
 	BarChart3,
+	CalendarDays,
 	Settings,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -15,10 +16,11 @@ import type { Player, Standing, Team } from '@types';
 import OverviewTab from './components/OverviewTab';
 import RosterTab from './components/RosterTab';
 import ScheduleTab from './components/ScheduleTab';
+import EventsTab from './components/EventsTab';
 import SettingsTab from './components/SettingsTab';
 import TeamManagerTour from './components/TeamManagerTour';
 
-type TabType = 'overview' | 'roster' | 'schedule' | 'settings';
+type TabType = 'overview' | 'roster' | 'schedule' | 'events' | 'settings';
 
 export default function Detail() {
 	const { id } = useParams<{ id: string }>();
@@ -73,6 +75,7 @@ export default function Detail() {
 		{ id: 'overview' as TabType, icon: Home, label: t('teamManagement.pwa.tabs.overview') },
 		{ id: 'roster' as TabType, icon: Users, label: t('teamManagement.pwa.tabs.roster') },
 		{ id: 'schedule' as TabType, icon: BarChart3, label: t('teamManagement.pwa.tabs.schedule') },
+		{ id: 'events' as TabType, icon: CalendarDays, label: t('teamManagement.pwa.tabs.events') },
 		{ id: 'settings' as TabType, icon: Settings, label: t('teamManagement.pwa.tabs.settings') },
 	];
 
@@ -209,6 +212,9 @@ export default function Detail() {
 							teamId={team.id}
 							teamColor={localColor}
 						/>
+					)}
+					{activeTab === 'events' && (
+						<EventsTab teamId={team.id} teamColor={localColor} />
 					)}
 					{activeTab === 'settings' && (
 						<SettingsTab

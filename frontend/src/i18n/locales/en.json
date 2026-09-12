@@ -201,6 +201,17 @@
           "feature7": "White-label options"
         }
       }
+    },
+    "myEvents": {
+      "title": "Your next events",
+      "loadError": "Failed to load your events",
+      "answerError": "Failed to save your response",
+      "status": {
+        "ATTENDING": "Attending",
+        "NOT_ATTENDING": "Not attending",
+        "MAYBE": "Maybe",
+        "NO_RESPONSE": "No response"
+      }
     }
   },
   "auth": {
@@ -497,7 +508,8 @@
         "overview": "Overview",
         "roster": "Roster",
         "schedule": "Schedule",
-        "settings": "Settings"
+        "settings": "Settings",
+        "events": "Calendar"
       },
       "sortNumber": "Number",
       "searchPlayers": "Search players",
@@ -605,6 +617,33 @@
       "unlink": "Unlink account",
       "linked": "Linked account",
       "error": "Failed to change the account link"
+    },
+    "events": {
+      "add": "New event",
+      "newEvent": "New event",
+      "titlePlaceholder": "What is it?",
+      "locationPlaceholder": "Where? (optional)",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "empty": "No events yet. Add a training session or a meeting.",
+      "emptyRoster": "Nobody on the roster to ask yet.",
+      "delete": "Delete event",
+      "loadError": "Failed to load the calendar",
+      "saveError": "Failed to save the event",
+      "deleteError": "Failed to delete the event",
+      "answerError": "Failed to save the response",
+      "type": {
+        "MATCH": "Match",
+        "TRAINING": "Training",
+        "MEETING": "Meeting",
+        "OTHER": "Other"
+      },
+      "status": {
+        "ATTENDING": "Attending",
+        "NOT_ATTENDING": "Not attending",
+        "MAYBE": "Maybe",
+        "NO_RESPONSE": "No response"
+      }
     }
   },
   "seasonManagement": {
