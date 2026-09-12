@@ -197,7 +197,7 @@ export default function EventsTab({ teamId, teamColor }: EventsTabProps) {
 							</p>
 						) : (
 							(event.attendances ?? []).map((attendance) => (
-								<div key={attendance.id} className="flex items-center gap-2">
+								<div key={attendance.playerId} className="flex items-center gap-2">
 									<span className="min-w-0 flex-1 truncate text-[14px]">
 										{attendance.player?.number != null ? `#${attendance.player.number} ` : ''}
 										{attendance.player?.name}

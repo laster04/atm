@@ -23,6 +23,50 @@ const eventInclude = {
   },
 } satisfies Prisma.TeamEventInclude;
 
+type EventWithAttendance = {
+  id: string;
+  teamId: string;
+  attendances: {
+    id: string;
+    playerId: string;
+    status: AttendanceStatus;
+    note: string | null;
+    player: { id: string; name: string; number: number | null; userId: string | null };
+  }[];
+};
+
+/**
+ * Fills in the roster members who have no answer on record.
+ *
+ * Rows are written when someone answers, not when the event is created, so that
+ * a player who joins the squad afterwards still appears on every event they
+ * could turn up to instead of being invisible until someone thinks to re-create
+ * it. The filled-in entries carry no id, which is what marks them as unanswered.
+ */
+const withRoster = async <T extends EventWithAttendance>(events: T[]): Promise<T[]> => {
+  if (events.length === 0) return events;
+
+  const roster = await prisma.player.findMany({
+    where: { teamId: { in: [...new Set(events.map(event => event.teamId))] } },
+    select: { id: true, name: true, number: true, userId: true, teamId: true },
+    orderBy: { number: 'asc' },
+  });
+
+  return events.map(event => {
+    const answered = new Set(event.attendances.map(row => row.playerId));
+    const missing = roster
+      .filter(player => player.teamId === event.teamId && !answered.has(player.id))
+      .map(player => ({
+        id: null,
+        playerId: player.id,
+        status: 'NO_RESPONSE' as AttendanceStatus,
+        note: null,
+        player: { id: player.id, name: player.name, number: player.number, userId: player.userId },
+      }));
+    return { ...event, attendances: [...event.attendances, ...missing] };
+  });
+};
+
 const parseDate = (value: unknown): Date | null => {
   if (typeof value !== 'string' || !value) return null;
   const date = new Date(value);
@@ -37,7 +81,7 @@ export const getEventsByTeam = async (req: Request, res: Response): Promise<void
       include: eventInclude,
       orderBy: { startsAt: 'asc' },
     });
-    res.json(events);
+    res.json(await withRoster(events));
   } catch (error) {
     console.error('Get team events error:', error);
     res.status(500).json({ error: 'Failed to fetch team events' });
@@ -92,31 +136,23 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
       }
     }
 
-    const roster = await prisma.player.findMany({ where: { teamId }, select: { id: true } });
-
-    const event = await prisma.$transaction(async tx => {
-      const created = await tx.teamEvent.create({
-        data: {
-          teamId,
-          type: (body.type as TeamEventType) ?? 'OTHER',
-          title: body.title!.trim(),
-          description: body.description?.trim() || null,
-          startsAt,
-          endsAt,
-          location: body.location?.trim() || null,
-          gameId: body.gameId || null,
-          createdById: req.user?.id ?? null,
-        },
-      });
-      if (roster.length > 0) {
-        await tx.attendance.createMany({
-          data: roster.map(player => ({ eventId: created.id, playerId: player.id })),
-        });
-      }
-      return tx.teamEvent.findUnique({ where: { id: created.id }, include: eventInclude });
+    const event = await prisma.teamEvent.create({
+      data: {
+        teamId,
+        type: (body.type as TeamEventType) ?? 'OTHER',
+        title: body.title!.trim(),
+        description: body.description?.trim() || null,
+        startsAt,
+        endsAt,
+        location: body.location?.trim() || null,
+        gameId: body.gameId || null,
+        createdById: req.user?.id ?? null,
+      },
+      include: eventInclude,
     });
 
-    res.status(201).json(event);
+    const [withAttendance] = await withRoster([event]);
+    res.status(201).json(withAttendance);
   } catch (error) {
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
       res.status(409).json({ error: 'This team already has an event for that game' });
@@ -171,7 +207,8 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
       include: eventInclude,
     });
 
-    res.json(event);
+    const [withAttendance] = await withRoster([event]);
+    res.json(withAttendance);
   } catch (error) {
     console.error('Update team event error:', error);
     res.status(500).json({ error: 'Failed to update the event' });

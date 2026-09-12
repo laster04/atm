@@ -244,7 +244,9 @@ export const AttendanceStatus = {
 export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus];
 
 export interface Attendance {
-  id: string;
+  // Null for a roster member who has not answered: the row is written on the
+  // first answer, not when the event is created.
+  id: string | null;
   eventId: string;
   playerId: string;
   status: AttendanceStatus;

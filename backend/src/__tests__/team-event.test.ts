@@ -32,6 +32,7 @@ async function account(label: string, role: 'ADMIN' | 'USER' = 'USER') {
 let admin: { email: string; token: string };
 let playerAccount: { email: string; token: string };
 let stranger: { email: string; token: string };
+let seasonId: string;
 let teamId: string;
 let otherTeamId: string;
 let gameId: string;
@@ -50,6 +51,7 @@ beforeAll(async () => {
     .send({ name: `Event League ${stamp}`, sportType: 'HOCKEY' });
   const season = await request(app).post('/api/seasons').set(auth(admin.token))
     .send({ name: `Event Season ${stamp}`, leagueId: league.body.id, startDate: '2026-01-01', endDate: '2027-12-31' });
+  seasonId = season.body.id;
 
   const team = await request(app).post(`/api/teams/season/${season.body.id}`).set(auth(admin.token))
     .send({ name: `Calendar Team ${stamp}` });
@@ -133,14 +135,74 @@ describe('creating team events', () => {
     expect(res.status).toBe(400);
   });
 
-  it('mirrors a fixture once, and refuses a second event for it', async () => {
-    const first = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
-      .send({ type: 'MATCH', title: 'League game', startsAt: inDays(5), gameId });
-    expect(first.status).toBe(201);
-
-    const second = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+  it('refuses a hand-made duplicate of an already mirrored fixture', async () => {
+    const res = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
       .send({ type: 'MATCH', title: 'League game again', startsAt: inDays(5), gameId });
-    expect(second.status).toBe(409);
+    expect(res.status).toBe(409);
+  });
+});
+
+describe('fixtures in the calendar', () => {
+  it('puts a dated fixture in both teams\' calendars on its own', async () => {
+    for (const side of [teamId, otherTeamId]) {
+      const res = await request(app).get(`/api/events/team/${side}`);
+      const mirrored = res.body.find((event: { gameId: string | null }) => event.gameId === gameId);
+      expect(mirrored).toBeDefined();
+      expect(mirrored.type).toBe('MATCH');
+    }
+  });
+
+  it('leaves an undated fixture out of the calendar', async () => {
+    const undated = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId });
+
+    const res = await request(app).get(`/api/events/team/${teamId}`);
+    expect(res.body.some((e: { gameId: string | null }) => e.gameId === undated.body.id)).toBe(false);
+
+    // ...until it is given one.
+    await request(app).put(`/api/games/${undated.body.id}`).set(auth(admin.token))
+      .send({ date: inDays(12) });
+    const after = await request(app).get(`/api/events/team/${teamId}`);
+    expect(after.body.some((e: { gameId: string | null }) => e.gameId === undated.body.id)).toBe(true);
+  });
+
+  it('moves both calendars when the fixture is rescheduled', async () => {
+    const moved = inDays(9, 20);
+    await request(app).put(`/api/games/${gameId}`).set(auth(admin.token)).send({ date: moved });
+
+    for (const side of [teamId, otherTeamId]) {
+      const res = await request(app).get(`/api/events/team/${side}`);
+      const mirrored = res.body.find((e: { gameId: string | null }) => e.gameId === gameId);
+      expect(new Date(mirrored.startsAt).toISOString()).toBe(new Date(moved).toISOString());
+    }
+  });
+
+  it('takes the fixture back out when its date is cleared', async () => {
+    const temp = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(14) });
+    expect((await request(app).get(`/api/events/team/${teamId}`)).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(true);
+
+    await request(app).put(`/api/games/${temp.body.id}`).set(auth(admin.token)).send({ date: null });
+    expect((await request(app).get(`/api/events/team/${teamId}`)).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(false);
+  });
+
+  it('takes the fixture back out when the game is called off', async () => {
+    const temp = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(15) });
+    await request(app).put(`/api/games/${temp.body.id}`).set(auth(admin.token))
+      .send({ status: 'CANCELLED' });
+    expect((await request(app).get(`/api/events/team/${teamId}`)).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(false);
+  });
+
+  it('takes the fixture back out when the game is deleted', async () => {
+    const temp = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(16) });
+    await request(app).delete(`/api/games/${temp.body.id}`).set(auth(admin.token));
+    expect((await request(app).get(`/api/events/team/${teamId}`)).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(false);
   });
 });
 
@@ -219,6 +281,22 @@ describe('a player\'s own calendar', () => {
   });
 });
 
+describe('a player who joins after the event was made', () => {
+  it('still appears on it, unanswered', async () => {
+    const latecomer = await request(app).post(`/api/players/team/${teamId}`).set(auth(admin.token))
+      .send({ name: 'Latecomer', number: 77 });
+
+    const res = await request(app).get(`/api/events/team/${teamId}`);
+    const event = res.body.find((e: { id: string }) => e.id === eventId);
+    const row = event.attendances.find(
+      (a: { playerId: string }) => a.playerId === latecomer.body.id
+    );
+    expect(row).toBeDefined();
+    expect(row.status).toBe('NO_RESPONSE');
+    expect(row.id).toBeNull();
+  });
+});
+
 describe('changing and removing events', () => {
   it('refuses an edit from someone who does not manage the team', async () => {
     const res = await request(app).put(`/api/events/${eventId}`).set(auth(stranger.token))
@@ -234,6 +312,10 @@ describe('changing and removing events', () => {
   it('deletes the event and its answers together', async () => {
     const doomed = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
       .send({ title: 'Cancelled meeting', startsAt: inDays(30) });
+    await request(app).put(`/api/events/${doomed.body.id}/attendance/${linkedPlayerId}`)
+      .set(auth(admin.token)).send({ status: 'ATTENDING' });
+    expect(await prisma.attendance.count({ where: { eventId: doomed.body.id } })).toBe(1);
+
     const res = await request(app).delete(`/api/events/${doomed.body.id}`).set(auth(admin.token));
     expect(res.status).toBe(200);
     expect(await prisma.attendance.count({ where: { eventId: doomed.body.id } })).toBe(0);

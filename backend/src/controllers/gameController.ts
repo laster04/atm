@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import { auditSnapshot, recordAudit } from '../services/audit/record.js';
+import { syncFixtureEvents } from '../services/teamEvents/mirror.js';
 import {
   AuthRequest,
   CreateGameRequest,
@@ -115,6 +116,9 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
 
+    // A fixture created with a date is already an appointment for both sides.
+    await syncFixtureEvents(game.id);
+
     res.status(201).json(game);
   } catch (error) {
     console.error('Create game error:', error);
@@ -200,6 +204,10 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
 
+    // Rescheduling, postponing or calling a game off all change whether - and
+    // when - the two teams are expected somewhere.
+    await syncFixtureEvents(game.id);
+
     res.json(game);
   } catch (error) {
     console.error('Update game error:', error);
@@ -226,6 +234,10 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // The mirrored calendar entries go with it. They only ever existed because
+    // the fixture did, so leaving them behind would leave both teams expected
+    // at a game that is no longer in the season.
+    await prisma.teamEvent.deleteMany({ where: { gameId: id } });
     await prisma.game.delete({ where: { id: id } });
     res.json({ message: 'Game deleted successfully' });
   } catch (error) {
@@ -324,6 +336,12 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       },
       orderBy: [{ round: 'asc' }, { createdAt: 'asc' }]
     });
+
+    // Generated fixtures normally have no date yet, so this usually creates
+    // nothing. It matters when a schedule is regenerated over dated games.
+    for (const created of createdGames) {
+      await syncFixtureEvents(created.id);
+    }
 
     res.status(201).json({
       message: `Generated ${createdGames.length} games across ${totalRounds} round(s)`,
