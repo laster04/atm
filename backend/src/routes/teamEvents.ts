@@ -15,7 +15,9 @@ const router = Router();
 // Registered before '/:id' so it is not swallowed as an event id.
 router.get('/mine', authenticate, getMyEvents);
 
-router.get('/team/:teamId', getEventsByTeam);
+// Not public: the controller lets a manager see every answer and a player on
+// the team see only their own.
+router.get('/team/:teamId', authenticate, getEventsByTeam);
 router.post('/team/:teamId', authenticate, requireTeamAccess('teamId'), createEvent);
 
 router.put('/:id', authenticate, requireTeamEventAccess(), updateEvent);

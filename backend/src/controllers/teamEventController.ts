@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AttendanceStatus, Prisma, TeamEventType } from '@prisma/client';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
@@ -22,6 +22,16 @@ const eventInclude = {
     include: { player: { select: { id: true, name: true, number: true, userId: true } } },
   },
 } satisfies Prisma.TeamEventInclude;
+
+/**
+ * Answers left behind by players who have since moved to another team. They are
+ * dropped on the move, but an event read should not show one even if a row
+ * survives some other way.
+ */
+const onThisTeam = <T extends { player: { id: string } }>(
+  attendances: T[],
+  rosterIds: Set<string>
+): T[] => attendances.filter(row => rosterIds.has(row.player.id));
 
 type EventWithAttendance = {
   id: string;
@@ -53,7 +63,11 @@ const withRoster = async <T extends EventWithAttendance>(events: T[]): Promise<T
   });
 
   return events.map(event => {
-    const answered = new Set(event.attendances.map(row => row.playerId));
+    const rosterIds = new Set(
+      roster.filter(player => player.teamId === event.teamId).map(player => player.id)
+    );
+    const current = onThisTeam(event.attendances, rosterIds);
+    const answered = new Set(current.map(row => row.playerId));
     const missing = roster
       .filter(player => player.teamId === event.teamId && !answered.has(player.id))
       .map(player => ({
@@ -63,7 +77,7 @@ const withRoster = async <T extends EventWithAttendance>(events: T[]): Promise<T
         note: null,
         player: { id: player.id, name: player.name, number: player.number, userId: player.userId },
       }));
-    return { ...event, attendances: [...event.attendances, ...missing] };
+    return { ...event, attendances: [...current, ...missing] };
   });
 };
 
@@ -73,14 +87,47 @@ const parseDate = (value: unknown): Date | null => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-export const getEventsByTeam = async (req: Request, res: Response): Promise<void> => {
+/**
+ * A team's calendar, with who is coming.
+ *
+ * Who turns up to training is the team's own business, so this is never public.
+ * Whoever manages the team sees every answer; a player on that team sees the
+ * events and their own answer, but not their team-mates'.
+ */
+export const getEventsByTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { teamId } = req.params;
+
+    const manages = await canManageTeam(req.user!, teamId);
+    const ownPlayers = manages
+      ? []
+      : await prisma.player.findMany({
+          where: { teamId, userId: req.user!.id },
+          select: { id: true },
+        });
+
+    if (!manages && ownPlayers.length === 0) {
+      res.status(403).json({ error: 'Not authorized to see this team calendar' });
+      return;
+    }
+
     const events = await prisma.teamEvent.findMany({
       where: { teamId },
       include: eventInclude,
       orderBy: { startsAt: 'asc' },
     });
+
+    if (!manages) {
+      const own = new Set(ownPlayers.map(player => player.id));
+      res.json(
+        events.map(event => ({
+          ...event,
+          attendances: event.attendances.filter(row => own.has(row.playerId)),
+        }))
+      );
+      return;
+    }
+
     res.json(await withRoster(events));
   } catch (error) {
     console.error('Get team events error:', error);

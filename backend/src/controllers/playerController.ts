@@ -218,19 +218,40 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Move the player
-    const updatedPlayer = await prisma.player.update({
-      where: { id: id },
-      data: { teamId: targetTeamId },
-      include: {
-        team: {
-          include: {
-            seasonTeams: {
-              include: { season: true }
+    // Moving a linked player onto a team where that account already holds a
+    // roster spot would break the one-spot-per-team rule.
+    if (player.userId) {
+      const clash = await prisma.player.findFirst({
+        where: { teamId: targetTeamId, userId: player.userId },
+        select: { id: true },
+      });
+      if (clash) {
+        res.status(409).json({ error: 'That account already holds a roster spot in the target team' });
+        return;
+      }
+    }
+
+    const updatedPlayer = await prisma.$transaction(async tx => {
+      // Answers given for this player belong to the team they were on. Leaving
+      // them behind would show someone as coming to a training session for a
+      // team they no longer play for.
+      await tx.attendance.deleteMany({
+        where: { playerId: id, event: { teamId: player.teamId } },
+      });
+
+      return tx.player.update({
+        where: { id: id },
+        data: { teamId: targetTeamId },
+        include: {
+          team: {
+            include: {
+              seasonTeams: {
+                include: { season: true }
+              }
             }
           }
         }
-      }
+      });
     });
 
     // Add convenience `season` field
