@@ -111,6 +111,14 @@ export default function StandingsTable({ tables, games }: StandingsTableProps) {
 													{t('seasonDetail.standings.liveTag')}
 												</span>
 											)}
+											{!tone.inPlay && tone.awaiting && (
+												<span
+													className="rounded-full bg-warning px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-warning-foreground"
+													title={t('seasonDetail.standings.awaitingConfirmation')}
+												>
+													{t('seasonDetail.standings.pendingTag')}
+												</span>
+											)}
 										</div>
 									</Td>
 									<Td className="text-center">{row.played}</Td>

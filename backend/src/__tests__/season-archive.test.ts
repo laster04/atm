@@ -109,6 +109,12 @@ beforeAll(async () => {
     .set('Authorization', `Bearer ${token}`)
     .send({ playerId: playerId2, goals: 1, assists: 0 });
 
+  // Only a confirmed result counts toward the table the archive freezes, and a
+  // confirmed game refuses further statistics, so this comes after them.
+  await request(app)
+    .post(`/api/games/${gameId}/confirm`)
+    .set('Authorization', `Bearer ${token}`);
+
   // Season must be COMPLETED before it can be archived
   await request(app)
     .put(`/api/seasons/${seasonId}`)
@@ -265,5 +271,53 @@ describe('archiving and the team calendar', () => {
     // behind it is a fixture that was archived and left behind.
     expect(stranded).toHaveLength(0);
     expect(events.every((event) => event.gameId !== null)).toBe(true);
+  });
+});
+
+describe('archiving with results nobody confirmed', () => {
+  it('refuses rather than dropping them', async () => {
+    const league = await request(app)
+      .post('/api/leagues')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: `Unconfirmed League ${Date.now()}`, sportType: 'HOCKEY' });
+    const season = await request(app)
+      .post('/api/seasons')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: `Unconfirmed Season ${Date.now()}`,
+        leagueId: league.body.id,
+        startDate: '2025-01-01',
+        endDate: '2025-12-31',
+      });
+    const home = await request(app)
+      .post(`/api/teams/season/${season.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: `UA ${Date.now()}` });
+    const away = await request(app)
+      .post(`/api/teams/season/${season.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: `UB ${Date.now()}` });
+    const game = await request(app)
+      .post(`/api/games/season/${season.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ homeTeamId: home.body.id, awayTeamId: away.body.id });
+    await request(app)
+      .put(`/api/games/${game.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'COMPLETED', homeScore: 2, awayScore: 2 });
+    await request(app)
+      .put(`/api/seasons/${season.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'COMPLETED' });
+
+    const res = await request(app)
+      .post(`/api/seasons/${season.body.id}/archive`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/not confirmed/i);
+
+    // The season is untouched: archiving is all or nothing.
+    const untouched = await prisma.season.findUnique({ where: { id: season.body.id } });
+    expect(untouched?.archivedAt).toBeNull();
   });
 });

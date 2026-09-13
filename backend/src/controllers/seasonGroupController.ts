@@ -4,6 +4,7 @@ import prisma from '../config/database.js';
 import { AuthRequest, Standing } from '../types/index.js';
 import { computeStandings } from './seasonController.js';
 import { policyFromRows } from '../services/scoring/resolve.js';
+import { COUNTS_TOWARD_TABLE, PENDING_RESULTS } from '../services/standings/filters.js';
 
 const groupInclude = {
   seasonTeams: {
@@ -188,7 +189,7 @@ export const getStandingsByGroup = async (req: Request, res: Response): Promise<
       return;
     }
 
-    const [groups, seasonTeams, completed, inProgress] = await Promise.all([
+    const [groups, seasonTeams, completed, pending] = await Promise.all([
       prisma.seasonGroup.findMany({
         where: { seasonId },
         orderBy: [{ position: 'asc' }, { name: 'asc' }],
@@ -197,8 +198,8 @@ export const getStandingsByGroup = async (req: Request, res: Response): Promise<
         where: { seasonId },
         include: { team: { select: { id: true, name: true, logo: true, primaryColor: true } } },
       }),
-      prisma.game.findMany({ where: { seasonId, status: 'COMPLETED' } }),
-      prisma.game.findMany({ where: { seasonId, status: 'IN_PROGRESS' } }),
+      prisma.game.findMany({ where: { seasonId, ...COUNTS_TOWARD_TABLE } }),
+      prisma.game.findMany({ where: { seasonId, ...PENDING_RESULTS } }),
     ]);
 
     const policy = policyFromRows(season, season.league, 'LEAGUE');
@@ -210,7 +211,7 @@ export const getStandingsByGroup = async (req: Request, res: Response): Promise<
       // division's own table, so they are left out of it.
       const within = <T extends { homeTeamId: string; awayTeamId: string }>(games: T[]): T[] =>
         games.filter(game => ids.has(game.homeTeamId) && ids.has(game.awayTeamId));
-      return computeStandings(teams, within(completed), policy, within(inProgress));
+      return computeStandings(teams, within(completed), policy, within(pending));
     };
 
     if (groups.length === 0) {

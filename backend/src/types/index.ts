@@ -582,6 +582,8 @@ export interface Standing {
   rank: number;
   /** True while this team has a game in progress. */
   inPlay: boolean;
+  /** True when this team has a result played but not yet confirmed. */
+  awaitingConfirmation: boolean;
   /**
    * Where the team would stand if every game currently in progress ended on its
    * present score. Null when nothing is being played, so a settled table costs

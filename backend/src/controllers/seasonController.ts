@@ -13,6 +13,7 @@ import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { canManageLeague, isAdmin } from '../services/access.js';
 import { computeTable } from '../services/standings/compute.js';
+import { COUNTS_TOWARD_TABLE, PENDING_RESULTS, countsTowardTable } from '../services/standings/filters.js';
 import { ScoringPolicy } from '../services/scoring/policy.js';
 import { policyFromRows, resolveSeasonPolicy } from '../services/scoring/resolve.js';
 
@@ -21,6 +22,12 @@ type StandingGame = {
   awayTeamId: string;
   homeScore: number | null;
   awayScore: number | null;
+  /**
+   * Only read for pending games, to tell one being played from one played and
+   * waiting to be confirmed. The two look the same to the table and different
+   * to a reader.
+   */
+  status?: string;
 };
 
 /**
@@ -29,29 +36,37 @@ type StandingGame = {
  * the season API has always returned. The policy comes from the season/league,
  * so "two points for a win" is no longer a fact of this file.
  *
- * `inProgress` are games being played right now. They never touch the official
- * table; they are used to work out where each team would stand if those games
- * ended as they are, which is what the live view shows.
+ * `pending` are results that do not count yet: games being played, and games
+ * played but not confirmed. They never touch the official table; they are used
+ * to work out where each team would stand once they are settled, which is what
+ * the live view shows.
  */
 export function computeStandings(
   teams: StandingTeamRef[],
   games: StandingGame[],
   policy: ScoringPolicy,
-  inProgress: StandingGame[] = []
+  pending: StandingGame[] = []
 ): Standing[] {
   const official = computeTable(teams, games, policy);
 
   // A game with nothing on the scoreboard yet says nothing about where anyone
   // would finish, so it is left out rather than counted as a goalless draw.
-  const scored = inProgress.filter(game => game.homeScore != null && game.awayScore != null);
+  const scored = pending.filter(game => game.homeScore != null && game.awayScore != null);
   const projected = scored.length > 0 ? computeTable(teams, [...games, ...scored], policy) : null;
 
   const projectedByTeam = new Map(
     (projected ?? []).map((row, index) => [row.teamId, { row, rank: index + 1 }])
   );
-  const playing = new Set(
-    scored.flatMap(game => [game.homeTeamId, game.awayTeamId]).filter((id): id is string => id != null)
-  );
+  const teamsIn = (predicate: (game: StandingGame) => boolean) =>
+    new Set(
+      scored
+        .filter(predicate)
+        .flatMap(game => [game.homeTeamId, game.awayTeamId])
+        .filter((id): id is string => id != null)
+    );
+
+  const playing = teamsIn(game => game.status !== 'COMPLETED');
+  const awaiting = teamsIn(game => game.status === 'COMPLETED');
 
   return official.map((row, index) => {
     const rank = index + 1;
@@ -79,6 +94,7 @@ export function computeStandings(
       points: row.points,
       rank,
       inPlay: playing.has(row.teamId),
+      awaitingConfirmation: awaiting.has(row.teamId),
       live,
     };
   });
@@ -323,16 +339,16 @@ export const getSeasonStandings = async (req: Request, res: Response): Promise<v
     });
     const teams = seasonTeams.map(st => st.team);
 
-    const [games, inProgress] = await Promise.all([
-      prisma.game.findMany({ where: { seasonId, status: 'COMPLETED' } }),
-      prisma.game.findMany({ where: { seasonId, status: 'IN_PROGRESS' } }),
+    const [games, pending] = await Promise.all([
+      prisma.game.findMany({ where: { seasonId, ...COUNTS_TOWARD_TABLE } }),
+      prisma.game.findMany({ where: { seasonId, ...PENDING_RESULTS } }),
     ]);
 
     const standings = computeStandings(
       teams,
       games,
       policyFromRows(season, season.league, 'LEAGUE'),
-      inProgress
+      pending
     );
 
     res.json(standings);
@@ -373,7 +389,7 @@ export const getTeamStanding = async (req: Request, res: Response): Promise<void
     const allTeams = allSeasonTeams.map(st => st.team);
 
     const games = await prisma.game.findMany({
-      where: { seasonId, status: 'COMPLETED' }
+      where: { seasonId, ...COUNTS_TOWARD_TABLE }
     });
 
     // Calculate standings for all teams to determine rank
@@ -422,6 +438,19 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    // Archiving freezes the table and deletes the games behind it. An
+    // unconfirmed result counts for nothing, so archiving now would drop it
+    // without it ever having reached the standings.
+    const unconfirmed = await prisma.game.count({
+      where: { seasonId, status: 'COMPLETED', confirmedAt: null },
+    });
+    if (unconfirmed > 0) {
+      res.status(400).json({
+        error: `${unconfirmed} played ${unconfirmed === 1 ? 'game is' : 'games are'} not confirmed. Confirm them before archiving, or their results will be lost.`,
+      });
+      return;
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       const seasonTeams = await tx.seasonTeam.findMany({
         where: { seasonId },
@@ -431,7 +460,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
 
       // Every game in the season is removed on archive, but only COMPLETED games count toward standings
       const allGames = await tx.game.findMany({ where: { seasonId } });
-      const completedGames = allGames.filter(g => g.status === 'COMPLETED');
+      const completedGames = allGames.filter(countsTowardTable);
       const standings = computeStandings(teams, completedGames, archivePolicy);
 
       if (standings.length > 0) {
@@ -597,6 +626,7 @@ export const getArchivedStandings = async (req: Request, res: Response): Promise
       // An archived season is finished: nothing is being played and there is
       // nothing left for the table to project.
       inPlay: false,
+      awaitingConfirmation: false,
       live: null,
       totalTeams: rows.length
     }));

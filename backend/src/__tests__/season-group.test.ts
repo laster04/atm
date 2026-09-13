@@ -181,6 +181,8 @@ describe('a table per division', () => {
     for (const game of games) {
       await request(app).put(`/api/games/${game.id}`).set(auth())
         .send({ homeScore: 3, awayScore: 1, status: 'COMPLETED' });
+      // Tables count confirmed results only.
+      await request(app).post(`/api/games/${game.id}/confirm`).set(auth());
     }
 
     const res = await request(app).get(`/api/seasons/${seasonId}/standings/by-group`);

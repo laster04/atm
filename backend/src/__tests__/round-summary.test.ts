@@ -77,6 +77,7 @@ beforeAll(async () => {
     .send({ type: 'GOAL', teamId: teamA, period: 1, playerId: scorerId });
   await request(app).put(`/api/games/${game.body.id}`).set(auth(admin.token))
     .send({ status: 'COMPLETED' });
+  await request(app).post(`/api/games/${game.body.id}/confirm`).set(auth(admin.token));
 });
 
 afterAll(async () => {
@@ -91,6 +92,7 @@ describe('building the summary', () => {
     expect(summary!.results).toHaveLength(1);
     expect(summary!.results[0].homeScore).toBe(1);
     expect(summary!.results[0].awayScore).toBe(0);
+    expect(summary!.results[0].confirmed).toBe(true);
 
     // The table is the season so far, not the round alone.
     expect(summary!.standings).toHaveLength(2);

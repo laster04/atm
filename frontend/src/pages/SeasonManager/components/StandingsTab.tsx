@@ -95,6 +95,14 @@ export default function StandingsTab({ tables }: StandingsTabProps) {
 										{t('seasonManagement.table.liveTag')}
 									</span>
 								)}
+								{!tone.inPlay && tone.awaiting && (
+									<span
+										className="shrink-0 rounded-full bg-amber-500 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-white"
+										title={t('seasonManagement.table.awaitingConfirmation')}
+									>
+										{t('seasonManagement.table.pendingTag')}
+									</span>
+								)}
 							</span>
 							<span className="text-[11.5px] tabular-nums text-muted-foreground">
 								{row.wins}-{row.draws}-{row.losses} · {row.goalsFor}–{row.goalsAgainst}

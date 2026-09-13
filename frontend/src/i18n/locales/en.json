@@ -374,12 +374,14 @@
       "points": "Pts",
       "noData": "No standings data yet.",
       "tableTitle": "Standings after {{count}} games",
-      "liveHint": "Games are being played. Arrows show where each team would finish if they ended now.",
+      "liveHint": "Some results are not counted yet. Arrows show where each team would stand once the games in progress finish and every result is confirmed.",
       "liveTag": "Live",
       "playingNow": "Playing right now",
       "wouldClimb": "Would climb {{places}} to {{rank}}",
       "wouldDrop": "Would drop {{places}} to {{rank}}",
-      "unplaced": "Not placed"
+      "unplaced": "Not placed",
+      "pendingTag": "Pending",
+      "awaitingConfirmation": "Played, waiting to be confirmed"
     },
     "schedule": {
       "noGames": "No games scheduled yet.",
@@ -810,12 +812,14 @@
       "played": "P",
       "points": "Pts",
       "empty": "No games played yet — the order is alphabetical until results come in.",
-      "liveHint": "Games are being played. Arrows show where each team would finish if they ended now.",
+      "liveHint": "Some results are not counted yet. Arrows show where each team would stand once the games in progress finish and every result is confirmed.",
       "liveTag": "Live",
       "playingNow": "Playing right now",
       "wouldClimb": "Would climb {{places}} to {{rank}}",
       "wouldDrop": "Would drop {{places}} to {{rank}}",
-      "unplaced": "Not placed"
+      "unplaced": "Not placed",
+      "pendingTag": "Pending",
+      "awaitingConfirmation": "Played, waiting to be confirmed"
     },
     "more": {
       "seasonInfo": "Season info",

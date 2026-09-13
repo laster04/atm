@@ -382,7 +382,13 @@ class EmailService {
       seasonName: string;
       leagueName: string;
       round: number;
-      results: { homeTeam: string; awayTeam: string; homeScore: number | null; awayScore: number | null }[];
+      results: {
+        homeTeam: string;
+        awayTeam: string;
+        homeScore: number | null;
+        awayScore: number | null;
+        confirmed: boolean;
+      }[];
       standings: { rank: number; team: string; played: number; points: number }[];
       topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
     }
@@ -409,9 +415,14 @@ class EmailService {
           game.homeScore != null && game.awayScore != null
             ? `${game.homeScore} : ${game.awayScore}`
             : '&mdash;';
+        // A result still open to correction has not moved the table below, so
+        // it is marked rather than shown as if it had.
+        const pending = game.confirmed
+          ? ''
+          : ` <span style="font-size:11px;color:${COLORS.muted};">(not confirmed)</span>`;
         return `<tr>${cell(escapeHtml(game.homeTeam), { align: 'right' })}` +
           `${cell(score, { align: 'center', bold: true })}` +
-          `${cell(escapeHtml(game.awayTeam))}</tr>`;
+          `${cell(escapeHtml(game.awayTeam) + pending)}</tr>`;
       })
       .join('');
 

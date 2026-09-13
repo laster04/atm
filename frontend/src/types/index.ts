@@ -260,6 +260,8 @@ export interface Standing {
   rank: number;
   /** True while this team has a game in progress. */
   inPlay: boolean;
+  /** True when this team has a result played but not yet confirmed. */
+  awaitingConfirmation: boolean;
   /** Where the team would stand if the games in progress ended as they are. */
   live: LiveProjection | null;
 }
