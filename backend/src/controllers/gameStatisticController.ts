@@ -118,6 +118,13 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
+		if (game.confirmedAt) {
+			res.status(409).json({
+				error: 'This game is confirmed. Reopen it before changing its statistics.'
+			});
+			return;
+		}
+
 		if (game.eventsAuthoritative) {
 			res.status(409).json({
 				error: 'This game\'s statistics come from its event log. Edit the events instead.'
@@ -214,6 +221,13 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
+		if (existingStatistic.game.confirmedAt) {
+			res.status(409).json({
+				error: 'This game is confirmed. Reopen it before changing its statistics.'
+			});
+			return;
+		}
+
 		if (existingStatistic.game.eventsAuthoritative) {
 			res.status(409).json({
 				error: 'This game\'s statistics come from its event log. Edit the events instead.'
@@ -267,6 +281,13 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 		});
 		if (!existingStatistic) {
 			res.status(404).json({ error: 'Statistic not found' });
+			return;
+		}
+
+		if (existingStatistic.game.confirmedAt) {
+			res.status(409).json({
+				error: 'This game is confirmed. Reopen it before changing its statistics.'
+			});
 			return;
 		}
 

@@ -5,6 +5,7 @@ import { seasonApi, gameApi, gameStatisticApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { Season, Game, Standing, TopScorer } from '@/types';
 import { mapArchivedPlayerStat } from '@/utils/archivedStats';
+import { LIVE_REFRESH_MS, hasLiveGames } from '@/utils/liveTable';
 
 import SeasonHeader from './components/SeasonHeader';
 import StandingsTable from './components/StandingsTable';
@@ -40,6 +41,19 @@ export default function SeasonDetailScreen() {
   const [loading, setLoading] = useState(true);
 
   useDocumentTitle([season?.league?.name, season?.name]);
+
+  // The table shows where teams would finish if the games in progress ended now,
+  // so while any are running it re-reads itself. A settled season polls nothing.
+  const hasLive = hasLiveGames(standings);
+  useEffect(() => {
+    if (!id || !hasLive) return;
+    const timer = setInterval(() => {
+      seasonApi.getStandings(id)
+        .then((res) => setStandings(res.data))
+        .catch((error) => console.error(error));
+    }, LIVE_REFRESH_MS);
+    return () => clearInterval(timer);
+  }, [id, hasLive]);
 
   useEffect(() => {
     if (!id) return;

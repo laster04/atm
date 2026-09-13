@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
+import { auditSnapshot, recordAudit } from '../services/audit/record.js';
+import { syncFixtureEvents } from '../services/teamEvents/mirror.js';
 import {
   AuthRequest,
   CreateGameRequest,
@@ -114,6 +116,9 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
 
+    // A fixture created with a date is already an appointment for both sides.
+    await syncFixtureEvents(game.id);
+
     res.status(201).json(game);
   } catch (error) {
     console.error('Create game error:', error);
@@ -145,6 +150,15 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
 
     if (existingGame.season.archivedAt) {
       res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
+
+    // A confirmed game is a closed record. Reopening it is a deliberate act with
+    // a reason attached, not a side effect of saving an edit.
+    if (existingGame.confirmedAt) {
+      res.status(409).json({
+        error: 'This game is confirmed. Reopen it before making changes.',
+      });
       return;
     }
 
@@ -190,6 +204,10 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
 
+    // Rescheduling, postponing or calling a game off all change whether - and
+    // when - the two teams are expected somewhere.
+    await syncFixtureEvents(game.id);
+
     res.json(game);
   } catch (error) {
     console.error('Update game error:', error);
@@ -216,6 +234,10 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // The mirrored calendar entries go with it. They only ever existed because
+    // the fixture did, so leaving them behind would leave both teams expected
+    // at a game that is no longer in the season.
+    await prisma.teamEvent.deleteMany({ where: { gameId: id } });
     await prisma.game.delete({ where: { id: id } });
     res.json({ message: 'Game deleted successfully' });
   } catch (error) {
@@ -314,6 +336,12 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       },
       orderBy: [{ round: 'asc' }, { createdAt: 'asc' }]
     });
+
+    // Generated fixtures normally have no date yet, so this usually creates
+    // nothing. It matters when a schedule is regenerated over dated games.
+    for (const created of createdGames) {
+      await syncFixtureEvents(created.id);
+    }
 
     res.status(201).json({
       message: `Generated ${createdGames.length} games across ${totalRounds} round(s)`,
@@ -439,3 +467,148 @@ function repairClashes(games: ScheduledGame[], previousGame?: ScheduledGame): Sc
 
   return repaired;
 }
+
+/** The fields of a game the trail keeps on each administrative change. */
+const GAME_AUDIT_FIELDS = [
+  'homeScore', 'awayScore', 'status', 'date', 'location', 'confirmedAt', 'eventsAuthoritative',
+] as const;
+
+/**
+ * Closes a match report. After this the score, the statistics and the event log
+ * are all read-only, so the table behind them cannot quietly change once results
+ * have been published.
+ */
+export const confirmGame = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const game = await prisma.game.findUnique({
+      where: { id },
+      include: { season: { select: { archivedAt: true } } },
+    });
+    if (!game) {
+      res.status(404).json({ error: 'Game not found' });
+      return;
+    }
+    if (game.season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
+    if (game.confirmedAt) {
+      res.status(409).json({ error: 'This game is already confirmed' });
+      return;
+    }
+    // Confirming a fixture nobody has played would lock in an empty result.
+    if (game.status !== 'COMPLETED') {
+      res.status(400).json({ error: 'Only a completed game can be confirmed' });
+      return;
+    }
+
+    const confirmed = await prisma.$transaction(async tx => {
+      const updated = await tx.game.update({
+        where: { id },
+        data: { confirmedAt: new Date(), confirmedById: req.user?.id ?? null },
+      });
+      await recordAudit(
+        {
+          entityType: 'Game',
+          entityId: id,
+          action: 'CONFIRM',
+          before: auditSnapshot(game, [...GAME_AUDIT_FIELDS]),
+          after: auditSnapshot(updated, [...GAME_AUDIT_FIELDS]),
+          actorId: req.user?.id ?? null,
+        },
+        tx
+      );
+      return updated;
+    });
+
+    res.json(confirmed);
+  } catch (error) {
+    console.error('Confirm game error:', error);
+    res.status(500).json({ error: 'Failed to confirm the game' });
+  }
+};
+
+/**
+ * Reopens a confirmed report so it can be corrected. The reason is required:
+ * a published result changing after the fact is exactly the case the trail
+ * exists to explain.
+ */
+export const reopenGame = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body as { reason?: string };
+
+    if (!reason || typeof reason !== 'string' || reason.trim().length < 3) {
+      res.status(400).json({ error: 'A reason is required to reopen a confirmed game' });
+      return;
+    }
+
+    const game = await prisma.game.findUnique({
+      where: { id },
+      include: { season: { select: { archivedAt: true } } },
+    });
+    if (!game) {
+      res.status(404).json({ error: 'Game not found' });
+      return;
+    }
+    if (game.season.archivedAt) {
+      res.status(400).json({ error: 'Cannot modify an archived season' });
+      return;
+    }
+    if (!game.confirmedAt) {
+      res.status(409).json({ error: 'This game is not confirmed' });
+      return;
+    }
+
+    const reopened = await prisma.$transaction(async tx => {
+      const updated = await tx.game.update({
+        where: { id },
+        data: { confirmedAt: null, confirmedById: null },
+      });
+      await recordAudit(
+        {
+          entityType: 'Game',
+          entityId: id,
+          action: 'REOPEN',
+          before: auditSnapshot(game, [...GAME_AUDIT_FIELDS]),
+          after: auditSnapshot(updated, [...GAME_AUDIT_FIELDS]),
+          reason: reason.trim(),
+          actorId: req.user?.id ?? null,
+        },
+        tx
+      );
+      return updated;
+    });
+
+    res.json(reopened);
+  } catch (error) {
+    console.error('Reopen game error:', error);
+    res.status(500).json({ error: 'Failed to reopen the game' });
+  }
+};
+
+/**
+ * The administrative trail for one game: confirmations, reopenings and every
+ * correction made to its report.
+ */
+export const getGameAudit = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    // Changes to the report are recorded against the game, not against each
+    // event: the auditable thing is the result, and an event that was deleted
+    // has no id left to look it up by.
+    const entries = await prisma.auditLog.findMany({
+      where: { entityType: 'Game', entityId: id },
+      include: { actor: { select: { id: true, name: true, email: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json(entries);
+  } catch (error) {
+    console.error('Get game audit error:', error);
+    res.status(500).json({ error: 'Failed to fetch the audit trail' });
+  }
+};

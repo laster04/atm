@@ -80,6 +80,20 @@ export const canManagePlayer = async (user: AuthUser, playerId: string): Promise
   return canManageTeam(user, player.teamId);
 };
 
+/**
+ * A team event belongs to its team, so managing one follows managing the team -
+ * including the league manager's path into it.
+ */
+export const canManageTeamEvent = async (user: AuthUser, eventId: string): Promise<boolean> => {
+  if (isAdmin(user)) return true;
+  const event = await prisma.teamEvent.findUnique({
+    where: { id: eventId },
+    select: { teamId: true },
+  });
+  if (!event) return false;
+  return canManageTeam(user, event.teamId);
+};
+
 export const canManageGame = async (user: AuthUser, gameId: string): Promise<boolean> => {
   if (isAdmin(user)) return true;
   const game = await prisma.game.findUnique({

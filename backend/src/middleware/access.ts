@@ -38,6 +38,7 @@ export const requireSeasonAccess = (param = 'id') => guard(access.canManageSeaso
 export const requireTeamAccess = (param = 'id') => guard(access.canManageTeam, param);
 export const requireTeamAdmin = (param = 'id') => guard(access.canAdministerTeam, param);
 export const requirePlayerAccess = (param = 'id') => guard(access.canManagePlayer, param);
+export const requireTeamEventAccess = (param = 'id') => guard(access.canManageTeamEvent, param);
 export const requireGameAccess = (param = 'id') => guard(access.canManageGame, param);
 export const requireMatchEventAccess = (param = 'id') => guard(access.canManageMatchEvent, param);
 export const requireSeriesAccess = (param = 'id') => guard(access.canManageSeries, param);

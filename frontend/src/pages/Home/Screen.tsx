@@ -7,6 +7,8 @@ import { seasonApi, teamApi } from '@/services/api.ts';
 import type { Season, Team } from '@types';
 
 import MyTeamsSection from './components/MyTeamsSection';
+import MyEventsSection from './components/MyEventsSection';
+import EmailPreferenceCard from './components/EmailPreferenceCard';
 import ActiveSeasonsSection from './components/ActiveSeasonsSection';
 import OnboardingTour from '@/components/OnboardingTour';
 
@@ -47,6 +49,10 @@ export default function HomeScreen() {
         <p className="text-gray-600 mt-1">{t('home.subtitle')}</p>
       </div>
 
+      {/* Renders nothing unless this account holds a roster spot with something
+          upcoming, so it costs a manager who does not play nothing. */}
+      <MyEventsSection />
+
       {isTeamManager() && myTeams.length > 0 && (
         <div data-tour="my-teams-section">
           <MyTeamsSection teams={myTeams} />
@@ -56,6 +62,8 @@ export default function HomeScreen() {
       <div data-tour="active-seasons-section">
         <ActiveSeasonsSection seasons={activeSeasons} loading={seasonsLoading} />
       </div>
+
+      <EmailPreferenceCard />
 
       {user && !seasonsLoading && <OnboardingTour />}
     </div>

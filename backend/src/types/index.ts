@@ -573,6 +573,27 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Position in the official table, 1-based. */
+  rank: number;
+  /** True while this team has a game in progress. */
+  inPlay: boolean;
+  /**
+   * Where the team would stand if every game currently in progress ended on its
+   * present score. Null when nothing is being played, so a settled table costs
+   * nothing to render.
+   */
+  live: LiveProjection | null;
+}
+
+export interface LiveProjection {
+  rank: number;
+  points: number;
+  played: number;
+  /**
+   * Places gained if the games in progress end as they stand: positive means
+   * moving up the table, negative means dropping.
+   */
+  movement: number;
 }
 
 export interface TeamStanding extends Standing {

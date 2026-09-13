@@ -1,0 +1,394 @@
+import request from 'supertest';
+import bcrypt from 'bcryptjs';
+import app from '../app.js';
+import prisma from '../config/database.js';
+
+const stamp = Date.now();
+
+/** Fixtures have to be in the future for the "my calendar" filter to see them. */
+const inDays = (days: number, hour = 18): string => {
+	const date = new Date();
+	date.setDate(date.getDate() + days);
+	date.setHours(hour, 0, 0, 0);
+	return date.toISOString();
+};
+
+async function account(label: string, role: 'ADMIN' | 'USER' = 'USER') {
+  const email = `${label}-${stamp}@test.com`;
+  await prisma.user.create({
+    data: {
+      email,
+      password: await bcrypt.hash('password123', 10),
+      name: label,
+      role,
+      active: true,
+      emailVerified: true,
+    },
+  });
+  const login = await request(app).post('/api/auth/login').send({ email, password: 'password123' });
+  return { email, token: login.body.token as string };
+}
+
+let admin: { email: string; token: string };
+let playerAccount: { email: string; token: string };
+let stranger: { email: string; token: string };
+let seasonId: string;
+let teamId: string;
+let otherTeamId: string;
+let gameId: string;
+let linkedPlayerId: string;
+let otherPlayerId: string;
+let eventId: string;
+
+const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
+
+beforeAll(async () => {
+  admin = await account('admin-event', 'ADMIN');
+  playerAccount = await account('player-event');
+  stranger = await account('stranger-event');
+
+  const league = await request(app).post('/api/leagues').set(auth(admin.token))
+    .send({ name: `Event League ${stamp}`, sportType: 'HOCKEY' });
+  const season = await request(app).post('/api/seasons').set(auth(admin.token))
+    .send({ name: `Event Season ${stamp}`, leagueId: league.body.id, startDate: '2026-01-01', endDate: '2027-12-31' });
+  seasonId = season.body.id;
+
+  const team = await request(app).post(`/api/teams/season/${season.body.id}`).set(auth(admin.token))
+    .send({ name: `Calendar Team ${stamp}` });
+  teamId = team.body.id;
+  const other = await request(app).post(`/api/teams/season/${season.body.id}`).set(auth(admin.token))
+    .send({ name: `Opponent ${stamp}` });
+  otherTeamId = other.body.id;
+
+  const game = await request(app).post(`/api/games/season/${season.body.id}`).set(auth(admin.token))
+    .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(5) });
+  gameId = game.body.id;
+
+  const p1 = await request(app).post(`/api/players/team/${teamId}`).set(auth(admin.token))
+    .send({ name: 'Linked Player', number: 4 });
+  linkedPlayerId = p1.body.id;
+  await request(app).patch(`/api/players/${linkedPlayerId}/link`).set(auth(admin.token))
+    .send({ email: playerAccount.email });
+
+  const p2 = await request(app).post(`/api/players/team/${teamId}`).set(auth(admin.token))
+    .send({ name: 'Unlinked Player', number: 5 });
+  otherPlayerId = p2.body.id;
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
+describe('creating team events', () => {
+  it('rejects an unauthenticated caller', async () => {
+    const res = await request(app).post(`/api/events/team/${teamId}`)
+      .send({ title: 'Training', startsAt: inDays(7) });
+    expect(res.status).toBe(401);
+  });
+
+  it('rejects someone who does not manage the team', async () => {
+    const res = await request(app).post(`/api/events/team/${teamId}`).set(auth(stranger.token))
+      .send({ title: 'Training', startsAt: inDays(7) });
+    expect(res.status).toBe(403);
+  });
+
+  it('requires a title and a valid start', async () => {
+    const noTitle = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ startsAt: inDays(7) });
+    expect(noTitle.status).toBe(400);
+
+    const badDate = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ title: 'Training', startsAt: 'not a date' });
+    expect(badDate.status).toBe(400);
+  });
+
+  it('refuses an event that ends before it starts', async () => {
+    const res = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ title: 'Training', startsAt: inDays(7), endsAt: inDays(7, 17) });
+    expect(res.status).toBe(400);
+  });
+
+  it('opens attendance for the whole roster on creation', async () => {
+    const res = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ type: 'TRAINING', title: 'Tuesday ice', startsAt: inDays(7), location: 'Rink' });
+    expect(res.status).toBe(201);
+    eventId = res.body.id;
+
+    expect(res.body.attendances).toHaveLength(2);
+    expect(res.body.attendances.every((a: { status: string }) => a.status === 'NO_RESPONSE')).toBe(true);
+  });
+
+  it('refuses to mirror a game this team does not play in', async () => {
+    const elsewhere = await request(app).post('/api/leagues').set(auth(admin.token))
+      .send({ name: `Other League ${stamp}`, sportType: 'HOCKEY' });
+    const season = await request(app).post('/api/seasons').set(auth(admin.token))
+      .send({ name: `Other Season ${stamp}`, leagueId: elsewhere.body.id, startDate: '2026-01-01', endDate: '2027-12-31' });
+    const a = await request(app).post(`/api/teams/season/${season.body.id}`).set(auth(admin.token))
+      .send({ name: `Far A ${stamp}` });
+    const b = await request(app).post(`/api/teams/season/${season.body.id}`).set(auth(admin.token))
+      .send({ name: `Far B ${stamp}` });
+    const farGame = await request(app).post(`/api/games/season/${season.body.id}`).set(auth(admin.token))
+      .send({ homeTeamId: a.body.id, awayTeamId: b.body.id });
+
+    const res = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ title: 'Not ours', startsAt: inDays(8), gameId: farGame.body.id });
+    expect(res.status).toBe(400);
+  });
+
+  it('refuses a hand-made duplicate of an already mirrored fixture', async () => {
+    const res = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ type: 'MATCH', title: 'League game again', startsAt: inDays(5), gameId });
+    expect(res.status).toBe(409);
+  });
+});
+
+describe('fixtures in the calendar', () => {
+  it('puts a dated fixture in both teams\' calendars on its own', async () => {
+    for (const side of [teamId, otherTeamId]) {
+      const res = await request(app).get(`/api/events/team/${side}`).set(auth(admin.token));
+      const mirrored = res.body.find((event: { gameId: string | null }) => event.gameId === gameId);
+      expect(mirrored).toBeDefined();
+      expect(mirrored.type).toBe('MATCH');
+    }
+  });
+
+  it('leaves an undated fixture out of the calendar', async () => {
+    const undated = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId });
+
+    const res = await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token));
+    expect(res.body.some((e: { gameId: string | null }) => e.gameId === undated.body.id)).toBe(false);
+
+    // ...until it is given one.
+    await request(app).put(`/api/games/${undated.body.id}`).set(auth(admin.token))
+      .send({ date: inDays(12) });
+    const after = await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token));
+    expect(after.body.some((e: { gameId: string | null }) => e.gameId === undated.body.id)).toBe(true);
+  });
+
+  it('moves both calendars when the fixture is rescheduled', async () => {
+    const moved = inDays(9, 20);
+    await request(app).put(`/api/games/${gameId}`).set(auth(admin.token)).send({ date: moved });
+
+    for (const side of [teamId, otherTeamId]) {
+      const res = await request(app).get(`/api/events/team/${side}`).set(auth(admin.token));
+      const mirrored = res.body.find((e: { gameId: string | null }) => e.gameId === gameId);
+      expect(new Date(mirrored.startsAt).toISOString()).toBe(new Date(moved).toISOString());
+    }
+  });
+
+  it('takes the fixture back out when its date is cleared', async () => {
+    const temp = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(14) });
+    expect((await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token))).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(true);
+
+    await request(app).put(`/api/games/${temp.body.id}`).set(auth(admin.token)).send({ date: null });
+    expect((await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token))).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(false);
+  });
+
+  it('takes the fixture back out when the game is called off', async () => {
+    const temp = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(15) });
+    await request(app).put(`/api/games/${temp.body.id}`).set(auth(admin.token))
+      .send({ status: 'CANCELLED' });
+    expect((await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token))).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(false);
+  });
+
+  it('takes the fixture back out when the game is deleted', async () => {
+    const temp = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamId, awayTeamId: otherTeamId, date: inDays(16) });
+    await request(app).delete(`/api/games/${temp.body.id}`).set(auth(admin.token));
+    expect((await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token))).body
+      .some((e: { gameId: string | null }) => e.gameId === temp.body.id)).toBe(false);
+  });
+});
+
+describe('answering attendance', () => {
+  it('rejects an unknown status', async () => {
+    const res = await request(app).put(`/api/events/${eventId}/attendance/${linkedPlayerId}`)
+      .set(auth(admin.token)).send({ status: 'PERHAPS' });
+    expect(res.status).toBe(400);
+  });
+
+  it('lets the manager answer for any player on the team', async () => {
+    const res = await request(app).put(`/api/events/${eventId}/attendance/${otherPlayerId}`)
+      .set(auth(admin.token)).send({ status: 'ATTENDING' });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ATTENDING');
+    expect(res.body.respondedAt).toBeTruthy();
+  });
+
+  it('lets a linked player answer for themselves', async () => {
+    const res = await request(app).put(`/api/events/${eventId}/attendance/${linkedPlayerId}`)
+      .set(auth(playerAccount.token)).send({ status: 'MAYBE', note: 'Depends on work' });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('MAYBE');
+    expect(res.body.note).toBe('Depends on work');
+  });
+
+  it('refuses to let a player answer for someone else', async () => {
+    const res = await request(app).put(`/api/events/${eventId}/attendance/${otherPlayerId}`)
+      .set(auth(playerAccount.token)).send({ status: 'NOT_ATTENDING' });
+    expect(res.status).toBe(403);
+
+    const unchanged = await prisma.attendance.findUnique({
+      where: { eventId_playerId: { eventId, playerId: otherPlayerId } },
+    });
+    expect(unchanged?.status).toBe('ATTENDING');
+  });
+
+  it('refuses an answer for a player on another team', async () => {
+    const outsider = await request(app).post(`/api/players/team/${otherTeamId}`).set(auth(admin.token))
+      .send({ name: 'Outsider', number: 22 });
+    const res = await request(app).put(`/api/events/${eventId}/attendance/${outsider.body.id}`)
+      .set(auth(admin.token)).send({ status: 'ATTENDING' });
+    expect(res.status).toBe(404);
+  });
+
+  it('replaces an earlier answer rather than adding a second', async () => {
+    await request(app).put(`/api/events/${eventId}/attendance/${linkedPlayerId}`)
+      .set(auth(playerAccount.token)).send({ status: 'ATTENDING' });
+    const rows = await prisma.attendance.findMany({ where: { eventId, playerId: linkedPlayerId } });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].status).toBe('ATTENDING');
+  });
+});
+
+describe('a player\'s own calendar', () => {
+  it('returns upcoming events for every roster spot with their own answer', async () => {
+    const res = await request(app).get('/api/events/mine').set(auth(playerAccount.token));
+    expect(res.status).toBe(200);
+    const event = res.body.find((e: { id: string }) => e.id === eventId);
+    expect(event).toBeDefined();
+    expect(event.team.id).toBe(teamId);
+    expect(event.myAttendance.status).toBe('ATTENDING');
+  });
+
+  it('returns nothing for an account holding no roster spot', async () => {
+    const res = await request(app).get('/api/events/mine').set(auth(stranger.token));
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
+  });
+
+  it('leaves out events that have already happened', async () => {
+    await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ title: 'Last year', startsAt: '2020-01-01T18:00:00.000Z' });
+    const res = await request(app).get('/api/events/mine').set(auth(playerAccount.token));
+    expect(res.body.some((e: { title: string }) => e.title === 'Last year')).toBe(false);
+  });
+});
+
+describe('a player who joins after the event was made', () => {
+  it('still appears on it, unanswered', async () => {
+    const latecomer = await request(app).post(`/api/players/team/${teamId}`).set(auth(admin.token))
+      .send({ name: 'Latecomer', number: 77 });
+
+    const res = await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token));
+    const event = res.body.find((e: { id: string }) => e.id === eventId);
+    const row = event.attendances.find(
+      (a: { playerId: string }) => a.playerId === latecomer.body.id
+    );
+    expect(row).toBeDefined();
+    expect(row.status).toBe('NO_RESPONSE');
+    expect(row.id).toBeNull();
+  });
+});
+
+describe('changing and removing events', () => {
+  it('refuses an edit from someone who does not manage the team', async () => {
+    const res = await request(app).put(`/api/events/${eventId}`).set(auth(stranger.token))
+      .send({ title: 'Hijacked' });
+    expect(res.status).toBe(403);
+  });
+
+  it('refuses a delete from someone who does not manage the team', async () => {
+    const res = await request(app).delete(`/api/events/${eventId}`).set(auth(stranger.token));
+    expect(res.status).toBe(403);
+  });
+
+  it('deletes the event and its answers together', async () => {
+    const doomed = await request(app).post(`/api/events/team/${teamId}`).set(auth(admin.token))
+      .send({ title: 'Cancelled meeting', startsAt: inDays(30) });
+    await request(app).put(`/api/events/${doomed.body.id}/attendance/${linkedPlayerId}`)
+      .set(auth(admin.token)).send({ status: 'ATTENDING' });
+    expect(await prisma.attendance.count({ where: { eventId: doomed.body.id } })).toBe(1);
+
+    const res = await request(app).delete(`/api/events/${doomed.body.id}`).set(auth(admin.token));
+    expect(res.status).toBe(200);
+    expect(await prisma.attendance.count({ where: { eventId: doomed.body.id } })).toBe(0);
+  });
+});
+
+
+describe('who may read a team calendar', () => {
+  it('is not public', async () => {
+    const res = await request(app).get(`/api/events/team/${teamId}`);
+    expect(res.status).toBe(401);
+  });
+
+  it('refuses someone with nothing to do with the team', async () => {
+    const res = await request(app).get(`/api/events/team/${teamId}`).set(auth(stranger.token));
+    expect(res.status).toBe(403);
+  });
+
+  it('shows a player their own answer and not their team-mates\'', async () => {
+    const res = await request(app).get(`/api/events/team/${teamId}`).set(auth(playerAccount.token));
+    expect(res.status).toBe(200);
+
+    const event = res.body.find((e: { id: string }) => e.id === eventId);
+    expect(event).toBeDefined();
+    // Who else is coming to training is not this player's business.
+    expect(event.attendances.every((a: { playerId: string }) => a.playerId === linkedPlayerId)).toBe(true);
+  });
+
+  it('shows the manager every answer', async () => {
+    const res = await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token));
+    const event = res.body.find((e: { id: string }) => e.id === eventId);
+    expect(event.attendances.length).toBeGreaterThan(1);
+  });
+});
+
+describe('a player who moves to another team', () => {
+  it('stops appearing on their old team\'s events', async () => {
+    const mover = await request(app).post(`/api/players/team/${teamId}`).set(auth(admin.token))
+      .send({ name: 'Mover', number: 44 });
+    await request(app).put(`/api/events/${eventId}/attendance/${mover.body.id}`)
+      .set(auth(admin.token)).send({ status: 'ATTENDING' });
+
+    const before = await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token));
+    const eventBefore = before.body.find((e: { id: string }) => e.id === eventId);
+    expect(eventBefore.attendances.some((a: { playerId: string }) => a.playerId === mover.body.id)).toBe(true);
+
+    await request(app).patch(`/api/players/${mover.body.id}/move`).set(auth(admin.token))
+      .send({ targetTeamId: otherTeamId });
+
+    const after = await request(app).get(`/api/events/team/${teamId}`).set(auth(admin.token));
+    const eventAfter = after.body.find((e: { id: string }) => e.id === eventId);
+    expect(eventAfter.attendances.some((a: { playerId: string }) => a.playerId === mover.body.id)).toBe(false);
+    expect(await prisma.attendance.count({ where: { playerId: mover.body.id } })).toBe(0);
+  });
+
+  it('refuses the move when that account already holds a spot in the target team', async () => {
+    const here = await request(app).post(`/api/players/team/${teamId}`).set(auth(admin.token))
+      .send({ name: 'Double A', number: 51 });
+    const there = await request(app).post(`/api/players/team/${otherTeamId}`).set(auth(admin.token))
+      .send({ name: 'Double B', number: 52 });
+
+    const claimant = await account('double-holder');
+    await request(app).patch(`/api/players/${here.body.id}/link`).set(auth(admin.token))
+      .send({ email: claimant.email });
+    await request(app).patch(`/api/players/${there.body.id}/link`).set(auth(admin.token))
+      .send({ email: claimant.email });
+
+    const res = await request(app).patch(`/api/players/${here.body.id}/move`).set(auth(admin.token))
+      .send({ targetTeamId: otherTeamId });
+    expect(res.status).toBe(409);
+
+    // The player stays where they were rather than half-moving.
+    const unchanged = await prisma.player.findUnique({ where: { id: here.body.id } });
+    expect(unchanged?.teamId).toBe(teamId);
+  });
+});

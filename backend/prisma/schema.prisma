@@ -54,6 +54,9 @@ model User {
   activationTokenExpiresAt    DateTime? @map("activation_token_expires_at")
   passwordResetToken          String?   @unique @map("password_reset_token")
   passwordResetTokenExpiresAt DateTime? @map("password_reset_token_expires_at")
+  // Opt-out for the round summary. Transactional mail (activation, password
+  // reset, invitations) ignores it - that is post the account asked for.
+  emailDigest                 Boolean   @default(true) @map("email_digest")
   onboardingCompletedAt       DateTime? @map("onboarding_completed_at")
   teamTourCompletedAt         DateTime? @map("team_tour_completed_at")
   createdAt                   DateTime  @default(now()) @map("created_at")
@@ -64,6 +67,11 @@ model User {
   managedTournamentSeries TournamentSeries[]
   playerProfiles          Player[]
   recordedMatchEvents     MatchEvent[]       @relation("MatchEventRecorder")
+  confirmedGames          Game[]             @relation("GameConfirmer")
+  auditEntries            AuditLog[]         @relation("AuditActor")
+  createdTeamEvents       TeamEvent[]        @relation("TeamEventCreator")
+  attendanceResponses     Attendance[]       @relation("AttendanceResponder")
+  sentDigests             SeasonDigest[]     @relation("DigestSender")
 
   @@map("users")
 }
@@ -108,6 +116,7 @@ model Season {
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
+  digests             SeasonDigest[]
 
   @@map("seasons")
 }
@@ -141,6 +150,7 @@ model Team {
   homeGames   Game[]       @relation("HomeTeam")
   awayGames   Game[]       @relation("AwayTeam")
   matchEvents MatchEvent[] @relation("MatchEventTeam")
+  teamEvents  TeamEvent[]
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
@@ -173,6 +183,7 @@ model Player {
   matchEvents          MatchEvent[] @relation("MatchEventPlayer")
   matchEventAssists    MatchEvent[] @relation("MatchEventAssist")
   matchEventAssists2nd  MatchEvent[] @relation("MatchEventSecondaryAssist")
+  attendances           Attendance[]
 
   // One person may hold a roster spot in several teams, but only one per team.
   @@unique([teamId, userId])
@@ -198,6 +209,11 @@ model Game {
   // then derived from that log and must not be edited directly. Games recorded
   // before the log existed stay false and keep their hand-entered figures.
   eventsAuthoritative Boolean @default(false) @map("events_authoritative")
+  // A confirmed game is a closed record: its report cannot be changed until
+  // someone with season access reopens it and says why.
+  confirmedAt   DateTime? @map("confirmed_at")
+  confirmedById String?   @map("confirmed_by_id")
+  confirmedBy   User?     @relation("GameConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 
@@ -211,8 +227,127 @@ model Game {
   awayTeam   Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
   statistic  HockeyGameStatistic[] @relation("GameStatistic")
   events     MatchEvent[]
+  teamEvents TeamEvent[]
 
   @@map("games")
+}
+
+// A round summary that has gone out, so the same round is not mailed twice by
+// accident and the manager can see when it last went and to how many people.
+model SeasonDigest {
+  id    String @id @default(uuid())
+  round Int
+
+  seasonId String @map("season_id")
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  sentAt         DateTime @default(now()) @map("sent_at")
+  recipientCount Int      @default(0) @map("recipient_count")
+
+  sentById String? @map("sent_by_id")
+  sentBy   User?   @relation("DigestSender", fields: [sentById], references: [id], onDelete: SetNull)
+
+  @@unique([seasonId, round])
+  @@map("season_digests")
+}
+
+// Anything a team turns up to: a league fixture, a training session, a meeting.
+// A fixture is mirrored here rather than replaced, so the calendar a player sees
+// is one list while the competition keeps owning its own schedule.
+enum TeamEventType {
+  MATCH
+  TRAINING
+  MEETING
+  OTHER
+}
+
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+  MAYBE
+  NO_RESPONSE
+}
+
+model TeamEvent {
+  id          String        @id @default(uuid())
+  type        TeamEventType @default(OTHER)
+  title       String
+  description String?
+  startsAt    DateTime      @map("starts_at")
+  endsAt      DateTime?     @map("ends_at")
+  location    String?
+
+  teamId String @map("team_id")
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  // Set when this event mirrors a league fixture. Cleared rather than deleted if
+  // the fixture goes, because the team may still have met that evening.
+  gameId String? @map("game_id")
+  game   Game?   @relation(fields: [gameId], references: [id], onDelete: SetNull)
+
+  createdById String?  @map("created_by_id")
+  createdBy   User?    @relation("TeamEventCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  attendances Attendance[]
+
+  // One team cannot hold two events for the same fixture.
+  @@unique([teamId, gameId])
+  @@index([teamId, startsAt])
+  @@map("team_events")
+}
+
+// Who is coming. Keyed on the roster row rather than on an account: most players
+// never sign in, and a manager answers for them.
+model Attendance {
+  id     String           @id @default(uuid())
+  status AttendanceStatus @default(NO_RESPONSE)
+  note   String?
+
+  eventId String    @map("event_id")
+  event   TeamEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  playerId String @map("player_id")
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  // Who actually answered: the player, or the manager answering on their behalf.
+  respondedById String?   @map("responded_by_id")
+  respondedBy   User?     @relation("AttendanceResponder", fields: [respondedById], references: [id], onDelete: SetNull)
+  respondedAt   DateTime? @map("responded_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([eventId, playerId])
+  @@index([playerId])
+  @@map("attendances")
+}
+
+// An administrative change worth being able to explain later: who did it, when,
+// what the record looked like before and after, and why.
+//
+// Deliberately not a foreign key to the thing it describes. An audit row has to
+// outlive the row it is about, so deleting a game must not take the record of
+// its deletion with it.
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  action     String
+  before     Json?
+  after      Json?
+  // Required by the routes that reopen a confirmed record, optional elsewhere.
+  reason     String?
+
+  actorId String? @map("actor_id")
+  actor   User?   @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@map("audit_log")
 }
 
 // What happened in a game, as it happened. Player statistics, the final score

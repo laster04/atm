@@ -43,6 +43,8 @@ export interface User {
   role: Role;
   active: boolean;
   emailVerified?: boolean;
+  /** Opt-out for the round summary. Transactional mail ignores it. */
+  emailDigest?: boolean;
   onboardingCompletedAt?: string | null;
   teamTourCompletedAt?: string | null;
   /** Only present on the signed-in user, from /auth/me and /auth/login. */
@@ -60,6 +62,47 @@ export interface ScoringPolicy {
   otLossPoints: number;
   allowDraws: boolean;
   tiebreakers: Tiebreaker[];
+}
+
+/** What a round summary email says, as the preview endpoint returns it. */
+export interface RoundSummary {
+  seasonId: string;
+  seasonName: string;
+  leagueName: string;
+  round: number;
+  results: {
+    homeTeam: string;
+    awayTeam: string;
+    homeScore: number | null;
+    awayScore: number | null;
+    playedOn: string | null;
+  }[];
+  standings: {
+    rank: number;
+    team: string;
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goalsFor: number;
+    goalsAgainst: number;
+    points: number;
+  }[];
+  topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
+}
+
+export interface SeasonDigest {
+  id: string;
+  round: number;
+  sentAt: string;
+  recipientCount: number;
+  sentBy?: Pick<User, 'id' | 'name'> | null;
+}
+
+export interface RoundSummaryPreview {
+  summary: RoundSummary;
+  recipientCount: number;
+  lastSent: SeasonDigest | null;
 }
 
 export interface League {
@@ -164,12 +207,25 @@ export interface Game {
   // True when this game's scores come from its match report. They are then
   // read-only: the API refuses a direct edit.
   eventsAuthoritative?: boolean;
+  // Set once the report is closed. Everything about the game is then read-only
+  // until someone with season access reopens it with a reason.
+  confirmedAt?: string | null;
+  confirmedById?: string | null;
+  confirmedBy?: Pick<User, 'id' | 'name'> | null;
   seasonId: string;
   homeTeamId: string;
   awayTeamId: string;
   season?: Season;
   homeTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
   awayTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
+}
+
+export interface LiveProjection {
+  rank: number;
+  points: number;
+  played: number;
+  /** Places gained if the games in progress end as they stand. */
+  movement: number;
 }
 
 export interface Standing {
@@ -182,6 +238,12 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Position in the official table, 1-based. */
+  rank: number;
+  /** True while this team has a game in progress. */
+  inPlay: boolean;
+  /** Where the team would stand if the games in progress ended as they are. */
+  live: LiveProjection | null;
 }
 
 export const MatchEventType = {
@@ -219,6 +281,79 @@ export interface MatchEvent {
   penaltyMinutes?: number | null;
   penaltyType?: string | null;
   note?: string | null;
+  createdAt: string;
+}
+
+export const TeamEventType = {
+  MATCH: 'MATCH',
+  TRAINING: 'TRAINING',
+  MEETING: 'MEETING',
+  OTHER: 'OTHER',
+} as const;
+export type TeamEventType = (typeof TeamEventType)[keyof typeof TeamEventType];
+
+export const AttendanceStatus = {
+  ATTENDING: 'ATTENDING',
+  NOT_ATTENDING: 'NOT_ATTENDING',
+  MAYBE: 'MAYBE',
+  NO_RESPONSE: 'NO_RESPONSE',
+} as const;
+export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus];
+
+export interface Attendance {
+  // Null for a roster member who has not answered: the row is written on the
+  // first answer, not when the event is created.
+  id: string | null;
+  eventId: string;
+  playerId: string;
+  status: AttendanceStatus;
+  note?: string | null;
+  respondedAt?: string | null;
+  player?: Pick<Player, 'id' | 'name' | 'number' | 'userId'>;
+}
+
+/** Anything the team turns up to, including a mirrored league fixture. */
+export interface TeamEvent {
+  id: string;
+  type: TeamEventType;
+  title: string;
+  description?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
+  location?: string | null;
+  teamId: string;
+  gameId?: string | null;
+  attendances?: Attendance[];
+}
+
+/** One upcoming event as the signed-in player sees it, from `GET /events/mine`. */
+export interface MyTeamEvent extends Omit<TeamEvent, 'attendances'> {
+  team: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+  myAttendance: Pick<Attendance, 'id' | 'playerId' | 'status' | 'note'> | null;
+}
+
+export interface TeamEventInput {
+  type?: TeamEventType;
+  title: string;
+  description?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
+  location?: string | null;
+  gameId?: string | null;
+}
+
+export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'CONFIRM' | 'REOPEN';
+
+/** One line of the administrative trail behind a record. */
+export interface AuditEntry {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: AuditAction;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+  reason?: string | null;
+  actor?: Pick<User, 'id' | 'name' | 'email'> | null;
   createdAt: string;
 }
 

@@ -1,9 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, ShieldAlert, Target, Trash2, X } from 'lucide-react';
+import { CheckCircle2, History, Lock, Plus, ShieldAlert, Target, Trash2, Unlock, X } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { matchEventApi, playerApi } from '@/services/api';
-import { MatchEventType, type Game, type MatchEvent, type MatchEventInput, type Player } from '@types';
+import { gameApi, matchEventApi, playerApi } from '@/services/api';
+import {
+	GameStatus,
+	MatchEventType,
+	type AuditEntry,
+	type Game,
+	type MatchEvent,
+	type MatchEventInput,
+	type Player,
+} from '@types';
 import { SEASON_ACCENT } from './util';
 
 interface MatchReportSheetProps {
@@ -11,6 +19,7 @@ interface MatchReportSheetProps {
 	onClose: () => void;
 	/** The sheet derives the score, so the caller re-reads the game on close. */
 	onChanged: () => void;
+	onGameChanged: (game: Game) => void;
 }
 
 /**
@@ -35,8 +44,17 @@ const emptyDraft = (teamId: string): MatchEventInput => ({
 	penaltyMinutes: null,
 });
 
-export default function MatchReportSheet({ game, onClose, onChanged }: MatchReportSheetProps) {
-	const { t } = useTranslation();
+export default function MatchReportSheet({
+	game,
+	onClose,
+	onChanged,
+	onGameChanged,
+}: MatchReportSheetProps) {
+	const { t, i18n } = useTranslation();
+
+	// A confirmed report is a closed record. The sheet still shows it, but every
+	// way of changing it is withdrawn until it is reopened with a reason.
+	const confirmed = game.confirmedAt != null;
 
 	const [events, setEvents] = useState<MatchEvent[]>([]);
 	const [rosters, setRosters] = useState<Record<string, Player[]>>({});
@@ -44,6 +62,10 @@ export default function MatchReportSheet({ game, onClose, onChanged }: MatchRepo
 	const [draft, setDraft] = useState<MatchEventInput | null>(null);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState('');
+	const [audit, setAudit] = useState<AuditEntry[]>([]);
+	const [showAudit, setShowAudit] = useState(false);
+	const [reopening, setReopening] = useState(false);
+	const [reason, setReason] = useState('');
 
 	const homeTeamId = game.homeTeamId;
 	const awayTeamId = game.awayTeamId;
@@ -139,6 +161,52 @@ export default function MatchReportSheet({ game, onClose, onChanged }: MatchRepo
 		}
 	};
 
+	const confirmReport = async () => {
+		setError('');
+		setSaving(true);
+		try {
+			const res = await gameApi.confirm(game.id);
+			onGameChanged(res.data);
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('seasonManagement.report.confirmError'));
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const reopenReport = async () => {
+		setError('');
+		setSaving(true);
+		try {
+			const res = await gameApi.reopen(game.id, reason.trim());
+			onGameChanged(res.data);
+			setReopening(false);
+			setReason('');
+			if (showAudit) void loadAudit();
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('seasonManagement.report.reopenError'));
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const loadAudit = async () => {
+		try {
+			const res = await gameApi.getAudit(game.id);
+			setAudit(res.data);
+		} catch {
+			setError(t('seasonManagement.report.auditError'));
+		}
+	};
+
+	const toggleAudit = () => {
+		const next = !showAudit;
+		setShowAudit(next);
+		if (next) void loadAudit();
+	};
+
 	const startDraft = (type: Recordable) => {
 		setError('');
 		setDraft({ ...emptyDraft(homeTeamId), type, penaltyMinutes: type === MatchEventType.PENALTY ? 2 : null });
@@ -192,9 +260,23 @@ export default function MatchReportSheet({ game, onClose, onChanged }: MatchRepo
 			</div>
 
 			<div className="flex flex-1 flex-col gap-3.5 overflow-y-auto p-4">
-				<p className="text-[12.5px] leading-snug text-muted-foreground">
-					{t('seasonManagement.report.derivedNote')}
-				</p>
+				{confirmed ? (
+					<div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3.5">
+						<Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+						<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+							<span className="text-[13px] font-semibold">
+								{t('seasonManagement.report.confirmedTitle')}
+							</span>
+							<span className="text-[12.5px] leading-snug text-muted-foreground">
+								{t('seasonManagement.report.confirmedNote')}
+							</span>
+						</span>
+					</div>
+				) : (
+					<p className="text-[12.5px] leading-snug text-muted-foreground">
+						{t('seasonManagement.report.derivedNote')}
+					</p>
+				)}
 
 				{loading ? (
 					<p className="text-sm text-muted-foreground">{t('common.loading')}</p>
@@ -413,10 +495,112 @@ export default function MatchReportSheet({ game, onClose, onChanged }: MatchRepo
 					</div>
 				)}
 
+				{reopening && (
+					<div className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+						<span className="tm-section-label">{t('seasonManagement.report.reopenTitle')}</span>
+						<p className="text-[12.5px] leading-snug text-muted-foreground">
+							{t('seasonManagement.report.reopenHint')}
+						</p>
+						<input
+							value={reason}
+							onChange={(e) => setReason(e.target.value)}
+							placeholder={t('seasonManagement.report.reasonPlaceholder')}
+							className="h-11 rounded-[10px] border border-border bg-input-background px-3 text-[14.5px]"
+						/>
+						<div className="flex gap-2">
+							<button
+								onClick={() => {
+									setReopening(false);
+									setReason('');
+								}}
+								className="h-11 flex-1 rounded-[10px] border border-border text-[14.5px] font-semibold"
+							>
+								{t('common.cancel')}
+							</button>
+							<button
+								onClick={() => void reopenReport()}
+								disabled={saving || reason.trim().length < 3}
+								className="h-11 flex-1 rounded-[10px] text-[15px] font-semibold text-white disabled:opacity-60"
+								style={{ backgroundColor: SEASON_ACCENT }}
+							>
+								{t('seasonManagement.report.reopen')}
+							</button>
+						</div>
+					</div>
+				)}
+
+				<button
+					onClick={toggleAudit}
+					className="flex h-11 items-center justify-center gap-2 rounded-[10px] border border-border text-[14.5px] font-semibold"
+				>
+					<History className="size-4" aria-hidden />
+					{showAudit
+						? t('seasonManagement.report.hideHistory')
+						: t('seasonManagement.report.showHistory')}
+				</button>
+
+				{showAudit && (
+					<div className="tm-rows-card">
+						{audit.length === 0 ? (
+							<div className="px-3.5 py-4 text-center text-[13px] text-muted-foreground">
+								{t('seasonManagement.report.noHistory')}
+							</div>
+						) : (
+							audit.map((entry) => (
+								<div key={entry.id} className="flex flex-col gap-0.5 px-3.5 py-2.5">
+									<span className="text-[13.5px] font-semibold">
+										{t(`seasonManagement.report.audit.${entry.action}`)}
+									</span>
+									<span className="text-[11.5px] text-muted-foreground">
+										{[
+											entry.actor?.name ?? t('seasonManagement.report.audit.unknownActor'),
+											new Date(entry.createdAt).toLocaleString(i18n.language, {
+												day: 'numeric',
+												month: 'short',
+												hour: '2-digit',
+												minute: '2-digit',
+											}),
+										].join(' · ')}
+									</span>
+									{entry.reason && (
+										<span className="text-[12.5px] italic text-muted-foreground">{entry.reason}</span>
+									)}
+								</div>
+							))
+						)}
+					</div>
+				)}
+
 				{error && <p className="text-sm text-red-600">{error}</p>}
 			</div>
 
-			{!draft && (
+			{confirmed && !reopening && (
+				<div className="tm-save-bar shrink-0">
+					<button
+						onClick={() => setReopening(true)}
+						className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] border border-border text-[14.5px] font-semibold"
+					>
+						<Unlock className="size-4" aria-hidden />
+						{t('seasonManagement.report.reopen')}
+					</button>
+				</div>
+			)}
+
+			{!confirmed && !draft && game.status === GameStatus.COMPLETED && (
+				<div className="px-4 pb-2">
+					<button
+						onClick={() => void confirmReport()}
+						disabled={saving}
+						className="flex h-11 w-full items-center justify-center gap-2 rounded-[10px] border text-[14.5px] font-semibold disabled:opacity-60"
+						style={{ borderColor: SEASON_ACCENT, color: SEASON_ACCENT }}
+					>
+						<CheckCircle2 className="size-4" aria-hidden />
+						{t('seasonManagement.report.confirm')}
+					</button>
+				</div>
+			)}
+
+			{!confirmed && !draft && (
 				<div className="tm-save-bar shrink-0">
 					{RECORDABLE.map((type) => (
 						<button

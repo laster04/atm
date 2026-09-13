@@ -14,6 +14,7 @@ import MoreTab from './components/MoreTab';
 import RoundDatesSheet from './components/RoundDatesSheet';
 import ResultSheet from './components/ResultSheet';
 import MatchReportSheet from './components/MatchReportSheet';
+import { LIVE_REFRESH_MS, hasLiveGames } from '@/utils/liveTable';
 import { SEASON_ACCENT, SEASON_STATUS_TONE, isPlayed, needsDate, teamCount } from './components/util';
 
 export type SeasonTab = 'overview' | 'games' | 'teams' | 'table' | 'more';
@@ -62,6 +63,20 @@ export default function Detail() {
 			.then((res) => setStandings(res.data))
 			.catch((err) => console.error(err));
 	}, [id, activeTab, games]);
+
+	// While something is being played the table is showing a projection that
+	// moves with the score, so it re-reads itself. A settled table polls nothing,
+	// and leaving the tab stops it.
+	const tableIsLive = activeTab === 'table' && hasLiveGames(standings);
+	useEffect(() => {
+		if (!id || !tableIsLive) return;
+		const timer = setInterval(() => {
+			seasonApi.getStandings(id)
+				.then((res) => setStandings(res.data))
+				.catch((err) => console.error(err));
+		}, LIVE_REFRESH_MS);
+		return () => clearInterval(timer);
+	}, [id, tableIsLive]);
 
 	const counts = useMemo(() => ({
 		teams: teams.length || teamCount(season),
@@ -227,6 +242,7 @@ export default function Detail() {
 					{activeTab === 'more' && (
 						<MoreTab
 							season={season}
+							games={games}
 							teamCount={counts.teams}
 							gameCount={counts.games}
 							onGamesChange={setGames}
@@ -291,6 +307,12 @@ export default function Detail() {
 							applyGames([res.data]);
 							setReportGame(res.data);
 						});
+					}}
+					// Confirming or reopening returns the game itself, so there is
+					// nothing to re-read.
+					onGameChanged={(updated) => {
+						applyGames([updated]);
+						setReportGame(updated);
 					}}
 				/>
 			)}

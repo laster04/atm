@@ -201,6 +201,22 @@
           "feature7": "White-label options"
         }
       }
+    },
+    "myEvents": {
+      "title": "Your next events",
+      "loadError": "Failed to load your events",
+      "answerError": "Failed to save your response",
+      "status": {
+        "ATTENDING": "Attending",
+        "NOT_ATTENDING": "Not attending",
+        "MAYBE": "Maybe",
+        "NO_RESPONSE": "No response"
+      }
+    },
+    "emailPrefs": {
+      "title": "Round summary emails",
+      "hint": "Results, the table and top scorers after each round. Account emails are always sent.",
+      "error": "Failed to save that"
     }
   },
   "auth": {
@@ -353,7 +369,12 @@
       "goalDifference": "GD",
       "points": "Pts",
       "noData": "No standings data yet.",
-      "tableTitle": "Standings after {{count}} games"
+      "tableTitle": "Standings after {{count}} games",
+      "liveHint": "Games are being played. Arrows show where each team would finish if they ended now.",
+      "liveTag": "Live",
+      "playingNow": "Playing right now",
+      "wouldClimb": "Would climb {{places}} to {{rank}}",
+      "wouldDrop": "Would drop {{places}} to {{rank}}"
     },
     "schedule": {
       "noGames": "No games scheduled yet.",
@@ -497,7 +518,8 @@
         "overview": "Overview",
         "roster": "Roster",
         "schedule": "Schedule",
-        "settings": "Settings"
+        "settings": "Settings",
+        "events": "Calendar"
       },
       "sortNumber": "Number",
       "searchPlayers": "Search players",
@@ -605,6 +627,33 @@
       "unlink": "Unlink account",
       "linked": "Linked account",
       "error": "Failed to change the account link"
+    },
+    "events": {
+      "add": "New event",
+      "newEvent": "New event",
+      "titlePlaceholder": "What is it?",
+      "locationPlaceholder": "Where? (optional)",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "empty": "No events yet. Add a training session or a meeting.",
+      "emptyRoster": "Nobody on the roster to ask yet.",
+      "delete": "Delete event",
+      "loadError": "Failed to load the calendar",
+      "saveError": "Failed to save the event",
+      "deleteError": "Failed to delete the event",
+      "answerError": "Failed to save the response",
+      "type": {
+        "MATCH": "Match",
+        "TRAINING": "Training",
+        "MEETING": "Meeting",
+        "OTHER": "Other"
+      },
+      "status": {
+        "ATTENDING": "Attending",
+        "NOT_ATTENDING": "Not attending",
+        "MAYBE": "Maybe",
+        "NO_RESPONSE": "No response"
+      }
     }
   },
   "seasonManagement": {
@@ -714,7 +763,8 @@
       "derivedNote": "This score is calculated from the match report. Edit the report to change it.",
       "openReport": "Match report",
       "fromReport": "from report",
-      "saveStatus": "Save status"
+      "saveStatus": "Save status",
+      "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first."
     },
     "teams": {
       "count_one": "{{count}} in this season",
@@ -731,7 +781,12 @@
       "team": "Team",
       "played": "P",
       "points": "Pts",
-      "empty": "No games played yet — the order is alphabetical until results come in."
+      "empty": "No games played yet — the order is alphabetical until results come in.",
+      "liveHint": "Games are being played. Arrows show where each team would finish if they ended now.",
+      "liveTag": "Live",
+      "playingNow": "Playing right now",
+      "wouldClimb": "Would climb {{places}} to {{rank}}",
+      "wouldDrop": "Would drop {{places}} to {{rank}}"
     },
     "more": {
       "seasonInfo": "Season info",
@@ -746,7 +801,9 @@
       "publicPage": "View public page",
       "scoring": "Scoring rules",
       "scoringInherited": "Using the default for this sport",
-      "scoringCustom": "{{win}} for a win, {{draw}} for a draw"
+      "scoringCustom": "{{win}} for a win, {{draw}} for a draw",
+      "roundSummary": "Send round summary",
+      "roundSummaryHint": "Emails results and the table to everyone in the season"
     },
     "report": {
       "title": "Match report",
@@ -771,7 +828,28 @@
       "secondAssist": "Second assist",
       "noAssist": "None",
       "penaltyMinutes": "Penalty minutes",
-      "add": "Add"
+      "add": "Add",
+      "confirmedTitle": "Report confirmed",
+      "confirmedNote": "The result is final. Reopen the report to correct anything.",
+      "confirm": "Confirm report",
+      "confirmError": "Failed to confirm the report",
+      "reopen": "Reopen",
+      "reopenTitle": "Reopen the report",
+      "reopenHint": "The result has already been published. Say why it is being changed.",
+      "reasonPlaceholder": "Reason for the correction",
+      "reopenError": "Failed to reopen the report",
+      "showHistory": "Show history",
+      "hideHistory": "Hide history",
+      "noHistory": "Nothing recorded yet",
+      "auditError": "Failed to load the history",
+      "audit": {
+        "CREATE": "Added to the report",
+        "UPDATE": "Corrected in the report",
+        "DELETE": "Removed from the report",
+        "CONFIRM": "Report confirmed",
+        "REOPEN": "Report reopened",
+        "unknownActor": "Removed account"
+      }
     },
     "scoring": {
       "title": "Scoring rules",
@@ -798,6 +876,23 @@
         "WINS": "Wins",
         "PLAYED": "Fewer games played"
       }
+    },
+    "summary": {
+      "title": "Round summary",
+      "intro": "This is the email everyone in the season will receive. Check it before sending.",
+      "round": "Round",
+      "noRounds": "No rounds yet. Generate a schedule first.",
+      "results": "Results",
+      "table": "Table",
+      "topScorers": "Top scorers",
+      "recipients": "Goes to {{count}} people",
+      "lastSent": "last sent {{when}}",
+      "send": "Send summary",
+      "sendAgain": "Send it again",
+      "alreadySent": "This round has already been sent. Press again to send it a second time.",
+      "sentResult": "Sent to {{delivered}} of {{attempted}} recipients.",
+      "previewError": "Failed to build the summary",
+      "sendError": "Failed to send the summary"
     }
   },
   "admin": {

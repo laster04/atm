@@ -1,7 +1,9 @@
 import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
-  ArchivedStanding, ArchivedPlayerStat, MatchEvent, MatchEventInput, MyPlayerProfile,
+  ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
+  RoundSummaryPreview, SeasonDigest,
+  Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
@@ -55,7 +57,7 @@ export const authApi = {
   getMe: () => api.get<{ user: User }>('/auth/me'),
   completeOnboarding: () => api.post<{ user: User }>('/auth/complete-onboarding'),
   completeTeamTour: () => api.post<{ user: User }>('/auth/complete-team-tour'),
-  updateProfile: (data: { name?: string; password?: string }) =>
+  updateProfile: (data: { name?: string; password?: string; emailDigest?: boolean }) =>
     api.put<{ user: User }>('/auth/profile', data),
   getUsers: (filters?: { role?: string; name?: string; active?: boolean }) =>
     api.get<User[]>('/auth/users', { params: filters }),
@@ -91,7 +93,16 @@ export const seasonApi = {
   getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`),
   getCopyableTeams: (id: string | number) => api.get<Team[]>(`/seasons/${id}/copyable-teams`),
   copyTeams: (id: string | number, teamIds: string[]) =>
-    api.post<{ message: string; teams: Team[] }>(`/seasons/${id}/copy-teams`, { teamIds })
+    api.post<{ message: string; teams: Team[] }>(`/seasons/${id}/copy-teams`, { teamIds }),
+  // Round summary emails: what would be sent, what has been, and sending it.
+  getSentDigests: (id: string | number) => api.get<SeasonDigest[]>(`/seasons/${id}/digests`),
+  previewRoundSummary: (id: string | number, round: number) =>
+    api.get<RoundSummaryPreview>(`/seasons/${id}/rounds/${round}/summary`),
+  sendRoundSummary: (id: string | number, round: number, resend = false) =>
+    api.post<{ round: number; attempted: number; delivered: number; sentAt: string }>(
+      `/seasons/${id}/rounds/${round}/summary`,
+      { resend }
+    )
 };
 
 export const teamApi = {
@@ -150,7 +161,12 @@ export const gameApi = {
   generateSchedule: (
     seasonId: string | number,
     data: { rounds: number }
-  ) => api.post<{ message: string; games: Game[] }>(`/games/season/${seasonId}/generate`, data)
+  ) => api.post<{ message: string; games: Game[] }>(`/games/season/${seasonId}/generate`, data),
+  // Closes the match report. Everything about the game is read-only afterwards.
+  confirm: (id: string | number) => api.post<Game>(`/games/${id}/confirm`),
+  // Reopening a published result needs a reason; the trail keeps it.
+  reopen: (id: string | number, reason: string) => api.post<Game>(`/games/${id}/reopen`, { reason }),
+  getAudit: (id: string | number) => api.get<AuditEntry[]>(`/games/${id}/audit`)
 };
 
 export const gameStatisticApi = {
@@ -168,6 +184,26 @@ export const gameStatisticApi = {
   update: (id: string | number, data: { goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
     api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
   delete: (id: string | number) => api.delete(`/game-statistics/${id}`)
+};
+
+// ── Team calendar ───────────────────────────────────────────
+export const teamEventApi = {
+  getByTeam: (teamId: string | number) => api.get<TeamEvent[]>(`/events/team/${teamId}`),
+  create: (teamId: string | number, data: TeamEventInput) =>
+    api.post<TeamEvent>(`/events/team/${teamId}`, data),
+  update: (id: string | number, data: Partial<TeamEventInput>) =>
+    api.put<TeamEvent>(`/events/${id}`, data),
+  delete: (id: string | number) => api.delete(`/events/${id}`),
+  // A manager may answer for anyone on the team; a linked player only for
+  // themselves. The server decides which of the two the caller is.
+  setAttendance: (
+    eventId: string | number,
+    playerId: string | number,
+    status: AttendanceStatus,
+    note?: string | null
+  ) => api.put<Attendance>(`/events/${eventId}/attendance/${playerId}`, { status, note }),
+  // Upcoming events across every roster spot the signed-in user holds.
+  getMine: () => api.get<MyTeamEvent[]>('/events/mine')
 };
 
 // ── Tournament Series ───────────────────────────────────────

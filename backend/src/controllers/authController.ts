@@ -342,7 +342,7 @@ export const completeOnboarding = async (req: AuthRequest, res: Response): Promi
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: { onboardingCompletedAt: new Date() },
-      select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
+      select: { id: true, email: true, name: true, role: true, emailDigest: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
     res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
@@ -357,7 +357,7 @@ export const completeTeamTour = async (req: AuthRequest, res: Response): Promise
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: { teamTourCompletedAt: new Date() },
-      select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
+      select: { id: true, email: true, name: true, role: true, emailDigest: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
     res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
@@ -369,16 +369,21 @@ export const completeTeamTour = async (req: AuthRequest, res: Response): Promise
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, password } = req.body as UpdateProfileRequest;
-    const updateData: { name?: string; password?: string } = {};
+    const { name, password, emailDigest } = req.body as UpdateProfileRequest & {
+      emailDigest?: boolean;
+    };
+    const updateData: { name?: string; password?: string; emailDigest?: boolean } = {};
 
     if (name) updateData.name = name;
     if (password) updateData.password = await bcrypt.hash(password, 10);
+    // Turning the round summary off is a plain false, so it cannot be tested for
+    // truthiness the way the others are.
+    if (typeof emailDigest === 'boolean') updateData.emailDigest = emailDigest;
 
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: updateData,
-      select: { id: true, email: true, name: true, role: true }
+      select: { id: true, email: true, name: true, role: true, emailDigest: true }
     });
 
     res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });

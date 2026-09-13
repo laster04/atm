@@ -201,6 +201,22 @@
           "feature7": "Možnosti white-label"
         }
       }
+    },
+    "myEvents": {
+      "title": "Vaše nejbližší akce",
+      "loadError": "Vaše akce se nepodařilo načíst",
+      "answerError": "Odpověď se nepodařilo uložit",
+      "status": {
+        "ATTENDING": "Přijdu",
+        "NOT_ATTENDING": "Nepřijdu",
+        "MAYBE": "Možná",
+        "NO_RESPONSE": "Bez odpovědi"
+      }
+    },
+    "emailPrefs": {
+      "title": "E-maily se souhrnem kola",
+      "hint": "Výsledky, tabulka a nejlepší střelci po každém kole. E-maily k účtu chodí vždy.",
+      "error": "Nastavení se nepodařilo uložit"
     }
   },
   "auth": {
@@ -353,7 +369,12 @@
       "goalDifference": "RG",
       "points": "B",
       "noData": "Zatim zadna data v tabulce.",
-      "tableTitle": "Tabulka po {{count}} zápasech"
+      "tableTitle": "Tabulka po {{count}} zápasech",
+      "liveHint": "Právě se hraje. Šipky ukazují, kde by tým skončil, kdyby zápasy teď skončily.",
+      "liveTag": "Živě",
+      "playingNow": "Právě hraje",
+      "wouldClimb": "Postoupil by o {{places}} na {{rank}}. místo",
+      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo"
     },
     "schedule": {
       "noGames": "Zatim zadne naplanovanene zapasy.",
@@ -497,7 +518,8 @@
         "overview": "Přehled",
         "roster": "Soupiska",
         "schedule": "Rozpis",
-        "settings": "Nastavení"
+        "settings": "Nastavení",
+        "events": "Kalendář"
       },
       "sortNumber": "Číslo",
       "searchPlayers": "Hledat hráče",
@@ -610,6 +632,33 @@
       "unlink": "Zrušit propojení",
       "linked": "Propojený účet",
       "error": "Propojení účtu se nepodařilo změnit"
+    },
+    "events": {
+      "add": "Nová akce",
+      "newEvent": "Nová akce",
+      "titlePlaceholder": "O co jde?",
+      "locationPlaceholder": "Kde? (nepovinné)",
+      "upcoming": "Nadcházející",
+      "past": "Proběhlé",
+      "empty": "Zatím žádné akce. Přidejte trénink nebo schůzku.",
+      "emptyRoster": "V soupisce zatím není koho se zeptat.",
+      "delete": "Smazat akci",
+      "loadError": "Kalendář se nepodařilo načíst",
+      "saveError": "Akci se nepodařilo uložit",
+      "deleteError": "Akci se nepodařilo smazat",
+      "answerError": "Odpověď se nepodařilo uložit",
+      "type": {
+        "MATCH": "Zápas",
+        "TRAINING": "Trénink",
+        "MEETING": "Schůzka",
+        "OTHER": "Jiné"
+      },
+      "status": {
+        "ATTENDING": "Přijdu",
+        "NOT_ATTENDING": "Nepřijdu",
+        "MAYBE": "Možná",
+        "NO_RESPONSE": "Bez odpovědi"
+      }
     }
   },
   "seasonManagement": {
@@ -722,7 +771,8 @@
       "derivedNote": "Toto skóre se počítá ze zápisu o utkání. Změníte ho úpravou zápisu.",
       "openReport": "Zápis o utkání",
       "fromReport": "ze zápisu",
-      "saveStatus": "Uložit stav"
+      "saveStatus": "Uložit stav",
+      "confirmedNote": "Zápas je potvrzený a nelze ho měnit. Nejdřív otevřete zápis o utkání a odemkněte ho."
     },
     "teams": {
       "count_one": "{{count}} v této sezóně",
@@ -741,7 +791,12 @@
       "team": "Tým",
       "played": "Z",
       "points": "B",
-      "empty": "Zatím se nehrálo — pořadí je abecední, dokud nepřijdou výsledky."
+      "empty": "Zatím se nehrálo — pořadí je abecední, dokud nepřijdou výsledky.",
+      "liveHint": "Právě se hraje. Šipky ukazují, kde by tým skončil, kdyby zápasy teď skončily.",
+      "liveTag": "Živě",
+      "playingNow": "Právě hraje",
+      "wouldClimb": "Postoupil by o {{places}} na {{rank}}. místo",
+      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo"
     },
     "more": {
       "seasonInfo": "O sezóně",
@@ -756,7 +811,9 @@
       "publicPage": "Zobrazit veřejnou stránku",
       "scoring": "Bodování",
       "scoringInherited": "Používá výchozí nastavení pro tento sport",
-      "scoringCustom": "{{win}} za výhru, {{draw}} za remízu"
+      "scoringCustom": "{{win}} za výhru, {{draw}} za remízu",
+      "roundSummary": "Odeslat souhrn kola",
+      "roundSummaryHint": "Pošle e-mailem výsledky a tabulku všem v sezóně"
     },
     "report": {
       "title": "Zápis o utkání",
@@ -781,7 +838,28 @@
       "secondAssist": "Druhá asistence",
       "noAssist": "Žádná",
       "penaltyMinutes": "Trestné minuty",
-      "add": "Přidat"
+      "add": "Přidat",
+      "confirmedTitle": "Zápis potvrzen",
+      "confirmedNote": "Výsledek je konečný. Pro opravu je potřeba zápis znovu otevřít.",
+      "confirm": "Potvrdit zápis",
+      "confirmError": "Zápis se nepodařilo potvrdit",
+      "reopen": "Znovu otevřít",
+      "reopenTitle": "Znovu otevřít zápis",
+      "reopenHint": "Výsledek už byl zveřejněn. Uveďte, proč se mění.",
+      "reasonPlaceholder": "Důvod opravy",
+      "reopenError": "Zápis se nepodařilo znovu otevřít",
+      "showHistory": "Zobrazit historii",
+      "hideHistory": "Skrýt historii",
+      "noHistory": "Zatím nic nezaznamenáno",
+      "auditError": "Historii se nepodařilo načíst",
+      "audit": {
+        "CREATE": "Přidáno do zápisu",
+        "UPDATE": "Opraveno v zápisu",
+        "DELETE": "Odebráno ze zápisu",
+        "CONFIRM": "Zápis potvrzen",
+        "REOPEN": "Zápis znovu otevřen",
+        "unknownActor": "Smazaný účet"
+      }
     },
     "scoring": {
       "title": "Bodování",
@@ -808,6 +886,23 @@
         "WINS": "Počet výher",
         "PLAYED": "Méně odehraných zápasů"
       }
+    },
+    "summary": {
+      "title": "Souhrn kola",
+      "intro": "Takto bude vypadat e-mail, který dostanou všichni v sezóně. Před odesláním si ho zkontrolujte.",
+      "round": "Kolo",
+      "noRounds": "Zatím žádná kola. Nejdřív vygenerujte rozpis.",
+      "results": "Výsledky",
+      "table": "Tabulka",
+      "topScorers": "Nejlepší střelci",
+      "recipients": "Půjde {{count}} lidem",
+      "lastSent": "naposled odesláno {{when}}",
+      "send": "Odeslat souhrn",
+      "sendAgain": "Odeslat znovu",
+      "alreadySent": "Toto kolo už bylo odesláno. Dalším stisknutím ho odešlete podruhé.",
+      "sentResult": "Odesláno {{delivered}} z {{attempted}} příjemců.",
+      "previewError": "Souhrn se nepodařilo sestavit",
+      "sendError": "Souhrn se nepodařilo odeslat"
     }
   },
   "admin": {
