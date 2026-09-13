@@ -40,6 +40,16 @@ Polling every 15–30s is almost certainly enough at this scale and needs no new
 infrastructure — the standings already poll at 30s. SSE is a modest step up and
 one-way, which fits. WebSockets are almost certainly overkill here.
 
+## Decided
+
+**2026-09-13.** Next up, and it starts with the smallest piece: a **scheduled
+job that sets a fixture to IN_PROGRESS when its start time passes**. That alone
+makes the projection visible without anyone learning a new screen, and it needs
+the job runner that notifications and webhooks will want anyway — see
+[13](13-scheduled-jobs.md).
+
+The full live-entry screen follows once games reliably enter the live state.
+
 ## Decisions needed
 
 1. **Who operates it?** The home team manager is the obvious answer and the

@@ -1,8 +1,14 @@
 # 06 — Billing and entitlements
 
-**Read this before building anything else in Tier 3.** Entitlements decide
-whether every other feature here is free, paid, or capped. Retrofitting that
-check into eleven finished features is far more work than putting it in first.
+> **Postponed — 2026-09-13.** Deliberately deferred to a later stage. Nothing
+> in Tier 3 is to be gated in the meantime: build features as free and
+> unrestricted, and add the entitlement check when this is picked up.
+>
+> The cost of that choice is understood and written down here rather than
+> discovered later: every feature built before entitlements exist will need a
+> check added afterwards. That is the accepted trade.
+
+Entitlements decide whether every other feature here is free, paid, or capped.
 
 `docs/ATM_PRICING.md` has a full proposal and **no code whatsoever** behind it:
 `subscription`, `entitlement`, `stripe`, `billing` all return zero hits in the

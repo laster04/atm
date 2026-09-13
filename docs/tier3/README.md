@@ -22,12 +22,33 @@ slice.
 | 09 | [Imports](09-imports.md) | — | M | format, conflict handling |
 | 10 | [Live match centre](10-live-match-centre.md) | match events | L | who operates it |
 | 11 | [Historical records](11-historical-records.md) | season archive | M | what survives a rename |
+| 12 | [Visibility](12-visibility.md) | — | M | **wanted next** — default level |
+| 13 | [Scheduled jobs](13-scheduled-jobs.md) | — | M | **wanted next** — stale live games |
+
+## Where this stands — 2026-09-13
+
+Decided in conversation and recorded in each file:
+
+- **Public data is minimal.** A visitor sees a player's name and shirt number,
+  nothing else, and no manager email. **Shipped.**
+- **06 billing — postponed.** Nothing is gated for now. Every feature built
+  before entitlements exist will need a check added later; that is accepted.
+- **09 imports — postponed.**
+- **02 promotion/relegation — record the decision only**, never move teams
+  automatically. Not urgent: no league on the platform uses it yet.
+- **10 live match centre — next**, starting with [13](13-scheduled-jobs.md):
+  a job that sets a fixture live when its start time passes.
+- **12 visibility — next.** Hide a league, season or tournament from the
+  public.
 
 ## Reading order
 
-**06 first, even if it is built last.** Entitlements decide whether every other
-feature on this list is free, paid, or capped. Building 01–11 without knowing
-that means retrofitting a check into each of them later.
+Next: **12** and **13**. Both are small, both are asked for, and 13 brings the
+job runner that scheduled emails and webhooks will also want.
+
+**06 whenever it is picked up.** It was going to be first because entitlements
+decide whether everything else is free, paid or capped. Postponing it is a
+deliberate trade, not an oversight.
 
 ## Two rules that apply to everything here
 

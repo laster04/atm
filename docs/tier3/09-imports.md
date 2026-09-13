@@ -1,5 +1,8 @@
 # 09 — Imports
 
+> **Postponed — 2026-09-13.** Not being built now. The notes below stand for
+> when it is picked up.
+
 ## The problem
 
 Adoption. A league with twelve teams and 250 players will not type them in to

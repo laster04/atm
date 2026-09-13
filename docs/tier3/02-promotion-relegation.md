@@ -49,13 +49,19 @@ deleted between seasons; the record of what happened must not.
 4. Movements are written, and the trail records who decided and why.
 5. Creating next season offers to place teams from those movements.
 
-## Decisions needed
+## Decided
 
-1. **Does the app move teams, or only record the decision?** Recording is far
-   safer: amateur leagues override these constantly. Recommend record-only for
-   v1, with next season's draw pre-filled but editable.
-2. **Play-off for the last spot** — needs [01](01-league-playoffs.md) first.
-3. **Cross-league movement.** A team relegated out of the bottom division
+**2026-09-13.** Record the decision only — the app never moves a team between
+divisions by itself. Next season's draw may be pre-filled from the movements,
+but a human places every team.
+
+Also decided: **not urgent**. No league on the platform runs promotion or
+relegation yet, so this waits until one does. Building it against a real
+league's rules beats guessing at them.
+
+## Decisions needed
+1. **Play-off for the last spot** — needs [01](01-league-playoffs.md) first.
+2. **Cross-league movement.** A team relegated out of the bottom division
    leaves the league entirely. Is that in scope, or does it stop at the edge?
 
 ## Dependencies

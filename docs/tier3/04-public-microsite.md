@@ -66,15 +66,27 @@ An embeddable table is an iframe route plus a permissive `X-Frame-Options` on
 that route only: `/embed/season/:id/table`. Small, and a genuinely good reason
 for a club to link back.
 
+## Decided
+
+**2026-09-13.** A logged-out visitor sees a player's **name and shirt number,
+and nothing else**. Position, birth year, notes and the linked account are all
+withheld; so is a team manager's email address. Amateur leagues include minors,
+so this is the floor, not a starting position to be negotiated upward later.
+
+Implemented in `backend/src/services/publicView.ts`, applied to
+`GET /players/team/:id`, `GET /players/:id` and `GET /teams/:id`. Those routes
+stay public but use `optionalAuth`, so a signed-in manager still sees the full
+roster they entered. A signed-in stranger sees exactly what a visitor sees.
+
+**Next, and wanted:** a way to hide a whole league, season or tournament from
+public view — see [12](12-visibility.md).
+
 ## Decisions needed
 
 1. **Custom domains** — real product value, real operational cost (TLS, DNS
    verification, a proxy). Probably belongs behind a paid tier; see
    [06](06-billing-entitlements.md).
-2. **What is public by default.** Player names are on public pages today.
-   Birth years are in the database. Amateur leagues include minors — decide
-   explicitly what a logged-out visitor may see before widening any of this.
-3. **Whether news is per league or per season.**
+2. **Whether news is per league or per season.**
 
 ## Dependencies
 

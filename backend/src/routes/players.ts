@@ -11,7 +11,7 @@ import {
   getMyPlayerProfiles,
   getPublicPlayers
 } from '../controllers/playerController.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requirePlayerAccess, requireTeamAccess } from '../middleware/access.js';
 
 const router = Router();
@@ -22,8 +22,10 @@ router.get('/', getPublicPlayers);
 // Registered before '/:id' so it is not swallowed as a player id.
 router.get('/me', authenticate, getMyPlayerProfiles);
 
-router.get('/team/:teamId', getPlayersByTeamId);
-router.get('/:id', getPlayerById);
+// optionalAuth, not authenticate: these stay public, but a manager who is
+// signed in sees the full roster rather than the visitor's view.
+router.get('/team/:teamId', optionalAuth, getPlayersByTeamId);
+router.get('/:id', optionalAuth, getPlayerById);
 
 router.post('/team/:teamId', authenticate, requireTeamAccess('teamId'), createPlayer);
 router.put('/:id', authenticate, requirePlayerAccess(), updatePlayer);

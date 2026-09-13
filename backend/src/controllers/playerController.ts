@@ -9,14 +9,23 @@ import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { canManageTeam } from '../services/access.js';
 import { normalizeEmail } from '../utils/email.js';
+import { canSeeFullRoster, toPublicPlayer } from '../services/publicView.js';
 
-export const getPlayersByTeamId = async (req: Request, res: Response): Promise<void> => {
+export const getPlayersByTeamId = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { teamId } = req.params;
     const players = await prisma.player.findMany({
       where: { teamId: teamId },
       orderBy: { number: 'asc' }
     });
+
+    // A visitor sees names and shirt numbers; the team's own people see the
+    // roster they typed in.
+    if (!(await canSeeFullRoster(req.user, teamId))) {
+      res.json(players.map(toPublicPlayer));
+      return;
+    }
+
     res.json(players);
   } catch (error) {
     console.error('Get players error:', error);
@@ -24,7 +33,7 @@ export const getPlayersByTeamId = async (req: Request, res: Response): Promise<v
   }
 };
 
-export const getPlayerById = async (req: Request, res: Response): Promise<void> => {
+export const getPlayerById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const player = await prisma.player.findUnique({
@@ -53,8 +62,9 @@ export const getPlayerById = async (req: Request, res: Response): Promise<void> 
       .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
       .find(s => s.status === 'ACTIVE') || player.team.seasonTeams[0]?.season || null;
 
+    const full = await canSeeFullRoster(req.user, player.teamId);
     res.json({
-      ...player,
+      ...(full ? player : toPublicPlayer(player)),
       team: { ...player.team, season: activeSeason }
     });
   } catch (error) {

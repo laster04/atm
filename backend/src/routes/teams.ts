@@ -12,7 +12,7 @@ import {
   removeTeamFromSeason,
   getTeamsAvailableForSeason
 } from '../controllers/teamController.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSeasonAccess, requireTeamAccess, requireTeamAdmin } from '../middleware/access.js';
 
 const router = Router();
@@ -22,7 +22,7 @@ router.get('/', getPublicTeams);
 router.get('/my', authenticate, getMyTeams);
 router.get('/season/:seasonId', getTeamsBySeasonId);
 router.get('/available/:seasonId', getTeamsAvailableForSeason);
-router.get('/:id', getTeamById);
+router.get('/:id', optionalAuth, getTeamById);
 
 // Entering/removing a team from a season, and deleting it outright, are league
 // decisions, so they are guarded by the season rather than by the team.

@@ -3,6 +3,7 @@ import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { resolveInvitee } from '../services/invite.js';
 import { canAdministerTeam } from '../services/access.js';
+import { canSeeFullRoster, toPublicManager, toPublicPlayer } from '../services/publicView.js';
 import {
   AuthRequest,
   CreateTeamRequest,
@@ -84,7 +85,7 @@ export const getTeamsBySeasonId = async (req: Request, res: Response): Promise<v
   }
 };
 
-export const getTeamById = async (req: Request, res: Response): Promise<void> => {
+export const getTeamById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const team = await prisma.team.findUnique({
@@ -136,6 +137,19 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
       .map(st => st.season)
       .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
       .find(s => s.status === 'ACTIVE') || team.seasonTeams[0]?.season || null;
+
+    // A visitor gets the roster a spectator needs and no contact details; the
+    // team's own people get what they entered.
+    if (!(await canSeeFullRoster(req.user, team.id))) {
+      res.json({
+        ...team,
+        players: team.players.map(toPublicPlayer),
+        manager: toPublicManager(team.manager),
+        games: allGames,
+        season: activeSeason,
+      });
+      return;
+    }
 
     res.json({ ...team, games: allGames, season: activeSeason });
   } catch (error) {
