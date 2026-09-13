@@ -378,7 +378,8 @@
       "liveTag": "Live",
       "playingNow": "Playing right now",
       "wouldClimb": "Would climb {{places}} to {{rank}}",
-      "wouldDrop": "Would drop {{places}} to {{rank}}"
+      "wouldDrop": "Would drop {{places}} to {{rank}}",
+      "unplaced": "Not placed"
     },
     "schedule": {
       "noGames": "No games scheduled yet.",
@@ -813,7 +814,8 @@
       "liveTag": "Live",
       "playingNow": "Playing right now",
       "wouldClimb": "Would climb {{places}} to {{rank}}",
-      "wouldDrop": "Would drop {{places}} to {{rank}}"
+      "wouldDrop": "Would drop {{places}} to {{rank}}",
+      "unplaced": "Not placed"
     },
     "more": {
       "seasonInfo": "Season info",
@@ -830,7 +832,9 @@
       "scoringInherited": "Using the default for this sport",
       "scoringCustom": "{{win}} for a win, {{draw}} for a draw",
       "roundSummary": "Send round summary",
-      "roundSummaryHint": "Emails results and the table to everyone in the season"
+      "roundSummaryHint": "Emails results and the table to everyone in the season",
+      "divisions": "Divisions",
+      "divisionsHint": "Split the season into groups with a table each"
     },
     "report": {
       "title": "Match report",
@@ -920,6 +924,20 @@
       "sentResult": "Sent to {{delivered}} of {{attempted}} recipients.",
       "previewError": "Failed to build the summary",
       "sendError": "Failed to send the summary"
+    },
+    "divisions": {
+      "title": "Divisions",
+      "intro": "Teams play only the others in their own division, and each division gets its own table. A season with no divisions is one table.",
+      "namePlaceholder": "Division name",
+      "empty": "No divisions. The whole season shares one table.",
+      "noTeams": "No teams placed here yet",
+      "unplaced": "Not placed yet",
+      "placeIn": "Place in…",
+      "remove": "Remove",
+      "loadError": "Failed to load the divisions",
+      "createError": "Failed to create the division",
+      "deleteError": "Failed to delete the division",
+      "placeError": "Failed to place the team"
     }
   },
   "admin": {
@@ -1161,7 +1179,9 @@
       "targetSeason": "Target Season",
       "targetTeam": "Target Team",
       "noAvailableTeams": "No other teams available in this season",
-      "movePlayerBtn": "Move Player"
+      "movePlayerBtn": "Move Player",
+      "withinGroups": "Keep fixtures inside divisions",
+      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)"
     },
     "roles": {
       "ADMIN": "Admin",

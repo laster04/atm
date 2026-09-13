@@ -220,6 +220,24 @@ export interface Game {
   awayTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
 }
 
+/** A division or group inside a season. */
+export interface SeasonGroup {
+  id: string;
+  name: string;
+  position: number;
+  seasonId: string;
+  seasonTeams?: { id: string; teamId: string; team: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'> }[];
+}
+
+/**
+ * One table. `group` is null for an undivided season, and for the teams in a
+ * divided season that have not been placed yet.
+ */
+export interface GroupTable {
+  group: Pick<SeasonGroup, 'id' | 'name' | 'position'> | null;
+  standings: Standing[];
+}
+
 export interface LiveProjection {
   rank: number;
   points: number;

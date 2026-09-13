@@ -1,29 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ExternalLink, ListOrdered, Mail } from 'lucide-react';
+import { CalendarPlus, ExternalLink, LayoutGrid, ListOrdered, Mail } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { gameApi } from '@/services/api';
-import type { Game, Season } from '@types';
+import { gameApi, seasonApi } from '@/services/api';
+import type { Game, Season, Team } from '@types';
 import GenerateScheduleModal, { type GenerateScheduleData } from '@/pages/Admin/components/games/GenerateScheduleModal';
 import ScoringSheet from './ScoringSheet';
 import RoundSummarySheet from './RoundSummarySheet';
+import DivisionsSheet from './DivisionsSheet';
 import { SEASON_ACCENT } from './util';
 
 interface MoreTabProps {
 	season: Season;
 	games: Game[];
+	teams: Team[];
 	teamCount: number;
 	gameCount: number;
 	onGamesChange: (games: Game[]) => void;
 	onSeasonChange: (season: Season) => void;
 }
 
-export default function MoreTab({ season, games, teamCount, gameCount, onGamesChange, onSeasonChange }: MoreTabProps) {
+export default function MoreTab({ season, games, teams, teamCount, gameCount, onGamesChange, onSeasonChange }: MoreTabProps) {
 	const { t, i18n } = useTranslation();
 	const [showGenerate, setShowGenerate] = useState(false);
 	const [showScoring, setShowScoring] = useState(false);
 	const [showSummary, setShowSummary] = useState(false);
+	const [showDivisions, setShowDivisions] = useState(false);
+	const [groupCount, setGroupCount] = useState(0);
+
+	// Only used to decide whether the schedule generator offers to keep fixtures
+	// inside divisions, so a failure here quietly means "no divisions".
+	useEffect(() => {
+		seasonApi.getGroups(season.id)
+			.then((res) => setGroupCount(res.data.length))
+			.catch(() => setGroupCount(0));
+	}, [season.id, showDivisions]);
 	const [error, setError] = useState('');
 
 	const formatDate = (iso: string) =>
@@ -86,6 +98,20 @@ export default function MoreTab({ season, games, teamCount, gameCount, onGamesCh
 				</button>
 
 				<button
+					onClick={() => setShowDivisions(true)}
+					disabled={teamCount === 0}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left disabled:opacity-50"
+				>
+					<LayoutGrid className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-sm font-semibold">{t('seasonManagement.more.divisions')}</span>
+						<span className="text-xs text-muted-foreground">
+							{t('seasonManagement.more.divisionsHint')}
+						</span>
+					</span>
+				</button>
+
+				<button
 					onClick={() => setShowScoring(true)}
 					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left"
 				>
@@ -126,6 +152,17 @@ export default function MoreTab({ season, games, teamCount, gameCount, onGamesCh
 				</Link>
 			</div>
 
+			{showDivisions && (
+				<DivisionsSheet
+					season={season}
+					teams={teams}
+					onClose={() => setShowDivisions(false)}
+					// A new division changes the table, which the caller re-reads by
+					// refreshing the fixtures it is derived from.
+					onChanged={() => onGamesChange([...games])}
+				/>
+			)}
+
 			{showSummary && (
 				<RoundSummarySheet season={season} games={games} onClose={() => setShowSummary(false)} />
 			)}
@@ -141,6 +178,7 @@ export default function MoreTab({ season, games, teamCount, gameCount, onGamesCh
 			{showGenerate && (
 				<GenerateScheduleModal
 					teamsCount={teamCount}
+					groupCount={groupCount}
 					onSubmit={handleGenerate}
 					onClose={() => setShowGenerate(false)}
 				/>

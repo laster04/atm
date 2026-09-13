@@ -378,7 +378,8 @@
       "liveTag": "Živě",
       "playingNow": "Právě hraje",
       "wouldClimb": "Postoupil by o {{places}} na {{rank}}. místo",
-      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo"
+      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo",
+      "unplaced": "Nezařazené"
     },
     "schedule": {
       "noGames": "Zatim zadne naplanovanene zapasy.",
@@ -823,7 +824,8 @@
       "liveTag": "Živě",
       "playingNow": "Právě hraje",
       "wouldClimb": "Postoupil by o {{places}} na {{rank}}. místo",
-      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo"
+      "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo",
+      "unplaced": "Nezařazené"
     },
     "more": {
       "seasonInfo": "O sezóně",
@@ -840,7 +842,9 @@
       "scoringInherited": "Používá výchozí nastavení pro tento sport",
       "scoringCustom": "{{win}} za výhru, {{draw}} za remízu",
       "roundSummary": "Odeslat souhrn kola",
-      "roundSummaryHint": "Pošle e-mailem výsledky a tabulku všem v sezóně"
+      "roundSummaryHint": "Pošle e-mailem výsledky a tabulku všem v sezóně",
+      "divisions": "Skupiny",
+      "divisionsHint": "Rozdělí sezónu do skupin, každá s vlastní tabulkou"
     },
     "report": {
       "title": "Zápis o utkání",
@@ -930,6 +934,20 @@
       "sentResult": "Odesláno {{delivered}} z {{attempted}} příjemců.",
       "previewError": "Souhrn se nepodařilo sestavit",
       "sendError": "Souhrn se nepodařilo odeslat"
+    },
+    "divisions": {
+      "title": "Skupiny",
+      "intro": "Týmy hrají jen s ostatními ve své skupině a každá skupina má vlastní tabulku. Sezóna bez skupin má jednu tabulku.",
+      "namePlaceholder": "Název skupiny",
+      "empty": "Žádné skupiny. Celá sezóna má jednu tabulku.",
+      "noTeams": "Zatím sem není zařazen žádný tým",
+      "unplaced": "Zatím nezařazené",
+      "placeIn": "Zařadit do…",
+      "remove": "Vyřadit",
+      "loadError": "Skupiny se nepodařilo načíst",
+      "createError": "Skupinu se nepodařilo vytvořit",
+      "deleteError": "Skupinu se nepodařilo smazat",
+      "placeError": "Tým se nepodařilo zařadit"
     }
   },
   "admin": {
@@ -1171,7 +1189,9 @@
       "targetSeason": "Cílová sezóna",
       "targetTeam": "Cílový tým",
       "noAvailableTeams": "V této sezóně nejsou dostupné žádné jiné týmy",
-      "movePlayerBtn": "Přesunout hráče"
+      "movePlayerBtn": "Přesunout hráče",
+      "withinGroups": "Losovat jen uvnitř skupin",
+      "withinGroupsHint": "Týmy hrají jen s ostatními ve své skupině ({{count}} skupiny)"
     },
     "roles": {
       "ADMIN": "Administrátor",

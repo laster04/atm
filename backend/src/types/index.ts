@@ -474,6 +474,11 @@ export interface UpdateGameRequest {
 
 export interface GenerateScheduleRequest {
   rounds?: number;
+  /**
+   * Pair teams only against others in their own division. Ignored when the
+   * season has no divisions.
+   */
+  withinGroups?: boolean;
 }
 
 // Response types

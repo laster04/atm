@@ -117,8 +117,30 @@ model Season {
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
   digests             SeasonDigest[]
+  groups              SeasonGroup[]
 
   @@map("seasons")
+}
+
+// A division or group inside one season. A league that runs two divisions, or a
+// season split into groups before a playoff, is one season with several of
+// these rather than several seasons that have to be kept in step by hand.
+model SeasonGroup {
+  id       String @id @default(uuid())
+  name     String
+  // Display order, so "Group A" stays above "Group B" whatever they are called.
+  position Int    @default(0)
+
+  seasonId String @map("season_id")
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  seasonTeams SeasonTeam[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([seasonId, name])
+  @@map("season_groups")
 }
 
 model SeasonTeam {
@@ -130,7 +152,14 @@ model SeasonTeam {
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
+  // Which division this team plays in, within this season. Null means the
+  // season is not divided, or the team has not been placed yet. Deleting a
+  // group returns its teams to the season rather than dropping them from it.
+  groupId String?      @map("group_id")
+  group   SeasonGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
   @@unique([seasonId, teamId])
+  @@index([groupId])
   @@map("season_teams")
 }
 

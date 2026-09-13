@@ -5,7 +5,7 @@ import { ArrowLeft, CalendarDays, MoreHorizontal, Table2, Trophy, Users } from '
 import { useAuth } from '../../context/AuthContext';
 import { gameApi, seasonApi, teamApi } from '@/services/api';
 import { Button } from '@components/base/button';
-import type { Game, Season, Standing, Team } from '@types';
+import type { Game, GroupTable, Season, Team } from '@types';
 import OverviewTab from './components/OverviewTab';
 import GamesTab from './components/GamesTab';
 import TeamsTab from './components/TeamsTab';
@@ -29,7 +29,7 @@ export default function Detail() {
 	const [season, setSeason] = useState<Season | null>(null);
 	const [teams, setTeams] = useState<Team[]>([]);
 	const [games, setGames] = useState<Game[]>([]);
-	const [standings, setStandings] = useState<Standing[]>([]);
+	const [tables, setTables] = useState<GroupTable[]>([]);
 	const [loading, setLoading] = useState(false);
 
 	/** Round whose dates are being edited, or null when the sheet is closed. */
@@ -59,20 +59,21 @@ export default function Detail() {
 	// is the one call the other three tabs never need.
 	useEffect(() => {
 		if (!id || activeTab !== 'table') return;
-		seasonApi.getStandings(id)
-			.then((res) => setStandings(res.data))
+		seasonApi.getStandingsByGroup(id)
+			.then((res) => setTables(res.data))
 			.catch((err) => console.error(err));
 	}, [id, activeTab, games]);
 
 	// While something is being played the table is showing a projection that
 	// moves with the score, so it re-reads itself. A settled table polls nothing,
 	// and leaving the tab stops it.
-	const tableIsLive = activeTab === 'table' && hasLiveGames(standings);
+	const tableIsLive =
+		activeTab === 'table' && hasLiveGames(tables.flatMap((table) => table.standings));
 	useEffect(() => {
 		if (!id || !tableIsLive) return;
 		const timer = setInterval(() => {
-			seasonApi.getStandings(id)
-				.then((res) => setStandings(res.data))
+			seasonApi.getStandingsByGroup(id)
+				.then((res) => setTables(res.data))
 				.catch((err) => console.error(err));
 		}, LIVE_REFRESH_MS);
 		return () => clearInterval(timer);
@@ -238,12 +239,13 @@ export default function Detail() {
 					{activeTab === 'teams' && (
 						<TeamsTab season={season} teams={teams} onTeamsChange={setTeams} />
 					)}
-					{activeTab === 'table' && <StandingsTab standings={standings} />}
+					{activeTab === 'table' && <StandingsTab tables={tables} />}
 					{activeTab === 'more' && (
 						<MoreTab
 							season={season}
 							games={games}
 							teamCount={counts.teams}
+							teams={teams}
 							gameCount={counts.games}
 							onGamesChange={setGames}
 							onSeasonChange={setSeason}

@@ -249,7 +249,7 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
 export const generateSchedule = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
-    const { rounds: requestedRounds } = req.body as GenerateScheduleRequest;
+    const { rounds: requestedRounds, withinGroups } = req.body as GenerateScheduleRequest;
 
     const season = await prisma.season.findUnique({
       where: { id: seasonId },
@@ -282,7 +282,24 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    const teamIds = teams.map(t => t.id);
+    // A divided season is several competitions sharing a calendar: teams meet
+    // the others in their own division and nobody else. Unplaced teams form
+    // their own pool rather than being paired with everyone.
+    const pools: string[][] = withinGroups
+      ? Object.values(
+          season.seasonTeams.reduce<Record<string, string[]>>((grouped, entry) => {
+            const key = entry.groupId ?? 'unplaced';
+            (grouped[key] ??= []).push(entry.teamId);
+            return grouped;
+          }, {})
+        ).filter(pool => pool.length >= 2)
+      : [teams.map(team => team.id)];
+
+    if (pools.length === 0) {
+      res.status(400).json({ error: 'No division has two teams to pair' });
+      return;
+    }
+
     const scheduledGames: Prisma.GameCreateManyInput[] = [];
     let previousGame: Prisma.GameCreateManyInput | undefined;
 
@@ -292,6 +309,7 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
       const games: Prisma.GameCreateManyInput[] = [];
       const isReversed = round % 2 === 0; // Alternate home/away each round
 
+      for (const teamIds of pools) {
       for (let i = 0; i < teamIds.length; i++) {
         for (let j = i + 1; j < teamIds.length; j++) {
           let homeTeamId = teamIds[i];
@@ -311,6 +329,7 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
             status: 'SCHEDULED' as GameStatus
           });
         }
+      }
       }
 
       // Order within the round, carrying the previous round's last game over so

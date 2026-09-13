@@ -2,7 +2,7 @@ import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
-  RoundSummaryPreview, SeasonDigest,
+  RoundSummaryPreview, SeasonDigest, SeasonGroup, GroupTable,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
@@ -91,6 +91,20 @@ export const seasonApi = {
   delete: (id: string | number) => api.delete(`/seasons/${id}`),
   archive: (id: string | number) => api.post<{ message: string; season: Season }>(`/seasons/${id}/archive`),
   getStandings: (id: string | number) => api.get<Standing[]>(`/seasons/${id}/standings`),
+  // One table per division. An undivided season comes back as a single table
+  // with no group, so a caller can render this shape either way.
+  getStandingsByGroup: (id: string | number) =>
+    api.get<GroupTable[]>(`/seasons/${id}/standings/by-group`),
+  getGroups: (id: string | number) => api.get<SeasonGroup[]>(`/seasons/${id}/groups`),
+  createGroup: (id: string | number, name: string) =>
+    api.post<SeasonGroup>(`/seasons/${id}/groups`, { name }),
+  updateGroup: (id: string | number, groupId: string, data: { name?: string; position?: number }) =>
+    api.put<SeasonGroup>(`/seasons/${id}/groups/${groupId}`, data),
+  deleteGroup: (id: string | number, groupId: string) =>
+    api.delete(`/seasons/${id}/groups/${groupId}`),
+  // Null takes the team out of its division without removing it from the season.
+  assignTeamToGroup: (id: string | number, teamId: string, groupId: string | null) =>
+    api.put(`/seasons/${id}/teams/${teamId}/group`, { groupId }),
   getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`),
   getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`),
   getCopyableTeams: (id: string | number) => api.get<Team[]>(`/seasons/${id}/copyable-teams`),
