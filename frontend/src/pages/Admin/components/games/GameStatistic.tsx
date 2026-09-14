@@ -9,6 +9,7 @@ import { gameApi, playerApi, gameStatisticApi } from '@/services/api';
 import { Button } from "@components/base/button.tsx";
 import { GameStatus, Game, Player, HockeyGameStatistic } from "@types";
 import { ADMIN_GOLD, ADMIN_INK } from '../util';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface PeriodScores {
 	homeScore: number | null;
@@ -311,7 +312,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 	const subtitle = [
 		typeof game.round === 'number' ? t('seasonManagement.games.round', { n: game.round }) : null,
 		game.date
-			? new Date(game.date).toLocaleDateString(i18n.language, {
+			? new Date(game.date).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE, 
 				day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
 			})
 			: null,

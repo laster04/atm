@@ -5,6 +5,7 @@ import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
 import { GameStatus, type Game } from '@types';
 import { SEASON_ACCENT } from './util';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface ResultSheetProps {
 	game: Game;
@@ -47,14 +48,14 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 	const subtitle = [
 		typeof game.round === 'number' ? t('seasonManagement.games.round', { n: game.round }) : null,
 		game.date
-			? new Date(game.date).toLocaleDateString(i18n.language, {
+			? new Date(game.date).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE, 
 					weekday: 'short',
 					day: 'numeric',
 					month: 'short',
 				})
 			: null,
 		game.date
-			? new Date(game.date).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })
+			? new Date(game.date).toLocaleTimeString(i18n.language, { timeZone: APP_TIME_ZONE,  hour: '2-digit', minute: '2-digit' })
 			: null,
 	]
 		.filter(Boolean)

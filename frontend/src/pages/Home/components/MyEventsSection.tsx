@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Check, HelpCircle, MapPin, X } from 'lucide-react';
 import { teamEventApi } from '@/services/api';
 import { AttendanceStatus, type MyTeamEvent } from '@types';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 const ANSWERS: { status: AttendanceStatus; icon: typeof Check; tone: string }[] = [
 	{ status: AttendanceStatus.ATTENDING, icon: Check, tone: '#166534' },
@@ -66,7 +67,7 @@ export default function MyEventsSection() {
 							<span className="truncate text-[12px] text-muted-foreground">
 								{[
 									event.team.name,
-									new Date(event.startsAt).toLocaleString(i18n.language, {
+									new Date(event.startsAt).toLocaleString(i18n.language, { timeZone: APP_TIME_ZONE, 
 										weekday: 'short',
 										day: 'numeric',
 										month: 'short',

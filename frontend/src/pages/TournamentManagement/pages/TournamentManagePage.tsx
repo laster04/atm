@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import TeamsPanel from '../components/TeamsPanel';
 import TennisTeamsPanel from '../components/TennisTeamsPanel';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 // ── helpers ─────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ const PHASE_LABELS: Record<TournamentGamePhase, string> = {
 
 function formatGameDateTime(date: string | null | undefined, locale: string): string | null {
   if (!date) return null;
-  return new Date(date).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' });
+  return new Date(date).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: APP_TIME_ZONE });
 }
 
 // Before the group stage finishes, a playoff slot may only carry a seed
