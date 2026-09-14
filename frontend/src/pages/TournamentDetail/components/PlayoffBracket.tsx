@@ -1,89 +1,141 @@
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
-import type { TournamentGame } from '@types';
+import { Trophy } from 'lucide-react';
+import type { TournamentGame, TournamentGamePhase } from '@types';
+import { EmptyState, Panel } from '@/components/public';
+import { isPlayed } from './shared';
 
-const PHASE_ORDER = ['ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'BRONZE', 'FINAL'];
+/** Knockout rounds left to right; the bronze game hangs under the final. */
+const ROUNDS: TournamentGamePhase[] = ['ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL'];
+
+/** Height of one first-round slot; every later round's slot doubles it. */
+const SLOT = 130;
 
 interface PlayoffBracketProps {
-  games: TournamentGame[];
+	games: TournamentGame[];
+	/** "A1"-style labels by team id, from the group tables. */
+	seeds: Map<string, string>;
 }
 
-// Before the group stage finishes, a slot may only carry a seed number
-// (e.g. "1st place") rather than a resolved team.
-function sideLabel(team: { name: string } | null | undefined, seed: number | null | undefined, t: TFunction): string {
-  if (team) return team.name;
-  if (seed != null) return t('tm.common.seed', { n: seed });
-  return t('tm.common.tbd');
+export default function PlayoffBracket({ games, seeds }: PlayoffBracketProps) {
+	const { t } = useTranslation();
+	const knockout = games.filter((game) => game.phase !== 'GROUP');
+
+	if (knockout.length === 0) {
+		return <EmptyState title={t('tournamentDetail.playoff.empty')} />;
+	}
+
+	const inRound = (phase: TournamentGamePhase) =>
+		knockout.filter((game) => game.phase === phase).sort((a, b) => (a.bracketSlot ?? 0) - (b.bracketSlot ?? 0));
+	const rounds = ROUNDS.filter((phase) => inRound(phase).length > 0);
+	const final = inRound('FINAL')[0];
+	const bronze = inRound('BRONZE')[0];
+	const champion = final && isPlayed(final)
+		? final.homeScore! > final.awayScore! ? final.homeTeam : final.awayTeam
+		: null;
+	// The first round shown sets the grid: each later round sits between the two games that feed it.
+	// A final on its own still needs room for the winner above it and the bronze game below.
+	const height = Math.max(SLOT * inRound(rounds[0] ?? 'FINAL').length, SLOT * 3);
+
+	return (
+		<Panel flush title={t('tournamentDetail.playoff.title')}>
+			<div className="overflow-x-auto">
+				<div
+					className="grid gap-10 p-6"
+					style={{ gridTemplateColumns: `repeat(${Math.max(rounds.length, 1)}, minmax(240px, 1fr))`, minWidth: rounds.length * 280 }}
+				>
+					{rounds.map((phase) => {
+						const roundGames = inRound(phase);
+						const label = (
+							<div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+								{t(`tournamentDetail.playoff.phases.${phase}`)}
+							</div>
+						);
+
+						if (phase === 'FINAL') {
+							return (
+								<div key={phase} className="flex flex-col gap-3">
+									{label}
+									<div className="grid" style={{ height, gridTemplateRows: 'minmax(0,1fr) auto minmax(0,1fr)' }}>
+										<div className="flex flex-col justify-end pb-4">
+											{champion && (
+												<div className="flex items-center gap-3 rounded-xl bg-navy px-4 py-3.5">
+													<span className="flex size-9 items-center justify-center rounded-full bg-brand/15">
+														<Trophy className="size-[18px] text-brand" />
+													</span>
+													<div className="flex min-w-0 flex-col gap-0.5">
+														<span className="text-[11px] font-bold uppercase tracking-[0.08em] text-brand">
+															{t('tournamentDetail.playoff.champion')}
+														</span>
+														<span className="truncate text-[17px] font-extrabold text-white">{champion.name}</span>
+													</div>
+												</div>
+											)}
+										</div>
+										{final && <MatchCard game={final} seeds={seeds} highlight />}
+										<div className="flex flex-col gap-1.5 pt-7">
+											{bronze && (
+												<>
+													<div className="px-0.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+														{t('tournamentDetail.playoff.phases.BRONZE')}
+													</div>
+													<MatchCard game={bronze} seeds={seeds} />
+												</>
+											)}
+										</div>
+									</div>
+								</div>
+							);
+						}
+
+						return (
+							<div key={phase} className="flex flex-col gap-3">
+								{label}
+								<div className="flex flex-col">
+									{roundGames.map((game) => (
+										<div key={game.id} className="flex flex-col justify-center" style={{ height: height / roundGames.length }}>
+											<MatchCard game={game} seeds={seeds} />
+										</div>
+									))}
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			</div>
+		</Panel>
+	);
 }
 
-function GameCard({ game, t }: { game: TournamentGame; t: TFunction }) {
-  const isCompleted = game.status === 'COMPLETED';
-  const homeWon = isCompleted && game.homeScore != null && game.awayScore != null && game.homeScore > game.awayScore;
-  const awayWon = isCompleted && game.homeScore != null && game.awayScore != null && game.awayScore > game.homeScore;
+function MatchCard({ game, seeds, highlight }: { game: TournamentGame; seeds: Map<string, string>; highlight?: boolean }) {
+	const { t } = useTranslation();
+	const played = isPlayed(game);
 
-  return (
-    <div className="border rounded-lg overflow-hidden text-sm w-48 bg-white shadow-sm">
-      <div className={`flex items-center justify-between px-2 py-1.5 border-b ${homeWon ? 'bg-green-50' : ''}`}>
-        <div className="flex items-center gap-1.5 min-w-0">
-          {game.homeTeam?.primaryColor && (
-            <div className="size-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: game.homeTeam.primaryColor }} />
-          )}
-          <span className={`truncate ${homeWon ? 'font-bold' : ''}`}>
-            {sideLabel(game.homeTeam, game.homeSeed, t)}
-          </span>
-        </div>
-        {isCompleted && <span className={`ml-2 font-bold flex-shrink-0 ${homeWon ? 'text-green-700' : ''}`}>{game.homeScore}</span>}
-      </div>
-      <div className={`flex items-center justify-between px-2 py-1.5 ${awayWon ? 'bg-green-50' : ''}`}>
-        <div className="flex items-center gap-1.5 min-w-0">
-          {game.awayTeam?.primaryColor && (
-            <div className="size-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: game.awayTeam.primaryColor }} />
-          )}
-          <span className={`truncate ${awayWon ? 'font-bold' : ''}`}>
-            {sideLabel(game.awayTeam, game.awaySeed, t)}
-          </span>
-        </div>
-        {isCompleted && <span className={`ml-2 font-bold flex-shrink-0 ${awayWon ? 'text-green-700' : ''}`}>{game.awayScore}</span>}
-      </div>
-      {game.date && (
-        <div className="px-2 py-1 text-xs text-muted-foreground border-t bg-muted/30">
-          {new Date(game.date).toLocaleDateString()}
-        </div>
-      )}
-    </div>
-  );
-}
+	const side = (team: TournamentGame['homeTeam'], seed: number | null | undefined, score: number | null | undefined, won: boolean) => {
+		// Before the groups finish a slot may only know which seed will fill it.
+		const name = team?.name ?? (seed != null ? t('tm.common.seed', { n: seed }) : t('tm.common.tbd'));
+		const strong = won || !played;
+		return (
+			<div className="flex items-center gap-2.5 px-3.5 py-2.5">
+				<span className="w-6 shrink-0 text-[11px] font-bold text-muted-foreground">{team ? seeds.get(team.id) : ''}</span>
+				<span className={`min-w-0 flex-1 truncate text-[13px] ${strong ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`}>
+					{name}
+				</span>
+				{played && (
+					<span className={`text-sm tabular-nums ${won ? 'font-extrabold text-foreground' : 'font-medium text-muted-foreground'}`}>
+						{score}
+					</span>
+				)}
+			</div>
+		);
+	};
 
-export default function PlayoffBracket({ games }: PlayoffBracketProps) {
-  const { t } = useTranslation();
-  const playoffGames = games.filter(g => g.phase !== 'GROUP');
-  if (playoffGames.length === 0) {
-    return <p className="text-muted-foreground text-sm">{t('tournamentDetail.playoff.empty')}</p>;
-  }
-
-  const byPhase = PHASE_ORDER.reduce<Record<string, TournamentGame[]>>((acc, phase) => {
-    const phaseGames = playoffGames.filter(g => g.phase === phase);
-    if (phaseGames.length > 0) acc[phase] = phaseGames;
-    return acc;
-  }, {});
-
-  return (
-    <div className="overflow-x-auto">
-      <div className="flex gap-8 min-w-max pb-4">
-        {Object.entries(byPhase).map(([phase, phaseGames]) => (
-          <div key={phase} className="flex flex-col gap-4">
-            <h4 className="text-sm font-semibold text-center text-muted-foreground">
-              {t(`tournamentDetail.playoff.phases.${phase}`, phase)}
-            </h4>
-            <div className="flex flex-col gap-4 justify-around flex-1">
-              {phaseGames
-                .sort((a, b) => (a.bracketSlot ?? 0) - (b.bracketSlot ?? 0))
-                .map(game => <GameCard key={game.id} game={game} t={t} />)
-              }
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+	return (
+		<div
+			className={`overflow-hidden rounded-xl border bg-card shadow-sm ${highlight ? 'border-brand' : 'border-border'}`}
+		>
+			{side(game.homeTeam, game.homeSeed, game.homeScore, played && game.homeScore! > game.awayScore!)}
+			<div className="h-px bg-border-subtle" />
+			{side(game.awayTeam, game.awaySeed, game.awayScore, played && game.awayScore! > game.homeScore!)}
+		</div>
+	);
 }

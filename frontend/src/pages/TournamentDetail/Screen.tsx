@@ -1,214 +1,158 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { CalendarDays, LayoutGrid, MapPin, Trophy, Users } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { tournamentApi } from '@/services/api';
 import type { Tournament, TournamentStanding } from '@types';
-import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
-import { Badge } from '@components/base/badge';
-import { VisibilityBadge } from '@/components/public';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs';
-import { Trophy, Calendar, MapPin, Users, ChevronLeft } from 'lucide-react';
-import GroupCrossTable from './components/GroupCrossTable';
+import { PublicHero, SectionTabs, VisibilityBadge, type SectionTab } from '@/components/public';
+import { formatSeasonDate } from '@/utils/date';
+import GroupsTab from './components/GroupsTab';
+import ScheduleTab from './components/ScheduleTab';
 import PlayoffBracket from './components/PlayoffBracket';
+import TeamsTab from './components/TeamsTab';
+import { seedLabels, sportContext } from './components/shared';
 
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  DRAFT: 'outline',
-  REGISTRATION: 'secondary',
-  GROUP_STAGE: 'default',
-  PLAYOFF: 'default',
-  COMPLETED: 'secondary',
+type TournamentTab = 'groups' | 'schedule' | 'playoff' | 'teams';
+
+const STATUS_TONE: Record<string, string> = {
+	DRAFT: 'bg-muted text-subtle-foreground',
+	REGISTRATION: 'bg-accent text-accent-foreground',
+	GROUP_STAGE: 'bg-success-soft text-success-strong',
+	PLAYOFF: 'bg-success-soft text-success-strong',
+	COMPLETED: 'bg-success-soft text-success-strong',
 };
 
 export default function TournamentDetailScreen() {
-  const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
-  const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [standings, setStandings] = useState<Record<string, TournamentStanding[]>>({});
-  const [loading, setLoading] = useState(true);
-  const tennisCtx = tournament?.series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
+	const { t, i18n } = useTranslation();
+	const { id } = useParams<{ id: string }>();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [tournament, setTournament] = useState<Tournament | null>(null);
+	const [standings, setStandings] = useState<Record<string, TournamentStanding[]>>({});
+	const [loading, setLoading] = useState(true);
+	const context = sportContext(tournament);
 
-  useDocumentTitle([tournament?.name, tournament?.series?.name]);
+	useDocumentTitle([tournament?.name, tournament?.series?.name]);
 
-  useEffect(() => {
-    if (!id) return;
-    tournamentApi.getById(id).then(async (tRes) => {
-      const t = tRes.data;
-      setTournament(t);
+	useEffect(() => {
+		if (!id) return;
+		setLoading(true);
+		tournamentApi
+			.getById(id)
+			.then(async (res) => {
+				const loaded = res.data;
+				setTournament(loaded);
+				const byGroup: Record<string, TournamentStanding[]> = {};
+				await Promise.all(
+					(loaded.groups ?? []).map(async (group) => {
+						byGroup[group.id] = (await tournamentApi.getStandings(id, group.id)).data;
+					})
+				);
+				setStandings(byGroup);
+			})
+			.catch((error) => console.error(error))
+			.finally(() => setLoading(false));
+	}, [id]);
 
-      if (t.groups && t.groups.length > 0) {
-        const standingsByGroup: Record<string, TournamentStanding[]> = {};
-        await Promise.all(
-          t.groups.map(async g => {
-            const res = await tournamentApi.getStandings(id, g.id);
-            standingsByGroup[g.id] = res.data;
-          })
-        );
-        setStandings(standingsByGroup);
-      }
-    }).catch(console.error).finally(() => setLoading(false));
-  }, [id]);
+	if (loading && !tournament) {
+		return (
+			<div className="mx-auto max-w-[1600px] px-4 py-16 text-center text-muted-foreground sm:px-8">
+				{t('tournamentDetail.loading')}
+			</div>
+		);
+	}
 
-  if (loading) return <div className="p-8 text-center text-muted-foreground">{t('tournamentDetail.loading')}</div>;
-  if (!tournament) return <div className="p-8 text-center text-red-500">{t('tournamentDetail.notFound')}</div>;
+	if (!tournament) {
+		return (
+			<div className="mx-auto max-w-[1600px] px-4 py-16 text-center text-muted-foreground sm:px-8">
+				{t('tournamentDetail.notFound')}
+			</div>
+		);
+	}
 
-  const groupGames = tournament.games?.filter(g => g.phase === 'GROUP') ?? [];
+	const tabs: SectionTab<TournamentTab>[] = [
+		{ value: 'groups', label: t('tournamentDetail.tabs.groups'), icon: <LayoutGrid className="size-4" /> },
+		{ value: 'schedule', label: t('tournamentDetail.tabs.schedule'), icon: <CalendarDays className="size-4" /> },
+		{ value: 'playoff', label: t('tournamentDetail.tabs.playoff'), icon: <Trophy className="size-4" /> },
+		{ value: 'teams', label: t('tournamentDetail.tabs.teams', { context }), icon: <Users className="size-4" /> },
+	];
+	const requested = searchParams.get('tab');
+	const activeTab = tabs.find((tab) => tab.value === requested)?.value ?? 'groups';
+	const setActiveTab = (tab: TournamentTab) => setSearchParams({ tab }, { replace: true });
 
-  return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/tournaments" className="hover:text-foreground flex items-center gap-1">
-          <ChevronLeft className="size-4" /> {t('tournamentDetail.breadcrumb')}
-        </Link>
-        <span>/</span>
-        {tournament.series && (
-          <>
-            <Link to={`/tournaments/${tournament.series.id}`} className="hover:text-foreground">
-              {tournament.series.name}
-            </Link>
-            <span>/</span>
-          </>
-        )}
-        <span className="text-foreground">{tournament.name}</span>
-      </div>
+	const series = tournament.series;
+	const start = formatSeasonDate(tournament.startDate, i18n.language);
+	const end = formatSeasonDate(tournament.endDate, i18n.language);
+	const entrants = tournament.teams?.length ?? 0;
+	const gameCount = tournament.games?.length ?? 0;
 
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-full bg-muted flex items-center justify-center">
-                <Trophy className="size-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-xl">{tournament.name}</CardTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={STATUS_VARIANT[tournament.status] ?? 'outline'}>
-                    {t(`tm.tournamentStatus.${tournament.status}`, tournament.status)}
-                  </Badge>
-                  {tournament.year && <span className="text-sm text-muted-foreground">{tournament.year}</span>}
-                  <VisibilityBadge visibility={tournament.series?.visibility} />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-            {tournament.location && (
-              <span className="flex items-center gap-1"><MapPin className="size-4" />{tournament.location}</span>
-            )}
-            {tournament.startDate && (
-              <span className="flex items-center gap-1">
-                <Calendar className="size-4" />
-                {new Date(tournament.startDate).toLocaleDateString()}
-                {tournament.endDate && ` – ${new Date(tournament.endDate).toLocaleDateString()}`}
-              </span>
-            )}
-            {tournament._count && (
-              <span className="flex items-center gap-1"><Users className="size-4" />{t('tournamentDetail.teamsCount', { count: tournament._count.teams, context: tennisCtx })}</span>
-            )}
-          </div>
-        </CardHeader>
-      </Card>
+	return (
+		<>
+			<PublicHero
+				title={tournament.name}
+				kicker={series?.name}
+				sport={series?.sportType}
+				crumbs={[
+					{ label: t('public.nav.home'), to: '/' },
+					{ label: t('public.nav.tournaments'), to: '/tournaments' },
+					...(series ? [{ label: series.name, to: `/tournaments/${series.id}` }] : []),
+					{ label: tournament.name },
+				]}
+				badge={
+					<>
+						{series && (
+							<span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
+								{t(`sports.${series.sportType}`)}
+							</span>
+						)}
+						<span
+							className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide ${
+								STATUS_TONE[tournament.status] ?? STATUS_TONE.DRAFT
+							}`}
+						>
+							{t(`tm.tournamentStatus.${tournament.status}`, tournament.status)}
+						</span>
+						<VisibilityBadge visibility={series?.visibility} />
+					</>
+				}
+				meta={
+					<>
+						{start && (
+							<span className="flex items-center gap-2">
+								<CalendarDays className="size-4 text-brand" />
+								{end && end !== start ? `${start} – ${end}` : start}
+							</span>
+						)}
+						{tournament.location && (
+							<span className="flex items-center gap-2">
+								<MapPin className="size-4 text-brand" />
+								{tournament.location}
+							</span>
+						)}
+						<span className="flex items-center gap-2">
+							<Users className="size-4 text-brand" />
+							{context
+								? t('public.players.count', { count: entrants })
+								: t('public.teams.count', { count: entrants })}
+						</span>
+						<span className="flex items-center gap-2">
+							<Trophy className="size-4 text-brand" />
+							{t('public.games.count', { count: gameCount })}
+						</span>
+					</>
+				}
+			/>
 
-      {/* Tabs */}
-      <Tabs defaultValue="groups">
-        <TabsList>
-          <TabsTrigger value="groups">{t('tournamentDetail.tabs.groups')}</TabsTrigger>
-          <TabsTrigger value="schedule">{t('tournamentDetail.tabs.schedule')}</TabsTrigger>
-          <TabsTrigger value="playoff">{t('tournamentDetail.tabs.playoff')}</TabsTrigger>
-          <TabsTrigger value="teams">{t('tournamentDetail.tabs.teams', { context: tennisCtx })}</TabsTrigger>
-        </TabsList>
+			<SectionTabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
 
-        {/* Groups + standings */}
-        <TabsContent value="groups" className="space-y-6 mt-4">
-          {(!tournament.groups || tournament.groups.length === 0) ? (
-            <Card><CardContent className="pt-6 text-center text-muted-foreground">{t('tournamentDetail.groups.empty')}</CardContent></Card>
-          ) : (
-            <div className="space-y-6">
-              {tournament.groups.map(group => (
-                <GroupCrossTable
-                  key={group.id}
-                  group={group}
-                  games={groupGames.filter(g => g.group?.id === group.id)}
-                  standings={standings[group.id] ?? []}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* Group games */}
-        <TabsContent value="schedule" className="mt-4 space-y-3">
-          {groupGames.length === 0 ? (
-            <Card><CardContent className="pt-6 text-center text-muted-foreground">{t('tournamentDetail.schedule.empty')}</CardContent></Card>
-          ) : (
-            groupGames.map(game => (
-              <Card key={game.id}>
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 flex-1 justify-end">
-                      <span className="font-medium">{game.homeTeam?.name ?? t('tm.common.tbd')}</span>
-                    </div>
-                    <div className="flex flex-col items-center min-w-[80px]">
-                      {game.status === 'COMPLETED' ? (
-                        <span className="text-xl font-bold">{game.homeScore} – {game.awayScore}</span>
-                      ) : (
-                        <span className="text-muted-foreground">vs</span>
-                      )}
-                      {game.group && <span className="text-xs text-muted-foreground">{t('tournamentDetail.schedule.groupLabel', { name: game.group.name })}</span>}
-                    </div>
-                    <div className="flex items-center gap-2 flex-1">
-                      <span className="font-medium">{game.awayTeam?.name ?? t('tm.common.tbd')}</span>
-                    </div>
-                  </div>
-                  {game.date && (
-                    <div className="text-center text-xs text-muted-foreground mt-1">
-                      {new Date(game.date).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-                      {game.location && ` · ${game.location}`}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-
-        {/* Playoff bracket */}
-        <TabsContent value="playoff" className="mt-4">
-          <Card>
-            <CardHeader><CardTitle>{t('tournamentDetail.playoff.title')}</CardTitle></CardHeader>
-            <CardContent>
-              <PlayoffBracket games={tournament.games ?? []} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Teams */}
-        <TabsContent value="teams" className="mt-4">
-          {(!tournament.teams || tournament.teams.length === 0) ? (
-            <Card><CardContent className="pt-6 text-center text-muted-foreground">{t('tournamentDetail.teams.empty', { context: tennisCtx })}</CardContent></Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {tournament.teams.map(team => (
-                <Card key={team.id}>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-3">
-                      {team.primaryColor && (
-                        <div className="size-8 rounded-full" style={{ backgroundColor: team.primaryColor }} />
-                      )}
-                      <div>
-                        <div className="font-medium">{team.name}</div>
-                        {team.country && <div className="text-xs text-muted-foreground">{team.country}</div>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+			<div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-8">
+				{activeTab === 'groups' && <GroupsTab tournament={tournament} standings={standings} context={context} />}
+				{activeTab === 'schedule' && <ScheduleTab tournament={tournament} />}
+				{activeTab === 'playoff' && (
+					<PlayoffBracket games={tournament.games ?? []} seeds={seedLabels(tournament, standings)} />
+				)}
+				{activeTab === 'teams' && <TeamsTab tournament={tournament} standings={standings} context={context} />}
+			</div>
+		</>
+	);
 }

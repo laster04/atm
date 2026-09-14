@@ -1556,7 +1556,15 @@
     },
     "groups": {
       "empty": "No groups yet.",
-      "groupLabel": "Group {{name}}"
+      "groupLabel": "Group {{name}}",
+      "view": {
+        "matrix": "Results matrix",
+        "table": "Table"
+      },
+      "matrixHint": "Head-to-head results",
+      "matrixHint_TENNIS": "Head-to-head results (sets)",
+      "standingsTitle": "Group standings",
+      "qualified": "Highlighted rows went through to the playoff."
     },
     "standings": {
       "rank": "#",
@@ -1569,16 +1577,16 @@
       "goalsFor": "GF",
       "goalsAgainst": "GA",
       "goalDiff": "+/-",
-      "points": "Pts"
-    },
-    "crossTable": {
+      "points": "Pts",
+      "record": "W–L",
+      "record_DRAWS": "W–D–L",
       "score": "Score",
-      "points": "Points",
-      "rank": "Rank"
+      "score_TENNIS": "Games"
     },
     "schedule": {
       "empty": "No group games yet.",
-      "groupLabel": "Group {{name}}"
+      "undated": "No start time yet",
+      "vs": "vs"
     },
     "playoff": {
       "title": "Playoff Bracket",
@@ -1589,11 +1597,21 @@
         "SEMI_FINAL": "Semi-Finals",
         "BRONZE": "Bronze Medal",
         "FINAL": "Final"
-      }
+      },
+      "champion": "Tournament winner"
     },
     "teams": {
       "empty": "No teams yet.",
-      "empty_TENNIS": "No players yet."
+      "empty_TENNIS": "No players yet.",
+      "ungrouped": "No group"
+    },
+    "summary": {
+      "title": "Group summary",
+      "entrants": "teams",
+      "entrants_TENNIS": "players",
+      "played": "played of {{total}}",
+      "leader": "group leader",
+      "leader_TENNIS": "group leader"
     }
   },
   "gameStatistic": {

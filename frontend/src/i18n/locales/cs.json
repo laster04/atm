@@ -1566,7 +1566,15 @@
     },
     "groups": {
       "empty": "Zatím žádné skupiny.",
-      "groupLabel": "Skupina {{name}}"
+      "groupLabel": "Skupina {{name}}",
+      "view": {
+        "matrix": "Matice výsledků",
+        "table": "Tabulka"
+      },
+      "matrixHint": "Vzájemné zápasy — výsledky",
+      "matrixHint_TENNIS": "Vzájemné zápasy — výsledky (sety)",
+      "standingsTitle": "Pořadí skupiny",
+      "qualified": "Zvýraznění postoupili do playoff."
     },
     "standings": {
       "rank": "#",
@@ -1579,16 +1587,16 @@
       "goalsFor": "VG",
       "goalsAgainst": "OG",
       "goalDiff": "+/-",
-      "points": "B"
-    },
-    "crossTable": {
+      "points": "B",
+      "record": "V–P",
+      "record_DRAWS": "V–R–P",
       "score": "Skóre",
-      "points": "Body",
-      "rank": "Pořadí"
+      "score_TENNIS": "Gemy"
     },
     "schedule": {
       "empty": "Zatím žádné skupinové zápasy.",
-      "groupLabel": "Skupina {{name}}"
+      "undated": "Zatím bez termínu",
+      "vs": "vs"
     },
     "playoff": {
       "title": "Playoff pavouk",
@@ -1599,11 +1607,21 @@
         "SEMI_FINAL": "Semifinále",
         "BRONZE": "O 3. místo",
         "FINAL": "Finále"
-      }
+      },
+      "champion": "Vítěz turnaje"
     },
     "teams": {
       "empty": "Zatím žádné týmy.",
-      "empty_TENNIS": "Zatím žádní hráči."
+      "empty_TENNIS": "Zatím žádní hráči.",
+      "ungrouped": "Bez skupiny"
+    },
+    "summary": {
+      "title": "Shrnutí skupiny",
+      "entrants": "týmů",
+      "entrants_TENNIS": "hráčů",
+      "played": "odehráno z {{total}}",
+      "leader": "vede skupinu",
+      "leader_TENNIS": "vede skupinu"
     }
   },
   "gameStatistic": {
