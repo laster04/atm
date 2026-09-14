@@ -10,6 +10,7 @@ import {
 	type TeamEvent,
 	type TeamEventInput,
 } from '@types';
+import { APP_TIME_ZONE, zonedDayKey, fromZonedInput } from '@/utils/date';
 
 interface EventsTabProps {
 	teamId: string;
@@ -30,11 +31,6 @@ const ANSWERS: { status: AttendanceStatus; icon: typeof Check; tone: string }[] 
 	{ status: AttendanceStatus.NOT_ATTENDING, icon: X, tone: '#991b1b' },
 ];
 
-/** `datetime-local` wants local wall-clock time, not an ISO instant. */
-const toLocalInput = (date: Date): string => {
-	const pad = (n: number) => String(n).padStart(2, '0');
-	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-};
 
 export default function EventsTab({ teamId, teamColor }: EventsTabProps) {
 	const { t, i18n } = useTranslation();
@@ -76,13 +72,12 @@ export default function EventsTab({ teamId, teamColor }: EventsTabProps) {
 	}, [events]);
 
 	const openCreate = () => {
-		const start = new Date();
-		start.setDate(start.getDate() + 1);
-		start.setHours(18, 0, 0, 0);
+		// Tomorrow at 18:00, as a day in the app zone.
+		const tomorrow = zonedDayKey(new Date(Date.now() + 86400000));
 		setDraft({
 			type: TeamEventType.TRAINING,
 			title: '',
-			startsAt: toLocalInput(start),
+			startsAt: `${tomorrow}T18:00`,
 			location: '',
 		});
 		setError('');
@@ -95,8 +90,8 @@ export default function EventsTab({ teamId, teamColor }: EventsTabProps) {
 			await teamEventApi.create(teamId, {
 				...draft,
 				title: draft.title.trim(),
-				// The input gives local wall-clock time; the API stores an instant.
-				startsAt: new Date(draft.startsAt).toISOString(),
+				// The input gives wall-clock time in the app zone; the API stores an instant.
+				startsAt: fromZonedInput(draft.startsAt) ?? draft.startsAt,
 				location: draft.location?.trim() || null,
 			});
 			setCreating(false);
@@ -151,7 +146,7 @@ export default function EventsTab({ teamId, teamColor }: EventsTabProps) {
 	};
 
 	const when = (event: TeamEvent) =>
-		new Date(event.startsAt).toLocaleString(i18n.language, {
+		new Date(event.startsAt).toLocaleString(i18n.language, { timeZone: APP_TIME_ZONE, 
 			weekday: 'short',
 			day: 'numeric',
 			month: 'short',

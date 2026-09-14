@@ -5,6 +5,7 @@ import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
 import type { Game } from '@types';
 import { SEASON_ACCENT, fromLocalInput, roundsOf, toLocalInput } from './util';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface RoundDatesSheetProps {
 	round: number;
@@ -74,8 +75,8 @@ export default function RoundDatesSheet({ round, games, onClose, onSaved }: Roun
 	const whenLabel = (game: Game) => {
 		const draft = drafts[game.id];
 		if (!draft) return t('seasonManagement.dates.notSet');
-		const d = new Date(draft);
-		return `${d.toLocaleDateString(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}`;
+		const d = new Date(fromLocalInput(draft) ?? draft);
+		return `${d.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString(i18n.language, { timeZone: APP_TIME_ZONE,  hour: '2-digit', minute: '2-digit' })}`;
 	};
 
 	return (

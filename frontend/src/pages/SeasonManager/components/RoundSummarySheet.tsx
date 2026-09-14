@@ -5,6 +5,7 @@ import { AxiosError } from 'axios';
 import { seasonApi } from '@/services/api';
 import type { Game, RoundSummaryPreview, Season, SeasonDigest } from '@types';
 import { SEASON_ACCENT, roundsOf } from './util';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface RoundSummarySheetProps {
 	season: Season;
@@ -159,7 +160,7 @@ export default function RoundSummarySheet({ season, games, onClose }: RoundSumma
 								{t('seasonManagement.summary.recipients', { count: preview.recipientCount })}
 								{preview.lastSent
 									? ` · ${t('seasonManagement.summary.lastSent', {
-											when: new Date(preview.lastSent.sentAt).toLocaleString(i18n.language, {
+											when: new Date(preview.lastSent.sentAt).toLocaleString(i18n.language, { timeZone: APP_TIME_ZONE, 
 												day: 'numeric',
 												month: 'short',
 												hour: '2-digit',

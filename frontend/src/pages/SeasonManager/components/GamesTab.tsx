@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CalendarDays } from 'lucide-react';
 import { GameStatus, type Game } from '@types';
 import { GAME_STATUS_TONE, SEASON_ACCENT, isPlayed, needsDate, roundsOf } from './util';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 type Filter = 'noDate' | 'dated' | 'played';
 
@@ -39,7 +40,7 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 	const whenLabel = (game: Game) => {
 		if (!game.date) return t('seasonManagement.games.noDate');
 		const d = new Date(game.date);
-		return `${d.toLocaleDateString(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}`;
+		return `${d.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString(i18n.language, { timeZone: APP_TIME_ZONE,  hour: '2-digit', minute: '2-digit' })}`;
 	};
 
 	return (

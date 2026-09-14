@@ -1,6 +1,91 @@
 /**
  * Date utility functions for consistent date formatting across the application.
+ *
+ * Two kinds of value pass through here:
+ *
+ * - **Moments** - game, tournament game and team event times. Stored as a real
+ *   instant (UTC) and always shown in APP_TIME_ZONE, whatever zone the viewer's
+ *   device is set to, so a 19:30 kick-off in Prague reads 19:30 for everyone.
+ *   Inputs go through toZonedInput / fromZonedInput for the same reason.
+ * - **Calendar dates** - season start and end. Stored as midnight UTC and shown
+ *   as that UTC calendar day, never shifted by a zone.
  */
+
+/** The zone every game and event time is shown and entered in. */
+export const APP_TIME_ZONE = 'Europe/Prague';
+
+const zonedPartsFormatter = new Intl.DateTimeFormat('en-US', {
+	timeZone: APP_TIME_ZONE,
+	hourCycle: 'h23',
+	year: 'numeric',
+	month: '2-digit',
+	day: '2-digit',
+	hour: '2-digit',
+	minute: '2-digit',
+	second: '2-digit',
+});
+
+interface ZonedParts {
+	year: number;
+	month: number;
+	day: number;
+	hour: number;
+	minute: number;
+	second: number;
+}
+
+/** The wall-clock reading of an instant in APP_TIME_ZONE. */
+function zonedParts(date: Date): ZonedParts {
+	const values: Record<string, number> = {};
+	for (const part of zonedPartsFormatter.formatToParts(date)) {
+		if (part.type !== 'literal') values[part.type] = Number(part.value);
+	}
+	return values as unknown as ZonedParts;
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** `YYYY-MM-DD` of the day an instant falls on in APP_TIME_ZONE. */
+export function zonedDayKey(date: Date | string): string {
+	const p = zonedParts(typeof date === 'string' ? new Date(date) : date);
+	return `${p.year}-${pad(p.month)}-${pad(p.day)}`;
+}
+
+/** Whole calendar days in APP_TIME_ZONE from today to the given instant. */
+export function zonedDaysUntil(date: Date | string): number {
+	const toUtcMidnight = (key: string) => Date.parse(`${key}T00:00:00Z`);
+	return Math.round((toUtcMidnight(zonedDayKey(date)) - toUtcMidnight(zonedDayKey(new Date()))) / 86400000);
+}
+
+/**
+ * An instant as the value a `datetime-local` input wants (`YYYY-MM-DDTHH:mm`),
+ * read in APP_TIME_ZONE rather than the browser's zone.
+ */
+export function toZonedInput(value: Date | string | null | undefined): string {
+	if (!value) return '';
+	const date = typeof value === 'string' ? new Date(value) : value;
+	if (Number.isNaN(date.getTime())) return '';
+	const p = zonedParts(date);
+	return `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}`;
+}
+
+/**
+ * The ISO instant for a `datetime-local` value read as wall-clock time in
+ * APP_TIME_ZONE. Returns null for an empty or unparsable value.
+ */
+export function fromZonedInput(value: string | null | undefined): string | null {
+	const match = value ? /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value) : null;
+	if (!match) return null;
+	const [year, month, day, hour, minute] = match.slice(1).map(Number);
+	const wanted = Date.UTC(year, month - 1, day, hour, minute);
+	let guess = wanted;
+	// Two passes settle the zone offset, including across a DST change.
+	for (let i = 0; i < 2; i++) {
+		const p = zonedParts(new Date(guess));
+		guess += wanted - Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+	}
+	return new Date(guess).toISOString();
+}
 
 /**
  * Convert language code to locale string for date formatting.
@@ -31,7 +116,7 @@ export function formatGameDateTime(dateString: string | null | undefined, locale
 		day: 'numeric',
 		hour: '2-digit',
 		minute: '2-digit',
-		timeZone: 'UTC',
+		timeZone: APP_TIME_ZONE,
 	}).format(new Date(dateString));
 }
 
@@ -44,7 +129,7 @@ export function formatGameTime(dateString: string | null | undefined, locale: st
 	return new Intl.DateTimeFormat(getLocale(locale), {
 		hour: '2-digit',
 		minute: '2-digit',
-		timeZone: 'UTC',
+		timeZone: APP_TIME_ZONE,
 	}).format(new Date(dateString));
 }
 
@@ -58,7 +143,7 @@ export function formatDateShort(dateString: string | null | undefined, locale: s
 		weekday: 'short',
 		month: 'short',
 		day: 'numeric',
-		timeZone: 'UTC',
+		timeZone: APP_TIME_ZONE,
 	}).format(new Date(dateString));
 }
 
@@ -72,6 +157,7 @@ export function formatSeasonDate(dateString: string | null | undefined, locale: 
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
+		timeZone: 'UTC',
 	});
 }
 
@@ -94,32 +180,6 @@ export function formatDateForInput(dateString: string | null | undefined): strin
 }
 
 /**
- * Format a date string for HTML datetime-local input (YYYY-MM-DDTHH:mm).
- * Returns UTC time without timezone conversion.
- */
-export function formatDateTimeForInput(dateString: string | null | undefined): string {
-	if (!dateString) return '';
-	// Parse as UTC and return in datetime-local format (without Z suffix)
-	const date = new Date(dateString);
-	return date.toISOString().slice(0, 16);
-}
-
-/**
- * Convert a date string or Date object to ISO string for API calls.
- * Treats datetime-local input strings (without timezone) as UTC.
- */
-export function toISOString(date: Date | string): string {
-	if (typeof date === 'string') {
-		// If the string doesn't have timezone info (datetime-local format), treat as UTC
-		if (!date.includes('Z') && !date.includes('+') && !date.includes('-', 10)) {
-			return new Date(date + 'Z').toISOString();
-		}
-		return new Date(date).toISOString();
-	}
-	return date.toISOString();
-}
-
-/**
  * Check if a date is in the future.
  */
 export function isDateInFuture(dateString: string): boolean {
@@ -127,25 +187,21 @@ export function isDateInFuture(dateString: string): boolean {
 }
 
 /**
- * Check if a date string matches today's date.
+ * Whether a game or event falls today, before today or after today - as
+ * calendar days in APP_TIME_ZONE, so a 00:30 start is not filed under the day
+ * before just because it is still yesterday in UTC.
  */
 export function isToday(dateString: string | null | undefined): boolean {
 	if (!dateString) return false;
-	return dateString.startsWith(getTodayString());
+	return zonedDayKey(dateString) === zonedDayKey(new Date());
 }
 
-/**
- * Check if a date string is before today.
- */
 export function isBeforeToday(dateString: string | null | undefined): boolean {
 	if (!dateString) return false;
-	return dateString < getTodayString();
+	return zonedDayKey(dateString) < zonedDayKey(new Date());
 }
 
-/**
- * Check if a date string is after today.
- */
 export function isAfterToday(dateString: string | null | undefined): boolean {
 	if (!dateString) return false;
-	return dateString > getTodayString();
+	return zonedDayKey(dateString) > zonedDayKey(new Date());
 }

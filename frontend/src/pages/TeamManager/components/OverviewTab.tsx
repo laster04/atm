@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ClipboardCheck, Clock, MapPin, Users } from 'lucide-react';
 import { GameStatus, type Game, type Standing, type Team } from '@types';
+import { APP_TIME_ZONE, zonedDaysUntil } from '@/utils/date';
 
 interface OverviewTabProps {
 	team: Team;
@@ -33,13 +34,7 @@ export default function OverviewTab({
 	const opponentName = (game: Game) =>
 		(isHome(game) ? game.awayTeam?.name : game.homeTeam?.name) ?? t('teamManagement.pwa.unknownOpponent');
 
-	const daysUntil = (iso: string) => {
-		const start = new Date();
-		start.setHours(0, 0, 0, 0);
-		const target = new Date(iso);
-		target.setHours(0, 0, 0, 0);
-		return Math.round((target.getTime() - start.getTime()) / 86400000);
-	};
+	const daysUntil = (iso: string) => zonedDaysUntil(iso);
 
 	const countdown = (iso: string) => {
 		const days = daysUntil(iso);
@@ -86,13 +81,13 @@ export default function OverviewTab({
 						<div className="flex items-center gap-3">
 							<span className="tm-date-block">
 								<span className="tm-date-dow">
-									{new Date(nextGame.date!).toLocaleDateString(i18n.language, { weekday: 'short' })}
+									{new Date(nextGame.date!).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  weekday: 'short' })}
 								</span>
 								<span className="tm-date-day">
-									{new Date(nextGame.date!).toLocaleDateString(i18n.language, { day: 'numeric' })}
+									{new Date(nextGame.date!).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  day: 'numeric' })}
 								</span>
 								<span className="tm-date-mon">
-									{new Date(nextGame.date!).toLocaleDateString(i18n.language, { month: 'short' })}
+									{new Date(nextGame.date!).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  month: 'short' })}
 								</span>
 							</span>
 							<span className="tm-game-main">
@@ -100,7 +95,7 @@ export default function OverviewTab({
 								<span className="tm-game-meta">
 									<Clock className="size-3 shrink-0" aria-hidden />
 									<span>
-										{new Date(nextGame.date!).toLocaleTimeString(i18n.language, {
+										{new Date(nextGame.date!).toLocaleTimeString(i18n.language, { timeZone: APP_TIME_ZONE, 
 											hour: '2-digit',
 											minute: '2-digit',
 										})}
@@ -167,7 +162,7 @@ export default function OverviewTab({
 								</span>
 								<span className="shrink-0 text-xs text-muted-foreground">
 									{game.date
-										? new Date(game.date).toLocaleDateString(i18n.language, {
+										? new Date(game.date).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE, 
 											day: 'numeric',
 											month: 'short',
 										})
