@@ -71,6 +71,7 @@ model User {
   emailDigest                 Boolean   @default(true) @map("email_digest")
   onboardingCompletedAt       DateTime? @map("onboarding_completed_at")
   teamTourCompletedAt         DateTime? @map("team_tour_completed_at")
+  lastLoggedInAt              DateTime? @map("last_logged_in_at")
   createdAt                   DateTime  @default(now()) @map("created_at")
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 

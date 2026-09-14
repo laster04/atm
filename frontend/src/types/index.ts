@@ -57,6 +57,8 @@ export interface User {
   emailDigest?: boolean;
   onboardingCompletedAt?: string | null;
   teamTourCompletedAt?: string | null;
+  /** Admin user list only. Null if the user never logged in. */
+  lastLoggedInAt?: string | null;
   /** Only present on the signed-in user, from /auth/me and /auth/login. */
   manages?: ManagedCounts;
 }

@@ -1005,6 +1005,8 @@
         "th-role": "Role",
         "th-status": "Status",
         "th-emailStatus": "Email",
+        "th-lastLogin": "Last login",
+        "neverLoggedIn": "Never",
         "th-actions": "Actions",
         "active": "Active",
         "inactive": "Inactive",

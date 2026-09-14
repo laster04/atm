@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@components/base/dialog.ts
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@components/base/tooltip.tsx";
 import UserFormModal, { type UserFormData } from "@/pages/Admin/components/users/UserFormModal.tsx";
 import { authApi } from '@/services/api';
+import { getLocale } from '@/utils/date';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 export interface UserFilters {
@@ -32,7 +33,7 @@ interface UsersTableProps {
 }
 
 export default function UsersTable({ users, onCreateUser, onUpdateUser, onDeleteUser, onFilterChange }: UsersTableProps) {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingUser, setEditingUser] = useState<User | null>(null);
 	const [filters, setFilters] = useState<UserFilters>({});
@@ -78,6 +79,12 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 				{t('admin.tabs.user.unverified', 'Unverified')}
 			</Badge>
 		);
+
+	// A real instant, so shown in the viewer's own time zone.
+	const lastLogin = (user: User) =>
+		user.lastLoggedInAt
+			? new Date(user.lastLoggedInAt).toLocaleString(getLocale(i18n.language), { dateStyle: 'medium', timeStyle: 'short' })
+			: <span className="text-muted-foreground">{t('admin.tabs.user.neverLoggedIn')}</span>;
 
 	const rowActions = (user: User) => (
 		<>
@@ -203,6 +210,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 								<TableHead>{t('admin.tabs.user.th-role')}</TableHead>
 								<TableHead>{t('admin.tabs.user.th-status')}</TableHead>
 								<TableHead>{t('admin.tabs.user.th-emailStatus', 'Email')}</TableHead>
+								<TableHead>{t('admin.tabs.user.th-lastLogin')}</TableHead>
 								<TableHead className="text-right">{t('admin.tabs.user.th-actions')}</TableHead>
 							</TableRow>
 						</TableHeader>
@@ -233,6 +241,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 											</Tooltip>
 										</TooltipProvider>
 									</TableCell>
+									<TableCell className="whitespace-nowrap">{lastLogin(user)}</TableCell>
 									<TableCell className="text-right">
 										<div className="flex justify-end gap-1">{rowActions(user)}</div>
 									</TableCell>
@@ -258,6 +267,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 							<AdminCardField label={t('admin.tabs.user.th-emailStatus', 'Email')}>
 								{verifiedBadge(user)}
 							</AdminCardField>
+							<AdminCardField label={t('admin.tabs.user.th-lastLogin')}>{lastLogin(user)}</AdminCardField>
 						</AdminCard>
 					))}
 				</AdminCardView>

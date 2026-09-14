@@ -1015,6 +1015,8 @@
         "th-role": "Role",
         "th-status": "Stav",
         "th-emailStatus": "Email",
+        "th-lastLogin": "Poslední přihlášení",
+        "neverLoggedIn": "Nikdy",
         "th-actions": "Akce",
         "active": "Aktivní",
         "inactive": "Neaktivní",
