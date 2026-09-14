@@ -9,6 +9,7 @@ import type {
   TournamentStanding, TournamentTopScorer,
   Paged, PublicTeam, PublicPlayer, PublicTeamQuery, PublicPlayerQuery,
   PublicGameQuery, TopScorerQuery, SearchResults,
+  SupportTicket, SupportTicketInput, SupportTicketStatus,
 } from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -59,6 +60,7 @@ export const authApi = {
   getMe: () => api.get<{ user: User }>('/auth/me'),
   completeOnboarding: () => api.post<{ user: User }>('/auth/complete-onboarding'),
   completeTeamTour: () => api.post<{ user: User }>('/auth/complete-team-tour'),
+  markUpdatesSeen: () => api.post<{ updatesSeenAt: string }>('/auth/updates-seen'),
   updateProfile: (data: { name?: string; password?: string; emailDigest?: boolean }) =>
     api.put<{ user: User }>('/auth/profile', data),
   getUsers: (filters?: { role?: string; name?: string; active?: boolean }) =>
@@ -342,4 +344,11 @@ export const searchApi = {
   // server answers with empty lists rather than half the database.
   search: (q: string, limit?: number) =>
     api.get<SearchResults>('/search', { params: { q, limit } })
+};
+
+export const contactApi = {
+  // Anyone may send; a retried submit with the same clientToken returns the first ticket.
+  send: (data: SupportTicketInput) => api.post<{ received: true; id?: string }>('/contact', data),
+  list: (status?: SupportTicketStatus) => api.get<SupportTicket[]>('/contact', { params: status ? { status } : undefined }),
+  updateStatus: (id: string, status: SupportTicketStatus) => api.put<SupportTicket>(`/contact/${id}`, { status }),
 };

@@ -13,6 +13,7 @@ import {
 	type Player,
 } from '@types';
 import { SEASON_ACCENT } from './util';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface MatchReportSheetProps {
 	game: Game;
@@ -554,7 +555,7 @@ export default function MatchReportSheet({
 									<span className="text-[11.5px] text-muted-foreground">
 										{[
 											entry.actor?.name ?? t('seasonManagement.report.audit.unknownActor'),
-											new Date(entry.createdAt).toLocaleString(i18n.language, {
+											new Date(entry.createdAt).toLocaleString(i18n.language, { timeZone: APP_TIME_ZONE, 
 												day: 'numeric',
 												month: 'short',
 												hour: '2-digit',

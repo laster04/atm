@@ -7,6 +7,7 @@ import { GameStatus, SeasonStatus, type Game, type Season } from '@types';
 import type { SeasonTab } from '../Detail';
 import { SEASON_ACCENT, isPlayed, needsDate } from './util';
 import VisibilityCard from './VisibilityCard';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface OverviewTabProps {
 	season: Season;
@@ -205,10 +206,10 @@ export default function OverviewTab({
 								<div key={game.id} className="flex items-center gap-3 px-3 py-2.5">
 									<span className="flex w-[42px] shrink-0 flex-col items-center gap-px">
 										<span className="text-[15px] font-bold leading-none tabular-nums">
-											{date.toLocaleDateString(i18n.language, { day: 'numeric' })}
+											{date.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  day: 'numeric' })}
 										</span>
 										<span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-											{date.toLocaleDateString(i18n.language, { month: 'short' })}
+											{date.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  month: 'short' })}
 										</span>
 									</span>
 									<span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -216,7 +217,7 @@ export default function OverviewTab({
 											{game.homeTeam?.name} — {game.awayTeam?.name}
 										</span>
 										<span className="text-[11.5px] text-muted-foreground">
-											{date.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}
+											{date.toLocaleTimeString(i18n.language, { timeZone: APP_TIME_ZONE,  hour: '2-digit', minute: '2-digit' })}
 											{game.location ? ` · ${game.location}` : ''}
 										</span>
 									</span>

@@ -12,6 +12,7 @@ export interface AuthUser {
   role: Role;
   onboardingCompletedAt?: Date | null;
   teamTourCompletedAt?: Date | null;
+  updatesSeenAt?: Date | null;
   /** Counts of the manager relations this user holds; see services/access. */
   manages?: { leagues: number; teams: number; series: number };
 }

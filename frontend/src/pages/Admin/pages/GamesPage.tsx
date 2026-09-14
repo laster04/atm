@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { seasonApi, teamApi, gameApi } from '@/services/api';
-import { toISOString } from '@/utils/date';
+import { fromZonedInput } from '@/utils/date';
 import type { Season, Team, Game } from '@types';
 import { AxiosError } from 'axios';
 import GamesTable from '../components/games/GamesTable';
@@ -108,7 +108,7 @@ export default function GamesPage() {
 		try {
 			if (!selectedSeason) return;
 			const res = await gameApi.create(selectedSeason.id, {
-				date: data.date ? toISOString(data.date) : null,
+				date: data.date ? fromZonedInput(data.date) : null,
 				homeTeamId: data.homeTeamId,
 				awayTeamId: data.awayTeamId,
 				location: data.location || undefined,
@@ -129,7 +129,7 @@ export default function GamesPage() {
 		setError('');
 		try {
 			const res = await gameApi.update(id, {
-				date: data.date ? toISOString(data.date) : null,
+				date: data.date ? fromZonedInput(data.date) : null,
 				homeTeamId: data.homeTeamId,
 				awayTeamId: data.awayTeamId,
 				homeScore: data.homeScore,

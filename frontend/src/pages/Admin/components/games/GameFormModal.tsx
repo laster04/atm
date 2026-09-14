@@ -5,7 +5,7 @@ import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/d
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
-import { formatDateTimeForInput } from '@/utils/date';
+import { toZonedInput } from '@/utils/date';
 import { Game, GameStatus, Team } from '@types';
 
 interface GameFormData {
@@ -37,7 +37,7 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 	const isEditing = !!game;
 
 	const initValues: GameFormData = {
-		date: formatDateTimeForInput(game?.date) || '',
+		date: toZonedInput(game?.date) || '',
 		homeTeamId: game?.homeTeamId || '',
 		awayTeamId: game?.awayTeamId || '',
 		homeScore: game?.homeScore ?? null,

@@ -13,6 +13,7 @@ import { Input } from "@components/base/input.tsx";
 import { Label } from "@components/base/label.tsx";
 import { Textarea } from "@components/base/textarea.tsx";
 import type { Player, Team, HockeyGameStatistic } from "@types";
+import { APP_TIME_ZONE } from '@/utils/date';
 
 export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
@@ -348,7 +349,7 @@ export default function PlayerDetailPage() {
 								<div key={stat.id} className="tm-compact-row py-2">
 									<span className="w-11 shrink-0 whitespace-nowrap text-[11.5px] text-muted-foreground">
 										{game.date
-											? new Date(game.date).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })
+											? new Date(game.date).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  day: 'numeric', month: 'short' })
 											: '—'}
 									</span>
 									<span className="flex min-w-0 flex-1 flex-col gap-0.5">

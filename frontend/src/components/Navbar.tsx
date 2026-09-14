@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.tsx';
+import { hasUnreadUpdates } from '@/content/updates';
 import { Button } from "@components/base/button";
 import {
 	DropdownMenu,
@@ -134,6 +135,17 @@ export default function Navbar() {
 													<Link to="/admin">{t('nav.admin')}</Link>
 												</DropdownMenuItem>
 											)}
+											<DropdownMenuItem asChild>
+												<Link to="/docs">{t('public.nav.docs')}</Link>
+											</DropdownMenuItem>
+											<DropdownMenuItem asChild>
+												<Link to="/updates" className="flex items-center justify-between">
+													{t('public.nav.updates')}
+													{hasUnreadUpdates(user.updatesSeenAt) && (
+														<span className="size-2 rounded-full bg-primary" aria-label={t('public.updates.unread')} />
+													)}
+												</Link>
+											</DropdownMenuItem>
 											<DropdownMenuItem onClick={handleLogout}>
 												<LogOut className="size-4 mr-2" />
 												{t('nav.logout')}

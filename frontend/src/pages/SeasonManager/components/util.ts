@@ -46,19 +46,8 @@ export function initials(name: string): string {
 }
 
 /** `datetime-local` wants `YYYY-MM-DDTHH:mm` in local time, not an ISO instant. */
-export function toLocalInput(iso?: string | null): string {
-	if (!iso) return '';
-	const d = new Date(iso);
-	if (Number.isNaN(d.getTime())) return '';
-	const pad = (n: number) => String(n).padStart(2, '0');
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-export function fromLocalInput(value: string): string | null {
-	if (!value) return null;
-	const d = new Date(value);
-	return Number.isNaN(d.getTime()) ? null : d.toISOString();
-}
+/** Game times are entered and shown in the app zone, not the browser's. */
+export { toZonedInput as toLocalInput, fromZonedInput as fromLocalInput } from '@/utils/date';
 
 /** Rounds present in the season, ascending; fixtures with no round go last. */
 export function roundsOf(games: Game[]): number[] {

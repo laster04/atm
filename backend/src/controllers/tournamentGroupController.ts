@@ -8,6 +8,7 @@ import {
   GenerateTournamentScheduleRequest,
 } from '../types/index.js';
 import { toId } from '../utils/ids.js';
+import { parseCalendarDate, zonedDateTime } from '../utils/time.js';
 
 const groupInclude = {
   teams: {
@@ -228,7 +229,7 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
     // apply — just build the fixture list with date and location left unset.
     const isTennis = tournament.series?.sportType === 'TENNIS';
 
-    let dayStart = new Date(0);
+    let dayStart = { year: 1970, month: 1, day: 1 };
     let startHour = 0, startMinute = 0, capacityPerDayPerVenue = 0, slotDuration = 0;
     let venues: string[] = [];
 
@@ -263,11 +264,12 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
       slotDuration = slotDurationMinutes;
       capacityPerDayPerVenue = Math.floor(windowMinutes / slotDuration) + 1;
 
-      dayStart = new Date(startDate);
-      if (Number.isNaN(dayStart.getTime())) {
+      const parsedStart = parseCalendarDate(startDate);
+      if (!parsedStart) {
         res.status(400).json({ error: 'startDate is invalid' });
         return;
       }
+      dayStart = parsedStart;
     }
 
     let groups = await prisma.tournamentGroup.findMany({
@@ -351,9 +353,14 @@ export const generateTournamentSchedule = async (req: AuthRequest, res: Response
         const timeSlot = Math.floor(slotInDay / venues.length);
         const venueIndex = slotInDay % venues.length;
 
-        const gameDate = new Date(dayStart);
-        gameDate.setDate(gameDate.getDate() + dayIndex);
-        gameDate.setHours(startHour, startMinute + timeSlot * slotDuration, 0, 0);
+        // The times entered are wall-clock times at the venue, not the server's.
+        const gameDate = zonedDateTime(
+          dayStart.year,
+          dayStart.month,
+          dayStart.day + dayIndex,
+          startHour,
+          startMinute + timeSlot * slotDuration,
+        );
 
         return prisma.tournamentGame.create({
           data: {

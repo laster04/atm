@@ -482,6 +482,31 @@ class EmailService {
     });
   }
 
+  /** Tells whoever handles support that a message came in through /contact. */
+  async sendSupportTicketEmail(
+    to: string,
+    ticket: { id: string; category: string; subject: string; message: string; email: string | null; senderName: string | null }
+  ): Promise<boolean> {
+    const accent = '#0B63F6';
+    const from = ticket.senderName
+      ? `${escapeHtml(ticket.senderName)}${ticket.email ? ` &lt;${escapeHtml(ticket.email)}&gt;` : ''}`
+      : ticket.email
+        ? escapeHtml(ticket.email)
+        : 'anonymous, no reply address';
+
+    const body = [
+      this.p(`<strong>${escapeHtml(ticket.category)}</strong> &middot; from ${from}`, { mb: 12, size: 13, color: COLORS.muted }),
+      this.p(`<strong>${escapeHtml(ticket.subject)}</strong>`, { mb: 12 }),
+      `<div style="white-space:pre-wrap;font-size:14px;line-height:1.6;color:${COLORS.text};background:${COLORS.inputBg};border-radius:10px;padding:16px;margin-bottom:24px;">${escapeHtml(ticket.message)}</div>`,
+      this.button('Open in admin', `${this.getAppUrl()}/admin/support`, accent),
+    ].join('');
+
+    return this.sendEmail({
+      to,
+      subject: `[ATM support] ${ticket.subject.slice(0, 120)}`,
+      html: this.buildEmailHtml(accent, 'mail-check', 'New support message', body),
+    });
+  }
 }
 
 export const emailService = new EmailService();

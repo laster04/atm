@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarDays, ChevronRight, Trophy, Users } from 'lucide-react';
+import { CalendarDays, ChevronRight, LifeBuoy, Trophy, Users } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import { ADMIN_GOLD_INK } from '../components/util';
 
 /**
@@ -10,6 +11,7 @@ import { ADMIN_GOLD_INK } from '../components/util';
  */
 export default function MorePage() {
 	const { t } = useTranslation();
+	const { isAdmin } = useAuth();
 
 	const links = [
 		{
@@ -24,6 +26,9 @@ export default function MorePage() {
 			title: t('admin.nav.games'),
 			hint: t('admin.more.gamesHint'),
 		},
+		...(isAdmin()
+			? [{ to: '/admin/support', icon: LifeBuoy, title: t('admin.nav.support'), hint: t('admin.more.supportHint') }]
+			: []),
 	];
 
 	return (

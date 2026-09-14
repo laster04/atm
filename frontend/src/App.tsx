@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -25,13 +26,27 @@ import Players from './pages/Players';
 import Games from './pages/Games';
 import Stats from './pages/Stats';
 import About from './pages/About';
+import Updates from './pages/Updates';
+import Contact from './pages/Contact';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
-import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, MorePage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
+import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, MorePage, PlayersPage, PlayerDetailPage, GamesPage, SupportPage } from './pages/Admin';
 import { TournamentManagementLayout, TournamentManagementIndex, SeriesListPage, SeriesDetailPage, TournamentManagePage } from './pages/TournamentManagement';
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 import './index.css';
+
+// Help articles are the bulk of this page's weight; load them only on /docs.
+const Docs = lazy(() => import('./pages/Docs'));
+
+function DocsFallback() {
+  return (
+    <div className="mx-auto flex max-w-[1200px] flex-col gap-4 px-4 py-10 sm:px-8" aria-busy="true">
+      <div className="h-10 w-64 animate-pulse rounded-lg bg-muted" />
+      <div className="h-96 animate-pulse rounded-2xl bg-muted" />
+    </div>
+  );
+}
 import { Toaster } from "@components/base/toaster.tsx";
 
 /**
@@ -70,6 +85,11 @@ function AppContent() {
           <Route path="/games" element={<Games />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/about" element={<About />} />
+          <Route path="/docs" element={<Suspense fallback={<DocsFallback />}><Docs /></Suspense>} />
+          <Route path="/docs/:slug" element={<Suspense fallback={<DocsFallback />}><Docs /></Suspense>} />
+          <Route path="/updates" element={<Updates />} />
+          <Route path="/updates/roadmap" element={<Updates />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />
@@ -112,6 +132,7 @@ function AppContent() {
           <Route path="players/:id" element={<PlayerDetailPage />} />
           <Route path="games" element={<GamesPage />} />
           <Route path="more" element={<MorePage />} />
+          <Route path="support" element={<SupportPage />} />
         </Route>
       </Routes>
     </>

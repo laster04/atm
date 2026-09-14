@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Clock, MapPin } from 'lucide-react';
 import { GameStatus, type Game } from '@types';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 type Tab = 'upcoming' | 'played' | 'other';
 
@@ -47,11 +48,11 @@ export default function ScheduleTab({ games, teamId, teamColor }: ScheduleTabPro
 		if (!game.date) return null;
 		const d = new Date(game.date);
 		return {
-			dow: d.toLocaleDateString(i18n.language, { weekday: 'short' }),
-			day: d.toLocaleDateString(i18n.language, { day: 'numeric' }),
-			mon: d.toLocaleDateString(i18n.language, { month: 'short' }),
-			time: d.toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }),
-			month: d.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' }),
+			dow: d.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  weekday: 'short' }),
+			day: d.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  day: 'numeric' }),
+			mon: d.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  month: 'short' }),
+			time: d.toLocaleTimeString(i18n.language, { timeZone: APP_TIME_ZONE,  hour: '2-digit', minute: '2-digit' }),
+			month: d.toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE,  month: 'long', year: 'numeric' }),
 		};
 	};
 

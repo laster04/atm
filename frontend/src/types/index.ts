@@ -57,6 +57,8 @@ export interface User {
   emailDigest?: boolean;
   onboardingCompletedAt?: string | null;
   teamTourCompletedAt?: string | null;
+  /** When the user last opened /updates; drives the unread marker. */
+  updatesSeenAt?: string | null;
   /** Admin user list only. Null if the user never logged in. */
   lastLoggedInAt?: string | null;
   /** Only present on the signed-in user, from /auth/me and /auth/login. */
@@ -431,6 +433,33 @@ export interface AuthContextType {
   isTeamManager: () => boolean;
   isTournamentManager: () => boolean;
   canManageTeam: (teamManagerId?: string | null) => boolean;
+  markUpdatesSeen: () => Promise<void>;
+}
+
+export type SupportCategory = 'QUESTION' | 'PROBLEM' | 'COMPLAINT' | 'IDEA';
+export type SupportTicketStatus = 'NEW' | 'IN_PROGRESS' | 'WAITING_FOR_USER' | 'RESOLVED' | 'CLOSED';
+
+export interface SupportTicketInput {
+  category: SupportCategory;
+  subject: string;
+  message: string;
+  email?: string;
+  context?: { page: string; viewport: string; userAgent: string; signedIn: boolean };
+  clientToken: string;
+  /** Honeypot; a person never fills it in. */
+  website?: string;
+}
+
+export interface SupportTicket {
+  id: string;
+  category: SupportCategory;
+  subject: string;
+  message: string;
+  email: string | null;
+  context: Record<string, string | boolean> | null;
+  status: SupportTicketStatus;
+  createdAt: string;
+  user: { id: string; name: string; email: string } | null;
 }
 
 export interface TopScorer {

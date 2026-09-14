@@ -24,6 +24,9 @@ const COLUMNS = [
 		links: [
 			{ to: '/about', key: 'public.nav.about' },
 			{ to: '/games', key: 'public.nav.games' },
+			{ to: '/docs', key: 'public.nav.docs' },
+			{ to: '/updates', key: 'public.nav.updates' },
+			{ to: '/contact', key: 'public.nav.contact' },
 		],
 	},
 ];

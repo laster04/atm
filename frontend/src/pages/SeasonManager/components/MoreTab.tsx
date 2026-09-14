@@ -39,7 +39,7 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 	const [error, setError] = useState('');
 
 	const formatDate = (iso: string) =>
-		new Date(iso).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' });
+		new Date(iso).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 	const handleGenerate = async (data: GenerateScheduleData) => {
 		setError('');

@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@components/base/dialog.ts
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@components/base/tooltip.tsx";
 import UserFormModal, { type UserFormData } from "@/pages/Admin/components/users/UserFormModal.tsx";
 import { authApi } from '@/services/api';
-import { getLocale } from '@/utils/date';
+import { getLocale, APP_TIME_ZONE } from '@/utils/date';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 export interface UserFilters {
@@ -83,7 +83,7 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 	// A real instant, so shown in the viewer's own time zone.
 	const lastLogin = (user: User) =>
 		user.lastLoggedInAt
-			? new Date(user.lastLoggedInAt).toLocaleString(getLocale(i18n.language), { dateStyle: 'medium', timeStyle: 'short' })
+			? new Date(user.lastLoggedInAt).toLocaleString(getLocale(i18n.language), { timeZone: APP_TIME_ZONE,  dateStyle: 'medium', timeStyle: 'short' })
 			: <span className="text-muted-foreground">{t('admin.tabs.user.neverLoggedIn')}</span>;
 
 	const rowActions = (user: User) => (

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
 import type { Team } from '@types';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface TeamCardProps {
 	team: Team;
@@ -60,7 +61,7 @@ export default function TeamCard({ team }: TeamCardProps) {
 							{opponent} ({isHome ? t('teamManagement.pwa.home') : t('teamManagement.pwa.away')})
 						</span>
 						<span className="shrink-0 text-xs font-medium">
-							{new Date(next.date!).toLocaleDateString(i18n.language, {
+							{new Date(next.date!).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE, 
 								weekday: 'short', day: 'numeric', month: 'short',
 							})}
 						</span>

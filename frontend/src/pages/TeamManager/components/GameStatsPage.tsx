@@ -7,6 +7,7 @@ import { gameApi, playerApi, gameStatisticApi, teamApi } from '@/services/api';
 
 import { Button } from '@components/base/button';
 import { GameStatus, type Game, type HockeyGameStatistic, type Player } from '@types';
+import { APP_TIME_ZONE } from '@/utils/date';
 
 interface PlayerStatForm {
 	playerId: string;
@@ -250,7 +251,7 @@ export default function GameStatsPage() {
 							{myTeam?.name} — {opponentTeam?.name}
 						</div>
 						<div className="truncate text-xs text-white/85">
-							{game.date && new Date(game.date).toLocaleDateString(i18n.language, {
+							{game.date && new Date(game.date).toLocaleDateString(i18n.language, { timeZone: APP_TIME_ZONE, 
 								day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
 							})}
 							{game.location && ` · ${game.location}`}

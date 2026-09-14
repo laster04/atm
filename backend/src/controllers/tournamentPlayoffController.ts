@@ -2,6 +2,7 @@ import { Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest, GenerateTournamentPlayoffsRequest, TournamentGamePhase } from '../types/index.js';
 import { computeGroupStandings } from '../utils/tournamentStandings.js';
+import { zonedDateTime, zonedParts } from '../utils/time.js';
 
 // Bracket rounds in play order; BRONZE branches off SEMI_FINAL but never
 // feeds forward, so it's handled separately from this advancement chain.
@@ -66,8 +67,8 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
       res.status(400).json({ error: 'Generate the group-stage schedule before generating playoffs' });
       return;
     }
-    const dayStart = new Date(lastGroupGame.date);
-    dayStart.setDate(dayStart.getDate() + 1);
+    // The day after the group stage ends, as a calendar day where it is played.
+    const lastGroupDay = zonedParts(lastGroupGame.date);
 
     const groups = await prisma.tournamentGroup.findMany({ where: { tournamentId: tid } });
     if (groups.length === 0) {
@@ -156,9 +157,13 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
     const created = await prisma.$transaction(
       rounds.flatMap((round, dayIndex) =>
         round.map((g, i) => {
-          const gameDate = new Date(dayStart);
-          gameDate.setDate(gameDate.getDate() + dayIndex);
-          gameDate.setHours(startHour, startMinute + i * slotDurationMinutes, 0, 0);
+          const gameDate = zonedDateTime(
+            lastGroupDay.year,
+            lastGroupDay.month,
+            lastGroupDay.day + 1 + dayIndex,
+            startHour,
+            startMinute + i * slotDurationMinutes,
+          );
 
           return prisma.tournamentGame.create({
             data: {
