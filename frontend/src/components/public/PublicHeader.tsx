@@ -27,6 +27,7 @@ const SECTIONS = [
 	{ to: '/games', key: 'public.nav.games' },
 	{ to: '/stats', key: 'public.nav.stats' },
 	{ to: '/about', key: 'public.nav.about' },
+	{ to: '/docs', key: 'public.nav.docs' },
 ];
 
 interface PublicHeaderProps {

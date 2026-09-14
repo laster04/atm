@@ -1652,6 +1652,35 @@
     "unsavedChanges_other": "{{count}} neuložených změn"
   },
   "public": {
+    "docs": {
+      "title": "Nápověda",
+      "subtitle": "Návody pro správu ligy, týmu, hráčů a zápasů. Vyberte, co spravujete, a najděte postup, který potřebujete.",
+      "searchPlaceholder": "Hledat v nápovědě…",
+      "noResults": "Pro tento výraz jsme nenašli žádný návod.",
+      "noResultsHint": "Zkuste obecnější pojem nebo zobrazte všechny články.",
+      "showAll": "Zobrazit všechny články",
+      "contents": "Obsah nápovědy",
+      "navLabel": "Obsah nápovědy",
+      "forYou": "Pro vás",
+      "related": "Související návody",
+      "updated": "Aktualizováno {{date}}",
+      "notFound": "Tento návod neexistuje nebo už není dostupný.",
+      "backToDocs": "Zpět na nápovědu",
+      "noteTip": "Tip",
+      "noteImportant": "Důležité",
+      "categories": {
+        "start": "Začínáme",
+        "league": "Manažer ligy",
+        "team": "Manažer týmu",
+        "more": "Turnaje a podpora"
+      },
+      "audience": {
+        "ALL": "Pro všechny",
+        "LEAGUE": "Pro manažera ligy",
+        "TEAM": "Pro manažera týmu",
+        "TOURNAMENT": "Pro manažera turnaje"
+      }
+    },
     "hero": {
       "kicker": "Amatérský sport. Skutečné příběhy."
     },
@@ -1666,6 +1695,7 @@
       "players": "Hráči",
       "games": "Zápasy",
       "stats": "Statistiky",
+      "docs": "Nápověda",
       "about": "O projektu",
       "signIn": "Přihlásit se",
       "dashboard": "Nástěnka"

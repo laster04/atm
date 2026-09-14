@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -32,6 +33,18 @@ import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, MorePage,
 import { TournamentManagementLayout, TournamentManagementIndex, SeriesListPage, SeriesDetailPage, TournamentManagePage } from './pages/TournamentManagement';
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 import './index.css';
+
+// Help articles are the bulk of this page's weight; load them only on /docs.
+const Docs = lazy(() => import('./pages/Docs'));
+
+function DocsFallback() {
+  return (
+    <div className="mx-auto flex max-w-[1200px] flex-col gap-4 px-4 py-10 sm:px-8" aria-busy="true">
+      <div className="h-10 w-64 animate-pulse rounded-lg bg-muted" />
+      <div className="h-96 animate-pulse rounded-2xl bg-muted" />
+    </div>
+  );
+}
 import { Toaster } from "@components/base/toaster.tsx";
 
 /**
@@ -70,6 +83,8 @@ function AppContent() {
           <Route path="/games" element={<Games />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/about" element={<About />} />
+          <Route path="/docs" element={<Suspense fallback={<DocsFallback />}><Docs /></Suspense>} />
+          <Route path="/docs/:slug" element={<Suspense fallback={<DocsFallback />}><Docs /></Suspense>} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />
