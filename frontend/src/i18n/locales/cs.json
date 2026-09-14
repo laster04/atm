@@ -976,6 +976,29 @@
     }
   },
   "admin": {
+    "support": {
+      "filter": "Stav",
+      "all": "Všechny",
+      "empty": "Žádné zprávy v tomto stavu.",
+      "loadError": "Zprávy se nepodařilo načíst",
+      "updateError": "Stav se nepodařilo změnit",
+      "anonymous": "anonymně",
+      "replyTo": "Odpovědět na",
+      "statusFor": "Stav zprávy {{subject}}",
+      "status": {
+        "NEW": "Nová",
+        "IN_PROGRESS": "Řeší se",
+        "WAITING_FOR_USER": "Čeká na odesílatele",
+        "RESOLVED": "Vyřešeno",
+        "CLOSED": "Uzavřeno"
+      },
+      "category": {
+        "QUESTION": "Dotaz",
+        "PROBLEM": "Problém",
+        "COMPLAINT": "Stížnost",
+        "IDEA": "Nápad"
+      }
+    },
     "title": "Administrace",
     "accessDenied": "Pristup odepren",
     "noPrivileges": "Pro pristup na tuto stranku potrebujete administratorska opravneni.",
@@ -1259,6 +1282,7 @@
       "copyTeams": "Sezóna byla vytvořena, ale kopírování týmů selhalo"
     },
     "nav": {
+      "support": "Podpora",
       "users": "Uživatelé",
       "leagues": "Ligy",
       "seasons": "Sezóny",
@@ -1267,6 +1291,7 @@
       "games": "Zápasy"
     },
     "more": {
+      "supportHint": "Zprávy odeslané přes kontaktní formulář",
       "acrossSeasons": "Napříč sezónami",
       "playersHint": "Hledat hráče ve všech týmech a přesouvat je",
       "gamesHint": "Všechny zápasy bez ohledu na sezónu",
@@ -1652,6 +1677,94 @@
     "unsavedChanges_other": "{{count}} neuložených změn"
   },
   "public": {
+    "updates": {
+      "title": "Novinky v ATM",
+      "subtitle": "Co se v ATM skutečně změnilo a na čem právě pracujeme. Termín zveřejníme až ve chvíli, kdy je změna připravená k vydání.",
+      "released": "Vydané",
+      "roadmap": "Připravujeme",
+      "releasedLabel": "Vydáno",
+      "unread": "Nové vydání",
+      "roadmapNote": "Pořadí a rozsah se mohou změnit. Datum zveřejníme až ve chvíli, kdy je funkce připravená k vydání.",
+      "areas": {
+        "all": "Vše",
+        "league": "Správa ligy",
+        "team": "Správa týmu",
+        "tournaments": "Turnaje",
+        "public": "Veřejný web",
+        "fixes": "Opravy"
+      },
+      "status": {
+        "IN_DEVELOPMENT": "Ve vývoji",
+        "DESIGNING": "Navrhujeme",
+        "CONSIDERING": "Zvažujeme"
+      },
+      "statusHint": {
+        "IN_DEVELOPMENT": "Funkce se aktivně implementuje.",
+        "DESIGNING": "Existuje schválený návrh, práce nemusí být zahájena.",
+        "CONSIDERING": "Nápad se vyhodnocuje a není slíbený."
+      }
+    },
+    "contact": {
+      "title": "Napište nám",
+      "subtitle": "Dotazy, problémy, stížnosti i nápady na jednom místě. Odpovíme e-mailem, pokud ho uvedete.",
+      "categoryLegend": "Čeho se zpráva týká?",
+      "categories": {
+        "QUESTION": {
+          "title": "Dotaz",
+          "hint": "Nevíte si rady s ovládáním."
+        },
+        "PROBLEM": {
+          "title": "Nahlásit problém",
+          "hint": "Něco nefunguje, jak má."
+        },
+        "COMPLAINT": {
+          "title": "Stížnost",
+          "hint": "Nejste spokojeni s něčím v ATM."
+        },
+        "IDEA": {
+          "title": "Nápad",
+          "hint": "Co by vám v ATM pomohlo."
+        }
+      },
+      "subject": "Předmět",
+      "message": "Popis",
+      "messageHint": "Co jste chtěli udělat, co se skutečně stalo a zda se to opakuje.",
+      "email": "E-mail pro odpověď",
+      "emailHint": "Nepovinné. Bez e-mailu vám nemůžeme odpovědět.",
+      "contextLabel": "Přiložit technické údaje",
+      "contextHint": "Odešle se jen adresa stránky bez parametrů, velikost okna, typ prohlížeče a zda jste přihlášeni. Nikdy heslo ani obsah prohlížeče.",
+      "send": "Odeslat zprávu",
+      "sending": "Odesílám…",
+      "noPasswords": "Neposílejte heslo ani jiné přihlašovací údaje.",
+      "sentTitle": "Děkujeme za zprávu",
+      "sentWithEmail": "Odpověď vám přijde na uvedený e-mail.",
+      "sentWithoutEmail": "Zprávu jsme přijali. Bez e-mailu vám nemůžeme odpovědět.",
+      "sendAnother": "Poslat další zprávu",
+      "helpsTitle": "Co nám pomůže",
+      "helps": {
+        "what": {
+          "title": "Co jste chtěli udělat",
+          "hint": "Například uložit sestavu nebo zapsat výsledek."
+        },
+        "happened": {
+          "title": "Co se skutečně stalo",
+          "hint": "Chybová hláška nebo nečekané chování."
+        },
+        "where": {
+          "title": "Kde se to stalo",
+          "hint": "Telefon nebo počítač a konkrétní stránka."
+        }
+      },
+      "seeUpdates": "Podívejte se, co je v ATM nového →",
+      "errors": {
+        "category": "Vyberte, čeho se zpráva týká.",
+        "subject": "Předmět musí mít alespoň 3 znaky.",
+        "message": "Popis musí mít alespoň 10 znaků.",
+        "email": "Zadejte platný e-mail, nebo pole nechte prázdné.",
+        "send": "Zprávu se nepodařilo odeslat. Text zůstal ve formuláři, zkuste to znovu.",
+        "tooMany": "Poslali jste mnoho zpráv za krátkou dobu. Zkuste to prosím za chvíli."
+      }
+    },
     "hero": {
       "kicker": "Amatérský sport. Skutečné příběhy."
     },
@@ -1666,6 +1779,8 @@
       "players": "Hráči",
       "games": "Zápasy",
       "stats": "Statistiky",
+      "updates": "Novinky",
+      "contact": "Kontakt",
       "about": "O projektu",
       "signIn": "Přihlásit se",
       "dashboard": "Nástěnka"

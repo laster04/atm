@@ -5,6 +5,7 @@ import {
   getMe,
   completeOnboarding,
   completeTeamTour,
+  markUpdatesSeen,
   updateProfile,
   getUsers,
   createUser,
@@ -28,6 +29,7 @@ router.post('/reset-password/:token', resetPassword);
 router.get('/me', authenticate, getMe);
 router.post('/complete-onboarding', authenticate, completeOnboarding);
 router.post('/complete-team-tour', authenticate, completeTeamTour);
+router.post('/updates-seen', authenticate, markUpdatesSeen);
 router.put('/profile', authenticate, updateProfile);
 router.get('/users', authenticate, authorize('ADMIN'), getUsers);
 router.post('/users', authenticate, authorize('ADMIN'), createUser);

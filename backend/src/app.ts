@@ -11,6 +11,7 @@ import gameStatisticRoutes from './routes/gameStatistics.js';
 import teamEventRoutes from './routes/teamEvents.js';
 import tournamentRoutes from './routes/tournaments.js';
 import searchRoutes from './routes/search.js';
+import contactRoutes from './routes/contact.js';
 
 /**
  * The whole HTTP app: middleware, every route, the error handler. index.ts only
@@ -18,6 +19,15 @@ import searchRoutes from './routes/search.js';
  * to mount routes separately, and the server silently lost /api/events.
  */
 const app = express();
+
+// Behind a reverse proxy, req.ip is the proxy's address unless Express is told
+// to trust it - and the contact form's rate limit would then lump every visitor
+// together. TRUST_PROXY takes Express's own values: "true", a hop count, or a
+// list of addresses.
+if (process.env.TRUST_PROXY) {
+  const value = process.env.TRUST_PROXY;
+  app.set('trust proxy', value === 'true' ? true : /^\d+$/.test(value) ? Number(value) : value);
+}
 
 // CORS configuration - set CORS_ORIGIN to a comma-separated list of allowed origins
 // e.g. CORS_ORIGIN=http://www.example.com,https://www.example.com
@@ -58,6 +68,7 @@ app.use('/api/game-statistics', gameStatisticRoutes);
 app.use('/api/events', teamEventRoutes);
 app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/contact', contactRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

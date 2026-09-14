@@ -127,6 +127,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
         role: user.role,
         onboardingCompletedAt: user.onboardingCompletedAt,
         teamTourCompletedAt: user.teamTourCompletedAt,
+        updatesSeenAt: user.updatesSeenAt,
         manages: await getManagedCounts(user.id),
       },
       token
@@ -351,6 +352,21 @@ export const completeOnboarding = async (req: AuthRequest, res: Response): Promi
   } catch (error) {
     console.error('Complete onboarding error:', error);
     res.status(500).json({ error: 'Failed to complete onboarding' });
+  }
+};
+
+/** The user has looked at /updates; everything released so far counts as read. */
+export const markUpdatesSeen = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { updatesSeenAt: new Date() },
+      select: { updatesSeenAt: true }
+    });
+    res.json({ updatesSeenAt: user.updatesSeenAt });
+  } catch (error) {
+    console.error('Mark updates seen error:', error);
+    res.status(500).json({ error: 'Failed to update' });
   }
 };
 

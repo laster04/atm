@@ -966,6 +966,29 @@
     }
   },
   "admin": {
+    "support": {
+      "filter": "Status",
+      "all": "All",
+      "empty": "No messages with this status.",
+      "loadError": "Could not load messages",
+      "updateError": "Could not change the status",
+      "anonymous": "anonymous",
+      "replyTo": "Reply to",
+      "statusFor": "Status of {{subject}}",
+      "status": {
+        "NEW": "New",
+        "IN_PROGRESS": "In progress",
+        "WAITING_FOR_USER": "Waiting for sender",
+        "RESOLVED": "Resolved",
+        "CLOSED": "Closed"
+      },
+      "category": {
+        "QUESTION": "Question",
+        "PROBLEM": "Problem",
+        "COMPLAINT": "Complaint",
+        "IDEA": "Idea"
+      }
+    },
     "title": "Admin Dashboard",
     "accessDenied": "Access Denied",
     "noPrivileges": "You need admin privileges to access this page.",
@@ -1249,6 +1272,7 @@
       "copyTeams": "Season was created, but copying teams failed"
     },
     "nav": {
+      "support": "Support",
       "users": "Users",
       "leagues": "Leagues",
       "seasons": "Seasons",
@@ -1257,6 +1281,7 @@
       "games": "Games"
     },
     "more": {
+      "supportHint": "Messages sent through the contact form",
       "acrossSeasons": "Across seasons",
       "playersHint": "Search players in every team and move them",
       "gamesHint": "Every fixture regardless of season",
@@ -1641,6 +1666,94 @@
     "unsavedChanges_other": "{{count}} unsaved changes"
   },
   "public": {
+    "updates": {
+      "title": "What's new in ATM",
+      "subtitle": "What actually changed in ATM and what we are working on. We give a date only once a change is ready to ship.",
+      "released": "Released",
+      "roadmap": "Coming up",
+      "releasedLabel": "Released",
+      "unread": "New release",
+      "roadmapNote": "Order and scope may change. We give a date only once a feature is ready to ship.",
+      "areas": {
+        "all": "All",
+        "league": "League management",
+        "team": "Team management",
+        "tournaments": "Tournaments",
+        "public": "Public site",
+        "fixes": "Fixes"
+      },
+      "status": {
+        "IN_DEVELOPMENT": "In development",
+        "DESIGNING": "Designing",
+        "CONSIDERING": "Considering"
+      },
+      "statusHint": {
+        "IN_DEVELOPMENT": "Being built right now.",
+        "DESIGNING": "An approved design exists; work may not have started.",
+        "CONSIDERING": "An idea under review, not a promise."
+      }
+    },
+    "contact": {
+      "title": "Write to us",
+      "subtitle": "Questions, problems, complaints and ideas in one place. We reply by email if you give one.",
+      "categoryLegend": "What is your message about?",
+      "categories": {
+        "QUESTION": {
+          "title": "Question",
+          "hint": "Not sure how something works."
+        },
+        "PROBLEM": {
+          "title": "Report a problem",
+          "hint": "Something does not work as it should."
+        },
+        "COMPLAINT": {
+          "title": "Complaint",
+          "hint": "Something in ATM is not good enough."
+        },
+        "IDEA": {
+          "title": "Idea",
+          "hint": "What would help you in ATM."
+        }
+      },
+      "subject": "Subject",
+      "message": "Description",
+      "messageHint": "What you wanted to do, what actually happened, and whether it happens again.",
+      "email": "Email for a reply",
+      "emailHint": "Optional. Without an email we cannot reply.",
+      "contextLabel": "Attach technical details",
+      "contextHint": "Only the page address without parameters, window size, browser type and whether you are signed in. Never passwords or browser data.",
+      "send": "Send message",
+      "sending": "Sending…",
+      "noPasswords": "Never send passwords or other sign-in details.",
+      "sentTitle": "Thank you for your message",
+      "sentWithEmail": "We will reply to the email you gave.",
+      "sentWithoutEmail": "We received your message. Without an email we cannot reply.",
+      "sendAnother": "Send another message",
+      "helpsTitle": "What helps us",
+      "helps": {
+        "what": {
+          "title": "What you wanted to do",
+          "hint": "For example, save a line-up or record a result."
+        },
+        "happened": {
+          "title": "What actually happened",
+          "hint": "An error message or unexpected behaviour."
+        },
+        "where": {
+          "title": "Where it happened",
+          "hint": "Phone or computer, and which page."
+        }
+      },
+      "seeUpdates": "See what's new in ATM →",
+      "errors": {
+        "category": "Choose what your message is about.",
+        "subject": "The subject needs at least 3 characters.",
+        "message": "The description needs at least 10 characters.",
+        "email": "Enter a valid email, or leave the field empty.",
+        "send": "Your message could not be sent. The text is still in the form; please try again.",
+        "tooMany": "You sent many messages in a short time. Please try again in a while."
+      }
+    },
     "hero": {
       "kicker": "Amateur sport. Real stories."
     },
@@ -1655,6 +1768,8 @@
       "players": "Players",
       "games": "Games",
       "stats": "Statistics",
+      "updates": "What's new",
+      "contact": "Contact",
       "about": "About",
       "signIn": "Sign in",
       "dashboard": "Dashboard"

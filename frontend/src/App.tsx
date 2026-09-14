@@ -25,10 +25,12 @@ import Players from './pages/Players';
 import Games from './pages/Games';
 import Stats from './pages/Stats';
 import About from './pages/About';
+import Updates from './pages/Updates';
+import Contact from './pages/Contact';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
-import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, MorePage, PlayersPage, PlayerDetailPage, GamesPage } from './pages/Admin';
+import { AdminLayout, AdminIndex, UsersPage, LeaguesPage, SeasonsPage, MorePage, PlayersPage, PlayerDetailPage, GamesPage, SupportPage } from './pages/Admin';
 import { TournamentManagementLayout, TournamentManagementIndex, SeriesListPage, SeriesDetailPage, TournamentManagePage } from './pages/TournamentManagement';
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 import './index.css';
@@ -70,6 +72,9 @@ function AppContent() {
           <Route path="/games" element={<Games />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/about" element={<About />} />
+          <Route path="/updates" element={<Updates />} />
+          <Route path="/updates/roadmap" element={<Updates />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />
@@ -112,6 +117,7 @@ function AppContent() {
           <Route path="players/:id" element={<PlayerDetailPage />} />
           <Route path="games" element={<GamesPage />} />
           <Route path="more" element={<MorePage />} />
+          <Route path="support" element={<SupportPage />} />
         </Route>
       </Routes>
     </>
