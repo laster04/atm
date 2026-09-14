@@ -1641,6 +1641,35 @@
     "unsavedChanges_other": "{{count}} unsaved changes"
   },
   "public": {
+    "docs": {
+      "title": "Help",
+      "subtitle": "Guides for running a league, a team, players and games. Pick what you manage and find the steps you need.",
+      "searchPlaceholder": "Search help…",
+      "noResults": "No guide matches this search.",
+      "noResultsHint": "Try a broader term or show all articles.",
+      "showAll": "Show all articles",
+      "contents": "Help contents",
+      "navLabel": "Help contents",
+      "forYou": "For you",
+      "related": "Related guides",
+      "updated": "Updated {{date}}",
+      "notFound": "This guide does not exist or is no longer available.",
+      "backToDocs": "Back to help",
+      "noteTip": "Tip",
+      "noteImportant": "Important",
+      "categories": {
+        "start": "Getting started",
+        "league": "League manager",
+        "team": "Team manager",
+        "more": "Tournaments and support"
+      },
+      "audience": {
+        "ALL": "For everyone",
+        "LEAGUE": "For league managers",
+        "TEAM": "For team managers",
+        "TOURNAMENT": "For tournament managers"
+      }
+    },
     "hero": {
       "kicker": "Amateur sport. Real stories."
     },
@@ -1655,6 +1684,7 @@
       "players": "Players",
       "games": "Games",
       "stats": "Statistics",
+      "docs": "Help",
       "about": "About",
       "signIn": "Sign in",
       "dashboard": "Dashboard"

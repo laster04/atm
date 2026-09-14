@@ -134,6 +134,9 @@ export default function Navbar() {
 													<Link to="/admin">{t('nav.admin')}</Link>
 												</DropdownMenuItem>
 											)}
+											<DropdownMenuItem asChild>
+												<Link to="/docs">{t('public.nav.docs')}</Link>
+											</DropdownMenuItem>
 											<DropdownMenuItem onClick={handleLogout}>
 												<LogOut className="size-4 mr-2" />
 												{t('nav.logout')}
