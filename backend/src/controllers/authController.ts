@@ -117,6 +117,8 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 
+    await prisma.user.update({ where: { id: user.id }, data: { lastLoggedInAt: new Date() } });
+
     res.json({
       user: {
         id: user.id,
@@ -410,7 +412,7 @@ export const getUsers = async (req: AuthRequest, res: Response): Promise<void> =
 
     const users = await prisma.user.findMany({
       where,
-      select: { id: true, email: true, name: true, role: true, active: true, emailVerified: true },
+      select: { id: true, email: true, name: true, role: true, active: true, emailVerified: true, lastLoggedInAt: true },
       orderBy: { name: 'asc' }
     });
 
