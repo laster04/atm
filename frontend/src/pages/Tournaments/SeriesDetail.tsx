@@ -5,7 +5,7 @@ import { ChevronRight, MapPin, Trophy, Users } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { tournamentSeriesApi } from '@/services/api';
 import type { TournamentSeries, TournamentStatus } from '@types';
-import { EmptyState, Panel, PublicHero } from '@/components/public';
+import { EmptyState, Panel, PublicHero, VisibilityBadge } from '@/components/public';
 
 /** Same soft/strong badge tones the rest of the public part uses. */
 const STATUS_TONE: Record<TournamentStatus, string> = {
@@ -64,9 +64,12 @@ export default function TournamentSeriesDetail() {
 					{ label: series.name },
 				]}
 				badge={
-					<span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
-						{t(`sports.${series.sportType}`)}
-					</span>
+					<>
+						<span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
+							{t(`sports.${series.sportType}`)}
+						</span>
+						<VisibilityBadge visibility={series.visibility} />
+					</>
 				}
 				meta={
 					<span className="flex items-center gap-2">

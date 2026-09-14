@@ -76,14 +76,37 @@ seasons — but the games and tables belonging to a hidden season are.
 - A clear marker wherever a hidden thing is shown to someone who can see it, so
   a manager is never unsure which state they are in.
 
-## Decisions needed
+## Decisions — taken 2026-09-14
 
-1. **Does a new season default to PUBLIC or UNLISTED?** Unlisted-by-default is
-   safer and adds a publish step to every season. Public-by-default matches
-   today's behaviour and risks a half-built draw being seen.
-2. **What replaces the `DRAFT` season filter** — does visibility subsume it, or
-   do both survive? Two overlapping mechanisms will disagree eventually.
-3. **Does hiding a league hide its archived history too?**
+1. **A new season starts UNLISTED** and has to be published. Leagues and series
+   keep defaulting to PUBLIC: a league with only unlisted seasons shows nothing
+   of a draw, and two publish steps would leave a published season unlisted
+   because its league was forgotten.
+2. **Visibility replaces the DRAFT filter.** DRAFT now only says a season has
+   not started (it still gates schedule generation). The migration makes every
+   existing DRAFT season UNLISTED, which is exactly what the old filter did to
+   it; every other existing row is PUBLIC.
+3. **A hidden league hides everything under it**, archives included. The
+   strictest level on the way down wins.
+
+## As built
+
+- `services/visibility.ts` holds every rule; `requireVisible(kind, param)` in
+  `middleware/access.ts` guards each public single-record route and answers 404
+  with the not-found message, so a hidden record and a missing one look alike.
+- List endpoints filter with `listed*Where`; the league's own page lists its
+  PUBLIC seasons even when the league itself is unlisted.
+- Team and player pages stay open but drop seasons, fixtures and statistics
+  from seasons that are not listed. Player totals and top scorers count listed
+  games only.
+- `/teams/available/:seasonId` was anonymous and returned every team with its
+  manager's address; it now needs season access.
+- `__tests__/visibility.test.ts` walks every public route against a private
+  league, a private season and a private series. **Add a route there when you
+  add one.**
+- Screens: season manager overview has a visibility card with Publish; the
+  league, season and series forms have the three-way picker; hero, card and
+  admin rows carry a badge when something is not public.
 
 ## Risks
 

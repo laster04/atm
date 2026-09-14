@@ -8,6 +8,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
+import { listedGameWhere } from '../services/visibility.js';
 
 /**
  * A statistic row belongs to one player on one team in one game, so two people
@@ -45,11 +46,11 @@ export const getStatisticsByGameId = async (req: Request, res: Response): Promis
 	}
 };
 
-export const getStatisticsByPlayerId = async (req: Request, res: Response): Promise<void> => {
+export const getStatisticsByPlayerId = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { playerId } = req.params;
 		const statistics = await prisma.hockeyGameStatistic.findMany({
-			where: { playerId: playerId },
+			where: { playerId: playerId, game: listedGameWhere(req.user) },
 			include: {
 				game: {
 					include: {
@@ -445,7 +446,7 @@ export const getArchivedPlayerStats = async (req: Request, res: Response): Promi
  * public statistics page. Unnarrowed it ranks every game on record, so the
  * league, season and sport filters are what keep the board meaningful.
  */
-export const getTopScorers = async (req: Request, res: Response): Promise<void> => {
+export const getTopScorers = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { leagueId, seasonId, sport } = req.query as Record<string, string | undefined>;
 		const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
@@ -456,8 +457,9 @@ export const getTopScorers = async (req: Request, res: Response): Promise<void> 
 			...(sport && { league: { sportType: sport as any } }),
 		};
 
+		const listed = listedGameWhere(req.user);
 		const result = await aggregatePlayerStats(
-			Object.keys(season).length > 0 ? { season } : {},
+			Object.keys(season).length > 0 ? { AND: [{ season }, listed] } : listed,
 			{ limit }
 		);
 		res.json(result);

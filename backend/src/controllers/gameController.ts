@@ -10,6 +10,7 @@ import {
 } from '../types/index.js';
 import { Prisma, GameStatus } from '@prisma/client';
 import { toId } from '../utils/ids.js';
+import { listedGameWhere } from '../services/visibility.js';
 
 export const getGamesBySeasonId = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -639,7 +640,7 @@ export const getGameAudit = async (req: AuthRequest, res: Response): Promise<voi
  * being played now, what is next, and what has finished. Results read newest
  * first; the other two read soonest first. A date range narrows any of them.
  */
-export const getPublicGames = async (req: Request, res: Response): Promise<void> => {
+export const getPublicGames = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { from, to, seasonId, leagueId, teamId, scope } = req.query as Record<string, string | undefined>;
     const take = Math.min(parseInt(req.query.take as string) || 50, 200);
@@ -659,7 +660,7 @@ export const getPublicGames = async (req: Request, res: Response): Promise<void>
           date: { gte: from ? new Date(from) : now }
         };
 
-    const where: Prisma.GameWhereInput = {
+    const filters: Prisma.GameWhereInput = {
       ...scoped,
       ...(seasonId && { seasonId }),
       ...(leagueId && { season: { leagueId } }),
@@ -672,6 +673,7 @@ export const getPublicGames = async (req: Request, res: Response): Promise<void>
       }),
       ...(to && view === 'upcoming' && { date: { gte: from ? new Date(from) : now, lte: new Date(to) } }),
     };
+    const where: Prisma.GameWhereInput = { AND: [filters, listedGameWhere(req.user)] };
 
     const [games, total] = await Promise.all([
       prisma.game.findMany({

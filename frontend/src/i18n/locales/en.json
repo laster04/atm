@@ -733,11 +733,11 @@
       "empty": "No dated fixture yet"
     },
     "publish": {
-      "title": "Publish the season",
-      "hint": "Draft is hidden from viewers",
+      "title": "Season in preparation",
+      "hint": "Activate it once play begins",
       "action": "Activate",
       "liveTitle": "Season is live",
-      "liveHint": "Viewers can see the fixtures and the table",
+      "liveHint": "Games are being played",
       "complete": "Complete",
       "completedTitle": "Season completed",
       "completedHint": "Results are final",
@@ -942,6 +942,27 @@
       "createError": "Failed to create the division",
       "deleteError": "Failed to delete the division",
       "placeError": "Failed to place the team"
+    },
+    "visibility": {
+      "label": "Visibility",
+      "PUBLIC": {
+        "title": "Published",
+        "hint": "Anyone can find this season."
+      },
+      "UNLISTED": {
+        "title": "Not published yet",
+        "hint": "Clubs you send the link to can open it. It stays out of lists and search."
+      },
+      "PRIVATE": {
+        "title": "Hidden",
+        "hint": "Only people who manage the league can see this season."
+      },
+      "publish": "Publish",
+      "change": "Change",
+      "done": "Done",
+      "leagueUNLISTED": "The league is unlisted, so this season is not listed either, whatever it is set to.",
+      "leaguePRIVATE": "The league is private, so nobody else can see this season, whatever it is set to.",
+      "error": "Failed to change who can see the season"
     }
   },
   "admin": {
@@ -1783,6 +1804,24 @@
         "PLAYOFF": "PLAY-OFF",
         "COMPLETED": "FINISHED"
       }
+    }
+  },
+  "visibility": {
+    "label": "Who can see this",
+    "levels": {
+      "PUBLIC": "Public",
+      "UNLISTED": "Unlisted",
+      "PRIVATE": "Private"
+    },
+    "options": {
+      "PUBLIC": "Anyone can find this",
+      "UNLISTED": "Only people with the link",
+      "PRIVATE": "Only people who manage it"
+    },
+    "hints": {
+      "PUBLIC": "Listed on the site and in search",
+      "UNLISTED": "Opens from a link you share, left out of every list and search",
+      "PRIVATE": "Hidden from everyone else, even with the link"
     }
   }
 }

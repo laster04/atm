@@ -12,7 +12,8 @@ import ScheduleList from './components/ScheduleList';
 import TeamsGrid from './components/TeamsGrid';
 import { BarChart3, CalendarDays, Trophy, Users, LayoutGrid } from 'lucide-react';
 import { formatSeasonDate } from '@/utils/date';
-import { PublicHero, SectionTabs, SeasonStatusBadge, type SectionTab } from '@/components/public';
+import { PublicHero, SectionTabs, SeasonStatusBadge, VisibilityBadge, type SectionTab } from '@/components/public';
+import { strictest } from '@/utils/visibility';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
 import PlayersStatsTable from "@/pages/SeasonDetail/components/PlayersStatsTable.tsx";
@@ -135,7 +136,12 @@ export default function SeasonDetailScreen() {
         title={season.name}
         subtitle={season.league?.name}
         sport={season.league?.sportType}
-        badge={<SeasonStatusBadge status={season.status} archived={isArchived} />}
+        badge={
+          <>
+            <SeasonStatusBadge status={season.status} archived={isArchived} />
+            <VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
+          </>
+        }
         crumbs={[
           { label: t('public.nav.home'), to: '/' },
           { label: t('public.seasons.title'), to: '/seasons' },

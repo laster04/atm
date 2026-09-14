@@ -22,6 +22,18 @@ enum SeasonStatus {
   COMPLETED
 }
 
+// Who may see a league, a season or a tournament series.
+//
+// UNLISTED is what an organiser wants while a draw is being built: shareable
+// with the clubs involved, absent from every public listing. Visibility is
+// inherited downwards and the strictest level wins, so a PRIVATE league hides
+// every season, game, table and archive under it whatever those say.
+enum Visibility {
+  PUBLIC // anyone, and listed
+  UNLISTED // anyone with the link, never listed
+  PRIVATE // the people who manage it, and nobody else
+}
+
 enum GameStatus {
   SCHEDULED
   IN_PROGRESS
@@ -85,6 +97,7 @@ model League {
   // Scoring override for every season of this league. Null falls back to the
   // sport default in services/scoring/policy.ts. A season may override again.
   scoring     Json?
+  visibility  Visibility @default(PUBLIC)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
@@ -104,6 +117,10 @@ model Season {
   status     SeasonStatus @default(DRAFT)
   // Overrides the league's scoring for this season only; null inherits.
   scoring    Json?
+  // A new season starts unlisted and is published once its draw is ready.
+  // Replaces the old rule that hid DRAFT seasons from lists; status now only
+  // says where the season is in its life, not who may see it.
+  visibility Visibility   @default(UNLISTED)
   archivedAt DateTime?    @map("archived_at")
   createdAt  DateTime     @default(now()) @map("created_at")
   updatedAt  DateTime     @updatedAt @map("updated_at")
@@ -533,6 +550,8 @@ model TournamentSeries {
   // Scoring override inherited by every tournament in the series; null falls
   // back to the sport default.
   scoring     Json?
+  // Carried by the series, like its manager: every edition inherits it.
+  visibility  Visibility @default(PUBLIC)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 

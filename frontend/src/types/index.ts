@@ -11,6 +11,16 @@ export interface ManagedCounts {
   teams: number;
   series: number;
 }
+/**
+ * Who may see a league, a season or a tournament series. Inherited downwards,
+ * strictest wins: a season is never more visible than its league.
+ */
+export enum Visibility {
+  PUBLIC = 'PUBLIC',
+  UNLISTED = 'UNLISTED',
+  PRIVATE = 'PRIVATE',
+}
+
 export enum SeasonStatus {
   DRAFT = 'DRAFT',
   ACTIVE = 'ACTIVE',
@@ -113,6 +123,7 @@ export interface League {
   scoring?: ScoringPolicy | null;
   logo?: string | null;
   description?: string | null;
+  visibility?: Visibility;
   createdAt: string;
   updatedAt: string;
   managerId?: string | null;
@@ -128,6 +139,7 @@ export interface LeagueRef {
   name: string;
   sportType: SportType;
   managerId?: string | null;
+  visibility?: Visibility;
 }
 
 export interface Season {
@@ -138,6 +150,8 @@ export interface Season {
   status: SeasonStatus;
   /** Null inherits the league, which in turn falls back to the sport default. */
   scoring?: ScoringPolicy | null;
+  /** New seasons start UNLISTED and are published once the draw is ready. */
+  visibility?: Visibility;
   archivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -453,6 +467,7 @@ export interface TournamentSeries {
   sportType: SportType;
   logo?: string | null;
   description?: string | null;
+  visibility?: Visibility;
   managerId?: string | null;
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   tournaments?: Tournament[];
@@ -468,7 +483,7 @@ export interface Tournament {
   endDate?: string | null;
   location?: string | null;
   seriesId: string;
-  series?: Pick<TournamentSeries, 'id' | 'name' | 'sportType' | 'logo'>;
+  series?: Pick<TournamentSeries, 'id' | 'name' | 'sportType' | 'logo' | 'visibility'>;
   teams?: TournamentTeam[];
   groups?: TournamentGroup[];
   games?: TournamentGame[];

@@ -17,7 +17,7 @@ import { requirePlayerAccess, requireTeamAccess } from '../middleware/access.js'
 const router = Router();
 
 // Public directory of every player, with their totals.
-router.get('/', getPublicPlayers);
+router.get('/', optionalAuth, getPublicPlayers);
 
 // Registered before '/:id' so it is not swallowed as a player id.
 router.get('/me', authenticate, getMyPlayerProfiles);

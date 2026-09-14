@@ -11,18 +11,19 @@ import {
     getScorersBySeasonAndTeam,
     getArchivedPlayerStats
 } from '../controllers/gameStatisticController.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { requireVisible } from '../middleware/access.js';
 
 const router = Router();
 
 // App-wide scoring leaders; the season board stays below.
-router.get('/top', getTopScorers);
-router.get('/season/:seasonId/top', getTopScorersBySeason);
-router.get('/season/:seasonId/team/:teamId', getScorersBySeasonAndTeam);
-router.get('/season/:seasonId/archived', getArchivedPlayerStats);
-router.get('/game/:gameId', getStatisticsByGameId);
-router.get('/player/:playerId', getStatisticsByPlayerId);
-router.get('/:id', getStatisticById);
+router.get('/top', optionalAuth, getTopScorers);
+router.get('/season/:seasonId/top', optionalAuth, requireVisible('season', 'seasonId'), getTopScorersBySeason);
+router.get('/season/:seasonId/team/:teamId', optionalAuth, requireVisible('season', 'seasonId'), getScorersBySeasonAndTeam);
+router.get('/season/:seasonId/archived', optionalAuth, requireVisible('season', 'seasonId'), getArchivedPlayerStats);
+router.get('/game/:gameId', optionalAuth, requireVisible('game', 'gameId'), getStatisticsByGameId);
+router.get('/player/:playerId', optionalAuth, getStatisticsByPlayerId);
+router.get('/:id', optionalAuth, requireVisible('gameStatistic'), getStatisticById);
 
 // A statistic row is reachable by the league manager and by the manager of the
 // team the player belongs to, so access needs both game and player: checked in

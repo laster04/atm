@@ -5,7 +5,7 @@ import { CalendarDays, Trophy } from 'lucide-react';
 import { leagueApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { SeasonStatus, type League } from '@types';
-import { EmptyState, PublicHero } from '@/components/public';
+import { EmptyState, PublicHero, VisibilityBadge } from '@/components/public';
 import SeasonCard from '@/pages/Seasons/components/SeasonCard';
 
 export default function LeagueDetailScreen() {
@@ -59,9 +59,12 @@ export default function LeagueDetailScreen() {
           { label: league.name },
         ]}
         badge={
-          <span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
-            {t(`sports.${league.sportType}`)}
-          </span>
+          <>
+            <span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
+              {t(`sports.${league.sportType}`)}
+            </span>
+            <VisibilityBadge visibility={league.visibility} />
+          </>
         }
         meta={
           <>

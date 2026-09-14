@@ -12,6 +12,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { canManageLeague, isAdmin } from '../services/access.js';
+import { isVisibility, listedSeasonInLeagueWhere, listedSeasonWhere } from '../services/visibility.js';
 import { computeTable } from '../services/standings/compute.js';
 import { COUNTS_TOWARD_TABLE, PENDING_RESULTS, countsTowardTable } from '../services/standings/filters.js';
 import { ScoringPolicy } from '../services/scoring/policy.js';
@@ -103,22 +104,15 @@ export function computeStandings(
 export const getAllSeasons = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const seasons = await prisma.season.findMany({
+      where: listedSeasonWhere(req.user),
       include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
         _count: { select: { seasonTeams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
 
-    // Filter out DRAFT seasons unless the user is ADMIN or the manager of that season's league
-    const filtered = seasons.filter((season) => {
-      if (season.status !== 'DRAFT') return true;
-      if (!req.user) return false;
-      if (isAdmin(req.user)) return true;
-      return season.league.managerId != null && season.league.managerId === req.user.id;
-    });
-
-    res.json(filtered);
+    res.json(seasons);
   } catch (error) {
     console.error('Get seasons error:', error);
     res.status(500).json({ error: 'Failed to fetch seasons' });
@@ -130,7 +124,7 @@ export const getMySeasons = async (req: AuthRequest, res: Response): Promise<voi
     const seasons = await prisma.season.findMany({
       where: { league: { managerId: req.user!.id } },
       include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
         _count: { select: { seasonTeams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
@@ -148,7 +142,7 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
     const season = await prisma.season.findUnique({
       where: { id: id },
       include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
         seasonTeams: {
           include: {
             team: {
@@ -180,11 +174,15 @@ export const getSeasonById = async (req: Request, res: Response): Promise<void> 
 
 export const createSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, startDate, endDate, status } = req.body as CreateSeasonRequest;
+    const { name, startDate, endDate, status, visibility } = req.body as CreateSeasonRequest;
     const leagueId = toId(req.body.leagueId);
 
     if (!name || !leagueId || !startDate || !endDate) {
       res.status(400).json({ error: 'Name, league, start date, and end date are required' });
+      return;
+    }
+    if (visibility !== undefined && !isVisibility(visibility)) {
+      res.status(400).json({ error: 'Invalid visibility' });
       return;
     }
 
@@ -206,10 +204,12 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
         leagueId,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: status || 'DRAFT'
+        status: status || 'DRAFT',
+        // Left out, the season starts unlisted and waits to be published.
+        ...(visibility && { visibility })
       },
       include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
         _count: { select: { seasonTeams: true, games: true } }
       }
     });
@@ -224,8 +224,13 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, startDate, endDate, status } = req.body as UpdateSeasonRequest;
+    const { name, startDate, endDate, status, visibility } = req.body as UpdateSeasonRequest;
     const leagueId = toId(req.body.leagueId);
+
+    if (visibility !== undefined && !isVisibility(visibility)) {
+      res.status(400).json({ error: 'Invalid visibility' });
+      return;
+    }
 
     const existingSeason = await prisma.season.findUnique({
       where: { id: id },
@@ -267,10 +272,11 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
         ...(leagueId && { leagueId }),
         ...(startDate && { startDate: new Date(startDate) }),
         ...(endDate && { endDate: new Date(endDate) }),
-        ...(status && { status })
+        ...(status && { status }),
+        ...(visibility && { visibility })
       },
       include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
         _count: { select: { seasonTeams: true, games: true } }
       }
     });
@@ -578,7 +584,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
         where: { id: seasonId },
         data: { archivedAt: new Date() },
         include: {
-          league: { select: { id: true, name: true, sportType: true, managerId: true } },
+          league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
           _count: { select: { seasonTeams: true, games: true } }
         }
       });
@@ -746,24 +752,17 @@ export const getSeasonsByLeague = async (req: AuthRequest, res: Response): Promi
       return;
     }
 
+    // The league was checked on the way in; its page lists what it has published.
     const seasons = await prisma.season.findMany({
-      where: { leagueId: leagueId },
+      where: { AND: [{ leagueId: leagueId }, listedSeasonInLeagueWhere(req.user)] },
       include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true } },
+        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
         _count: { select: { seasonTeams: true, games: true } }
       },
       orderBy: { startDate: 'desc' }
     });
 
-    // Filter out DRAFT seasons unless the user is ADMIN or the manager of this league
-    const filtered = seasons.filter((season) => {
-      if (season.status !== 'DRAFT') return true;
-      if (!req.user) return false;
-      if (isAdmin(req.user)) return true;
-      return league.managerId != null && league.managerId === req.user.id;
-    });
-
-    res.json(filtered);
+    res.json(seasons);
   } catch (error) {
     console.error('Get seasons by league error:', error);
     res.status(500).json({ error: 'Failed to fetch seasons' });

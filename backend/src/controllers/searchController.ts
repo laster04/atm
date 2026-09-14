@@ -1,5 +1,13 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../config/database.js';
+import { AuthRequest } from '../types/index.js';
+import {
+	listedLeagueWhere,
+	listedPlayerWhere,
+	listedSeasonInLeagueWhere,
+	listedSeasonWhere,
+	listedTeamWhere,
+} from '../services/visibility.js';
 
 /**
  * One box, four kinds of answer: teams, players, seasons and leagues.
@@ -8,7 +16,7 @@ import prisma from '../config/database.js';
  * only its best few matches and every row carries what a person needs to tell
  * two similarly named things apart — the player's team, the season's league.
  */
-export const searchAll = async (req: Request, res: Response): Promise<void> => {
+export const searchAll = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const q = ((req.query.q as string) ?? '').trim();
 		const perKind = Math.min(parseInt(req.query.limit as string) || 5, 20);
@@ -23,13 +31,13 @@ export const searchAll = async (req: Request, res: Response): Promise<void> => {
 
 		const [teams, players, seasons, leagues] = await Promise.all([
 			prisma.team.findMany({
-				where: { name: contains },
+				where: { AND: [{ name: contains }, listedTeamWhere(req.user)] },
 				select: { id: true, name: true, logo: true, primaryColor: true, _count: { select: { players: true } } },
 				orderBy: { name: 'asc' },
 				take: perKind
 			}),
 			prisma.player.findMany({
-				where: { name: contains },
+				where: { AND: [{ name: contains }, listedPlayerWhere(req.user)] },
 				select: {
 					id: true, name: true, number: true, position: true,
 					team: { select: { id: true, name: true, primaryColor: true } }
@@ -38,7 +46,7 @@ export const searchAll = async (req: Request, res: Response): Promise<void> => {
 				take: perKind
 			}),
 			prisma.season.findMany({
-				where: { name: contains },
+				where: { AND: [{ name: contains }, listedSeasonWhere(req.user)] },
 				select: {
 					id: true, name: true, status: true, startDate: true, endDate: true,
 					league: { select: { id: true, name: true, sportType: true } }
@@ -47,8 +55,11 @@ export const searchAll = async (req: Request, res: Response): Promise<void> => {
 				take: perKind
 			}),
 			prisma.league.findMany({
-				where: { name: contains },
-				select: { id: true, name: true, sportType: true, logo: true, _count: { select: { seasons: true } } },
+				where: { AND: [{ name: contains }, listedLeagueWhere(req.user)] },
+				select: {
+					id: true, name: true, sportType: true, logo: true,
+					_count: { select: { seasons: { where: listedSeasonInLeagueWhere(req.user) } } }
+				},
 				orderBy: { name: 'asc' },
 				take: perKind
 			})

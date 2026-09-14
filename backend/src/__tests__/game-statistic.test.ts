@@ -240,8 +240,10 @@ describe('Game Statistics CRUD', () => {
 
   describe('GET /api/game-statistics/player/:playerId', () => {
     it('should return statistics for a player', async () => {
+      // Fixture seasons start unlisted; the admin sees the games in them.
       const res = await request(app)
         .get(`/api/game-statistics/player/${playerId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
       expect(Array.isArray(res.body)).toBe(true);

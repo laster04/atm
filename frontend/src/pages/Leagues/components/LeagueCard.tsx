@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import type { League } from '@types';
+import { VisibilityBadge } from '@/components/public';
 
 export default function LeagueCard({ league }: { league: League }) {
 	const { t } = useTranslation();
@@ -29,9 +30,12 @@ export default function LeagueCard({ league }: { league: League }) {
 					)}
 					<h2 className="truncate text-xl font-bold leading-tight">{league.name}</h2>
 				</div>
-				<span className="shrink-0 rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold tracking-wide text-accent-foreground">
-					{t(`sports.${league.sportType}`)}
-				</span>
+				<div className="flex shrink-0 flex-col items-end gap-1.5">
+					<span className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold tracking-wide text-accent-foreground">
+						{t(`sports.${league.sportType}`)}
+					</span>
+					<VisibilityBadge visibility={league.visibility} />
+				</div>
 			</div>
 
 			{league.description && (

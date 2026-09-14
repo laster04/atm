@@ -9,15 +9,43 @@ import playerRoutes from './routes/players.js';
 import gameRoutes from './routes/games.js';
 import gameStatisticRoutes from './routes/gameStatistics.js';
 import teamEventRoutes from './routes/teamEvents.js';
+import tournamentRoutes from './routes/tournaments.js';
+import searchRoutes from './routes/search.js';
 
+/**
+ * The whole HTTP app: middleware, every route, the error handler. index.ts only
+ * starts it listening, so the server and the tests run the same app. They used
+ * to mount routes separately, and the server silently lost /api/events.
+ */
 const app = express();
 
-// CORS configuration - set CORS_ORIGIN in production to your frontend domain
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*',
+// CORS configuration - set CORS_ORIGIN to a comma-separated list of allowed origins
+// e.g. CORS_ORIGIN=http://www.example.com,https://www.example.com
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : null;
+
+app.use(cors({
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (server-to-server, curl, etc.)
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    // If no allowed origins configured, allow all
+    if (!allowedOrigins) {
+      callback(null, true);
+      return;
+    }
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(null, false);
+    }
+  },
   credentials: true,
-};
-app.use(cors(corsOptions));
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
@@ -28,6 +56,8 @@ app.use('/api/players', playerRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/game-statistics', gameStatisticRoutes);
 app.use('/api/events', teamEventRoutes);
+app.use('/api/tournaments', tournamentRoutes);
+app.use('/api/search', searchRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

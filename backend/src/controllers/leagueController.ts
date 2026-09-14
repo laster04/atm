@@ -5,6 +5,7 @@ import { resolveInvitee } from '../services/invite.js';
 import { normalizeEmail } from '../utils/email.js';
 import { toNullableId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
+import { isVisibility, listedLeagueWhere, listedSeasonInLeagueWhere } from '../services/visibility.js';
 import {
   AuthRequest,
   CreateLeagueRequest,
@@ -13,11 +14,13 @@ import {
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
-export const getAllLeagues = async (req: Request, res: Response): Promise<void> => {
+export const getAllLeagues = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const leagues = await prisma.league.findMany({
+      where: listedLeagueWhere(req.user),
       include: {
-        _count: { select: { seasons: true } },
+        // A count of hidden seasons would still say a hidden season exists.
+        _count: { select: { seasons: { where: listedSeasonInLeagueWhere(req.user) } } },
         manager: { select: { id: true, name: true, email: true } }
       },
       orderBy: { name: 'asc' }
@@ -46,13 +49,14 @@ export const getMyLeagues = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
-export const getLeagueById = async (req: Request, res: Response): Promise<void> => {
+export const getLeagueById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const league = await prisma.league.findUnique({
       where: { id: id },
       include: {
         seasons: {
+          where: listedSeasonInLeagueWhere(req.user),
           include: {
             _count: { select: { seasonTeams: true, games: true } }
           },
@@ -76,10 +80,14 @@ export const getLeagueById = async (req: Request, res: Response): Promise<void> 
 
 export const createLeague = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, sportType, logo, description } = req.body as CreateLeagueRequest;
+    const { name, sportType, logo, description, visibility } = req.body as CreateLeagueRequest;
 
     if (!name || !sportType) {
       res.status(400).json({ error: 'Name and sport type are required' });
+      return;
+    }
+    if (visibility !== undefined && !isVisibility(visibility)) {
+      res.status(400).json({ error: 'Invalid visibility' });
       return;
     }
 
@@ -93,7 +101,8 @@ export const createLeague = async (req: AuthRequest, res: Response): Promise<voi
         sportType,
         logo,
         description,
-        managerId
+        managerId,
+        ...(visibility && { visibility })
       },
       include: {
         manager: { select: { id: true, name: true, email: true } }
@@ -110,7 +119,12 @@ export const createLeague = async (req: AuthRequest, res: Response): Promise<voi
 export const updateLeague = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, sportType, logo, description } = req.body as UpdateLeagueRequest;
+    const { name, sportType, logo, description, visibility } = req.body as UpdateLeagueRequest;
+
+    if (visibility !== undefined && !isVisibility(visibility)) {
+      res.status(400).json({ error: 'Invalid visibility' });
+      return;
+    }
 
     const league = await prisma.league.update({
       where: { id: id },
@@ -118,7 +132,8 @@ export const updateLeague = async (req: AuthRequest, res: Response): Promise<voi
         ...(name && { name }),
         ...(sportType && { sportType }),
         ...(logo !== undefined && { logo }),
-        ...(description !== undefined && { description })
+        ...(description !== undefined && { description }),
+        ...(visibility && { visibility })
       },
       include: {
         manager: { select: { id: true, name: true, email: true } }

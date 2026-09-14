@@ -10,6 +10,7 @@ import { toId } from '../utils/ids.js';
 import { canManageTeam } from '../services/access.js';
 import { normalizeEmail } from '../utils/email.js';
 import { canSeeFullRoster, toPublicPlayer } from '../services/publicView.js';
+import { listedGameWhere, listedPlayerWhere, listedSeasonWhere } from '../services/visibility.js';
 
 export const getPlayersByTeamId = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -42,6 +43,7 @@ export const getPlayerById = async (req: AuthRequest, res: Response): Promise<vo
         team: {
           include: {
             seasonTeams: {
+              where: { season: listedSeasonWhere(req.user) },
               include: {
                 season: true
               }
@@ -418,7 +420,7 @@ export const getMyPlayerProfiles = async (req: AuthRequest, res: Response): Prom
  * Totals are career-wide unless a season or league narrows the games counted;
  * a player who changed teams keeps the rows they earned at each.
  */
-export const getPublicPlayers = async (req: Request, res: Response): Promise<void> => {
+export const getPublicPlayers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { search, teamId, seasonId, leagueId, sort } = req.query as Record<string, string | undefined>;
     const take = Math.min(parseInt(req.query.take as string) || 48, 200);
@@ -429,11 +431,17 @@ export const getPublicPlayers = async (req: Request, res: Response): Promise<voi
       ...(leagueId && { leagueId }),
     };
     const narrowed = Object.keys(seasonFilter).length > 0;
+    const listedSeason = listedSeasonWhere(req.user);
 
     const where: Prisma.PlayerWhereInput = {
-      ...(search && { name: { contains: search, mode: 'insensitive' } }),
-      ...(teamId && { teamId }),
-      ...(narrowed && { team: { seasonTeams: { some: { season: seasonFilter } } } }),
+      AND: [
+        listedPlayerWhere(req.user),
+        {
+          ...(search && { name: { contains: search, mode: 'insensitive' } }),
+          ...(teamId && { teamId }),
+          ...(narrowed && { team: { seasonTeams: { some: { season: { AND: [seasonFilter, listedSeason] } } } } }),
+        },
+      ],
     };
 
     // Sorting by points means ranking every match before paging, so that path
@@ -453,18 +461,18 @@ export const getPublicPlayers = async (req: Request, res: Response): Promise<voi
       prisma.player.count({ where })
     ]);
 
-    const gameFilter: Prisma.GameWhereInput | undefined = narrowed
-      ? { season: seasonFilter }
-      : undefined;
-    const gameIds = gameFilter
-      ? (await prisma.game.findMany({ where: gameFilter, select: { id: true } })).map(g => g.id)
-      : undefined;
+    // Totals count listed games only: goals scored in a hidden season would
+    // otherwise show up as a career number nobody can trace.
+    const gameFilter: Prisma.GameWhereInput = narrowed
+      ? { AND: [{ season: seasonFilter }, listedGameWhere(req.user)] }
+      : listedGameWhere(req.user);
+    const gameIds = (await prisma.game.findMany({ where: gameFilter, select: { id: true } })).map(g => g.id);
 
     const totals = await prisma.hockeyGameStatistic.groupBy({
       by: ['playerId'],
       where: {
         playerId: { in: players.map(p => p.id) },
-        ...(gameIds && { gameId: { in: gameIds } })
+        gameId: { in: gameIds }
       },
       _sum: { goals: true, assists: true, penaltyMinutes: true },
       _count: { _all: true }

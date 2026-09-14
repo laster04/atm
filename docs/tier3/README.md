@@ -5,8 +5,8 @@ per feature. Each says what problem it solves, what it needs in the database,
 what the API and the screens look like, what it depends on, and — most
 importantly — **what has to be decided before it can be built**.
 
-Nothing here is built yet except divisions, which shipped as the first Tier 3
-slice.
+Built so far: divisions, which shipped as the first Tier 3 slice, and
+visibility (12).
 
 | # | Feature | Depends on | Size | Decisions open |
 |---|---------|-----------|------|----------------|
@@ -22,8 +22,8 @@ slice.
 | 09 | [Imports](09-imports.md) | — | M | format, conflict handling |
 | 10 | [Live match centre](10-live-match-centre.md) | match events | L | who operates it |
 | 11 | [Historical records](11-historical-records.md) | season archive | M | what survives a rename |
-| 12 | [Visibility](12-visibility.md) | — | M | **wanted next** — default level |
-| 13 | [Scheduled jobs](13-scheduled-jobs.md) | — | M | **wanted next** — stale live games |
+| 12 | [Visibility](12-visibility.md) | — | M | **shipped** |
+| 13 | [Scheduled jobs](13-scheduled-jobs.md) | — | M | **deferred** — stale live games |
 
 ## Where this stands — 2026-09-13
 
@@ -38,13 +38,14 @@ Decided in conversation and recorded in each file:
   automatically. Not urgent: no league on the platform uses it yet.
 - **10 live match centre — next**, starting with [13](13-scheduled-jobs.md):
   a job that sets a fixture live when its start time passes.
-- **12 visibility — next.** Hide a league, season or tournament from the
-  public.
+- **12 visibility — shipped 2026-09-14.** New seasons start unlisted,
+  visibility replaced the DRAFT filter, a hidden league hides its archives.
+- **13 scheduled jobs — deferred 2026-09-14.** Not to be built yet.
 
 ## Reading order
 
-Next: **12** and **13**. Both are small, both are asked for, and 13 brings the
-job runner that scheduled emails and webhooks will also want.
+12 is done. **13** waits for a later stage; it brings the job runner that
+scheduled emails and webhooks will also want, so it comes back before either.
 
 **06 whenever it is picked up.** It was going to be first because entitlements
 decide whether everything else is free, paid or capped. Postponing it is a

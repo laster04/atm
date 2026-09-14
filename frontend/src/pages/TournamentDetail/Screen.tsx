@@ -6,6 +6,7 @@ import { tournamentApi } from '@/services/api';
 import type { Tournament, TournamentStanding } from '@types';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
 import { Badge } from '@components/base/badge';
+import { VisibilityBadge } from '@/components/public';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs';
 import { Trophy, Calendar, MapPin, Users, ChevronLeft } from 'lucide-react';
 import GroupCrossTable from './components/GroupCrossTable';
@@ -87,6 +88,7 @@ export default function TournamentDetailScreen() {
                     {t(`tm.tournamentStatus.${tournament.status}`, tournament.status)}
                   </Badge>
                   {tournament.year && <span className="text-sm text-muted-foreground">{tournament.year}</span>}
+                  <VisibilityBadge visibility={tournament.series?.visibility} />
                 </div>
               </div>
             </div>

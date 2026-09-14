@@ -739,11 +739,11 @@
       "empty": "Zatím žádný zápas s termínem"
     },
     "publish": {
-      "title": "Zveřejnit sezónu",
-      "hint": "Koncept diváci nevidí",
+      "title": "Sezóna se připravuje",
+      "hint": "Aktivujte ji, až se začne hrát",
       "action": "Aktivovat",
       "liveTitle": "Sezóna běží",
-      "liveHint": "Diváci vidí zápasy i tabulku",
+      "liveHint": "Hrají se zápasy",
       "complete": "Dokončit",
       "completedTitle": "Sezóna dokončena",
       "completedHint": "Výsledky jsou konečné",
@@ -952,6 +952,27 @@
       "createError": "Skupinu se nepodařilo vytvořit",
       "deleteError": "Skupinu se nepodařilo smazat",
       "placeError": "Tým se nepodařilo zařadit"
+    },
+    "visibility": {
+      "label": "Viditelnost",
+      "PUBLIC": {
+        "title": "Zveřejněno",
+        "hint": "Sezónu najde kdokoli."
+      },
+      "UNLISTED": {
+        "title": "Zatím nezveřejněno",
+        "hint": "Kluby, kterým pošlete odkaz, ji otevřou. V seznamech ani ve vyhledávání není."
+      },
+      "PRIVATE": {
+        "title": "Skryto",
+        "hint": "Sezónu vidí jen ti, kdo spravují ligu."
+      },
+      "publish": "Zveřejnit",
+      "change": "Změnit",
+      "done": "Hotovo",
+      "leagueUNLISTED": "Liga je neveřejná, takže ani tato sezóna není v seznamech, ať je nastavená jakkoli.",
+      "leaguePRIVATE": "Liga je skrytá, takže tuto sezónu nikdo jiný neuvidí, ať je nastavená jakkoli.",
+      "error": "Nepodařilo se změnit, kdo sezónu uvidí"
     }
   },
   "admin": {
@@ -1808,6 +1829,24 @@
         "PLAYOFF": "PLAY-OFF",
         "COMPLETED": "DOKONČEN"
       }
+    }
+  },
+  "visibility": {
+    "label": "Kdo to uvidí",
+    "levels": {
+      "PUBLIC": "Veřejné",
+      "UNLISTED": "Neveřejné",
+      "PRIVATE": "Skryté"
+    },
+    "options": {
+      "PUBLIC": "Kdokoli to najde",
+      "UNLISTED": "Jen ti, kdo mají odkaz",
+      "PRIVATE": "Jen ti, kdo to spravují"
+    },
+    "hints": {
+      "PUBLIC": "Zobrazí se na webu i ve vyhledávání",
+      "UNLISTED": "Otevře se z odkazu, který pošlete, v seznamech ani ve vyhledávání není",
+      "PRIVATE": "Nikdo jiný to neuvidí, ani s odkazem"
     }
   }
 }

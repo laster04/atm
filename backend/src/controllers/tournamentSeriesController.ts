@@ -3,15 +3,17 @@ import prisma from '../config/database.js';
 import { AuthRequest, CreateTournamentSeriesRequest, UpdateTournamentSeriesRequest } from '../types/index.js';
 import { toNullableId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
+import { isVisibility, listedSeriesWhere } from '../services/visibility.js';
 
 const seriesInclude = {
   manager: { select: { id: true, name: true, email: true } },
   _count: { select: { tournaments: true } },
 };
 
-export const getAllSeries = async (req: Request, res: Response): Promise<void> => {
+export const getAllSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const series = await prisma.tournamentSeries.findMany({
+      where: listedSeriesWhere(req.user),
       include: seriesInclude,
       orderBy: { name: 'asc' },
     });
@@ -45,16 +47,17 @@ export const getSeriesById = async (req: Request, res: Response): Promise<void> 
 
 export const createSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, sportType, logo, description } = req.body as CreateTournamentSeriesRequest;
+    const { name, sportType, logo, description, visibility } = req.body as CreateTournamentSeriesRequest;
     const managerId = toNullableId(req.body.managerId);
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
+    if (visibility !== undefined && !isVisibility(visibility)) { res.status(400).json({ error: 'Invalid visibility' }); return; }
 
     // The creator owns the series; only an admin may hand it to someone else.
     // TODO(free-tier): cap how many series a non-admin may own once quotas land.
     const ownerId = isAdmin(req.user!) ? (managerId ?? null) : req.user!.id;
 
     const series = await prisma.tournamentSeries.create({
-      data: { name, sportType, logo, description, managerId: ownerId },
+      data: { name, sportType, logo, description, managerId: ownerId, ...(visibility && { visibility }) },
       include: seriesInclude,
     });
     res.status(201).json(series);
@@ -67,8 +70,9 @@ export const createSeries = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, sportType, logo, description } = req.body as UpdateTournamentSeriesRequest;
+    const { name, sportType, logo, description, visibility } = req.body as UpdateTournamentSeriesRequest;
     const managerId = toNullableId(req.body.managerId);
+    if (visibility !== undefined && !isVisibility(visibility)) { res.status(400).json({ error: 'Invalid visibility' }); return; }
 
     const series = await prisma.tournamentSeries.update({
       where: { id: id },
@@ -78,6 +82,7 @@ export const updateSeries = async (req: AuthRequest, res: Response): Promise<voi
         ...(logo !== undefined && { logo }),
         ...(description !== undefined && { description }),
         ...(managerId !== undefined && { managerId }),
+        ...(visibility !== undefined && { visibility }),
       },
       include: seriesInclude,
     });

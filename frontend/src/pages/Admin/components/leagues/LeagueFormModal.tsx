@@ -1,18 +1,20 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { SportType } from '@types';
+import { SportType, Visibility } from '@types';
 import type { League } from '@types';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
+import VisibilityPicker from '@/components/VisibilityPicker';
 
 interface LeagueFormData {
 	name: string;
 	sportType: SportType;
 	logo?: string;
 	description?: string;
+	visibility: Visibility;
 }
 
 interface LeagueFormModalProps {
@@ -30,11 +32,13 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 		sportType: league?.sportType || SportType.OTHER,
 		logo: league?.logo || '',
 		description: league?.description || '',
+		visibility: league?.visibility || Visibility.PUBLIC,
 	};
 
 	const form = useForm<LeagueFormData>({
 		defaultValues: initValues,
 	});
+	const visibility = form.watch('visibility');
 
 	return (
 		<>
@@ -90,6 +94,13 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 						<textarea
 							{...form.register('description')}
 							className="w-full px-3 py-2 border rounded min-h-[80px]"
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label>{t('visibility.label')}</Label>
+						<VisibilityPicker
+							value={visibility}
+							onChange={(value) => form.setValue('visibility', value, { shouldDirty: true })}
 						/>
 					</div>
 				</div>

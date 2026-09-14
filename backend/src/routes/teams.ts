@@ -13,15 +13,17 @@ import {
   getTeamsAvailableForSeason
 } from '../controllers/teamController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
-import { requireSeasonAccess, requireTeamAccess, requireTeamAdmin } from '../middleware/access.js';
+import { requireSeasonAccess, requireTeamAccess, requireTeamAdmin, requireVisible } from '../middleware/access.js';
 
 const router = Router();
 
 // Public directory of every team; the manager lists stay season-scoped below.
-router.get('/', getPublicTeams);
+router.get('/', optionalAuth, getPublicTeams);
 router.get('/my', authenticate, getMyTeams);
-router.get('/season/:seasonId', getTeamsBySeasonId);
-router.get('/available/:seasonId', getTeamsAvailableForSeason);
+router.get('/season/:seasonId', optionalAuth, requireVisible('season', 'seasonId'), getTeamsBySeasonId);
+// Every team not yet in the season, with its manager's address: a tool for the
+// people setting the season up, not a public list.
+router.get('/available/:seasonId', authenticate, requireSeasonAccess('seasonId'), getTeamsAvailableForSeason);
 router.get('/:id', optionalAuth, getTeamById);
 
 // Entering/removing a team from a season, and deleting it outright, are league

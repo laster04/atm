@@ -5,6 +5,8 @@ import { ArrowLeft, CalendarDays, MoreHorizontal, Table2, Trophy, Users } from '
 import { useAuth } from '../../context/AuthContext';
 import { gameApi, seasonApi, teamApi } from '@/services/api';
 import { Button } from '@components/base/button';
+import { VisibilityBadge } from '@/components/public';
+import { strictest } from '@/utils/visibility';
 import type { Game, GroupTable, Season, Team } from '@types';
 import OverviewTab from './components/OverviewTab';
 import GamesTab from './components/GamesTab';
@@ -118,6 +120,7 @@ export default function Detail() {
 	}
 
 	const tone = SEASON_STATUS_TONE[season.status];
+	const visibility = strictest(season.league?.visibility, season.visibility);
 
 	const statTiles = (
 		<div className="mt-3.5 grid grid-cols-3 gap-px overflow-hidden rounded-[10px] bg-white/20">
@@ -161,6 +164,7 @@ export default function Detail() {
 							)}
 							<h1 className="truncate text-lg font-bold">{season.name}</h1>
 						</div>
+						<VisibilityBadge visibility={visibility} />
 						<span
 							className="tm-status-pill shrink-0 uppercase tracking-wide"
 							style={{ backgroundColor: tone.bg, color: tone.fg }}
@@ -189,6 +193,9 @@ export default function Detail() {
 					</Button>
 					<h1 className="text-2xl font-bold">{season.name}</h1>
 					{season.league && <p className="mt-2 text-sm opacity-80">{season.league.name}</p>}
+					<div className="mt-3 empty:hidden">
+						<VisibilityBadge visibility={visibility} />
+					</div>
 				</div>
 				<nav className="flex-1 space-y-2 p-4">
 					{tabs.map((tab) => (

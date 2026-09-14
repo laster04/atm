@@ -7,6 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { leagueApi, seasonApi } from '@/services/api';
 import { SeasonStatus, type League, type Season } from '@types';
 import { cn } from '@/components/utils';
+import { VisibilityBadge } from '@/components/public';
+import { strictest } from '@/utils/visibility';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -185,6 +187,7 @@ export default function SeasonsPage() {
 										>
 											{t(`seasonManagement.status.${season.status}`)}
 										</span>
+										<VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
 										{season.archivedAt && (
 											<span className="tm-status-pill bg-muted uppercase tracking-wide text-muted-foreground">
 												{t('seasons.archived')}

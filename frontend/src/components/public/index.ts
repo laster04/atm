@@ -8,6 +8,7 @@ export type { Crumb } from './PublicHero';
 export { default as TeamCrest } from './TeamCrest';
 export { default as EmptyState } from './EmptyState';
 export { SeasonStatusBadge, GameStatusBadge } from './StatusBadge';
+export { default as VisibilityBadge } from './VisibilityBadge';
 export { default as SectionTabs } from './SectionTabs';
 export { default as Panel } from './Panel';
 export { default as StatTile } from './StatTile';

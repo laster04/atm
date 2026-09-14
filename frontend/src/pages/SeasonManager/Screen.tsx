@@ -8,6 +8,8 @@ import { leagueApi, seasonApi } from '@/services/api';
 import type { League, Season } from '@types';
 import SeasonFormModal, { type SeasonFormData } from '@/pages/Admin/components/seasons/SeasonFormModal';
 import { SEASON_ACCENT, SEASON_STATUS_TONE, teamCount } from './components/util';
+import { VisibilityBadge } from '@/components/public';
+import { strictest } from '@/utils/visibility';
 
 export default function Screen() {
 	const { t } = useTranslation();
@@ -89,6 +91,7 @@ export default function Screen() {
 										>
 											{t(`seasonManagement.status.${season.status}`)}
 										</span>
+										<VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
 									</div>
 									{season.league && (
 										<span className="truncate text-xs text-muted-foreground">{season.league.name}</span>

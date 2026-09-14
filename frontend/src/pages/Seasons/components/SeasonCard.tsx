@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, CalendarDays, Trophy, Users } from 'lucide-react';
 import { formatSeasonDate } from '@/utils/date';
 import { SeasonStatus, type Season } from '@types';
-import { SeasonStatusBadge } from '@/components/public';
+import { SeasonStatusBadge, VisibilityBadge } from '@/components/public';
+import { strictest } from '@/utils/visibility';
 
 /** The accent stripe reads status at a glance across a grid of cards. */
 const STRIPE: Record<SeasonStatus, string> = {
@@ -39,7 +40,10 @@ export default function SeasonCard({ season }: { season: Season }) {
 					<h2 className="text-2xl font-extrabold leading-tight tracking-tight">{season.name}</h2>
 					<p className="text-sm text-subtle-foreground">{season.league?.name || '—'}</p>
 				</div>
-				<SeasonStatusBadge status={season.status} archived={!!season.archivedAt} />
+				<div className="flex shrink-0 flex-col items-end gap-1.5">
+					<SeasonStatusBadge status={season.status} archived={!!season.archivedAt} />
+					<VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
+				</div>
 			</div>
 
 			<div className="relative flex items-center gap-2 text-[13px] text-subtle-foreground">
