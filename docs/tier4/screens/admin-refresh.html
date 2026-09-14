@@ -1,0 +1,1754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Atm Admin Refresh</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Atm Admin Refresh" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Atm Admin Refresh&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: var(--border-radius-lg, 12.5px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress {
+  display: flex;
+  height: 6px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 6px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: 16px !important;
+  height: 16px !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;atm-admin-refresh&quot;&gt;
+  &lt;style&gt;
+    #atm-admin-refresh {
+      color-scheme: light dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
+      color: light-dark(#172033, #edf2fa);
+      background: transparent;
+      width: 100%;
+    }
+    #atm-admin-refresh * { box-sizing: border-box; }
+    #atm-admin-refresh button { font: inherit; }
+    #atm-admin-refresh .atm-view-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    #atm-admin-refresh .atm-view-picker button {
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 11px;
+      border: 1px solid light-dark(#d8e0eb, #354157);
+      background: light-dark(#ffffff, #151f31);
+      color: light-dark(#435066, #c8d2e2);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    #atm-admin-refresh .atm-view-picker button[aria-pressed=&quot;true&quot;] {
+      border-color: #1672e8;
+      background: #1672e8;
+      color: #ffffff;
+    }
+    #atm-admin-refresh .atm-product {
+      overflow: hidden;
+      border: 1px solid light-dark(#dce3ed, #2b374b);
+      border-radius: 18px;
+      background: light-dark(#f6f8fb, #0c1422);
+      box-shadow: 0 18px 55px light-dark(rgba(30, 48, 78, .12), rgba(0, 0, 0, .34));
+    }
+    #atm-admin-refresh .atm-screen[hidden] { display: none; }
+    #atm-admin-refresh .atm-topbar {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 10px 18px;
+      border-bottom: 1px solid light-dark(#e0e6ef, #263247);
+      background: light-dark(#ffffff, #111a2b);
+    }
+    #atm-admin-refresh .atm-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+    #atm-admin-refresh .atm-brand-mark { color: #dfb522; font-size: 23px; font-weight: 900; }
+    #atm-admin-refresh .atm-context {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 6px 10px;
+      border: 1px solid light-dark(#dce3ed, #344158);
+      border-radius: 11px;
+      background: light-dark(#f8fafc, #162135);
+      color: light-dark(#2c374a, #e4eaf4);
+      font-weight: 650;
+    }
+    #atm-admin-refresh .atm-role-label {
+      padding: 4px 7px;
+      border-radius: 7px;
+      background: light-dark(#e9f2ff, #18345a);
+      color: #1672e8;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    #atm-admin-refresh .atm-spacer { flex: 1; }
+    #atm-admin-refresh .atm-icon-action {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid light-dark(#dce3ed, #344158);
+      border-radius: 11px;
+      color: light-dark(#435066, #c8d2e2);
+      background: light-dark(#ffffff, #151f31);
+      cursor: pointer;
+    }
+    #atm-admin-refresh .atm-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: light-dark(#0e192e, #e8eef8);
+      color: light-dark(#ffffff, #101827);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    #atm-admin-refresh .atm-desktop-shell { display: grid; grid-template-columns: 205px minmax(0, 1fr); }
+    #atm-admin-refresh .atm-sidebar {
+      padding: 20px 13px;
+      background: light-dark(#0f1a2f, #080e19);
+      color: #cbd4e2;
+      min-height: 650px;
+    }
+    #atm-admin-refresh .atm-sidebar-title {
+      padding: 0 12px 16px;
+      color: #ffffff;
+      font-weight: 800;
+    }
+    #atm-admin-refresh .atm-side-nav { display: grid; gap: 5px; }
+    #atm-admin-refresh .atm-side-nav button {
+      width: 100%;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #cbd4e2;
+      cursor: pointer;
+      text-align: left;
+    }
+    #atm-admin-refresh .atm-side-nav button[aria-current=&quot;page&quot;] {
+      background: rgba(255, 255, 255, .13);
+      color: #ffffff;
+      font-weight: 750;
+    }
+    #atm-admin-refresh .atm-team-dot { width: 8px; height: 8px; border-radius: 50%; background: #c8102e; }
+    #atm-admin-refresh .atm-workspace { padding: 25px; min-width: 0; }
+    #atm-admin-refresh .atm-page-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 22px; }
+    #atm-admin-refresh h2, #atm-admin-refresh h3, #atm-admin-refresh p { margin-top: 0; }
+    #atm-admin-refresh .atm-page-heading h2 { margin-bottom: 5px; font-size: 27px; letter-spacing: -.03em; }
+    #atm-admin-refresh .atm-muted { color: light-dark(#6f7b8e, #9eabba); }
+    #atm-admin-refresh .atm-primary-action, #atm-admin-refresh .atm-secondary-action, #atm-admin-refresh .atm-team-action {
+      min-height: 44px;
+      border-radius: 10px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    #atm-admin-refresh .atm-primary-action { border: 0; background: #1672e8; color: #ffffff; }
+    #atm-admin-refresh .atm-team-action { border: 0; background: #c8102e; color: #ffffff; }
+    #atm-admin-refresh .atm-secondary-action { border: 1px solid light-dark(#d9e1eb, #344158); background: light-dark(#ffffff, #151f31); color: light-dark(#2f3a4d, #dfe6f1); }
+    #atm-admin-refresh .atm-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+    #atm-admin-refresh .atm-stat {
+      padding: 15px 16px;
+      border: 1px solid light-dark(#dfe5ed, #2c384c);
+      border-radius: 13px;
+      background: light-dark(#ffffff, #121d2f);
+    }
+    #atm-admin-refresh .atm-stat strong { display: block; font-size: 24px; margin-bottom: 2px; }
+    #atm-admin-refresh .atm-stat span { color: light-dark(#778396, #9eabba); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    #atm-admin-refresh .atm-section-label { margin: 22px 0 9px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: light-dark(#6e7a8e, #9eabba); }
+    #atm-admin-refresh .atm-alert {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 15px;
+      border: 1px solid light-dark(#eadca9, #594d24);
+      border-radius: 13px;
+      background: light-dark(#fffdf4, #262315);
+    }
+    #atm-admin-refresh .atm-alert-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: light-dark(#fff1bb, #463b18); color: #b18200; }
+    #atm-admin-refresh .atm-alert-copy { flex: 1; min-width: 0; }
+    #atm-admin-refresh .atm-alert-copy strong { display: block; }
+    #atm-admin-refresh .atm-alert-copy span { color: light-dark(#6f7b8e, #a8b3c4); font-size: 13px; }
+    #atm-admin-refresh .atm-list {
+      border: 1px solid light-dark(#dfe5ed, #2c384c);
+      border-radius: 13px;
+      overflow: hidden;
+      background: light-dark(#ffffff, #121d2f);
+    }
+    #atm-admin-refresh .atm-list-row {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-height: 62px;
+      padding: 10px 14px;
+      border-bottom: 1px solid light-dark(#e5e9f0, #2b374a);
+    }
+    #atm-admin-refresh .atm-list-row:last-child { border-bottom: 0; }
+    #atm-admin-refresh .atm-date { width: 45px; text-align: center; flex: 0 0 auto; }
+    #atm-admin-refresh .atm-date strong { display: block; font-size: 19px; }
+    #atm-admin-refresh .atm-date span { color: light-dark(#7d8899, #9aa6b9); font-size: 11px; text-transform: uppercase; }
+    #atm-admin-refresh .atm-match { flex: 1; min-width: 0; }
+    #atm-admin-refresh .atm-match strong { display: block; }
+    #atm-admin-refresh .atm-match span { color: light-dark(#748094, #a0adbf); font-size: 13px; }
+    #atm-admin-refresh .atm-status { padding: 5px 8px; border-radius: 8px; background: light-dark(#edf4fe, #18324f); color: #1672e8; font-weight: 750; font-size: 12px; }
+    #atm-admin-refresh .atm-two-col { display: grid; grid-template-columns: 1.25fr .75fr; gap: 16px; }
+    #atm-admin-refresh .atm-panel {
+      padding: 16px;
+      border: 1px solid light-dark(#dfe5ed, #2c384c);
+      border-radius: 13px;
+      background: light-dark(#ffffff, #121d2f);
+    }
+    #atm-admin-refresh .atm-panel h3 { margin-bottom: 12px; font-size: 16px; }
+    #atm-admin-refresh .atm-action-stack { display: grid; gap: 8px; }
+    #atm-admin-refresh .atm-action-stack button { width: 100%; text-align: left; }
+
+    #atm-admin-refresh .atm-phone-wrap { padding: 18px; display: grid; place-items: center; background: light-dark(#e9eef5, #0a111d); }
+    #atm-admin-refresh .atm-phone {
+      width: min(100%, 410px);
+      overflow: hidden;
+      border-radius: 27px;
+      border: 7px solid light-dark(#162238, #050910);
+      background: light-dark(#f6f8fb, #0d1625);
+      box-shadow: 0 20px 55px light-dark(rgba(22, 34, 56, .24), rgba(0,0,0,.42));
+    }
+    #atm-admin-refresh .atm-phone-top {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 12px 15px;
+      color: #ffffff;
+      background: light-dark(#0f1a2f, #080e19);
+    }
+    #atm-admin-refresh .atm-phone-top .atm-team-dot { width: 11px; height: 11px; }
+    #atm-admin-refresh .atm-phone-title { flex: 1; }
+    #atm-admin-refresh .atm-phone-title strong { display: block; }
+    #atm-admin-refresh .atm-phone-title span { color: #bcc7d8; font-size: 12px; }
+    #atm-admin-refresh .atm-phone-main { padding: 15px; }
+    #atm-admin-refresh .atm-mobile-label { margin: 3px 0 8px; color: light-dark(#6c788c, #9eabba); font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    #atm-admin-refresh .atm-next-card {
+      padding: 15px;
+      border: 1px solid light-dark(#dce3ed, #2d394d);
+      border-radius: 15px;
+      background: light-dark(#ffffff, #121d2f);
+    }
+    #atm-admin-refresh .atm-mobile-match-head { display: flex; align-items: center; gap: 12px; }
+    #atm-admin-refresh .atm-mobile-date { width: 50px; padding-right: 10px; border-right: 1px solid light-dark(#e3e8ef, #2b374a); text-align: center; }
+    #atm-admin-refresh .atm-mobile-date span { display: block; color: light-dark(#7a8597, #9ba8ba); font-size: 11px; text-transform: uppercase; }
+    #atm-admin-refresh .atm-mobile-date strong { display: block; font-size: 22px; }
+    #atm-admin-refresh .atm-mobile-opponent { flex: 1; }
+    #atm-admin-refresh .atm-mobile-opponent strong { display: block; font-size: 18px; }
+    #atm-admin-refresh .atm-mobile-opponent span { color: light-dark(#707c90, #a2aec0); font-size: 13px; }
+    #atm-admin-refresh .atm-lineup-state { display: flex; justify-content: space-between; margin: 15px 0 9px; color: light-dark(#5f6b7f, #b3bed0); font-size: 13px; }
+    #atm-admin-refresh .atm-lineup-progress { height: 6px; overflow: hidden; border-radius: 5px; background: light-dark(#e8edf3, #263247); }
+    #atm-admin-refresh .atm-lineup-progress span { display: block; width: 71%; height: 100%; background: #c8102e; }
+    #atm-admin-refresh .atm-mobile-main-action { width: 100%; min-height: 48px; margin-top: 14px; border: 0; border-radius: 11px; background: #c8102e; color: #ffffff; font-weight: 800; cursor: pointer; }
+    #atm-admin-refresh .atm-mobile-alert {
+      display: flex; align-items: center; gap: 11px; padding: 13px; margin-bottom: 10px;
+      border-radius: 13px; background: light-dark(#fff9e4, #282313); color: light-dark(#594b18, #ebda91);
+    }
+    #atm-admin-refresh .atm-mobile-alert strong { display: block; }
+    #atm-admin-refresh .atm-mobile-alert span { font-size: 12px; }
+    #atm-admin-refresh .atm-mobile-row {
+      display: flex; align-items: center; gap: 11px; min-height: 58px; padding: 9px 12px;
+      border-bottom: 1px solid light-dark(#e4e9f0, #2b374a);
+    }
+    #atm-admin-refresh .atm-mobile-row:last-child { border-bottom: 0; }
+    #atm-admin-refresh .atm-mobile-row .atm-match strong { font-size: 14px; }
+    #atm-admin-refresh .atm-bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border-top: 1px solid light-dark(#dce3ed, #2c384b);
+      background: light-dark(#ffffff, #111a2b);
+      padding-bottom: 7px;
+    }
+    #atm-admin-refresh .atm-bottom-nav button {
+      min-width: 0;
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 3px;
+      padding: 5px 2px;
+      border: 0;
+      background: transparent;
+      color: light-dark(#758195, #9eabba);
+      cursor: pointer;
+      font-size: 10px;
+    }
+    #atm-admin-refresh .atm-bottom-nav button[aria-current=&quot;page&quot;] { color: #c8102e; font-weight: 800; }
+    #atm-admin-refresh .atm-phone-subhead {
+      display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 9px 13px;
+      border-bottom: 1px solid light-dark(#dfe5ed, #2d394d); background: light-dark(#ffffff, #111a2b);
+    }
+    #atm-admin-refresh .atm-phone-subhead .atm-back { width: 42px; height: 42px; display: grid; place-items: center; border: 0; border-radius: 10px; background: light-dark(#edf1f6, #1b273a); color: light-dark(#2f3a4d, #dfe6f1); }
+    #atm-admin-refresh .atm-phone-subhead strong { display: block; }
+    #atm-admin-refresh .atm-phone-subhead span { color: light-dark(#768296, #9eabba); font-size: 12px; }
+    #atm-admin-refresh .atm-lineup-tools { display: flex; gap: 7px; padding: 12px 14px; background: light-dark(#ffffff, #111a2b); border-bottom: 1px solid light-dark(#dfe5ed, #2d394d); }
+    #atm-admin-refresh .atm-filter {
+      min-height: 42px; padding: 0 12px; border-radius: 10px; border: 1px solid light-dark(#dce3ed, #344158);
+      background: light-dark(#ffffff, #151f31); color: light-dark(#354156, #dbe3ef); cursor: pointer; font-weight: 650;
+    }
+    #atm-admin-refresh .atm-filter[aria-pressed=&quot;true&quot;] { border-color: #c8102e; background: light-dark(#fff0f3, #421825); color: #c8102e; }
+    #atm-admin-refresh .atm-player-list { padding: 8px 14px 14px; }
+    #atm-admin-refresh .atm-player-row {
+      display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 2px;
+      border-bottom: 1px solid light-dark(#e3e8ef, #2b374a);
+    }
+    #atm-admin-refresh .atm-player-row input { width: 24px; height: 24px; accent-color: #c8102e; }
+    #atm-admin-refresh .atm-player-number { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: light-dark(#edf1f6, #1b273a); font-weight: 800; }
+    #atm-admin-refresh .atm-player-name { flex: 1; }
+    #atm-admin-refresh .atm-player-name strong { display: block; }
+    #atm-admin-refresh .atm-player-name span { color: light-dark(#778396, #9eabba); font-size: 12px; }
+    #atm-admin-refresh .atm-savebar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px;
+      border-top: 1px solid light-dark(#dce3ed, #2c384b); background: light-dark(#ffffff, #111a2b);
+    }
+    #atm-admin-refresh .atm-savebar strong { display: block; }
+    #atm-admin-refresh .atm-savebar span { color: light-dark(#778396, #9eabba); font-size: 12px; }
+
+    @media (max-width: 700px) {
+      #atm-admin-refresh .atm-product { border-radius: 14px; }
+      #atm-admin-refresh .atm-topbar { align-items: flex-start; flex-wrap: wrap; }
+      #atm-admin-refresh .atm-context { order: 3; width: 100%; }
+      #atm-admin-refresh .atm-desktop-shell { display: block; }
+      #atm-admin-refresh .atm-sidebar { min-height: auto; padding: 9px; }
+      #atm-admin-refresh .atm-sidebar-title { padding: 5px 9px 9px; }
+      #atm-admin-refresh .atm-side-nav { display: flex; overflow-x: auto; }
+      #atm-admin-refresh .atm-side-nav button { width: auto; flex: 0 0 auto; }
+      #atm-admin-refresh .atm-workspace { padding: 17px; }
+      #atm-admin-refresh .atm-page-heading { display: block; }
+      #atm-admin-refresh .atm-page-heading button { margin-top: 10px; }
+      #atm-admin-refresh .atm-stat-grid, #atm-admin-refresh .atm-two-col { grid-template-columns: 1fr; }
+      #atm-admin-refresh .atm-phone-wrap { padding: 8px; }
+      #atm-admin-refresh .atm-phone { border-width: 4px; border-radius: 20px; }
+    }
+  &lt;/style&gt;
+
+  &lt;div class=&quot;atm-view-picker&quot; aria-label=&quot;Zobrazený návrh&quot;&gt;
+    &lt;button type=&quot;button&quot; aria-pressed=&quot;true&quot; data-admin-view=&quot;team-mobile&quot;&gt;Team · mobil&lt;/button&gt;
+    &lt;button type=&quot;button&quot; aria-pressed=&quot;false&quot; data-admin-view=&quot;lineup-mobile&quot;&gt;Sestava · mobil&lt;/button&gt;
+    &lt;button type=&quot;button&quot; aria-pressed=&quot;false&quot; data-admin-view=&quot;team-desktop&quot;&gt;Team · desktop&lt;/button&gt;
+    &lt;button type=&quot;button&quot; aria-pressed=&quot;false&quot; data-admin-view=&quot;league-desktop&quot;&gt;League · desktop&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;atm-product&quot; aria-live=&quot;polite&quot;&gt;
+    &lt;section class=&quot;atm-screen&quot; data-admin-screen=&quot;team-mobile&quot; aria-label=&quot;Návrh mobilního přehledu Manažer týmua&quot;&gt;
+      &lt;div class=&quot;atm-phone-wrap&quot;&gt;
+        &lt;div class=&quot;atm-phone&quot;&gt;
+          &lt;div class=&quot;atm-phone-top&quot;&gt;
+            &lt;span class=&quot;atm-team-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+            &lt;div class=&quot;atm-phone-title&quot;&gt;&lt;strong&gt;HC Roso&lt;/strong&gt;&lt;span&gt;Manažer týmu · 2026–2027&lt;/span&gt;&lt;/div&gt;
+            &lt;button class=&quot;atm-icon-action&quot; type=&quot;button&quot; aria-label=&quot;Nápověda&quot;&gt;&lt;i data-lucide=&quot;circle-help&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;main class=&quot;atm-phone-main&quot;&gt;
+            &lt;div class=&quot;atm-mobile-label&quot;&gt;Nejbližší zápas · za 5 dní&lt;/div&gt;
+            &lt;section class=&quot;atm-next-card&quot;&gt;
+              &lt;div class=&quot;atm-mobile-match-head&quot;&gt;
+                &lt;div class=&quot;atm-mobile-date&quot;&gt;&lt;span&gt;So · zář&lt;/span&gt;&lt;strong&gt;19&lt;/strong&gt;&lt;/div&gt;
+                &lt;div class=&quot;atm-mobile-opponent&quot;&gt;&lt;strong&gt;AC Buk&lt;/strong&gt;&lt;span&gt;Venku · 19:30&lt;/span&gt;&lt;/div&gt;
+                &lt;span class=&quot;atm-status&quot;&gt;Naplánováno&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;atm-lineup-state&quot;&gt;&lt;span&gt;Sestava&lt;/span&gt;&lt;strong&gt;12 z 17 hráčů&lt;/strong&gt;&lt;/div&gt;
+              &lt;div class=&quot;atm-lineup-progress&quot; aria-label=&quot;Sestava 12 ze 17 hráčů&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
+              &lt;button class=&quot;atm-mobile-main-action&quot; type=&quot;button&quot; data-jump-lineup&gt;Nastavit sestavu&lt;/button&gt;
+            &lt;/section&gt;
+
+            &lt;div class=&quot;atm-mobile-label&quot; style=&quot;margin-top:18px&quot;&gt;Vyžaduje pozornost&lt;/div&gt;
+            &lt;div class=&quot;atm-mobile-alert&quot;&gt;&lt;i data-lucide=&quot;user-round-pen&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;div&gt;&lt;strong&gt;3 neúplné profily&lt;/strong&gt;&lt;span&gt;Doplňte pozice hráčů&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+
+            &lt;div class=&quot;atm-mobile-label&quot; style=&quot;margin-top:18px&quot;&gt;Další zápasy&lt;/div&gt;
+            &lt;div class=&quot;atm-list&quot;&gt;
+              &lt;div class=&quot;atm-mobile-row&quot;&gt;&lt;span class=&quot;atm-team-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;Jiskra Třeboň&lt;/strong&gt;&lt;span&gt;Doma · termín neurčen&lt;/span&gt;&lt;/div&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+              &lt;div class=&quot;atm-mobile-row&quot;&gt;&lt;span class=&quot;atm-team-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;Pilaři&lt;/strong&gt;&lt;span&gt;Doma · termín neurčen&lt;/span&gt;&lt;/div&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+              &lt;div class=&quot;atm-mobile-row&quot;&gt;&lt;span class=&quot;atm-team-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;SK Kámen&lt;/strong&gt;&lt;span&gt;Doma · termín neurčen&lt;/span&gt;&lt;/div&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/main&gt;
+          &lt;nav class=&quot;atm-bottom-nav&quot; aria-label=&quot;Manažer týmu navigace&quot;&gt;
+            &lt;button type=&quot;button&quot; aria-current=&quot;page&quot;&gt;&lt;i data-lucide=&quot;house&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Přehled&lt;/span&gt;&lt;/button&gt;
+            &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;users&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Soupiska&lt;/span&gt;&lt;/button&gt;
+            &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;chart-no-axes-column&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Zápasy&lt;/span&gt;&lt;/button&gt;
+            &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;calendar-days&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Kalendář&lt;/span&gt;&lt;/button&gt;
+            &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;ellipsis&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;Více&lt;/span&gt;&lt;/button&gt;
+          &lt;/nav&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;section class=&quot;atm-screen&quot; data-admin-screen=&quot;lineup-mobile&quot; aria-label=&quot;Návrh mobilní sestavy&quot; hidden&gt;
+      &lt;div class=&quot;atm-phone-wrap&quot;&gt;
+        &lt;div class=&quot;atm-phone&quot;&gt;
+          &lt;header class=&quot;atm-phone-subhead&quot;&gt;
+            &lt;button class=&quot;atm-back&quot; type=&quot;button&quot; aria-label=&quot;Zpět na přehled týmu&quot;&gt;&lt;i data-lucide=&quot;arrow-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+            &lt;div class=&quot;atm-phone-title&quot;&gt;&lt;strong&gt;Sestava proti AC Buk&lt;/strong&gt;&lt;span&gt;So 19. září · 19:30 · venku&lt;/span&gt;&lt;/div&gt;
+          &lt;/header&gt;
+          &lt;div class=&quot;atm-lineup-tools&quot;&gt;
+            &lt;button class=&quot;atm-filter&quot; type=&quot;button&quot; aria-pressed=&quot;true&quot;&gt;Všichni&lt;/button&gt;
+            &lt;button class=&quot;atm-filter&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Vybraní · 3&lt;/button&gt;
+            &lt;button class=&quot;atm-filter&quot; type=&quot;button&quot;&gt;Poslední sestava&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;main class=&quot;atm-player-list&quot;&gt;
+            &lt;label class=&quot;atm-player-row&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;atm-player-number&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;atm-player-name&quot;&gt;&lt;strong&gt;Ondřej Chmel&lt;/strong&gt;&lt;span&gt;Útočník&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+            &lt;label class=&quot;atm-player-row&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;atm-player-number&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;atm-player-name&quot;&gt;&lt;strong&gt;Dan Tancer&lt;/strong&gt;&lt;span&gt;Obránce&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+            &lt;label class=&quot;atm-player-row&quot;&gt;&lt;input type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;atm-player-number&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;atm-player-name&quot;&gt;&lt;strong&gt;Jaroslav Pospíšil&lt;/strong&gt;&lt;span&gt;Útočník&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+            &lt;label class=&quot;atm-player-row&quot;&gt;&lt;input type=&quot;checkbox&quot;&gt;&lt;span class=&quot;atm-player-number&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;atm-player-name&quot;&gt;&lt;strong&gt;Jan Slavík&lt;/strong&gt;&lt;span&gt;Pozice není vyplněna&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+            &lt;label class=&quot;atm-player-row&quot;&gt;&lt;input type=&quot;checkbox&quot;&gt;&lt;span class=&quot;atm-player-number&quot;&gt;13&lt;/span&gt;&lt;span class=&quot;atm-player-name&quot;&gt;&lt;strong&gt;Jan Dvořák&lt;/strong&gt;&lt;span&gt;Útočník&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+            &lt;label class=&quot;atm-player-row&quot;&gt;&lt;input type=&quot;checkbox&quot;&gt;&lt;span class=&quot;atm-player-number&quot;&gt;14&lt;/span&gt;&lt;span class=&quot;atm-player-name&quot;&gt;&lt;strong&gt;Lukáš Jirka&lt;/strong&gt;&lt;span&gt;Obránce&lt;/span&gt;&lt;/span&gt;&lt;/label&gt;
+          &lt;/main&gt;
+          &lt;div class=&quot;atm-savebar&quot;&gt;&lt;div&gt;&lt;strong&gt;Vybráno 3 z 17&lt;/strong&gt;&lt;span&gt;Změny zatím nejsou uložené&lt;/span&gt;&lt;/div&gt;&lt;button class=&quot;atm-team-action&quot; type=&quot;button&quot;&gt;Uložit sestavu&lt;/button&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;section class=&quot;atm-screen&quot; data-admin-screen=&quot;team-desktop&quot; aria-label=&quot;Návrh desktopového Manažer týmua&quot; hidden&gt;
+      &lt;header class=&quot;atm-topbar&quot;&gt;
+        &lt;div class=&quot;atm-brand&quot;&gt;&lt;span class=&quot;atm-brand-mark&quot;&gt;A&lt;/span&gt;&lt;span&gt;ATM&lt;/span&gt;&lt;/div&gt;
+        &lt;button class=&quot;atm-context&quot; type=&quot;button&quot;&gt;&lt;span class=&quot;atm-team-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;atm-role-label&quot;&gt;Manažer týmu&lt;/span&gt;&lt;span&gt;HC Roso · 2026–2027&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+        &lt;div class=&quot;atm-spacer&quot;&gt;&lt;/div&gt;
+        &lt;button class=&quot;atm-icon-action&quot; type=&quot;button&quot; aria-label=&quot;Nápověda&quot;&gt;&lt;i data-lucide=&quot;circle-help&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+        &lt;div class=&quot;atm-avatar&quot; aria-label=&quot;Uživatelský účet&quot;&gt;LS&lt;/div&gt;
+      &lt;/header&gt;
+      &lt;div class=&quot;atm-desktop-shell&quot;&gt;
+        &lt;aside class=&quot;atm-sidebar&quot;&gt;&lt;div class=&quot;atm-sidebar-title&quot;&gt;HC Roso&lt;/div&gt;&lt;nav class=&quot;atm-side-nav&quot; aria-label=&quot;Manažer týmu navigace&quot;&gt;
+          &lt;button type=&quot;button&quot; aria-current=&quot;page&quot;&gt;&lt;i data-lucide=&quot;house&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Přehled&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;users&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Soupiska&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;chart-no-axes-column&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Zápasy&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;calendar-days&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Kalendář&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;settings&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Nastavení&lt;/button&gt;
+        &lt;/nav&gt;&lt;/aside&gt;
+        &lt;main class=&quot;atm-workspace&quot;&gt;
+          &lt;div class=&quot;atm-page-heading&quot;&gt;&lt;div&gt;&lt;h2&gt;Přehled týmu&lt;/h2&gt;&lt;p class=&quot;atm-muted&quot;&gt;HC Roso · Okresni přebor JH&lt;/p&gt;&lt;/div&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Veřejný profil&lt;/button&gt;&lt;/div&gt;
+          &lt;div class=&quot;atm-stat-grid&quot;&gt;&lt;div class=&quot;atm-stat&quot;&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;span&gt;Odehráno&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-stat&quot;&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;span&gt;Body&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-stat&quot;&gt;&lt;strong&gt;17&lt;/strong&gt;&lt;span&gt;Hráčů&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;atm-two-col&quot;&gt;
+            &lt;section&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Nejbližší zápas&lt;/div&gt;&lt;div class=&quot;atm-list&quot;&gt;&lt;div class=&quot;atm-list-row&quot;&gt;&lt;div class=&quot;atm-date&quot;&gt;&lt;strong&gt;19&lt;/strong&gt;&lt;span&gt;Zář&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;AC Buk&lt;/strong&gt;&lt;span&gt;Venku · 19:30 · sestava 12/17&lt;/span&gt;&lt;/div&gt;&lt;button class=&quot;atm-team-action&quot; type=&quot;button&quot;&gt;Sestava&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Další zápasy&lt;/div&gt;&lt;div class=&quot;atm-list&quot;&gt;&lt;div class=&quot;atm-list-row&quot;&gt;&lt;span class=&quot;atm-team-dot&quot;&gt;&lt;/span&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;Jiskra Třeboň&lt;/strong&gt;&lt;span&gt;Doma · termín neurčen&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;atm-list-row&quot;&gt;&lt;span class=&quot;atm-team-dot&quot;&gt;&lt;/span&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;Pilaři&lt;/strong&gt;&lt;span&gt;Doma · termín neurčen&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;
+            &lt;aside&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Vyžaduje pozornost&lt;/div&gt;&lt;div class=&quot;atm-panel&quot;&gt;&lt;h3&gt;3 neúplné profily&lt;/h3&gt;&lt;p class=&quot;atm-muted&quot;&gt;Hráčům chybí pozice nebo číslo.&lt;/p&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Zkontrolovat soupisku&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Rychlé akce&lt;/div&gt;&lt;div class=&quot;atm-panel atm-action-stack&quot;&gt;&lt;button class=&quot;atm-team-action&quot; type=&quot;button&quot;&gt;Nastavit sestavu&lt;/button&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Přidat hráče&lt;/button&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Přidat událost&lt;/button&gt;&lt;/div&gt;&lt;/aside&gt;
+          &lt;/div&gt;
+        &lt;/main&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;section class=&quot;atm-screen&quot; data-admin-screen=&quot;league-desktop&quot; aria-label=&quot;Návrh desktopového Manažer ligya&quot; hidden&gt;
+      &lt;header class=&quot;atm-topbar&quot;&gt;
+        &lt;div class=&quot;atm-brand&quot;&gt;&lt;span class=&quot;atm-brand-mark&quot;&gt;A&lt;/span&gt;&lt;span&gt;ATM&lt;/span&gt;&lt;/div&gt;
+        &lt;button class=&quot;atm-context&quot; type=&quot;button&quot;&gt;&lt;span class=&quot;atm-role-label&quot;&gt;Manažer ligy&lt;/span&gt;&lt;span&gt;Okresni přebor JH · 2026–2027&lt;/span&gt;&lt;i data-lucide=&quot;chevron-down&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+        &lt;div class=&quot;atm-spacer&quot;&gt;&lt;/div&gt;
+        &lt;button class=&quot;atm-icon-action&quot; type=&quot;button&quot; aria-label=&quot;Nápověda&quot;&gt;&lt;i data-lucide=&quot;circle-help&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+        &lt;div class=&quot;atm-avatar&quot; aria-label=&quot;Uživatelský účet&quot;&gt;LS&lt;/div&gt;
+      &lt;/header&gt;
+      &lt;div class=&quot;atm-desktop-shell&quot;&gt;
+        &lt;aside class=&quot;atm-sidebar&quot;&gt;&lt;div class=&quot;atm-sidebar-title&quot;&gt;2026–2027&lt;/div&gt;&lt;nav class=&quot;atm-side-nav&quot; aria-label=&quot;Manažer ligy navigace&quot;&gt;
+          &lt;button type=&quot;button&quot; aria-current=&quot;page&quot;&gt;&lt;i data-lucide=&quot;layout-dashboard&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Přehled&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;calendar-days&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Zápasy&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;users&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Týmy&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;table-2&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Tabulka&lt;/button&gt;
+          &lt;button type=&quot;button&quot;&gt;&lt;i data-lucide=&quot;settings&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;Nastavení&lt;/button&gt;
+        &lt;/nav&gt;&lt;/aside&gt;
+        &lt;main class=&quot;atm-workspace&quot;&gt;
+          &lt;div class=&quot;atm-page-heading&quot;&gt;&lt;div&gt;&lt;h2&gt;Přehled sezóny&lt;/h2&gt;&lt;p class=&quot;atm-muted&quot;&gt;Okresni přebor JH · aktivní sezóna&lt;/p&gt;&lt;/div&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Veřejná stránka&lt;/button&gt;&lt;/div&gt;
+          &lt;div class=&quot;atm-stat-grid&quot;&gt;&lt;div class=&quot;atm-stat&quot;&gt;&lt;strong&gt;6&lt;/strong&gt;&lt;span&gt;Týmů&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-stat&quot;&gt;&lt;strong&gt;45&lt;/strong&gt;&lt;span&gt;Zápasů&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-stat&quot;&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;span&gt;Odehráno&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div class=&quot;atm-section-label&quot;&gt;Vyžaduje pozornost&lt;/div&gt;
+          &lt;div class=&quot;atm-alert&quot;&gt;&lt;div class=&quot;atm-alert-icon&quot;&gt;&lt;i data-lucide=&quot;calendar-x&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;atm-alert-copy&quot;&gt;&lt;strong&gt;43 zápasů nemá termín&lt;/strong&gt;&lt;span&gt;Týmy je zatím nevidí ve svém rozpisu.&lt;/span&gt;&lt;/div&gt;&lt;button class=&quot;atm-primary-action&quot; type=&quot;button&quot;&gt;Nastavit termíny&lt;/button&gt;&lt;/div&gt;
+          &lt;div class=&quot;atm-two-col&quot;&gt;
+            &lt;section&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Nejbližší zápasy&lt;/div&gt;&lt;div class=&quot;atm-list&quot;&gt;&lt;div class=&quot;atm-list-row&quot;&gt;&lt;div class=&quot;atm-date&quot;&gt;&lt;strong&gt;19&lt;/strong&gt;&lt;span&gt;Zář&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;Cannoners — SK Kámen&lt;/strong&gt;&lt;span&gt;18:00 · 1. kolo&lt;/span&gt;&lt;/div&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Výsledek&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;atm-list-row&quot;&gt;&lt;div class=&quot;atm-date&quot;&gt;&lt;strong&gt;19&lt;/strong&gt;&lt;span&gt;Zář&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;atm-match&quot;&gt;&lt;strong&gt;AC Buk — HC Roso&lt;/strong&gt;&lt;span&gt;19:30 · 1. kolo&lt;/span&gt;&lt;/div&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Výsledek&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;
+            &lt;aside&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Rychlé akce&lt;/div&gt;&lt;div class=&quot;atm-panel atm-action-stack&quot;&gt;&lt;button class=&quot;atm-primary-action&quot; type=&quot;button&quot;&gt;Nastavit termíny&lt;/button&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Spravovat týmy&lt;/button&gt;&lt;button class=&quot;atm-secondary-action&quot; type=&quot;button&quot;&gt;Pravidla bodování&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;atm-section-label&quot;&gt;Viditelnost&lt;/div&gt;&lt;div class=&quot;atm-panel&quot;&gt;&lt;h3&gt;Publikováno&lt;/h3&gt;&lt;p class=&quot;atm-muted&quot;&gt;Sezóna je dostupná veřejnosti.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+          &lt;/div&gt;
+        &lt;/main&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    (() =&gt; {
+      const root = document.getElementById(&#x27;atm-admin-refresh&#x27;);
+      const pickerButtons = root.querySelectorAll(&#x27;[data-admin-view]&#x27;);
+      const screens = root.querySelectorAll(&#x27;[data-admin-screen]&#x27;);
+      function showScreen(name) {
+        pickerButtons.forEach(button =&gt; button.setAttribute(&#x27;aria-pressed&#x27;, String(button.dataset.adminView === name)));
+        screens.forEach(screen =&gt; { screen.hidden = screen.dataset.adminScreen !== name; });
+      }
+      pickerButtons.forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; showScreen(button.dataset.adminView)));
+      root.querySelectorAll(&#x27;[data-jump-lineup]&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; showScreen(&#x27;lineup-mobile&#x27;)));
+    })();
+  &lt;/script&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerdown&quot;, handlePointer);
+    document.removeEventListener(&quot;pointercancel&quot;, handlePointer);
+    document.removeEventListener(&quot;click&quot;, handleTouchClick);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerdown&quot;, handlePointer);
+  document.addEventListener(&quot;pointercancel&quot;, handlePointer);
+  document.addEventListener(&quot;click&quot;, handleTouchClick);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>
