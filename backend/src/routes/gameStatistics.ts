@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  getTopScorers,
   getStatisticsByGameId,
   getStatisticsByPlayerId,
   getStatisticById,
@@ -14,6 +15,8 @@ import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 
+// App-wide scoring leaders; the season board stays below.
+router.get('/top', getTopScorers);
 router.get('/season/:seasonId/top', getTopScorersBySeason);
 router.get('/season/:seasonId/team/:teamId', getScorersBySeasonAndTeam);
 router.get('/season/:seasonId/archived', getArchivedPlayerStats);

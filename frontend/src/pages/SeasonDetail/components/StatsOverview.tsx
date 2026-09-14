@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
-
-import { Calendar, Target, TrendingUp, Trophy } from 'lucide-react';
-import { Game, GameStatus, Standing, TopScorer } from "@types";
-import { useTranslation } from "react-i18next";
-import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
+import { useTranslation } from 'react-i18next';
+import { CalendarDays, Target, TrendingUp, Trophy } from 'lucide-react';
+import { Game, GameStatus, Standing, TopScorer } from '@types';
 import { gameStatisticApi } from '@/services/api';
 import { mapArchivedPlayerStat } from '@/utils/archivedStats';
+import { Panel, StatTile, TeamCrest } from '@/components/public';
+import { FilterTimeEnum, GameSchedule } from './GameSchedule';
 import TopScorers from './TopScorers';
 
 interface StatsOverviewProps {
@@ -28,79 +27,63 @@ export function StatsOverview({ seasonId, standings, games, archived }: StatsOve
 			: gameStatisticApi.getTopScorersBySeason(seasonId, 5).then((res) => res.data);
 		request
 			.then((data) => setTopScorers(data))
-			.catch((err) => console.error('Failed to fetch top scorers:', err))
+			.catch((error) => console.error('Failed to fetch top scorers:', error))
 			.finally(() => setLoadingScorers(false));
 	}, [seasonId, archived]);
 
 	const leader = standings[0];
-	const completedGames = games.filter(item => item.status == GameStatus.COMPLETED);
-
-	const stats = [
-		{
-			title: t('seasonDetail.overview.gamePlayed'),
-			value: completedGames.length,
-			icon: Calendar,
-			description: t('seasonDetail.overview.outOfTotal', { count: games.length}),
-		},
-		{
-			title: t('seasonDetail.overview.leader'),
-			value: leader?.team?.name ?? '-',
-			icon: Trophy,
-			description: t('seasonDetail.overview.leaderPoints', { points: leader?.points ?? 0}),
-		},
-		{
-			title: t('seasonDetail.overview.scoredTotal'),
-			value: standings.reduce((sum, item) => sum + item.goalsFor, 0),
-			icon: Target,
-			description: t('seasonDetail.overview.leagueWide'),
-		},
-		{
-			title: t('seasonDetail.overview.avgGoalsPerGame'),
-			value: completedGames.length
-				? (completedGames.reduce((sum, game) => sum + (game?.homeScore ?? 0) + (game?.awayScore ?? 0), 0)
-					/ completedGames.length).toFixed(1)
-				: '0.0',
-			icon: TrendingUp,
-			description: t('seasonDetail.overview.thisSeason'),
-		},
-	];
+	const completed = games.filter((game) => game.status === GameStatus.COMPLETED);
+	const goals = completed.reduce((sum, game) => sum + (game.homeScore ?? 0) + (game.awayScore ?? 0), 0);
 
 	return (
-		<>
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-				{stats.map((stat) => (
-					<Card key={stat.title}>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm">{stat.title}</CardTitle>
-							<stat.icon className="size-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-medium">{stat.value}</div>
-							<p className="text-xs text-muted-foreground">{stat.description}</p>
-						</CardContent>
-					</Card>
-				))}
+		<div className="flex flex-col gap-5">
+			<div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+				<StatTile
+					label={t('seasonDetail.overview.gamePlayed')}
+					value={completed.length}
+					caption={t('seasonDetail.overview.outOfTotal', { count: games.length })}
+					icon={<CalendarDays className="size-4.5" />}
+					progress={games.length ? completed.length / games.length : 0}
+				/>
+				<StatTile
+					label={t('seasonDetail.overview.leader')}
+					value={
+						leader?.team ? (
+							<span className="flex items-center gap-2.5 text-xl">
+								<TeamCrest team={leader.team} size={30} />
+								<span className="truncate">{leader.team.name}</span>
+							</span>
+						) : '—'
+					}
+					caption={t('seasonDetail.overview.leaderPoints', { points: leader?.points ?? 0 })}
+					icon={<Trophy className="size-4.5 text-brand" />}
+				/>
+				<StatTile
+					label={t('seasonDetail.overview.scoredTotal')}
+					value={standings.reduce((sum, row) => sum + row.goalsFor, 0)}
+					caption={t('seasonDetail.overview.leagueWide')}
+					icon={<Target className="size-4.5" />}
+				/>
+				<StatTile
+					label={t('seasonDetail.overview.avgGoalsPerGame')}
+					value={completed.length ? (goals / completed.length).toFixed(1) : '0.0'}
+					caption={t('seasonDetail.overview.thisSeason')}
+					icon={<TrendingUp className="size-4.5 text-success" />}
+				/>
 			</div>
-			<div className="grid gap-6 lg:grid-cols-2">
-				<Card>
-					<CardHeader>
-						<CardTitle>{t('seasonDetail.overview.upcomingGames')}</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />
-					</CardContent>
-				</Card>
 
-				<Card>
-					<CardHeader>
-						<CardTitle>{t('seasonDetail.overview.topScorers')}</CardTitle>
-						<CardDescription>{t('seasonDetail.overview.leagueLeadersDescription')}</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<TopScorers topScorers={topScorers} loading={loadingScorers} />
-					</CardContent>
-				</Card>
+			<div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+				<Panel flush title={t('seasonDetail.overview.upcomingGames')}>
+					<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />
+				</Panel>
+				<Panel
+					flush
+					title={t('seasonDetail.overview.topScorers')}
+					description={t('seasonDetail.overview.leagueLeadersDescription')}
+				>
+					<TopScorers topScorers={topScorers} loading={loadingScorers} />
+				</Panel>
 			</div>
-		</>
+		</div>
 	);
 }

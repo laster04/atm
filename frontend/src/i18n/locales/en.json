@@ -81,7 +81,7 @@
     }
   },
   "home": {
-    "title": "Sport Season Scheduler",
+    "title": "Amateur Team Manager",
     "subtitle": "Manage your sports leagues with ease. Create seasons, track teams, schedule games, and view standings all in one place.",
     "features": {
       "leagueManagement": {
@@ -103,7 +103,7 @@
     "noActiveSeasons": "No active seasons yet.",
     "myTeams": "My Teams",
     "appInfo": {
-      "title": "Why Choose Sport Season Scheduler?",
+      "title": "Why choose Amateur Team Manager?",
       "description": "A comprehensive platform designed to simplify sports league management. From league setup to game scheduling and performance tracking, we have everything you need.",
       "features": {
         "leagueManagement": {
@@ -293,7 +293,10 @@
   "leagues": {
     "title": "Leagues",
     "loading": "Loading leagues...",
-    "noLeagues": "No leagues found."
+    "noLeagues": "No leagues found.",
+    "filter": {
+      "all": "All sports"
+    }
   },
   "leagueDetail": {
     "loading": "Loading league...",
@@ -343,7 +346,8 @@
       "noTopScorers": "No statistics recorded yet.",
       "goalsShort": "G",
       "assistsShort": "A",
-      "pointsShort": "Pts"
+      "pointsShort": "Pts",
+      "viewFullSchedule": "Full schedule →"
     },
     "playersStats": {
       "title": "Player Statistics",
@@ -388,7 +392,12 @@
       "todaysGamesDescription": "Games scheduled for today",
       "upcomingGames": "Upcoming Games",
       "upcomingGamesDescription": "Schedule for the next few days",
-      "pastGames": "Played Games"
+      "pastGames": "Played Games",
+      "empty": {
+        "upcoming": "No upcoming game scheduled.",
+        "today": "Nothing on today.",
+        "recent": "No game has been played yet."
+      }
     },
     "teams": {
       "noTeams": "No teams in this season yet.",
@@ -416,7 +425,15 @@
       "noGames": "No games scheduled.",
       "win": "W",
       "loss": "L",
-      "draw": "D"
+      "draw": "D",
+      "home": "vs",
+      "away": "at",
+      "none": "No games yet.",
+      "result": {
+        "W": "WIN",
+        "D": "DRAW",
+        "L": "LOSS"
+      }
     },
     "confirm": {
       "deletePlayer": "Are you sure you want to delete this player?"
@@ -442,6 +459,16 @@
       "submit": "Send Invitation",
       "sending": "Sending...",
       "error": "Failed to invite manager"
+    },
+    "noPosition": "Position not set",
+    "figures": {
+      "rank": "Rank",
+      "points": "Points",
+      "record": "Goals"
+    },
+    "form": {
+      "title": "Form — last {{count}} games",
+      "none": "No game played yet."
     }
   },
   "playerDetail": {
@@ -1547,5 +1574,191 @@
     "allSaved": "All changes saved",
     "unsavedChanges_one": "{{count}} unsaved change",
     "unsavedChanges_other": "{{count}} unsaved changes"
+  },
+  "public": {
+    "hero": {
+      "kicker": "Amateur sport. Real stories."
+    },
+    "loadMore": "Load more",
+    "nav": {
+      "home": "Home",
+      "competitions": "Competitions",
+      "leagues": "Leagues",
+      "seasons": "Seasons",
+      "tournaments": "Tournaments",
+      "teams": "Teams",
+      "players": "Players",
+      "games": "Games",
+      "stats": "Statistics",
+      "about": "About",
+      "signIn": "Sign in",
+      "dashboard": "Dashboard"
+    },
+    "search": {
+      "placeholder": "Search a team, player, season…",
+      "tooShort": "Type at least two characters.",
+      "noResults": "Nothing found for “{{query}}”.",
+      "teams": "Teams",
+      "players": "Players",
+      "seasons": "Seasons",
+      "leagues": "Leagues"
+    },
+    "footer": {
+      "competitions": "Competitions",
+      "statistics": "Statistics",
+      "project": "Project",
+      "blurb": "Amateur sport, kept in one place: leagues, tournaments and the teams that play them."
+    },
+    "seasons": {
+      "title": "Seasons",
+      "subtitle": "Browse every season, follow how it is going and how it ended. Amateur sport has a history of its own.",
+      "view": "View",
+      "searchPlaceholder": "Search a season…",
+      "emptyHint": "Try another filter, or search by the league's name."
+    },
+    "teams": {
+      "title": "Teams",
+      "subtitle": "Every team in the app — squad, colours and the season it is playing.",
+      "view": "View",
+      "searchPlaceholder": "Search a team…",
+      "leagueFilter": "League",
+      "allLeagues": "All leagues",
+      "empty": "No team matches",
+      "emptyHint": "Try a shorter name, or clear the league filter.",
+      "noLeague": "No league yet",
+      "noSeason": "No season yet",
+      "count_one": "{{count}} team",
+      "count_other": "{{count}} teams"
+    },
+    "players": {
+      "title": "Players",
+      "subtitle": "Goals, assists and points of everyone on a roster, across every season on record.",
+      "searchPlaceholder": "Search a player…",
+      "sortPoints": "By points",
+      "sortName": "By name",
+      "tableTitle": "Player statistics",
+      "player": "Player",
+      "team": "Team",
+      "empty": "No player matches",
+      "emptyHint": "Try a shorter name, or clear the league filter.",
+      "count_one": "{{count}} player",
+      "count_other": "{{count}} players"
+    },
+    "games": {
+      "title": "Games",
+      "subtitle": "What is being played now, what comes next and how the last round ended.",
+      "round": "Round {{round}}",
+      "noTime": "TBC",
+      "undated": "Date to be confirmed",
+      "emptyHint": "Another league or another view may have something.",
+      "scope": {
+        "upcoming": "Upcoming",
+        "live": "Live",
+        "results": "Results"
+      },
+      "empty": {
+        "upcoming": "No game scheduled",
+        "live": "Nothing being played right now",
+        "results": "No game has finished yet",
+        "all": "No game found"
+      },
+      "status": {
+        "SCHEDULED": "SCHEDULED",
+        "IN_PROGRESS": "LIVE",
+        "COMPLETED": "FINISHED",
+        "POSTPONED": "POSTPONED",
+        "CANCELLED": "CANCELLED"
+      },
+      "count_one": "{{count}} game",
+      "count_other": "{{count}} games"
+    },
+    "stats": {
+      "title": "Statistics",
+      "subtitle": "Scoring leaders across every league and season kept here.",
+      "seasonFilter": "Season",
+      "allSeasons": "All seasons",
+      "scope": "Top 50 by points",
+      "tableTitle": "Scoring leaders",
+      "empty": "No statistics yet",
+      "emptyHint": "Numbers appear once the first games have been played."
+    },
+    "about": {
+      "title": "About the project",
+      "subtitle": "A place where an amateur league, its teams and its numbers live together.",
+      "ctaTitle": "Run your league here",
+      "ctaText": "Create a season, add the teams and let the schedule, the table and the player statistics take care of themselves."
+    },
+    "landing": {
+      "browse": "Browse competitions",
+      "todayTitle": "Being played now",
+      "allGames": "All games →",
+      "exploreTitle": "Where to next",
+      "exploreSubtitle": "Public results, no account needed.",
+      "cards": {
+        "seasons": {
+          "title": "Seasons and leagues",
+          "text": "Tables, schedules and the result of every round — from a district league to a hobby one.",
+          "action": "Browse seasons"
+        },
+        "tournaments": {
+          "title": "Tournaments",
+          "text": "Groups, the play-off bracket and live results over a single weekend.",
+          "action": "Browse tournaments"
+        },
+        "teams": {
+          "title": "Teams and players",
+          "text": "Roster, form and personal statistics — a page you can send to anyone.",
+          "action": "Find a team"
+        }
+      },
+      "organisers": {
+        "kicker": "For organisers",
+        "title": "Generate the schedule in a minute. The app works out the rest.",
+        "text": "Create a season, add the teams and let the schedule be generated. The table, the player statistics and the history all follow from the results you enter at each game.",
+        "points": {
+          "schedule": "Rounds and return fixtures generated automatically",
+          "liveTable": "A live table while games are being played",
+          "playerStats": "Goals, assists and penalty minutes per player"
+        },
+        "cta": "Create a season",
+        "secondary": "How it works",
+        "previewUrl": "atm.cz/seasons/2026-2027",
+        "previewTitle": "Table after 12 games",
+        "previewNote": "Example of a public season page."
+      },
+      "nextTitle": "Next games"
+    },
+    "leagues": {
+      "title": "Leagues",
+      "subtitle": "Every competition kept here, and the seasons each of them has played.",
+      "view": "View",
+      "searchPlaceholder": "Search a league…",
+      "emptyHint": "Try another sport, or clear the search.",
+      "activeCount": "{{count}} season in progress",
+      "activeCount_other": "{{count}} seasons in progress",
+      "seasonCount_one": "{{count}} season",
+      "seasonCount_other": "{{count}} seasons"
+    },
+    "tournaments": {
+      "title": "Tournaments",
+      "subtitle": "Groups, play-off brackets and results — a whole tournament in one place.",
+      "view": "View",
+      "searchPlaceholder": "Search a tournament…",
+      "count_one": "{{count}} tournament",
+      "count_other": "{{count}} tournaments",
+      "editions_one": "{{count}} edition",
+      "editions_other": "{{count}} editions",
+      "editionsTitle": "Editions",
+      "noEditions": "No edition yet.",
+      "empty": "No tournament yet",
+      "emptyHint": "Tournaments appear here once an organiser creates one.",
+      "status": {
+        "DRAFT": "DRAFT",
+        "REGISTRATION": "REGISTRATION",
+        "GROUP_STAGE": "GROUP STAGE",
+        "PLAYOFF": "PLAY-OFF",
+        "COMPLETED": "FINISHED"
+      }
+    }
   }
 }

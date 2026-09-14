@@ -4,9 +4,12 @@
 
 /**
  * Convert language code to locale string for date formatting.
+ *
+ * The detector can hand back a region tag ('cs-CZ'), which an equality check
+ * missed — Czech pages then printed English dates.
  */
 export function getLocale(language: string): string {
-	return language === 'cs' ? 'cs-CZ' : 'en-US';
+	return language?.toLowerCase().startsWith('cs') ? 'cs-CZ' : 'en-US';
 }
 
 /**

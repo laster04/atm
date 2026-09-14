@@ -2,16 +2,17 @@ import { GameStatus, SeasonStatus, type Game, type Season } from '@types';
 
 /**
  * Seasons carry no colour of their own — a team does, a league does not — so
- * the manager screens use the app's navy for their chrome, the same value the
- * team manager falls back to when a team has no colour set.
+ * the manager screens use the palette's navy (`--navy`) for their chrome. It
+ * is the same navy the public heroes and the footer paint with, which is what
+ * keeps the season shell reading as part of the app rather than a team.
  */
-export const SEASON_ACCENT = '#003E7E';
+export const SEASON_ACCENT = '#0F172A';
 
 /** Tinted pill backgrounds, matching the ones ScheduleTab uses for games. */
 export const SEASON_STATUS_TONE: Record<SeasonStatus, { bg: string; fg: string }> = {
 	[SeasonStatus.DRAFT]: { bg: '#fef3c7', fg: '#92400e' },
-	[SeasonStatus.ACTIVE]: { bg: '#dcfce7', fg: '#166534' },
-	[SeasonStatus.COMPLETED]: { bg: '#e5e7eb', fg: '#374151' },
+	[SeasonStatus.ACTIVE]: { bg: '#dcfce7', fg: '#15803d' },
+	[SeasonStatus.COMPLETED]: { bg: '#e8f1ff', fg: '#0b63f6' },
 };
 
 export const GAME_STATUS_TONE: Record<string, { bg: string; fg: string }> = {

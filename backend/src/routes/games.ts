@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  getPublicGames,
   getGamesBySeasonId,
   getGameById,
   createGame,
@@ -21,6 +22,8 @@ import { requireGameAccess, requireMatchEventAccess, requireSeasonAccess } from 
 
 const router = Router();
 
+// Public fixture list across every season: upcoming, live or results.
+router.get('/', getPublicGames);
 router.get('/season/:seasonId', getGamesBySeasonId);
 router.get('/:id', getGameById);
 

@@ -1,94 +1,85 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { formatGameDateTime } from '@/utils/date';
+import { formatDateShort } from '@/utils/date';
 import type { HockeyGameStatistic } from '@types';
+import { EmptyState, Panel, StatTile, Th, Td, TableShell, HeadRow } from '@/components/public';
 
 interface PlayerStatisticsProps {
-  statistics: HockeyGameStatistic[];
-  totalGoals: number;
-  totalAssists: number;
-  totalPenaltyMinutes: number;
-  gamesPlayed: number;
+	statistics: HockeyGameStatistic[];
+	totalGoals: number;
+	totalAssists: number;
+	totalPenaltyMinutes: number;
+	gamesPlayed: number;
 }
 
 export default function PlayerStatistics({
-  statistics,
-  totalGoals,
-  totalAssists,
-  totalPenaltyMinutes,
-  gamesPlayed
+	statistics,
+	totalGoals,
+	totalAssists,
+	totalPenaltyMinutes,
+	gamesPlayed,
 }: PlayerStatisticsProps) {
-  const { t, i18n } = useTranslation();
+	const { t, i18n } = useTranslation();
 
-  return (
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">{t('playerDetail.statistics.title')}</h2>
+	return (
+		<div className="flex flex-col gap-5">
+			<div className="grid gap-5 grid-cols-2 xl:grid-cols-5">
+				<StatTile label={t('playerDetail.statistics.gamesPlayed')} value={gamesPlayed} />
+				<StatTile label={t('playerDetail.statistics.goals')} value={totalGoals} />
+				<StatTile label={t('playerDetail.statistics.assists')} value={totalAssists} />
+				<StatTile
+					label={t('seasonDetail.playersStats.points')}
+					value={totalGoals + totalAssists}
+					emphasis
+				/>
+				<StatTile label={t('playerDetail.statistics.penaltyMinutes')} value={totalPenaltyMinutes} />
+			</div>
 
-      {/* Summary stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-50 p-4 rounded-lg text-center">
-          <p className="text-2xl font-bold text-blue-600">{gamesPlayed}</p>
-          <p className="text-sm text-gray-500">{t('playerDetail.statistics.gamesPlayed')}</p>
-        </div>
-        <div className="bg-gray-50 p-4 rounded-lg text-center">
-          <p className="text-2xl font-bold text-green-600">{totalGoals}</p>
-          <p className="text-sm text-gray-500">{t('playerDetail.statistics.goals')}</p>
-        </div>
-        <div className="bg-gray-50 p-4 rounded-lg text-center">
-          <p className="text-2xl font-bold text-purple-600">{totalAssists}</p>
-          <p className="text-sm text-gray-500">{t('playerDetail.statistics.assists')}</p>
-        </div>
-        <div className="bg-gray-50 p-4 rounded-lg text-center">
-          <p className="text-2xl font-bold text-amber-600">{totalPenaltyMinutes}</p>
-          <p className="text-sm text-gray-500">{t('playerDetail.statistics.penaltyMinutes')}</p>
-        </div>
-      </div>
-
-      {/* Game by game stats */}
-      {statistics.length > 0 ? (
-        <div>
-          <h3 className="text-sm font-semibold text-gray-500 mb-2">
-            {t('playerDetail.statistics.gameByGame')}
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">{t('playerDetail.statistics.date')}</th>
-                  <th className="text-left py-2">{t('playerDetail.statistics.game')}</th>
-                  <th className="text-center py-2">{t('playerDetail.statistics.goals')}</th>
-                  <th className="text-center py-2">{t('playerDetail.statistics.assists')}</th>
-                  <th className="text-center py-2">{t('playerDetail.statistics.penaltyMinutesShort')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {statistics.map((stat) => (
-                  <tr key={stat.id} className="border-b last:border-0">
-                    <td className="py-2 text-gray-500">
-                      {stat.game?.date ? formatGameDateTime(stat.game.date, i18n.language) : '-'}
-                    </td>
-                    <td className="py-2">
-                      <Link
-                        to={`/team-management/game-statistic/${stat.game?.id}`}
-                        className="hover:text-blue-600"
-                      >
-                        {stat.game?.homeTeam?.name} vs {stat.game?.awayTeam?.name}
-                      </Link>
-                    </td>
-                    <td className="py-2 text-center font-medium">{stat.goals ?? 0}</td>
-                    <td className="py-2 text-center font-medium">{stat.assists ?? 0}</td>
-                    <td className="py-2 text-center font-medium">{stat.penaltyMinutes ?? 0}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        <p className="text-gray-500 text-center py-4">
-          {t('playerDetail.statistics.noStatistics')}
-        </p>
-      )}
-    </div>
-  );
+			<Panel flush title={t('playerDetail.statistics.gameByGame')}>
+				{statistics.length === 0 ? (
+					<EmptyState title={t('playerDetail.statistics.noStatistics')} />
+				) : (
+					<TableShell minWidth={640}>
+						<thead>
+							<HeadRow>
+								<Th className="text-left">{t('playerDetail.statistics.date')}</Th>
+								<Th className="text-left">{t('playerDetail.statistics.game')}</Th>
+								<Th className="text-center">{t('playerDetail.statistics.goals')}</Th>
+								<Th className="text-center">{t('playerDetail.statistics.assists')}</Th>
+								<Th className="text-center">{t('playerDetail.statistics.penaltyMinutesShort')}</Th>
+								<Th className="text-center text-foreground">{t('seasonDetail.playersStats.points')}</Th>
+							</HeadRow>
+						</thead>
+						<tbody>
+							{statistics.map((stat) => (
+								<tr key={stat.id} className="border-t border-border-subtle transition-colors hover:bg-muted/50">
+									<Td className="text-left text-muted-foreground">
+										{stat.game?.date ? formatDateShort(stat.game.date, i18n.language) : '—'}
+									</Td>
+									<Td className="text-left">
+										{stat.game?.seasonId ? (
+											<Link
+												to={`/season-detail/${stat.game.seasonId}?tab=schedule`}
+												className="font-medium hover:text-primary"
+											>
+												{stat.game?.homeTeam?.name} – {stat.game?.awayTeam?.name}
+											</Link>
+										) : (
+											<span className="font-medium">
+												{stat.game?.homeTeam?.name} – {stat.game?.awayTeam?.name}
+											</span>
+										)}
+									</Td>
+									<Td className="text-center">{stat.goals ?? 0}</Td>
+									<Td className="text-center">{stat.assists ?? 0}</Td>
+									<Td className="text-center">{stat.penaltyMinutes ?? 0}</Td>
+									<Td className="text-center font-extrabold">{(stat.goals ?? 0) + (stat.assists ?? 0)}</Td>
+								</tr>
+							))}
+						</tbody>
+					</TableShell>
+				)}
+			</Panel>
+		</div>
+	);
 }

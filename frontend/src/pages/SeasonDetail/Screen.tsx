@@ -7,12 +7,12 @@ import type { Season, Game, Standing, TopScorer } from '@/types';
 import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 import { LIVE_REFRESH_MS, hasLiveGames } from '@/utils/liveTable';
 
-import SeasonHeader from './components/SeasonHeader';
 import StandingsTable from './components/StandingsTable';
 import ScheduleList from './components/ScheduleList';
 import TeamsGrid from './components/TeamsGrid';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/base/tabs";
-import { BarChart3, Calendar, Server, Trophy, Users } from "lucide-react";
+import { BarChart3, CalendarDays, Trophy, Users, LayoutGrid } from 'lucide-react';
+import { formatSeasonDate } from '@/utils/date';
+import { PublicHero, SectionTabs, SeasonStatusBadge, type SectionTab } from '@/components/public';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
 import PlayersStatsTable from "@/pages/SeasonDetail/components/PlayersStatsTable.tsx";
@@ -27,11 +27,11 @@ export enum TabSeasonDetailType {
 
 export default function SeasonDetailScreen() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || TabSeasonDetailType.OVERVIEW;
 
-  const setActiveTab = (tab: string) => {
+  const setActiveTab = (tab: TabSeasonDetailType) => {
     setSearchParams({ tab }, { replace: true });
   };
   const [season, setSeason] = useState<Season | null>(null);
@@ -94,55 +94,74 @@ export default function SeasonDetailScreen() {
 
   if (loading && !season) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8 text-center">{t('seasonDetail.loading')}</div>
+      <div className="mx-auto max-w-[1600px] px-4 py-16 text-center text-muted-foreground sm:px-8">
+        {t('seasonDetail.loading')}
+      </div>
     );
   }
 
   if (!season) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8 text-center">{t('seasonDetail.notFound')}</div>
+      <div className="mx-auto max-w-[1600px] px-4 py-16 text-center text-muted-foreground sm:px-8">
+        {t('seasonDetail.notFound')}
+      </div>
     );
   }
 
   const isArchived = !!season.archivedAt;
 
-  const tabs: { id: TabSeasonDetailType; label: string, icon: any, content: JSX.Element }[] = [
+  const tabs: { id: TabSeasonDetailType; label: string; icon: JSX.Element; content: JSX.Element }[] = [
     { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} /> },
     { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
-    ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <Calendar className="size-4" />, content: <ScheduleList games={games} /> }]),
-    { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <Server className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
+    ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <CalendarDays className="size-4" />, content: <ScheduleList games={games} /> }]),
+    { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <LayoutGrid className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
     { id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} /> },
   ];
 
-  return (
-    <div className="max-w-7xl mx-auto py-8">
-      <SeasonHeader season={season} />
+  const sectionTabs: SectionTab<TabSeasonDetailType>[] = tabs.map(({ id, label, icon }) => ({ value: id, label, icon }));
+  const current = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
+  const teamCount = season._count?.seasonTeams ?? season._count?.teams ?? season.teams?.length ?? 0;
 
-      <main className="container mx-auto py-8">
+  return (
+    <>
+      <PublicHero
+        title={season.name}
+        subtitle={season.league?.name}
+        sport={season.league?.sportType}
+        badge={<SeasonStatusBadge status={season.status} archived={isArchived} />}
+        crumbs={[
+          { label: t('public.nav.home'), to: '/' },
+          { label: t('public.seasons.title'), to: '/seasons' },
+          { label: season.name },
+        ]}
+        meta={
+          <>
+            <span className="flex items-center gap-2">
+              <CalendarDays className="size-4 text-brand" />
+              {formatSeasonDate(season.startDate, i18n.language)} – {formatSeasonDate(season.endDate, i18n.language)}
+            </span>
+            <span className="flex items-center gap-2">
+              <Users className="size-4 text-brand" />
+              {t('public.teams.count', { count: teamCount })}
+            </span>
+            <span className="flex items-center gap-2">
+              <Trophy className="size-4 text-brand" />
+              {t('public.games.count', { count: season._count?.games ?? games.length })}
+            </span>
+          </>
+        }
+      />
+
+      <SectionTabs tabs={sectionTabs} value={current.id} onChange={setActiveTab} />
+
+      <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-8">
         {isArchived && (
-          <div className="mb-6 rounded border border-muted-foreground/20 bg-muted p-4 text-sm text-muted-foreground">
+          <div className="rounded-xl border border-warning-soft bg-warning-soft px-4 py-3 text-sm text-warning-strong">
             {t('seasonDetail.archivedNotice')}
           </div>
         )}
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl mx-auto" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
-            {tabs.map((tab) => (
-                <TabsTrigger value={tab.id} key={tab.id} className="flex items-center gap-2">
-                  {tab.icon}
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </TabsTrigger>
-            ))}
-          </TabsList>
-          {tabs.map((tab) => (
-              <TabsContent value={tab.id} key={tab.id} className="space-y-6">
-                {tab.content}
-              </TabsContent>
-          ))}
-        </Tabs>
-
-      </main>
-
-    </div>
+        {current.content}
+      </div>
+    </>
   );
 }

@@ -538,3 +538,87 @@ export interface TournamentTopScorer {
   points: number;
   gamesPlayed: number;
 }
+
+/* ---------------------------------------------------------------------------
+ * The public directories — /teams, /players, /games, /stats and the header's
+ * search. These read across seasons, which the manager endpoints never do, so
+ * they page (`Paged`) rather than return everything.
+ * ------------------------------------------------------------------------- */
+
+export interface Paged<T> {
+  items: T[];
+  /** Rows matching the filter, not the page — what the counter shows. */
+  total: number;
+}
+
+/** A team in the public directory, with the season it last played. */
+export interface PublicTeam extends Omit<Team, 'season'> {
+  /** The team's current season, or its most recent; null if it has none. */
+  season: Season | null;
+  seasonCount: number;
+}
+
+export interface PlayerTotals {
+  gamesPlayed: number;
+  goals: number;
+  assists: number;
+  points: number;
+  penaltyMinutes: number;
+}
+
+/** A player in the public directory. Totals are career-wide unless narrowed. */
+export interface PublicPlayer extends Player {
+  team: Team;
+  stats: PlayerTotals;
+}
+
+export interface PublicTeamQuery {
+  search?: string;
+  leagueId?: string;
+  seasonId?: string;
+  sport?: SportType;
+  take?: number;
+  skip?: number;
+}
+
+export interface PublicPlayerQuery {
+  search?: string;
+  teamId?: string;
+  seasonId?: string;
+  leagueId?: string;
+  /** 'points' ranks before paging; the default pages by name. */
+  sort?: 'name' | 'points';
+  take?: number;
+  skip?: number;
+}
+
+export interface PublicGameQuery {
+  /** 'upcoming' (default) hides undated fixtures; 'results' reads newest first. */
+  scope?: 'upcoming' | 'live' | 'results' | 'all';
+  from?: string;
+  to?: string;
+  seasonId?: string;
+  leagueId?: string;
+  teamId?: string;
+  take?: number;
+  skip?: number;
+}
+
+export interface TopScorerQuery {
+  leagueId?: string;
+  seasonId?: string;
+  sport?: SportType;
+  limit?: number;
+}
+
+export interface SearchResults {
+  query: string;
+  teams: (Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'> & { _count: { players: number } })[];
+  players: (Pick<Player, 'id' | 'name' | 'number' | 'position'> & {
+    team: Pick<Team, 'id' | 'name' | 'primaryColor'>;
+  })[];
+  seasons: (Pick<Season, 'id' | 'name' | 'status' | 'startDate' | 'endDate'> & {
+    league: LeagueRef;
+  })[];
+  leagues: (Pick<League, 'id' | 'name' | 'sportType' | 'logo'> & { _count: { seasons: number } })[];
+}

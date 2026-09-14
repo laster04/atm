@@ -1,103 +1,127 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ChevronRight, MapPin, Trophy, Users } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { tournamentSeriesApi } from '@/services/api';
-import type { TournamentSeries } from '@types';
-import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
-import { Badge } from '@components/base/badge';
-import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { TournamentSeries, TournamentStatus } from '@types';
+import { EmptyState, Panel, PublicHero } from '@/components/public';
 
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline'> = {
-  DRAFT: 'outline',
-  REGISTRATION: 'secondary',
-  GROUP_STAGE: 'default',
-  PLAYOFF: 'default',
-  COMPLETED: 'secondary',
+/** Same soft/strong badge tones the rest of the public part uses. */
+const STATUS_TONE: Record<TournamentStatus, string> = {
+	DRAFT: 'bg-muted text-subtle-foreground',
+	REGISTRATION: 'bg-warning-soft text-warning-strong',
+	GROUP_STAGE: 'bg-accent text-accent-foreground',
+	PLAYOFF: 'bg-brand/20 text-brand-text',
+	COMPLETED: 'bg-success-soft text-success-strong',
 };
 
 export default function TournamentSeriesDetail() {
-  const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
-  const [series, setSeries] = useState<TournamentSeries | null>(null);
-  const [loading, setLoading] = useState(true);
-  const tennisCtx = series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
+	const { t } = useTranslation();
+	const { id } = useParams<{ id: string }>();
+	const [series, setSeries] = useState<TournamentSeries | null>(null);
+	const [loading, setLoading] = useState(true);
+	const tennisCtx = series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
 
-  useDocumentTitle([series?.name]);
+	useDocumentTitle([series?.name]);
 
-  useEffect(() => {
-    if (!id) return;
-    tournamentSeriesApi.getById(id)
-      .then(r => setSeries(r.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [id]);
+	useEffect(() => {
+		if (!id) return;
+		tournamentSeriesApi.getById(id)
+			.then((res) => setSeries(res.data))
+			.catch((error) => console.error(error))
+			.finally(() => setLoading(false));
+	}, [id]);
 
-  if (loading) return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
-  if (!series) return <div className="p-8 text-center text-red-500">Not found.</div>;
+	if (loading) {
+		return (
+			<div className="mx-auto max-w-[1600px] px-4 py-16 text-center text-muted-foreground sm:px-8">
+				{t('common.loading')}
+			</div>
+		);
+	}
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/tournaments" className="hover:text-foreground flex items-center gap-1">
-          <ChevronLeft className="size-4" /> Tournaments
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{series.name}</span>
-      </div>
+	if (!series) {
+		return (
+			<div className="mx-auto max-w-[1600px] px-4 py-16 text-center text-muted-foreground sm:px-8">
+				{t('tournamentDetail.notFound')}
+			</div>
+		);
+	}
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            {series.logo ? (
-              <img src={series.logo} alt={series.name} className="size-12 object-contain" />
-            ) : (
-              <div className="size-12 rounded-full bg-muted flex items-center justify-center">
-                <Trophy className="size-6 text-primary" />
-              </div>
-            )}
-            <div>
-              <CardTitle>{series.name}</CardTitle>
-              <Badge variant="outline" className="mt-1">{series.sportType}</Badge>
-            </div>
-          </div>
-          {series.description && <p className="text-sm text-muted-foreground mt-2">{series.description}</p>}
-        </CardHeader>
-      </Card>
+	// Newest edition first — a series page opens on the current one.
+	const editions = [...(series.tournaments ?? [])].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
 
-      <div>
-        <h2 className="text-lg font-semibold mb-3">Editions</h2>
-        {(!series.tournaments || series.tournaments.length === 0) ? (
-          <Card>
-            <CardContent className="pt-6 text-center text-muted-foreground">No editions yet.</CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {series.tournaments.map(edition => (
-              <Link key={edition.id} to={`/tournament/${edition.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="font-medium">{edition.name}</span>
-                        {edition.year && <span className="text-muted-foreground text-sm">{edition.year}</span>}
-                        <Badge variant={STATUS_VARIANT[edition.status] ?? 'outline'} className="text-xs">
-                          {edition.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        {edition._count && <span>{t('tournamentDetail.teamsCount', { count: edition._count.teams, context: tennisCtx })}</span>}
-                        <ChevronRight className="size-4" />
-                      </div>
-                    </div>
-                    {edition.location && <div className="text-xs text-muted-foreground mt-1">{edition.location}</div>}
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+	return (
+		<>
+			<PublicHero
+				title={series.name}
+				subtitle={series.description || undefined}
+				sport={series.sportType}
+				crumbs={[
+					{ label: t('public.nav.home'), to: '/' },
+					{ label: t('public.nav.tournaments'), to: '/tournaments' },
+					{ label: series.name },
+				]}
+				badge={
+					<span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
+						{t(`sports.${series.sportType}`)}
+					</span>
+				}
+				meta={
+					<span className="flex items-center gap-2">
+						<Trophy className="size-4 text-brand" />
+						{t('public.tournaments.editions', { count: editions.length })}
+					</span>
+				}
+			/>
+
+			<div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-8">
+				<Panel flush title={t('public.tournaments.editionsTitle')}>
+					{editions.length === 0 ? (
+						<EmptyState title={t('public.tournaments.noEditions')} />
+					) : (
+						<div className="flex flex-col">
+							{editions.map((edition) => (
+								<Link
+									key={edition.id}
+									to={`/tournament/${edition.id}`}
+									className="flex items-center gap-4 border-b border-border-subtle px-5 py-4 transition-colors last:border-0 hover:bg-muted/50"
+								>
+									<div className="flex min-w-0 flex-col gap-1">
+										<div className="flex flex-wrap items-center gap-2.5">
+											<span className="truncate font-bold">{edition.name}</span>
+											{edition.year && <span className="text-sm text-muted-foreground">{edition.year}</span>}
+											<span
+												className={`rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide ${
+													STATUS_TONE[edition.status] ?? STATUS_TONE.DRAFT
+												}`}
+											>
+												{t(`public.tournaments.status.${edition.status}`)}
+											</span>
+										</div>
+										{edition.location && (
+											<span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+												<MapPin className="size-3.5" />
+												{edition.location}
+											</span>
+										)}
+									</div>
+									<div className="ml-auto flex shrink-0 items-center gap-3 text-[13px] text-subtle-foreground">
+										{edition._count && (
+											<span className="flex items-center gap-1.5">
+												<Users className="size-4 text-muted-foreground" />
+												{t('tournamentDetail.teamsCount', { count: edition._count.teams, context: tennisCtx })}
+											</span>
+										)}
+										<ChevronRight className="size-4 text-primary" />
+									</div>
+								</Link>
+							))}
+						</div>
+					)}
+				</Panel>
+			</div>
+		</>
+	);
 }

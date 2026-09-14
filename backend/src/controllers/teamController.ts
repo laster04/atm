@@ -498,3 +498,68 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ error: 'Failed to invite manager' });
   }
 };
+
+/**
+ * The public directory of teams: every team in the app, newest season first,
+ * narrowed by a free-text name, a league, a season or a sport.
+ *
+ * A team belongs to seasons rather than to one league, so `season` here is the
+ * team's most recent one — the same convenience field `getMyTeams` builds, and
+ * what the card in the directory reads.
+ */
+export const getPublicTeams = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { search, leagueId, seasonId, sport } = req.query as Record<string, string | undefined>;
+    const take = Math.min(parseInt(req.query.take as string) || 48, 200);
+    const skip = parseInt(req.query.skip as string) || 0;
+
+    const seasonFilter: Prisma.SeasonWhereInput = {
+      ...(seasonId && { id: seasonId }),
+      ...(leagueId && { leagueId }),
+      ...(sport && { league: { sportType: sport as any } }),
+    };
+    const where: Prisma.TeamWhereInput = {
+      ...(search && { name: { contains: search, mode: 'insensitive' } }),
+      ...(Object.keys(seasonFilter).length > 0 && {
+        seasonTeams: { some: { season: seasonFilter } }
+      }),
+    };
+
+    const [teams, total] = await Promise.all([
+      prisma.team.findMany({
+        where,
+        include: {
+          _count: { select: { players: true } },
+          seasonTeams: {
+            include: {
+              season: {
+                include: { league: { select: { id: true, name: true, sportType: true } } }
+              }
+            }
+          }
+        },
+        orderBy: { name: 'asc' },
+        take,
+        skip
+      }),
+      prisma.team.count({ where })
+    ]);
+
+    const items = teams.map(team => {
+      const seasons = team.seasonTeams
+        .map(st => st.season)
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+      const { seasonTeams, ...rest } = team;
+      return {
+        ...rest,
+        season: seasons.find(s => s.status === 'ACTIVE') ?? seasons[0] ?? null,
+        seasonCount: seasons.length
+      };
+    });
+
+    res.json({ items, total });
+  } catch (error) {
+    console.error('Get public teams error:', error);
+    res.status(500).json({ error: 'Failed to fetch teams' });
+  }
+};

@@ -1,98 +1,73 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardTitle, CardHeader } from "@/components/base/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/base/table";
-import { TopScorer } from "@types";
+import { TopScorer } from '@types';
+import { EmptyState, Panel, TeamCrest, Th, Td, TableShell, HeadRow, TeamRow } from '@/components/public';
 
-interface PlayersStatsTableProps {
-	topScorers: TopScorer[];
-}
+/** Gold, silver, bronze for the first three; the rest take the quiet chip. */
+const MEDALS = ['bg-brand text-brand-ink', 'bg-border text-subtle-foreground', 'bg-warning-soft text-warning-strong'];
 
-export default function PlayersStatsTable({ topScorers }: PlayersStatsTableProps) {
+export default function PlayersStatsTable({ topScorers }: { topScorers: TopScorer[] }) {
 	const { t } = useTranslation();
 
 	if (topScorers.length === 0) {
-		return (
-			<Card>
-				<CardContent className="py-8">
-					<p className="text-center text-muted-foreground">
-						{t('seasonDetail.playersStats.noStats')}
-					</p>
-				</CardContent>
-			</Card>
-		);
+		return <EmptyState title={t('seasonDetail.playersStats.noStats')} />;
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>{t('seasonDetail.playersStats.title')}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-12">{t('seasonDetail.playersStats.rank')}</TableHead>
-							<TableHead>{t('seasonDetail.playersStats.player')}</TableHead>
-							<TableHead className="text-center">{t('seasonDetail.playersStats.team')}</TableHead>
-							<TableHead className="text-center">{t('seasonDetail.playersStats.gamesPlayed')}</TableHead>
-							<TableHead className="text-center">{t('seasonDetail.playersStats.goals')}</TableHead>
-							<TableHead className="text-center">{t('seasonDetail.playersStats.assists')}</TableHead>
-							<TableHead className="text-center">{t('seasonDetail.playersStats.penaltyMinutes')}</TableHead>
-							<TableHead className="text-center">{t('seasonDetail.playersStats.points')}</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{topScorers.map((topScorer, index) => (
-							<TableRow key={topScorer.player.id}
-									  style={{
-										  backgroundColor: `${topScorer.player.team?.primaryColor}08`,
-										  borderLeft: `4px solid ${topScorer.player.team?.primaryColor}`
-									  }}
-							>
-								<TableCell className="text-center font-medium">
-									{index < 3 ? (
-										<span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-											index === 0 ? 'bg-yellow-400 text-yellow-900' :
-											index === 1 ? 'bg-gray-300 text-gray-700' :
-											'bg-amber-600 text-amber-100'
-										}`}>
-											{index + 1}
-										</span>
-									) : (
-										index + 1
-									)}
-								</TableCell>
-								<TableCell>
-									<Link to={`/players/${topScorer.player.id}`} className="flex items-center gap-2 ">
-										<span className="font-medium">{topScorer.player.name}</span>
-										{topScorer.player.number && (
-											<span className="text-xs text-muted-foreground">#{topScorer.player.number}</span>
-										)}
+		<Panel flush title={t('seasonDetail.playersStats.title')}>
+			<TableShell minWidth={720}>
+				<thead>
+					<HeadRow>
+						<Th className="w-14 text-center">{t('seasonDetail.playersStats.rank')}</Th>
+						<Th className="text-left">{t('seasonDetail.playersStats.player')}</Th>
+						<Th className="text-left">{t('seasonDetail.playersStats.team')}</Th>
+						<Th className="text-center">{t('seasonDetail.playersStats.gamesPlayed')}</Th>
+						<Th className="text-center">{t('seasonDetail.playersStats.goals')}</Th>
+						<Th className="text-center">{t('seasonDetail.playersStats.assists')}</Th>
+						<Th className="text-center">{t('seasonDetail.playersStats.penaltyMinutes')}</Th>
+						<Th className="text-center text-foreground">{t('seasonDetail.playersStats.points')}</Th>
+					</HeadRow>
+				</thead>
+				<tbody>
+					{topScorers.map((scorer, index) => (
+						<TeamRow key={scorer.player.id} color={scorer.player.team?.primaryColor}>
+							<Td className="text-center">
+								<span
+									className={`inline-flex size-6 items-center justify-center rounded-full text-xs font-extrabold ${
+										MEDALS[index] ?? ''
+									}`}
+								>
+									{index + 1}
+								</span>
+							</Td>
+							<Td className="text-left">
+								<Link to={`/players/${scorer.player.id}`} className="font-semibold hover:text-primary">
+									{scorer.player.name}
+								</Link>
+								{scorer.player.number != null && (
+									<span className="ml-2 text-xs text-muted-foreground">#{scorer.player.number}</span>
+								)}
+							</Td>
+							<Td className="text-left">
+								{scorer.player.team && (
+									<Link
+										to={`/teams/${scorer.player.team.id}`}
+										className="flex items-center gap-2.5 text-subtle-foreground hover:text-foreground"
+									>
+										<TeamCrest team={scorer.player.team} size={24} />
+										<span className="truncate">{scorer.player.team.name}</span>
 									</Link>
-								</TableCell>
-								<TableCell className="text-center">
-									<div className="flex items-center gap-3">
-										<Link to={`/teams/${topScorer.player.team?.id}`}
-											  className="font-medium hover:text-gray-400">
-											{topScorer.player.team?.name || '-'}
-										</Link>
-										<div
-											className="size-3 rounded-full flex-shrink-0"
-											style={{ backgroundColor: topScorer.player.team?.primaryColor ?? undefined }}
-										/>
-									</div>
-								</TableCell>
-								<TableCell className="text-center">{topScorer.gamesPlayed}</TableCell>
-								<TableCell className="text-center">{topScorer.goals}</TableCell>
-								<TableCell className="text-center">{topScorer.assists}</TableCell>
-								<TableCell className="text-center">{topScorer.penaltyMinutes ?? 0}</TableCell>
-								<TableCell className="text-center font-bold">{topScorer.points}</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</CardContent>
-		</Card>
+								)}
+							</Td>
+							<Td className="text-center">{scorer.gamesPlayed}</Td>
+							<Td className="text-center">{scorer.goals}</Td>
+							<Td className="text-center">{scorer.assists}</Td>
+							<Td className="text-center">{scorer.penaltyMinutes ?? 0}</Td>
+							<Td className="text-center text-[15px] font-extrabold">{scorer.points}</Td>
+						</TeamRow>
+					))}
+				</tbody>
+			</TableShell>
+		</Panel>
 	);
 }

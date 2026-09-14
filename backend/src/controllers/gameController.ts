@@ -612,3 +612,74 @@ export const getGameAudit = async (req: AuthRequest, res: Response): Promise<voi
     res.status(500).json({ error: 'Failed to fetch the audit trail' });
   }
 };
+
+/**
+ * Every fixture in the app, across seasons — what the public match list reads.
+ *
+ * `scope` picks the three ways people actually look at a schedule: what is
+ * being played now, what is next, and what has finished. Results read newest
+ * first; the other two read soonest first. A date range narrows any of them.
+ */
+export const getPublicGames = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { from, to, seasonId, leagueId, teamId, scope } = req.query as Record<string, string | undefined>;
+    const take = Math.min(parseInt(req.query.take as string) || 50, 200);
+    const skip = parseInt(req.query.skip as string) || 0;
+
+    const view = scope ?? 'upcoming';
+    const now = new Date();
+
+    const scoped: Prisma.GameWhereInput =
+      view === 'live' ? { status: GameStatus.IN_PROGRESS }
+      : view === 'results' ? { status: GameStatus.COMPLETED }
+      : view === 'all' ? {}
+      : {
+          status: { in: [GameStatus.SCHEDULED, GameStatus.IN_PROGRESS] },
+          // An undated fixture is scheduled but not yet placed, so it is not
+          // "upcoming" — it would sort ahead of everything with a null date.
+          date: { gte: from ? new Date(from) : now }
+        };
+
+    const where: Prisma.GameWhereInput = {
+      ...scoped,
+      ...(seasonId && { seasonId }),
+      ...(leagueId && { season: { leagueId } }),
+      ...(teamId && { OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }] }),
+      ...((from || to) && view !== 'upcoming' && {
+        date: {
+          ...(from && { gte: new Date(from) }),
+          ...(to && { lte: new Date(to) })
+        }
+      }),
+      ...(to && view === 'upcoming' && { date: { gte: from ? new Date(from) : now, lte: new Date(to) } }),
+    };
+
+    const [games, total] = await Promise.all([
+      prisma.game.findMany({
+        where,
+        include: {
+          homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
+          awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
+          season: {
+            select: {
+              id: true,
+              name: true,
+              league: { select: { id: true, name: true, sportType: true } }
+            }
+          }
+        },
+        orderBy: view === 'results'
+          ? [{ date: 'desc' }, { createdAt: 'desc' }]
+          : [{ date: 'asc' }, { createdAt: 'asc' }],
+        take,
+        skip
+      }),
+      prisma.game.count({ where })
+    ]);
+
+    res.json({ items: games, total });
+  } catch (error) {
+    console.error('Get public games error:', error);
+    res.status(500).json({ error: 'Failed to fetch games' });
+  }
+};

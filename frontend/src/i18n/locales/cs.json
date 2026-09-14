@@ -16,7 +16,7 @@
     "close": "Zavřít"
   },
   "nav": {
-    "brand": "Sportovni Planovac",
+    "brand": "Amateur Team Manager",
     "tagline": "Správa sezón a týmů",
     "leagues": "Ligy",
     "seasons": "Sezony",
@@ -103,7 +103,7 @@
     "noActiveSeasons": "Zatim zadne aktivni sezony.",
     "myTeams": "Moje Tymy",
     "appInfo": {
-      "title": "Proč si vybrat Sport Season Scheduler?",
+      "title": "Proč si vybrat Amateur Team Manager?",
       "description": "Komplexní platforma navržená pro zjednodušení správy sportovních lig. Od nastavení ligy přes plánování zápasů až po sledování výkonu - máme vše, co potřebujete.",
       "features": {
         "leagueManagement": {
@@ -293,7 +293,10 @@
   "leagues": {
     "title": "Ligy",
     "loading": "Nacitam ligy...",
-    "noLeagues": "Zadne ligy nenalezeny."
+    "noLeagues": "Zadne ligy nenalezeny.",
+    "filter": {
+      "all": "Všechny sporty"
+    }
   },
   "leagueDetail": {
     "loading": "Nacitam ligu...",
@@ -343,7 +346,8 @@
       "noTopScorers": "Zatim zadne zaznamenane statistiky.",
       "goalsShort": "G",
       "assistsShort": "A",
-      "pointsShort": "B"
+      "pointsShort": "B",
+      "viewFullSchedule": "Celý rozpis →"
     },
     "playersStats": {
       "title": "Statistiky hracu",
@@ -388,7 +392,12 @@
       "todaysGamesDescription": "Zápasy naplánované na dnes",
       "upcomingGames": "Nadcházející zápasy",
       "upcomingGamesDescription": "Program na příštích pár dní",
-      "pastGames": "Odehrané zápasy"
+      "pastGames": "Odehrané zápasy",
+      "empty": {
+        "upcoming": "Žádný nadcházející zápas.",
+        "today": "Dnes se nehraje.",
+        "recent": "Zatím se neodehrál žádný zápas."
+      }
     },
     "teams": {
       "noTeams": "V teto sezone zatim zadne tymy.",
@@ -416,7 +425,15 @@
       "noGames": "Zadne naplanovanene zapasy.",
       "win": "V",
       "loss": "P",
-      "draw": "R"
+      "draw": "R",
+      "home": "vs",
+      "away": "na",
+      "none": "Zatím žádné zápasy.",
+      "result": {
+        "W": "VÝHRA",
+        "D": "REMÍZA",
+        "L": "PROHRA"
+      }
     },
     "confirm": {
       "deletePlayer": "Opravdu chcete smazat tohoto hrace?"
@@ -442,6 +459,16 @@
       "submit": "Odeslat pozvanku",
       "sending": "Odesílam...",
       "error": "Nepodařilo se pozvat manažera"
+    },
+    "noPosition": "Pozice neuvedena",
+    "figures": {
+      "rank": "Pořadí",
+      "points": "Bodů",
+      "record": "Skóre"
+    },
+    "form": {
+      "title": "Forma — posledních {{count}} zápasů",
+      "none": "Zatím se neodehrál žádný zápas."
     }
   },
   "playerDetail": {
@@ -1558,5 +1585,205 @@
     "unsavedChanges_one": "{{count}} neuložená změna",
     "unsavedChanges_few": "{{count}} neuložené změny",
     "unsavedChanges_other": "{{count}} neuložených změn"
+  },
+  "public": {
+    "hero": {
+      "kicker": "Amatérský sport. Skutečné příběhy."
+    },
+    "loadMore": "Načíst další",
+    "nav": {
+      "home": "Domů",
+      "competitions": "Soutěže",
+      "leagues": "Ligy",
+      "seasons": "Sezóny",
+      "tournaments": "Turnaje",
+      "teams": "Týmy",
+      "players": "Hráči",
+      "games": "Zápasy",
+      "stats": "Statistiky",
+      "about": "O projektu",
+      "signIn": "Přihlásit se",
+      "dashboard": "Nástěnka"
+    },
+    "search": {
+      "placeholder": "Hledat tým, hráče, zápas…",
+      "tooShort": "Zadejte alespoň dva znaky.",
+      "noResults": "Pro „{{query}}“ nic nenalezeno.",
+      "teams": "Týmy",
+      "players": "Hráči",
+      "seasons": "Sezóny",
+      "leagues": "Ligy"
+    },
+    "footer": {
+      "competitions": "Soutěže",
+      "statistics": "Statistiky",
+      "project": "Projekt",
+      "blurb": "Amatérský sport pohromadě: ligy, turnaje a týmy, které je hrají."
+    },
+    "seasons": {
+      "title": "Sezóny",
+      "subtitle": "Prohlížejte všechny sezóny, sledujte jejich průběh a výsledky. Amatérský sport má svou historii.",
+      "view": "Zobrazit",
+      "searchPlaceholder": "Hledat sezónu…",
+      "emptyHint": "Zkuste jiný filtr nebo hledejte podle názvu ligy."
+    },
+    "teams": {
+      "title": "Týmy",
+      "subtitle": "Všechny týmy v aplikaci — soupiska, barvy a sezóna, kterou hrají.",
+      "view": "Zobrazit",
+      "searchPlaceholder": "Hledat tým…",
+      "leagueFilter": "Liga",
+      "allLeagues": "Všechny ligy",
+      "empty": "Žádný tým neodpovídá",
+      "emptyHint": "Zkuste kratší název nebo zrušte filtr ligy.",
+      "noLeague": "Zatím bez ligy",
+      "noSeason": "Zatím bez sezóny",
+      "count_one": "{{count}} tým",
+      "count_few": "{{count}} týmy",
+      "count_many": "{{count}} týmu",
+      "count_other": "{{count}} týmů"
+    },
+    "players": {
+      "title": "Hráči",
+      "subtitle": "Góly, asistence a body všech hráčů na soupiskách napříč sezónami.",
+      "searchPlaceholder": "Hledat hráče…",
+      "sortPoints": "Podle bodů",
+      "sortName": "Podle jména",
+      "tableTitle": "Statistiky hráčů",
+      "player": "Hráč",
+      "team": "Tým",
+      "empty": "Žádný hráč neodpovídá",
+      "emptyHint": "Zkuste kratší jméno nebo zrušte filtr ligy.",
+      "count_one": "{{count}} hráč",
+      "count_few": "{{count}} hráči",
+      "count_many": "{{count}} hráče",
+      "count_other": "{{count}} hráčů"
+    },
+    "games": {
+      "title": "Zápasy",
+      "subtitle": "Co se zrovna hraje, co je na programu a jak dopadlo minulé kolo.",
+      "round": "Kolo {{round}}",
+      "noTime": "Bude určeno",
+      "undated": "Termín bude určen",
+      "emptyHint": "Zkuste jinou ligu nebo jiné zobrazení.",
+      "scope": {
+        "upcoming": "Nadcházející",
+        "live": "Živě",
+        "results": "Výsledky"
+      },
+      "empty": {
+        "upcoming": "Žádný naplánovaný zápas",
+        "live": "Právě se nic nehraje",
+        "results": "Zatím neskončil žádný zápas",
+        "all": "Žádný zápas nenalezen"
+      },
+      "status": {
+        "SCHEDULED": "NAPLÁNOVÁN",
+        "IN_PROGRESS": "ŽIVĚ",
+        "COMPLETED": "ODEHRÁN",
+        "POSTPONED": "ODLOŽEN",
+        "CANCELLED": "ZRUŠEN"
+      },
+      "count_one": "{{count}} zápas",
+      "count_few": "{{count}} zápasy",
+      "count_many": "{{count}} zápasu",
+      "count_other": "{{count}} zápasů"
+    },
+    "stats": {
+      "title": "Statistiky",
+      "subtitle": "Kanadské bodování napříč všemi ligami a sezónami.",
+      "seasonFilter": "Sezóna",
+      "allSeasons": "Všechny sezóny",
+      "scope": "Top 50 podle bodů",
+      "tableTitle": "Kanadské bodování",
+      "empty": "Zatím žádné statistiky",
+      "emptyHint": "Čísla se objeví po odehrání prvních zápasů."
+    },
+    "about": {
+      "title": "O projektu",
+      "subtitle": "Místo, kde amatérská liga, její týmy a její čísla drží pohromadě.",
+      "ctaTitle": "Veďte svou ligu tady",
+      "ctaText": "Založte sezónu, přidejte týmy a rozpis, tabulku i statistiky hráčů nechte na aplikaci."
+    },
+    "landing": {
+      "browse": "Procházet soutěže",
+      "todayTitle": "Právě se hraje",
+      "allGames": "Všechny zápasy →",
+      "exploreTitle": "Kam dál",
+      "exploreSubtitle": "Veřejné výsledky bez registrace.",
+      "cards": {
+        "seasons": {
+          "title": "Sezóny a ligy",
+          "text": "Tabulky, rozpisy a výsledky každého kola — od okresního přeboru po hobby ligu.",
+          "action": "Procházet sezóny"
+        },
+        "tournaments": {
+          "title": "Turnaje",
+          "text": "Skupiny, pavouk play-off a průběžné výsledky během jednoho víkendu.",
+          "action": "Procházet turnaje"
+        },
+        "teams": {
+          "title": "Týmy a hráči",
+          "text": "Soupiska, forma a osobní statistiky — profil, který můžete poslat dál.",
+          "action": "Najít tým"
+        }
+      },
+      "organisers": {
+        "kicker": "Pro pořadatele",
+        "title": "Rozpis vygenerujete za minutu. Zbytek dopočítá aplikace.",
+        "text": "Založte sezónu, přidejte týmy a nechte si vygenerovat rozpis. Tabulka, statistiky hráčů i historie se počítají samy z výsledků, které zadáte u zápasu.",
+        "points": {
+          "schedule": "Automatický rozpis kol a odvet",
+          "liveTable": "Živá tabulka během rozehraných zápasů",
+          "playerStats": "Góly, asistence a trestné minuty u každého hráče"
+        },
+        "cta": "Založit sezónu",
+        "secondary": "Jak to funguje",
+        "previewUrl": "atm.cz/sezony/2026-2027",
+        "previewTitle": "Tabulka po 12 zápasech",
+        "previewNote": "Ukázka veřejné stránky sezóny."
+      },
+      "nextTitle": "Nejbližší zápasy"
+    },
+    "leagues": {
+      "title": "Ligy",
+      "subtitle": "Všechny soutěže vedené v aplikaci a sezóny, které odehrály.",
+      "view": "Zobrazit",
+      "searchPlaceholder": "Hledat ligu…",
+      "emptyHint": "Zkuste jiný sport nebo zrušte hledání.",
+      "activeCount_one": "{{count}} rozehraná sezóna",
+      "activeCount_few": "{{count}} rozehrané sezóny",
+      "activeCount_many": "{{count}} rozehrané sezóny",
+      "activeCount_other": "{{count}} rozehraných sezón",
+      "seasonCount_one": "{{count}} sezóna",
+      "seasonCount_few": "{{count}} sezóny",
+      "seasonCount_many": "{{count}} sezóny",
+      "seasonCount_other": "{{count}} sezón"
+    },
+    "tournaments": {
+      "title": "Turnaje",
+      "subtitle": "Skupiny, pavouk play-off a výsledky — celý turnaj na jednom místě.",
+      "view": "Zobrazit",
+      "searchPlaceholder": "Hledat turnaj…",
+      "count_one": "{{count}} turnaj",
+      "count_few": "{{count}} turnaje",
+      "count_many": "{{count}} turnaje",
+      "count_other": "{{count}} turnajů",
+      "editions_one": "{{count}} ročník",
+      "editions_few": "{{count}} ročníky",
+      "editions_many": "{{count}} ročníku",
+      "editions_other": "{{count}} ročníků",
+      "editionsTitle": "Ročníky",
+      "noEditions": "Zatím žádný ročník.",
+      "empty": "Zatím žádný turnaj",
+      "emptyHint": "Turnaje se tu objeví, jakmile je pořadatel založí.",
+      "status": {
+        "DRAFT": "KONCEPT",
+        "REGISTRATION": "PŘIHLÁŠKY",
+        "GROUP_STAGE": "SKUPINY",
+        "PLAYOFF": "PLAY-OFF",
+        "COMPLETED": "DOKONČEN"
+      }
+    }
   }
 }

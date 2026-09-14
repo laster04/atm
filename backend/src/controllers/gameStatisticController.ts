@@ -439,3 +439,30 @@ export const getArchivedPlayerStats = async (req: Request, res: Response): Promi
 		res.status(500).json({ error: 'Failed to fetch archived player stats' });
 	}
 };
+
+/**
+ * Scoring leaders across the whole app rather than inside one season — the
+ * public statistics page. Unnarrowed it ranks every game on record, so the
+ * league, season and sport filters are what keep the board meaningful.
+ */
+export const getTopScorers = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { leagueId, seasonId, sport } = req.query as Record<string, string | undefined>;
+		const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+
+		const season: Prisma.SeasonWhereInput = {
+			...(seasonId && { id: seasonId }),
+			...(leagueId && { leagueId }),
+			...(sport && { league: { sportType: sport as any } }),
+		};
+
+		const result = await aggregatePlayerStats(
+			Object.keys(season).length > 0 ? { season } : {},
+			{ limit }
+		);
+		res.json(result);
+	} catch (error) {
+		console.error('Get top scorers error:', error);
+		res.status(500).json({ error: 'Failed to fetch top scorers' });
+	}
+};

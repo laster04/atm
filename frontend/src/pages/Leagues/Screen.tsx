@@ -1,53 +1,96 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { leagueApi } from '../../services/api';
-import type { League } from '@types';
-
-import LeagueFilters, { type FilterValue } from './components/LeagueFilters';
+import { Search, Trophy } from 'lucide-react';
+import { leagueApi } from '@/services/api';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { SportType, type League } from '@types';
+import { EmptyState, FilterTabs, PublicHero, type FilterTab } from '@/components/public';
 import LeagueCard from './components/LeagueCard';
 
+type Filter = 'all' | SportType;
+
 export default function LeaguesScreen() {
-  const { t } = useTranslation();
-  const [filter, setFilter] = useState<FilterValue>('all');
-  const [leagues, setLeagues] = useState<League[]>([]);
-  const [loading, setLoading] = useState(false);
+	const { t } = useTranslation();
+	const [filter, setFilter] = useState<Filter>('all');
+	const [search, setSearch] = useState('');
+	const [leagues, setLeagues] = useState<League[]>([]);
+	const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setLoading(true);
-    leagueApi.getAll()
-      .then((res) => setLeagues(res.data))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
+	useDocumentTitle([t('public.nav.leagues')]);
 
-  const filteredLeagues = filter === 'all'
-    ? leagues
-    : leagues.filter((l) => l.sportType === filter);
+	useEffect(() => {
+		leagueApi.getAll()
+			.then((res) => setLeagues(res.data))
+			.catch((error) => console.error(error))
+			.finally(() => setLoading(false));
+	}, []);
 
-  if (loading && leagues.length === 0) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8 text-center">{t('leagues.loading')}</div>
-    );
-  }
+	// Only the sports actually in use get a pill; an empty filter helps nobody.
+	const tabs: FilterTab<Filter>[] = [
+		{ value: 'all', label: t('leagues.filter.all') },
+		...Array.from(new Set(leagues.map((league) => league.sportType))).map((sport) => ({
+			value: sport as Filter,
+			label: t(`sports.${sport}`),
+		})),
+	];
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{t('leagues.title')}</h1>
-        <LeagueFilters filter={filter} onFilterChange={setFilter} />
-      </div>
+	const visible = useMemo(() => {
+		const term = search.trim().toLowerCase();
+		return leagues.filter((league) => {
+			if (filter !== 'all' && league.sportType !== filter) return false;
+			if (!term) return true;
+			return (
+				league.name.toLowerCase().includes(term) ||
+				(league.description ?? '').toLowerCase().includes(term)
+			);
+		});
+	}, [leagues, filter, search]);
 
-      {filteredLeagues.length === 0 ? (
-        <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-          {t('leagues.noLeagues')}
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredLeagues.map((league) => (
-            <LeagueCard key={league.id} league={league} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+	return (
+		<>
+			<PublicHero
+				kicker={t('public.hero.kicker')}
+				title={t('public.leagues.title')}
+				subtitle={t('public.leagues.subtitle')}
+				crumbs={[{ label: t('public.nav.home'), to: '/' }, { label: t('public.nav.leagues') }]}
+				sport={leagues[0]?.sportType}
+			/>
+
+			<div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 py-7 sm:px-8">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+					{tabs.length > 2 && <FilterTabs tabs={tabs} value={filter} onChange={setFilter} />}
+					<div className="flex h-10 items-center gap-2.5 rounded-lg border border-border bg-card px-3.5 sm:ml-auto sm:w-64">
+						<Search className="size-4 shrink-0 text-muted-foreground" />
+						<input
+							value={search}
+							onChange={(event) => setSearch(event.target.value)}
+							placeholder={t('public.leagues.searchPlaceholder')}
+							aria-label={t('public.leagues.searchPlaceholder')}
+							className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+						/>
+					</div>
+				</div>
+
+				{loading ? (
+					<div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+						{[0, 1, 2].map((key) => (
+							<div key={key} className="h-44 animate-pulse rounded-2xl border border-border bg-card" />
+						))}
+					</div>
+				) : visible.length === 0 ? (
+					<EmptyState
+						icon={<Trophy className="size-7" />}
+						title={t('leagues.noLeagues')}
+						hint={t('public.leagues.emptyHint')}
+					/>
+				) : (
+					<div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+						{visible.map((league) => (
+							<LeagueCard key={league.id} league={league} />
+						))}
+					</div>
+				)}
+			</div>
+		</>
+	);
 }

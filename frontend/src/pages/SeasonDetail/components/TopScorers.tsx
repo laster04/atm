@@ -1,63 +1,61 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TopScorer } from "@types";
+import { TopScorer } from '@types';
+
+/** Gold, silver, bronze for the first three; the rest take the quiet chip. */
+const MEDALS = ['bg-brand text-brand-ink', 'bg-border text-subtle-foreground', 'bg-warning-soft text-warning-strong'];
 
 interface TopScorersProps {
-  topScorers: TopScorer[];
-  loading?: boolean;
+	topScorers: TopScorer[];
+	loading?: boolean;
 }
 
 export default function TopScorers({ topScorers, loading }: TopScorersProps) {
-  const { t } = useTranslation();
+	const { t } = useTranslation();
 
-  if (loading) {
-    return (
-      <div className="text-center py-4 text-muted-foreground">
-        {t('common.loading')}
-      </div>
-    );
-  }
+	if (loading) {
+		return <div className="px-5 py-10 text-center text-sm text-muted-foreground">{t('common.loading')}</div>;
+	}
 
-  if (topScorers.length === 0) {
-    return (
-      <div className="text-center py-4 text-muted-foreground">
-        {t('seasonDetail.overview.noTopScorers')}
-      </div>
-    );
-  }
+	if (topScorers.length === 0) {
+		return (
+			<div className="px-5 py-10 text-center text-sm text-muted-foreground">
+				{t('seasonDetail.overview.noTopScorers')}
+			</div>
+		);
+	}
 
-  return (
-    <div className="space-y-4">
-      {topScorers.map((scorer, index) => (
-          <div
-              key={scorer.player.id}
-              className="flex items-center justify-between py-2 border-b last:border-0"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                      index === 1 ? 'bg-gray-300 text-gray-700' :
-                          index === 2 ? 'bg-amber-600 text-amber-100' :
-                              'bg-muted-foreground/20 text-muted-foreground'
-              }`}>
-                {index + 1}
-              </div>
-              <div>
-                <Link
-                    to={`/players/${scorer.player.id}`}
-                    className="font-medium transition-colors"
-                >
-                  {scorer.player.name}
-                </Link>
-                <div className="text-xs text-muted-foreground">
-                  {scorer.player.team?.name}
-                  {scorer.player.number && ` · #${scorer.player.number}`}
-                </div>
-              </div>
-            </div>
-            <div className="text-xl font-medium">{scorer.points} pts</div>
-          </div>
-      ))}
-    </div>
-  );
+	return (
+		<div className="flex flex-col">
+			{topScorers.map((scorer, index) => (
+				<div
+					key={scorer.player.id}
+					className="flex items-center gap-3 border-b border-border-subtle px-5 py-3 last:border-0"
+				>
+					<span
+						className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${
+							MEDALS[index] ?? 'bg-muted text-subtle-foreground'
+						}`}
+					>
+						{index + 1}
+					</span>
+					<div className="flex min-w-0 flex-col">
+						<Link to={`/players/${scorer.player.id}`} className="truncate text-sm font-semibold hover:text-primary">
+							{scorer.player.name}
+						</Link>
+						<span className="truncate text-xs text-muted-foreground">
+							{scorer.player.team?.name}
+							{scorer.player.number ? ` · #${scorer.player.number}` : ''}
+						</span>
+					</div>
+					<div className="ml-auto flex items-baseline gap-1">
+						<span className="text-[18px] font-extrabold">{scorer.points}</span>
+						<span className="text-[11px] text-muted-foreground">
+							{t('seasonDetail.overview.pointsShort')}
+						</span>
+					</div>
+				</div>
+			))}
+		</div>
+	);
 }

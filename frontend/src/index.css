@@ -6,79 +6,122 @@
 
 :root {
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: 236 236 240;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
-  --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
-  --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --font-weight-medium: 500;
+
+  /* ---------------------------------------------------------------------
+     One palette for the whole app — public pages and the manager shells.
+     Every colour is an "R G B" triple, never a finished colour function:
+     tailwind.config.js wraps each one in rgb(var(--x) / <alpha-value>), so
+     opacity modifiers (bg-primary/90, ring-ring/50) actually emit a rule.
+     A token written as a finished colour silently kills every /alpha use.
+     --------------------------------------------------------------------- */
+
+  /* brand marks */
+  --brand: 255 198 41;           /* #FFC629 — the logo's gold */
+  --brand-ink: 37 37 37;         /* text ON gold; white is 1.6:1 there */
+  --brand-text: 138 100 0;       /* gold-coloured text on a light surface */
+  --navy: 15 23 42;              /* #0F172A — heroes, footer, season shell */
+  --ice: 232 241 255;            /* #E8F1FF — tinted surface */
+
+  /* surfaces */
+  --background: 246 248 251;     /* #F6F8FB */
+  --foreground: 15 23 42;
+  --card: 255 255 255;
+  --card-foreground: 15 23 42;
+  --popover: 255 255 255;
+  --popover-foreground: 15 23 42;
+
+  /* actions */
+  --primary: 11 99 246;          /* #0B63F6 */
+  --primary-foreground: 255 255 255;
+  --secondary: 241 245 249;
+  --secondary-foreground: 15 23 42;
+  --muted: 241 245 249;
+  --muted-foreground: 100 116 139;   /* #64748B */
+  --subtle-foreground: 71 85 105;    /* #475569 — body copy on light */
+  --accent: 232 241 255;
+  --accent-foreground: 11 99 246;
+
+  /* status — each tone carries a soft fill and a legible ink for badges */
+  --success: 34 197 94;
+  --success-foreground: 255 255 255;
+  --success-soft: 220 252 231;
+  --success-strong: 21 128 61;
+  --warning: 245 158 11;
+  --warning-foreground: 255 255 255;
+  --warning-soft: 254 243 199;
+  --warning-strong: 146 64 14;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --destructive-soft: 254 226 226;
+  --destructive-strong: 185 28 28;
+
+  /* lines and fields */
+  --border: 226 232 240;         /* #E2E8F0 */
+  --border-subtle: 238 242 246;  /* row separators inside a card */
+  --input: 226 232 240;
+  --input-background: 255 255 255;
+  --switch-background: 203 213 225;
+  --ring: 11 99 246;
+
+  --radius: 0.75rem;             /* 12px — sm 8, md 10, lg 12, xl 16 */
+
+  /* manager shells: admin gold, season navy, team = the team's own colour */
+  --shell-admin: var(--brand);
+  --shell-season: var(--navy);
+
+  --chart-1: 11 99 246;
+  --chart-2: 34 197 94;
+  --chart-3: 245 158 11;
+  --chart-4: 124 58 237;
+  --chart-5: 239 68 68;
+
+  --sidebar: 255 255 255;
+  --sidebar-foreground: 15 23 42;
+  --sidebar-primary: 11 99 246;
+  --sidebar-primary-foreground: 255 255 255;
+  --sidebar-accent: 232 241 255;
+  --sidebar-accent-foreground: 11 99 246;
+  --sidebar-border: 226 232 240;
+  --sidebar-ring: 11 99 246;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --background: 10 10 10;
+  --foreground: 250 250 250;
+  --card: 10 10 10;
+  --card-foreground: 250 250 250;
+  --popover: 10 10 10;
+  --popover-foreground: 250 250 250;
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+  --secondary: 38 38 38;
+  --secondary-foreground: 250 250 250;
   --muted: 39 39 47;
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --input-background: oklch(0.2 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --muted-foreground: 161 161 161;
+  --subtle-foreground: 203 213 225;
+  --accent: 30 58 95;
+  --accent-foreground: 219 234 254;
+  --destructive: 130 24 26;
+  --destructive-foreground: 251 44 54;
+  --destructive-soft: 69 10 10;
+  --destructive-strong: 248 113 113;
+  --success-soft: 5 46 22;
+  --success-strong: 134 239 172;
+  --warning-soft: 66 32 6;
+  --warning-strong: 253 224 71;
+  --border: 38 38 38;
+  --border-subtle: 30 30 30;
+  --input: 38 38 38;
+  --input-background: 22 22 22;
+  --ring: 82 82 82;
+  --sidebar: 23 23 23;
+  --sidebar-foreground: 250 250 250;
+  --sidebar-accent: 38 38 38;
+  --sidebar-accent-foreground: 250 250 250;
+  --sidebar-border: 38 38 38;
+  --sidebar-ring: 82 82 82;
 }
 
 @layer base {
@@ -88,7 +131,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
     min-height: 100vh;
     font-size: var(--font-size);
@@ -141,4 +184,15 @@
 .MuiModal-root,
 .MuiPopover-root {
   pointer-events: auto;
+}
+
+/* The filter pill rows scroll sideways on a phone; the bar under them reads as
+   a stray divider, so it is hidden while the row stays scrollable. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

@@ -7,6 +7,8 @@ import type {
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
+  Paged, PublicTeam, PublicPlayer, PublicTeamQuery, PublicPlayerQuery,
+  PublicGameQuery, TopScorerQuery, SearchResults,
 } from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -106,6 +108,8 @@ export const seasonApi = {
 };
 
 export const teamApi = {
+  // The public directory: every team, paged, with its most recent season.
+  getPublic: (params?: PublicTeamQuery) => api.get<Paged<PublicTeam>>('/teams', { params }),
   getMyTeams: () => api.get<Team[]>('/teams/my'),
   getBySeason: (seasonId: string | number) => api.get<Team[]>(`/teams/season/${seasonId}`),
   getById: (id: string | number) => api.get<Team>(`/teams/${id}`),
@@ -124,6 +128,8 @@ export const teamApi = {
 };
 
 export const playerApi = {
+  // The public directory, each row carrying the player's totals.
+  getPublic: (params?: PublicPlayerQuery) => api.get<Paged<PublicPlayer>>('/players', { params }),
   getByTeam: (teamId: string | number) => api.get<Player[]>(`/players/team/${teamId}`),
   getById: (id: string | number) => api.get<Player>(`/players/${id}`),
   create: (teamId: string | number, data: Partial<Player>) =>
@@ -152,6 +158,8 @@ export const matchEventApi = {
 };
 
 export const gameApi = {
+  // Fixtures across every season: upcoming by default, or live / results.
+  getPublic: (params?: PublicGameQuery) => api.get<Paged<Game>>('/games', { params }),
   getBySeason: (seasonId: string | number) => api.get<Game[]>(`/games/season/${seasonId}`),
   getById: (id: string | number) => api.get<Game>(`/games/${id}`),
   create: (seasonId: string | number, data: Partial<Game>) =>
@@ -173,6 +181,9 @@ export const gameStatisticApi = {
   getByGame: (gameId: string | number) => api.get<HockeyGameStatistic[]>(`/game-statistics/game/${gameId}`),
   getByPlayer: (playerId: string | number) => api.get<HockeyGameStatistic[]>(`/game-statistics/player/${playerId}`),
   getById: (id: string | number) => api.get<HockeyGameStatistic>(`/game-statistics/${id}`),
+  // App-wide leaders, optionally narrowed to a league, season or sport.
+  getTopScorers: (params?: TopScorerQuery) =>
+    api.get<TopScorer[]>('/game-statistics/top', { params }),
   getTopScorersBySeason: (seasonId: string | number, limit?: number) =>
     api.get<TopScorer[]>(`/game-statistics/season/${seasonId}/top`, { params: { limit } }),
   getScorersBySeasonAndTeam: (seasonId: string | number, teamId: string | number) =>
@@ -311,3 +322,10 @@ export const tournamentGameApi = {
 };
 
 export default api;
+
+export const searchApi = {
+  // One box over teams, players, seasons and leagues; below two characters the
+  // server answers with empty lists rather than half the database.
+  search: (q: string, limit?: number) =>
+    api.get<SearchResults>('/search', { params: { q, limit } })
+};

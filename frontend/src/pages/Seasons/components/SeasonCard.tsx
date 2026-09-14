@@ -1,49 +1,66 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight, CalendarDays, Trophy, Users } from 'lucide-react';
 import { formatSeasonDate } from '@/utils/date';
-import type { Season, SeasonStatus } from '@types';
+import { SeasonStatus, type Season } from '@types';
+import { SeasonStatusBadge } from '@/components/public';
 
-interface SeasonCardProps {
-  season: Season;
-}
+/** The accent stripe reads status at a glance across a grid of cards. */
+const STRIPE: Record<SeasonStatus, string> = {
+	[SeasonStatus.ACTIVE]: 'rgb(var(--primary))',
+	[SeasonStatus.COMPLETED]: 'rgb(var(--border))',
+	[SeasonStatus.DRAFT]: 'rgb(var(--muted))',
+};
 
-export default function SeasonCard({ season }: SeasonCardProps) {
-  const { t, i18n } = useTranslation();
+export default function SeasonCard({ season }: { season: Season }) {
+	const { t, i18n } = useTranslation();
+	const teams = season._count?.seasonTeams ?? season._count?.teams ?? 0;
+	const games = season._count?.games ?? 0;
 
-  const statusBadge = (status: SeasonStatus) => {
-    const colors: Record<SeasonStatus, string> = {
-      DRAFT: 'bg-gray-200 text-gray-700',
-      ACTIVE: 'bg-green-200 text-green-700',
-      COMPLETED: 'bg-blue-200 text-blue-700',
-    };
-    return (
-      <span className={`px-2 py-1 rounded text-sm ${colors[status]}`}>
-        {t(`seasons.status.${status}`)}
-      </span>
-    );
-  };
+	return (
+		<Link
+			to={`/season-detail/${season.id}`}
+			className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-card p-5 pl-6 shadow-sm transition-shadow hover:shadow-md"
+		>
+			<span
+				aria-hidden
+				className="absolute inset-y-0 left-0 w-1"
+				style={{ backgroundColor: STRIPE[season.status] }}
+			/>
+			{/* A tint in the corner, not a photograph: the grid stays quiet. */}
+			<span
+				aria-hidden
+				className="pointer-events-none absolute right-0 top-0 size-40 opacity-70"
+				style={{ background: 'radial-gradient(120px 120px at 100% 0%, rgb(var(--accent)) 0%, rgb(var(--card) / 0) 70%)' }}
+			/>
 
-  return (
-    <Link
-      to={`/season-detail/${season.id}`}
-      className="block bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow"
-    >
-      <div className="flex justify-between items-start mb-2">
-        <h2 className="text-xl font-semibold">{season.name}</h2>
-        {statusBadge(season.status)}
-      </div>
-      <p className="text-gray-600 mb-3">{season.league?.name || '-'}</p>
-      <p className="text-sm text-gray-500">
-        {formatSeasonDate(season.startDate, i18n.language)} - {formatSeasonDate(season.endDate, i18n.language)}
-      </p>
-      <div className="mt-3 pt-3 border-t flex justify-between text-sm text-gray-500">
-        <span>
-          {season._count?.seasonTeams ?? season._count?.teams ?? 0} {t('common.teams')}
-        </span>
-        <span>
-          {season._count?.games} {t('common.games')}
-        </span>
-      </div>
-    </Link>
-  );
+			<div className="relative flex items-start justify-between gap-3">
+				<div className="flex flex-col gap-1">
+					<h2 className="text-2xl font-extrabold leading-tight tracking-tight">{season.name}</h2>
+					<p className="text-sm text-subtle-foreground">{season.league?.name || '—'}</p>
+				</div>
+				<SeasonStatusBadge status={season.status} archived={!!season.archivedAt} />
+			</div>
+
+			<div className="relative flex items-center gap-2 text-[13px] text-subtle-foreground">
+				<CalendarDays className="size-4 text-muted-foreground" />
+				{formatSeasonDate(season.startDate, i18n.language)} – {formatSeasonDate(season.endDate, i18n.language)}
+			</div>
+
+			<div className="relative flex items-center gap-5 border-t border-border-subtle pt-3.5 text-[13px] text-subtle-foreground">
+				<span className="flex items-center gap-2">
+					<Users className="size-4 text-muted-foreground" />
+					{t('public.teams.count', { count: teams })}
+				</span>
+				<span className="flex items-center gap-2">
+					<Trophy className="size-4 text-muted-foreground" />
+					{t('public.games.count', { count: games })}
+				</span>
+				<span className="ml-auto flex items-center gap-1.5 text-[13px] font-semibold text-primary">
+					{t('public.seasons.view')}
+					<ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+				</span>
+			</div>
+		</Link>
+	);
 }

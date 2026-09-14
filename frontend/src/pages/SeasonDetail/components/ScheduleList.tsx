@@ -1,86 +1,47 @@
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/base/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card";
-import { FilterTimeEnum, GameSchedule } from "@/pages/SeasonDetail/components/GameSchedule.tsx";
-
 import type { Game } from '@types';
-import { TabSeasonDetailType } from "@/pages/SeasonDetail/Screen.tsx";
+import { EmptyState, FilterTabs, Panel, type FilterTab } from '@/components/public';
+import { TabSeasonDetailType } from '../Screen';
+import { FilterTimeEnum, GameSchedule } from './GameSchedule';
 
-interface ScheduleListProps {
-  games: Game[];
-}
+export default function ScheduleList({ games }: { games: Game[] }) {
+	const { t } = useTranslation();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const active = (searchParams.get('scheduleType') as FilterTimeEnum) || FilterTimeEnum.UPCOMING;
 
-enum TabScheduleType {
-  RECENT = 'recent',
-  TODAY = 'today',
-  UPCOMING = 'upcoming'
-}
+	const setActive = (scheduleType: FilterTimeEnum) => {
+		setSearchParams({ tab: TabSeasonDetailType.SCHEDULE, scheduleType }, { replace: true });
+	};
 
-export default function ScheduleList({ games }: ScheduleListProps) {
-  const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('scheduleType') || TabScheduleType.UPCOMING;
+	if (games.length === 0) {
+		return <EmptyState title={t('seasonDetail.schedule.noGames')} />;
+	}
 
-  const setActiveScheduleTab = (scheduleType: string) => {
-    setSearchParams({ tab: TabSeasonDetailType.SCHEDULE, scheduleType }, { replace: true });
-  };
+	const tabs: FilterTab<FilterTimeEnum>[] = [
+		{ value: FilterTimeEnum.UPCOMING, label: t('seasonDetail.schedule.upcoming') },
+		{ value: FilterTimeEnum.TODAY, label: t('seasonDetail.schedule.today') },
+		{ value: FilterTimeEnum.RECENT, label: t('seasonDetail.schedule.recent') },
+	];
 
-  if (games.length === 0) {
-    return (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">{t('seasonDetail.schedule.noGames')}</p>
-          </CardContent>
-        </Card>
-    );
-  }
+	const titles: Record<FilterTimeEnum, string> = {
+		[FilterTimeEnum.UPCOMING]: t('seasonDetail.schedule.upcomingGames'),
+		[FilterTimeEnum.TODAY]: t('seasonDetail.schedule.todaysSchedule'),
+		[FilterTimeEnum.RECENT]: t('seasonDetail.schedule.recentGames'),
+	};
 
-  return (
-      <>
-      <Tabs defaultValue={activeTab} onValueChange={setActiveScheduleTab} className="space-y-6">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
-          <TabsTrigger value={TabScheduleType.RECENT}>{t('seasonDetail.schedule.recent')}</TabsTrigger>
-          <TabsTrigger value={TabScheduleType.TODAY}>{t('seasonDetail.schedule.today')}</TabsTrigger>
-          <TabsTrigger value={TabScheduleType.UPCOMING}>{t('seasonDetail.schedule.upcoming')}</TabsTrigger>
-        </TabsList>
+	const descriptions: Record<FilterTimeEnum, string> = {
+		[FilterTimeEnum.UPCOMING]: t('seasonDetail.schedule.upcomingGamesDescription'),
+		[FilterTimeEnum.TODAY]: t('seasonDetail.schedule.todaysGamesDescription'),
+		[FilterTimeEnum.RECENT]: t('seasonDetail.schedule.recentGamesDescription'),
+	};
 
-        <TabsContent value="recent">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('seasonDetail.schedule.recentGames')}</CardTitle>
-              <CardDescription>{t('seasonDetail.schedule.recentGamesDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GameSchedule filter={FilterTimeEnum.RECENT} games={games} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="today">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('seasonDetail.schedule.todaysSchedule')}</CardTitle>
-              <CardDescription>{t('seasonDetail.schedule.todaysGamesDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GameSchedule filter={FilterTimeEnum.TODAY} games={games} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="upcoming">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('seasonDetail.schedule.upcomingGames')}</CardTitle>
-              <CardDescription>{t('seasonDetail.schedule.upcomingGamesDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      </>
-  );
+	return (
+		<div className="flex flex-col gap-5">
+			<FilterTabs tabs={tabs} value={active} onChange={setActive} className="self-start" />
+			<Panel flush title={titles[active]} description={descriptions[active]}>
+				<GameSchedule filter={active} games={games} />
+			</Panel>
+		</div>
+	);
 }

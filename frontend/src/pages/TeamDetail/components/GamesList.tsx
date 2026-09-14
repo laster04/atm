@@ -1,110 +1,110 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { formatGameDateTime } from '@/utils/date';
-import type { Game } from '@types';
+import { formatDateShort, formatGameTime } from '@/utils/date';
+import { GameStatus, type Game } from '@types';
+import { EmptyState, Panel } from '@/components/public';
 
 interface GamesListProps {
-  games: Game[];
-  teamId: string;
+	games: Game[];
+	teamId: string;
+	seasonId?: string;
 }
 
-export default function GamesList({ games, teamId }: GamesListProps) {
-  const { t, i18n } = useTranslation();
+type Result = 'W' | 'D' | 'L';
 
-  const upcomingGames = games.filter((g) => g.status === 'SCHEDULED');
-  const completedGames = games.filter((g) => g.status === 'COMPLETED');
+/** How a finished game went for this team, from its own side of the score. */
+export function resultOf(game: Game, teamId: string): Result {
+	const home = game.homeTeamId === teamId;
+	const own = (home ? game.homeScore : game.awayScore) ?? 0;
+	const other = (home ? game.awayScore : game.homeScore) ?? 0;
+	return own > other ? 'W' : own < other ? 'L' : 'D';
+}
 
-  return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">{t('teamDetail.games.title')}</h2>
-      <div className="space-y-4">
-        {upcomingGames.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 mb-2">
-              {t('teamDetail.games.upcoming')}
-            </h3>
-            {upcomingGames.slice(0, 5).map((game) => (
-              <div key={game.id} className="bg-white p-3 rounded-lg shadow mb-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">
-                    {game.homeTeamId === teamId ? 'vs' : '@'}{' '}
-                    {game.homeTeamId === teamId ? game.awayTeam?.name : game.homeTeam?.name}
-                  </span>
-                  <span className="text-sm text-gray-500">{formatGameDateTime(game.date, i18n.language)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+const RESULT_TONE: Record<Result, string> = {
+	W: 'bg-success-soft text-success-strong',
+	D: 'bg-muted text-subtle-foreground',
+	L: 'bg-destructive-soft text-destructive-strong',
+};
 
-        {completedGames.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 mb-2">
-              {t('teamDetail.games.recentResults')}
-            </h3>
-            {completedGames
-              .slice(-5)
-              .reverse()
-              .map((game) => {
-                const isHome = game.homeTeamId === teamId;
-                const teamScore = isHome ? game.homeScore : game.awayScore;
-                const oppScore = isHome ? game.awayScore : game.homeScore;
-                const result =
-                  (teamScore ?? 0) > (oppScore ?? 0)
-                    ? 'W'
-                    : (teamScore ?? 0) < (oppScore ?? 0)
-                      ? 'L'
-                      : 'D';
-                const resultColor =
-                  result === 'W'
-                    ? 'text-green-600'
-                    : result === 'L'
-                      ? 'text-red-600'
-                      : 'text-gray-600';
+export default function GamesList({ games, teamId, seasonId }: GamesListProps) {
+	const { t, i18n } = useTranslation();
 
-                return (
-                  <div key={game.id} className="bg-white p-3 rounded-lg shadow mb-2">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className={`font-bold ${resultColor} mr-2`}>{result}</span>
-                        <span className="font-medium">
-                          {isHome ? 'vs' : '@'}{' '}
-                          {isHome ? game.awayTeam?.name : game.homeTeam?.name}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-bold">
-                          {teamScore} - {oppScore}
-                        </span>
-                        {isHome
-                          ? (game.period1HomeScore != null || game.period2HomeScore != null || game.period3HomeScore != null) && (
-                            <div className="flex gap-2 text-xs text-gray-400 justify-end">
-                              {game.period1HomeScore != null && <span>P1: {game.period1HomeScore}-{game.period1AwayScore}</span>}
-                              {game.period2HomeScore != null && <span>P2: {game.period2HomeScore}-{game.period2AwayScore}</span>}
-                              {game.period3HomeScore != null && <span>P3: {game.period3HomeScore}-{game.period3AwayScore}</span>}
-                            </div>
-                          )
-                          : (game.period1AwayScore != null || game.period2AwayScore != null || game.period3AwayScore != null) && (
-                            <div className="flex gap-2 text-xs text-gray-400 justify-end">
-                              {game.period1AwayScore != null && <span>P1: {game.period1AwayScore}-{game.period1HomeScore}</span>}
-                              {game.period2AwayScore != null && <span>P2: {game.period2AwayScore}-{game.period2HomeScore}</span>}
-                              {game.period3AwayScore != null && <span>P3: {game.period3AwayScore}-{game.period3HomeScore}</span>}
-                            </div>
-                          )
-                        }
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        )}
+	// Undated fixtures sort last in the API's list, so a completed game without a
+	// date would otherwise be picked up as one of the "latest" five.
+	const completed = games
+		.filter((game) => game.status === GameStatus.COMPLETED && game.date)
+		.sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime())
+		.slice(0, 5);
+	const upcoming = games.filter((game) => game.status === GameStatus.SCHEDULED).slice(0, 5);
+	const rows = [...completed, ...upcoming];
 
-        {upcomingGames.length === 0 && completedGames.length === 0 && (
-          <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
-            {t('teamDetail.games.noGames')}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+	return (
+		<Panel
+			flush
+			title={t('teamDetail.games.title')}
+			action={
+				seasonId && (
+					<Link
+						to={`/season-detail/${seasonId}?tab=schedule`}
+						className="text-[13px] font-semibold text-primary hover:opacity-90"
+					>
+						{t('seasonDetail.overview.viewFullSchedule')}
+					</Link>
+				)
+			}
+		>
+			{rows.length === 0 ? (
+				<EmptyState title={t('teamDetail.games.none')} />
+			) : (
+				<div className="flex flex-col">
+					{rows.map((game) => {
+						const home = game.homeTeamId === teamId;
+						const opponent = home ? game.awayTeam : game.homeTeam;
+						const played = game.status === GameStatus.COMPLETED;
+						const result = played ? resultOf(game, teamId) : null;
+
+						return (
+							<div
+								key={game.id}
+								className="flex items-center gap-4 border-b border-border-subtle px-5 py-3.5 last:border-0"
+							>
+								<div className="flex w-24 shrink-0 flex-col">
+									<span className="text-[13px] font-bold">
+										{game.date ? formatDateShort(game.date, i18n.language) : t('public.games.noTime')}
+									</span>
+									{game.date && !played && (
+										<span className="text-xs text-muted-foreground">
+											{formatGameTime(game.date, i18n.language)}
+										</span>
+									)}
+								</div>
+
+								<div className="flex min-w-0 flex-1 items-center gap-2 text-sm">
+									<span className="shrink-0 text-muted-foreground">
+										{home ? t('teamDetail.games.home') : t('teamDetail.games.away')}
+									</span>
+									<span className="truncate font-semibold">{opponent?.name ?? '—'}</span>
+								</div>
+
+								{played ? (
+									<div className="flex shrink-0 items-center gap-3">
+										<span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${RESULT_TONE[result!]}`}>
+											{t(`teamDetail.games.result.${result}`)}
+										</span>
+										<span className="w-14 text-right text-[15px] font-extrabold tabular-nums">
+											{home ? game.homeScore ?? 0 : game.awayScore ?? 0} : {home ? game.awayScore ?? 0 : game.homeScore ?? 0}
+										</span>
+									</div>
+								) : (
+									<span className="w-14 shrink-0 text-right text-xs text-muted-foreground">
+										{game.round != null ? t('seasonDetail.schedule.round', { round: game.round }) : ''}
+									</span>
+								)}
+							</div>
+						);
+					})}
+				</div>
+			)}
+		</Panel>
+	);
 }

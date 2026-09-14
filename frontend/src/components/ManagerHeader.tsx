@@ -29,7 +29,7 @@ export default function ManagerHeader({
 	title,
 	subtitle,
 	backTo,
-	color = '#003E7E',
+	color = '#0F172A',
 	ink = 'light',
 }: ManagerHeaderProps) {
 	const { t, i18n } = useTranslation();

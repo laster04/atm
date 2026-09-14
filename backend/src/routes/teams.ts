@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getMyTeams,
+  getPublicTeams,
   getTeamsBySeasonId,
   getTeamById,
   createTeam,
@@ -16,6 +17,8 @@ import { requireSeasonAccess, requireTeamAccess, requireTeamAdmin } from '../mid
 
 const router = Router();
 
+// Public directory of every team; the manager lists stay season-scoped below.
+router.get('/', getPublicTeams);
 router.get('/my', authenticate, getMyTeams);
 router.get('/season/:seasonId', getTeamsBySeasonId);
 router.get('/available/:seasonId', getTeamsAvailableForSeason);

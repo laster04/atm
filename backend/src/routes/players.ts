@@ -8,12 +8,16 @@ import {
   movePlayer,
   linkPlayerToUser,
   unlinkPlayerFromUser,
-  getMyPlayerProfiles
+  getMyPlayerProfiles,
+  getPublicPlayers
 } from '../controllers/playerController.js';
 import { authenticate } from '../middleware/auth.js';
 import { requirePlayerAccess, requireTeamAccess } from '../middleware/access.js';
 
 const router = Router();
+
+// Public directory of every player, with their totals.
+router.get('/', getPublicPlayers);
 
 // Registered before '/:id' so it is not swallowed as a player id.
 router.get('/me', authenticate, getMyPlayerProfiles);

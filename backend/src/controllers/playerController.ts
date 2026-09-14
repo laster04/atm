@@ -399,3 +399,93 @@ export const getMyPlayerProfiles = async (req: AuthRequest, res: Response): Prom
     res.status(500).json({ error: 'Failed to fetch player profiles' });
   }
 };
+
+/**
+ * The public directory of players. Carries each player's career totals so the
+ * list can be sorted by production without a second round trip — one groupBy
+ * over the statistics of the players on the page, not per player.
+ *
+ * Totals are career-wide unless a season or league narrows the games counted;
+ * a player who changed teams keeps the rows they earned at each.
+ */
+export const getPublicPlayers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { search, teamId, seasonId, leagueId, sort } = req.query as Record<string, string | undefined>;
+    const take = Math.min(parseInt(req.query.take as string) || 48, 200);
+    const skip = parseInt(req.query.skip as string) || 0;
+
+    const seasonFilter: Prisma.SeasonWhereInput = {
+      ...(seasonId && { id: seasonId }),
+      ...(leagueId && { leagueId }),
+    };
+    const narrowed = Object.keys(seasonFilter).length > 0;
+
+    const where: Prisma.PlayerWhereInput = {
+      ...(search && { name: { contains: search, mode: 'insensitive' } }),
+      ...(teamId && { teamId }),
+      ...(narrowed && { team: { seasonTeams: { some: { season: seasonFilter } } } }),
+    };
+
+    // Sorting by points means ranking every match before paging, so that path
+    // aggregates first and pages the ranked list; the default name sort pages
+    // in the database and only totals the page it returns.
+    const byPoints = sort === 'points';
+
+    const [players, total] = await Promise.all([
+      prisma.player.findMany({
+        where,
+        include: {
+          team: { select: { id: true, name: true, logo: true, primaryColor: true } }
+        },
+        orderBy: [{ name: 'asc' }],
+        ...(byPoints ? {} : { take, skip })
+      }),
+      prisma.player.count({ where })
+    ]);
+
+    const gameFilter: Prisma.GameWhereInput | undefined = narrowed
+      ? { season: seasonFilter }
+      : undefined;
+    const gameIds = gameFilter
+      ? (await prisma.game.findMany({ where: gameFilter, select: { id: true } })).map(g => g.id)
+      : undefined;
+
+    const totals = await prisma.hockeyGameStatistic.groupBy({
+      by: ['playerId'],
+      where: {
+        playerId: { in: players.map(p => p.id) },
+        ...(gameIds && { gameId: { in: gameIds } })
+      },
+      _sum: { goals: true, assists: true, penaltyMinutes: true },
+      _count: { _all: true }
+    });
+    const byPlayer = new Map(totals.map(t => [t.playerId, t]));
+
+    let items = players.map(player => {
+      const t = byPlayer.get(player.id);
+      const goals = t?._sum.goals ?? 0;
+      const assists = t?._sum.assists ?? 0;
+      return {
+        ...player,
+        stats: {
+          gamesPlayed: t?._count._all ?? 0,
+          goals,
+          assists,
+          points: goals + assists,
+          penaltyMinutes: t?._sum.penaltyMinutes ?? 0
+        }
+      };
+    });
+
+    if (byPoints) {
+      items = items
+        .sort((a, b) => b.stats.points - a.stats.points || b.stats.goals - a.stats.goals)
+        .slice(skip, skip + take);
+    }
+
+    res.json({ items, total });
+  } catch (error) {
+    console.error('Get public players error:', error);
+    res.status(500).json({ error: 'Failed to fetch players' });
+  }
+};
