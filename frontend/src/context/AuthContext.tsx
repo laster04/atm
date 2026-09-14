@@ -71,6 +71,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(res.data.user);
   };
 
+  /** Everything released so far counts as read for this account. */
+  const markUpdatesSeen = async () => {
+    if (!user) return;
+    const res = await authApi.markUpdatesSeen();
+    const next = { ...user, updatesSeenAt: res.data.updatesSeenAt };
+    localStorage.setItem('user', JSON.stringify(next));
+    setUser(next);
+  };
+
   // These describe what the user actually manages, not a role they were given.
   // One account can be several of them at once - running a league and managing a
   // team are separate relations. The server re-checks every request; these only
@@ -95,7 +104,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isSeasonManager,
       isTeamManager,
       isTournamentManager,
-      canManageTeam
+      canManageTeam,
+      markUpdatesSeen
     }}>
       {children}
     </AuthContext.Provider>
