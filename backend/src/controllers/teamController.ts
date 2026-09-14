@@ -3,6 +3,8 @@ import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { resolveInvitee } from '../services/invite.js';
 import { canAdministerTeam } from '../services/access.js';
+import { canSeeFullRoster, toPublicManager, toPublicPlayer } from '../services/publicView.js';
+import { listedSeasonWhere, listedTeamWhere } from '../services/visibility.js';
 import {
   AuthRequest,
   CreateTeamRequest,
@@ -84,13 +86,17 @@ export const getTeamsBySeasonId = async (req: Request, res: Response): Promise<v
   }
 };
 
-export const getTeamById = async (req: Request, res: Response): Promise<void> => {
+export const getTeamById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    // A team is never hidden, but what it did in a hidden season is: its page
+    // shows the seasons and fixtures that are listed, and nothing else.
+    const listedSeason = listedSeasonWhere(req.user);
     const team = await prisma.team.findUnique({
       where: { id: id },
       include: {
         seasonTeams: {
+          where: { season: listedSeason },
           include: {
             season: {
               include: {
@@ -102,12 +108,14 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
         players: { orderBy: { number: 'asc' } },
         manager: { select: { id: true, name: true, email: true } },
         homeGames: {
+          where: { season: listedSeason },
           include: {
             awayTeam: { select: { id: true, name: true } }
           },
           orderBy: { date: 'asc' }
         },
         awayGames: {
+          where: { season: listedSeason },
           include: {
             homeTeam: { select: { id: true, name: true } }
           },
@@ -136,6 +144,19 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
       .map(st => st.season)
       .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
       .find(s => s.status === 'ACTIVE') || team.seasonTeams[0]?.season || null;
+
+    // A visitor gets the roster a spectator needs and no contact details; the
+    // team's own people get what they entered.
+    if (!(await canSeeFullRoster(req.user, team.id))) {
+      res.json({
+        ...team,
+        players: team.players.map(toPublicPlayer),
+        manager: toPublicManager(team.manager),
+        games: allGames,
+        season: activeSeason,
+      });
+      return;
+    }
 
     res.json({ ...team, games: allGames, season: activeSeason });
   } catch (error) {
@@ -507,22 +528,29 @@ export const inviteManager = async (req: AuthRequest, res: Response): Promise<vo
  * team's most recent one — the same convenience field `getMyTeams` builds, and
  * what the card in the directory reads.
  */
-export const getPublicTeams = async (req: Request, res: Response): Promise<void> => {
+export const getPublicTeams = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { search, leagueId, seasonId, sport } = req.query as Record<string, string | undefined>;
     const take = Math.min(parseInt(req.query.take as string) || 48, 200);
     const skip = parseInt(req.query.skip as string) || 0;
 
+    const listedSeason = listedSeasonWhere(req.user);
     const seasonFilter: Prisma.SeasonWhereInput = {
       ...(seasonId && { id: seasonId }),
       ...(leagueId && { leagueId }),
       ...(sport && { league: { sportType: sport as any } }),
     };
     const where: Prisma.TeamWhereInput = {
-      ...(search && { name: { contains: search, mode: 'insensitive' } }),
-      ...(Object.keys(seasonFilter).length > 0 && {
-        seasonTeams: { some: { season: seasonFilter } }
-      }),
+      AND: [
+        listedTeamWhere(req.user),
+        {
+          ...(search && { name: { contains: search, mode: 'insensitive' } }),
+          // Narrowing by a hidden season finds nothing rather than its teams.
+          ...(Object.keys(seasonFilter).length > 0 && {
+            seasonTeams: { some: { season: { AND: [seasonFilter, listedSeason] } } }
+          }),
+        },
+      ],
     };
 
     const [teams, total] = await Promise.all([
@@ -531,6 +559,7 @@ export const getPublicTeams = async (req: Request, res: Response): Promise<void>
         include: {
           _count: { select: { players: true } },
           seasonTeams: {
+            where: { season: listedSeason },
             include: {
               season: {
                 include: { league: { select: { id: true, name: true, sportType: true } } }

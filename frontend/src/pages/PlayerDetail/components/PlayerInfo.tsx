@@ -2,13 +2,19 @@ import { useTranslation } from 'react-i18next';
 import type { Player } from '@types';
 import { Panel } from '@/components/public';
 
+/**
+ * Public page, so most of a player's row never arrives: the API sends a name
+ * and a shirt number to anyone who is not on the team. Each field is rendered
+ * only when it is actually there, rather than as a row of dashes announcing
+ * what is being withheld.
+ */
 export default function PlayerInfo({ player }: { player: Player }) {
 	const { t } = useTranslation();
 
 	const rows: { label: string; value: React.ReactNode }[] = [
-		{ label: t('playerDetail.info.number'), value: player.number ?? '—' },
-		{ label: t('playerDetail.info.position'), value: player.position || '—' },
-		{ label: t('playerDetail.info.bornYear'), value: player.bornYear ?? '—' },
+		...(player.number != null ? [{ label: t('playerDetail.info.number'), value: player.number }] : []),
+		...(player.position ? [{ label: t('playerDetail.info.position'), value: player.position }] : []),
+		...(player.bornYear != null ? [{ label: t('playerDetail.info.bornYear'), value: player.bornYear }] : []),
 	];
 
 	return (

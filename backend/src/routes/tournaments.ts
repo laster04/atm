@@ -7,6 +7,7 @@ import {
   requireTournamentPlayerAccess,
   requireTournamentGroupAccess,
   requireTournamentGameAccess,
+  requireVisible,
 } from '../middleware/access.js';
 
 import {
@@ -71,41 +72,41 @@ import {
 const router = Router();
 
 // ── Series ─────────────────────────────────────────────────
-router.get('/series', getAllSeries);
-router.get('/series/:id', getSeriesById);
+router.get('/series', optionalAuth, getAllSeries);
+router.get('/series/:id', optionalAuth, requireVisible('series'), getSeriesById);
 router.post('/series', authenticate, createSeries);
 router.put('/series/:id', authenticate, requireSeriesAccess(), updateSeries);
 router.delete('/series/:id', authenticate, authorize('ADMIN'), deleteSeries);
 
 // ── Tournament editions ────────────────────────────────────
-router.get('/series/:seriesId/tournaments', getTournamentsBySeriesId);
+router.get('/series/:seriesId/tournaments', optionalAuth, requireVisible('series', 'seriesId'), getTournamentsBySeriesId);
 router.post('/series/:seriesId/tournaments', authenticate, requireSeriesAccess('seriesId'), createTournament);
 
-router.get('/:id', getTournamentById);
+router.get('/:id', optionalAuth, requireVisible('tournament'), getTournamentById);
 router.put('/:id', authenticate, requireTournamentAccess(), updateTournament);
 router.delete('/:id', authenticate, requireTournamentAccess(), deleteTournament);
-router.get('/:id/standings', getTournamentStandings);
-router.get('/:tournamentId/scorers', getTopScorersByTournament);
+router.get('/:id/standings', optionalAuth, requireVisible('tournament'), getTournamentStandings);
+router.get('/:tournamentId/scorers', optionalAuth, requireVisible('tournament', 'tournamentId'), getTopScorersByTournament);
 
 // ── Teams ──────────────────────────────────────────────────
-router.get('/:tournamentId/teams', getTeamsByTournament);
+router.get('/:tournamentId/teams', optionalAuth, requireVisible('tournament', 'tournamentId'), getTeamsByTournament);
 router.post('/:tournamentId/teams', authenticate, requireTournamentAccess('tournamentId'), createTeam);
 
-router.get('/teams/:id', getTeamById);
+router.get('/teams/:id', optionalAuth, requireVisible('tournamentTeam'), getTeamById);
 router.put('/teams/:id', authenticate, requireTournamentTeamAccess(), updateTeam);
 router.delete('/teams/:id', authenticate, requireTournamentTeamAccess(), deleteTeam);
 
 // ── Players ────────────────────────────────────────────────
-router.get('/teams/:teamId/players', getPlayersByTeam);
+router.get('/teams/:teamId/players', optionalAuth, requireVisible('tournamentTeam', 'teamId'), getPlayersByTeam);
 router.post('/teams/:teamId/players', authenticate, requireTournamentTeamAccess('teamId'), createPlayer);
 router.put('/players/:id', authenticate, requireTournamentPlayerAccess(), updatePlayer);
 router.delete('/players/:id', authenticate, requireTournamentPlayerAccess(), deletePlayer);
 
 // ── Groups ─────────────────────────────────────────────────
-router.get('/:tournamentId/groups', getGroupsByTournament);
+router.get('/:tournamentId/groups', optionalAuth, requireVisible('tournament', 'tournamentId'), getGroupsByTournament);
 router.post('/:tournamentId/groups', authenticate, requireTournamentAccess('tournamentId'), createGroup);
 
-router.get('/groups/:id', getGroupById);
+router.get('/groups/:id', optionalAuth, requireVisible('tournamentGroup'), getGroupById);
 router.put('/groups/:id', authenticate, requireTournamentGroupAccess(), updateGroup);
 router.delete('/groups/:id', authenticate, requireTournamentGroupAccess(), deleteGroup);
 router.post('/groups/:id/teams', authenticate, requireTournamentGroupAccess(), assignTeamToGroup);
@@ -116,15 +117,15 @@ router.post('/:tournamentId/generate-playoffs', authenticate, requireTournamentA
 router.delete('/:tournamentId/playoffs', authenticate, requireTournamentAccess('tournamentId'), deleteTournamentPlayoffs);
 
 // ── Games ──────────────────────────────────────────────────
-router.get('/:tournamentId/games', getGamesByTournament);
+router.get('/:tournamentId/games', optionalAuth, requireVisible('tournament', 'tournamentId'), getGamesByTournament);
 router.post('/:tournamentId/games', authenticate, requireTournamentAccess('tournamentId'), createGame);
 
-router.get('/games/:id', getGameById);
+router.get('/games/:id', optionalAuth, requireVisible('tournamentGame'), getGameById);
 router.put('/games/:id', authenticate, requireTournamentGameAccess(), updateGame);
 router.delete('/games/:id', authenticate, requireTournamentGameAccess(), deleteGame);
 
 // ── Game statistics ────────────────────────────────────────
-router.get('/games/:id/statistics', getStatsByGame);
+router.get('/games/:id/statistics', optionalAuth, requireVisible('tournamentGame'), getStatsByGame);
 router.post('/games/:id/statistics', authenticate, requireTournamentGameAccess(), createStatistic);
 router.put('/games/:id/statistics/:statId', authenticate, requireTournamentGameAccess(), updateStatistic);
 router.delete('/games/:id/statistics/:statId', authenticate, requireTournamentGameAccess(), deleteStatistic);

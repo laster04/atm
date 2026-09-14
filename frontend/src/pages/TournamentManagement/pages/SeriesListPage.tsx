@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { tournamentSeriesApi } from '@/services/api';
 import type { TournamentSeries} from '@types';
-import { SportType } from '@types';
+import { SportType, Visibility } from '@types';
 import { Button } from '@components/base/button';
 import { Badge } from '@components/base/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@components/base/dialog';
 import { Plus, Pencil, Trash2, Trophy, ChevronRight } from 'lucide-react';
+import VisibilityPicker from '@/components/VisibilityPicker';
+import { VisibilityBadge } from '@/components/public';
 
-const EMPTY: Partial<TournamentSeries> = { name: '', sportType: SportType.HOCKEY, description: '', logo: '' };
+const EMPTY: Partial<TournamentSeries> = { name: '', sportType: SportType.HOCKEY, description: '', logo: '', visibility: Visibility.PUBLIC };
 
 export default function SeriesListPage() {
   const { t } = useTranslation();
@@ -29,7 +31,7 @@ export default function SeriesListPage() {
   }, []);
 
   const openCreate = () => { setEditing(null); setForm(EMPTY); setModalOpen(true); };
-  const openEdit = (s: TournamentSeries) => { setEditing(s); setForm({ name: s.name, sportType: s.sportType, description: s.description ?? '', logo: s.logo ?? '' }); setModalOpen(true); };
+  const openEdit = (s: TournamentSeries) => { setEditing(s); setForm({ name: s.name, sportType: s.sportType, description: s.description ?? '', logo: s.logo ?? '', visibility: s.visibility ?? Visibility.PUBLIC }); setModalOpen(true); };
 
   const handleSave = async () => {
     if (!form.name) return;
@@ -90,6 +92,7 @@ export default function SeriesListPage() {
                 <div className="font-medium">{s.name}</div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <Badge variant="outline" className="text-xs">{s.sportType}</Badge>
+                  <VisibilityBadge visibility={s.visibility} />
                   <span className="text-xs text-muted-foreground">{s._count?.tournaments ?? 0} {t('tm.common.editions')}</span>
                 </div>
               </Link>
@@ -147,6 +150,15 @@ export default function SeriesListPage() {
                 onChange={e => setForm(f => ({ ...f, logo: e.target.value }))}
                 placeholder="https://..."
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('visibility.label')}</label>
+              <div className="mt-1">
+                <VisibilityPicker
+                  value={form.visibility ?? Visibility.PUBLIC}
+                  onChange={visibility => setForm(f => ({ ...f, visibility }))}
+                />
+              </div>
             </div>
             {error && <p className="text-red-600 text-sm">{error}</p>}
             <div className="flex justify-end gap-2 pt-2">

@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { seasonApi, gameApi, gameStatisticApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import type { Season, Game, Standing, TopScorer } from '@/types';
+import type { Season, Game, GroupTable, TopScorer } from '@/types';
 import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 import { LIVE_REFRESH_MS, hasLiveGames } from '@/utils/liveTable';
 
@@ -12,7 +12,8 @@ import ScheduleList from './components/ScheduleList';
 import TeamsGrid from './components/TeamsGrid';
 import { BarChart3, CalendarDays, Trophy, Users, LayoutGrid } from 'lucide-react';
 import { formatSeasonDate } from '@/utils/date';
-import { PublicHero, SectionTabs, SeasonStatusBadge, type SectionTab } from '@/components/public';
+import { PublicHero, SectionTabs, SeasonStatusBadge, VisibilityBadge, type SectionTab } from '@/components/public';
+import { strictest } from '@/utils/visibility';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
 import PlayersStatsTable from "@/pages/SeasonDetail/components/PlayersStatsTable.tsx";
@@ -35,7 +36,7 @@ export default function SeasonDetailScreen() {
     setSearchParams({ tab }, { replace: true });
   };
   const [season, setSeason] = useState<Season | null>(null);
-  const [standings, setStandings] = useState<Standing[]>([]);
+  const [tables, setTables] = useState<GroupTable[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,12 +45,14 @@ export default function SeasonDetailScreen() {
 
   // The table shows where teams would finish if the games in progress ended now,
   // so while any are running it re-reads itself. A settled season polls nothing.
+  // Flat view of every table, for the widgets that do not care about divisions.
+  const standings = tables.flatMap((table) => table.standings);
   const hasLive = hasLiveGames(standings);
   useEffect(() => {
     if (!id || !hasLive) return;
     const timer = setInterval(() => {
-      seasonApi.getStandings(id)
-        .then((res) => setStandings(res.data))
+      seasonApi.getStandingsByGroup(id)
+        .then((res) => setTables(res.data))
         .catch((error) => console.error(error));
     }, LIVE_REFRESH_MS);
     return () => clearInterval(timer);
@@ -70,16 +73,21 @@ export default function SeasonDetailScreen() {
             gameStatisticApi.getArchivedPlayerStats(id)
           ]);
           setGames([]);
-          setStandings(standingsRes.data);
+          // An archived season is one settled table: it was never divided at
+          // the point it was frozen, and nothing in it is being played.
+          setTables([{
+            group: null,
+            standings: standingsRes.data.map((row) => ({ ...row, inPlay: false, live: null })),
+          }]);
           setTopScorers(playerStatsRes.data.slice(0, 20).map(mapArchivedPlayerStat));
         } else {
           const [gamesRes, standingsRes, topScorersRes] = await Promise.all([
             gameApi.getBySeason(id),
-            seasonApi.getStandings(id),
+            seasonApi.getStandingsByGroup(id),
             gameStatisticApi.getTopScorersBySeason(id, 20)
           ]);
           setGames(gamesRes.data);
-          setStandings(standingsRes.data);
+          setTables(standingsRes.data);
           setTopScorers(topScorersRes.data);
         }
       } catch (error) {
@@ -112,7 +120,7 @@ export default function SeasonDetailScreen() {
 
   const tabs: { id: TabSeasonDetailType; label: string; icon: JSX.Element; content: JSX.Element }[] = [
     { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} /> },
-    { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable standings={standings} games={games} /> },
+    { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable tables={tables} games={games} /> },
     ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <CalendarDays className="size-4" />, content: <ScheduleList games={games} /> }]),
     { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <LayoutGrid className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
     { id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} /> },
@@ -128,7 +136,12 @@ export default function SeasonDetailScreen() {
         title={season.name}
         subtitle={season.league?.name}
         sport={season.league?.sportType}
-        badge={<SeasonStatusBadge status={season.status} archived={isArchived} />}
+        badge={
+          <>
+            <SeasonStatusBadge status={season.status} archived={isArchived} />
+            <VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
+          </>
+        }
         crumbs={[
           { label: t('public.nav.home'), to: '/' },
           { label: t('public.seasons.title'), to: '/seasons' },

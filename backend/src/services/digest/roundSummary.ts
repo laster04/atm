@@ -1,6 +1,7 @@
 import prisma from '../../config/database.js';
 import { computeTable } from '../standings/compute.js';
 import { policyFromRows } from '../scoring/resolve.js';
+import { COUNTS_TOWARD_TABLE } from '../standings/filters.js';
 
 export interface RoundResult {
   homeTeam: string;
@@ -8,6 +9,12 @@ export interface RoundResult {
   homeScore: number | null;
   awayScore: number | null;
   playedOn: Date | null;
+  /**
+   * False while the result is still open to correction. It is listed either
+   * way - it was played - but it has not moved the table below it yet, and the
+   * mail says so rather than leaving a reader to wonder.
+   */
+  confirmed: boolean;
 }
 
 export interface SummaryRow {
@@ -78,6 +85,7 @@ export const buildRoundSummary = async (
       date: true,
       homeScore: true,
       awayScore: true,
+      confirmedAt: true,
       homeTeam: { select: { name: true } },
       awayTeam: { select: { name: true } },
     },
@@ -89,8 +97,10 @@ export const buildRoundSummary = async (
     where: { seasonId },
     select: { team: { select: { id: true, name: true } } },
   });
+  // The table counts confirmed results only, exactly as the season's own table
+  // does; a summary that disagreed with the site would be worse than none.
   const allCompleted = await prisma.game.findMany({
-    where: { seasonId, status: 'COMPLETED' },
+    where: { seasonId, ...COUNTS_TOWARD_TABLE },
     select: { homeTeamId: true, awayTeamId: true, homeScore: true, awayScore: true },
   });
 
@@ -104,7 +114,7 @@ export const buildRoundSummary = async (
   // event log, so this counts the same whether a game was reported either way.
   const stats = await prisma.hockeyGameStatistic.groupBy({
     by: ['playerId'],
-    where: { game: { seasonId, status: 'COMPLETED' } },
+    where: { game: { seasonId, ...COUNTS_TOWARD_TABLE } },
     _sum: { goals: true, assists: true },
   });
   const players = await prisma.player.findMany({
@@ -141,6 +151,7 @@ export const buildRoundSummary = async (
       homeScore: game.homeScore,
       awayScore: game.awayScore,
       playedOn: game.date,
+      confirmed: game.confirmedAt !== null,
     })),
     standings: table.map((row, index) => ({
       rank: index + 1,

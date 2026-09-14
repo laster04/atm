@@ -17,15 +17,15 @@ import {
   updateEvent,
   deleteEvent
 } from '../controllers/matchEventController.js';
-import { authenticate } from '../middleware/auth.js';
-import { requireGameAccess, requireMatchEventAccess, requireSeasonAccess } from '../middleware/access.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { requireGameAccess, requireMatchEventAccess, requireSeasonAccess, requireVisible } from '../middleware/access.js';
 
 const router = Router();
 
 // Public fixture list across every season: upcoming, live or results.
-router.get('/', getPublicGames);
-router.get('/season/:seasonId', getGamesBySeasonId);
-router.get('/:id', getGameById);
+router.get('/', optionalAuth, getPublicGames);
+router.get('/season/:seasonId', optionalAuth, requireVisible('season', 'seasonId'), getGamesBySeasonId);
+router.get('/:id', optionalAuth, requireVisible('game'), getGameById);
 
 router.post('/season/:seasonId', authenticate, requireSeasonAccess('seasonId'), createGame);
 router.post('/season/:seasonId/generate', authenticate, requireSeasonAccess('seasonId'), generateSchedule);
@@ -39,7 +39,7 @@ router.get('/:id/audit', authenticate, requireGameAccess(), getGameAudit);
 
 // The event log a game's score and player statistics are derived from. Two
 // segments deep, so none of these collide with the '/:id' routes above.
-router.get('/:gameId/events', getEventsByGameId);
+router.get('/:gameId/events', optionalAuth, requireVisible('game', 'gameId'), getEventsByGameId);
 router.post('/:gameId/events', authenticate, requireGameAccess('gameId'), createEvent);
 router.put('/events/:id', authenticate, requireMatchEventAccess(), updateEvent);
 router.delete('/events/:id', authenticate, requireMatchEventAccess(), deleteEvent);

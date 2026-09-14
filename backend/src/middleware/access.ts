@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/index.js';
 import * as access from '../services/access.js';
+import { canView, VisibleKind } from '../services/visibility.js';
 
 type AccessCheck = (user: NonNullable<AuthRequest['user']>, resourceId: string) => Promise<boolean>;
 
@@ -47,3 +48,36 @@ export const requireTournamentTeamAccess = (param = 'id') => guard(access.canMan
 export const requireTournamentPlayerAccess = (param = 'id') => guard(access.canManageTournamentPlayer, param);
 export const requireTournamentGroupAccess = (param = 'id') => guard(access.canManageTournamentGroup, param);
 export const requireTournamentGameAccess = (param = 'id') => guard(access.canManageTournamentGame, param);
+
+const NOT_FOUND: Record<VisibleKind, string> = {
+  league: 'League not found',
+  season: 'Season not found',
+  game: 'Game not found',
+  gameStatistic: 'Statistic not found',
+  series: 'Tournament series not found',
+  tournament: 'Tournament not found',
+  tournamentTeam: 'Team not found',
+  tournamentGroup: 'Group not found',
+  tournamentGame: 'Game not found',
+};
+
+/**
+ * Guards a public read: the record behind req.params[param] must be visible to
+ * whoever is asking. Put optionalAuth in front so a manager is recognised.
+ *
+ * Answers 404 rather than 403, with the same message a missing record gets, so
+ * the response says nothing about whether a hidden league exists.
+ */
+export const requireVisible = (kind: VisibleKind, param = 'id') =>
+  async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!(await canView(kind, req.user, req.params[param]))) {
+        res.status(404).json({ error: NOT_FOUND[kind] });
+        return;
+      }
+      next();
+    } catch (error) {
+      console.error('Visibility check error:', error);
+      res.status(500).json({ error: 'Failed to load' });
+    }
+  };

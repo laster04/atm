@@ -7,15 +7,19 @@ import { Button } from '@components/base/button';
 
 interface GenerateScheduleData {
 	rounds: number;
+	/** Pair teams only within their own division. */
+	withinGroups: boolean;
 }
 
 interface GenerateScheduleModalProps {
 	teamsCount: number;
+	/** How many divisions the season has; no option is offered when it has none. */
+	groupCount?: number;
 	onSubmit: (data: GenerateScheduleData) => void;
 	onClose: () => void;
 }
 
-export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }: GenerateScheduleModalProps) {
+export default function GenerateScheduleModal({ teamsCount, groupCount = 0, onSubmit, onClose }: GenerateScheduleModalProps) {
 	const { t } = useTranslation();
 
 	// One round is a full round-robin: every team meets every other team once.
@@ -23,6 +27,9 @@ export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }:
 
 	const initValues: GenerateScheduleData = {
 		rounds: 2, // Default to double round-robin (home and away)
+		// A divided season almost always means teams meet only inside their own
+		// division, so that is the default wherever divisions exist.
+		withinGroups: groupCount > 0,
 	};
 
 	const form = useForm<GenerateScheduleData>({
@@ -32,6 +39,7 @@ export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }:
 	const handleFormSubmit = (data: GenerateScheduleData) => {
 		onSubmit({
 			rounds: Number(data.rounds),
+			withinGroups: Boolean(data.withinGroups),
 		});
 	};
 
@@ -68,6 +76,24 @@ export default function GenerateScheduleModal({ teamsCount, onSubmit, onClose }:
 							{t('admin.modal.totalGamesInfo', { total: totalGames })}
 						</p>
 					</div>
+
+					{groupCount > 0 && (
+						<div className="space-y-2">
+							<label className="flex items-start gap-2.5">
+								<input
+									type="checkbox"
+									{...form.register('withinGroups')}
+									className="mt-1 size-4 shrink-0"
+								/>
+								<span className="flex flex-col gap-0.5">
+									<span className="text-sm font-medium">{t('admin.modal.withinGroups')}</span>
+									<span className="text-sm text-muted-foreground">
+										{t('admin.modal.withinGroupsHint', { count: groupCount })}
+									</span>
+								</span>
+							</label>
+						</div>
+					)}
 
 					<div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
 						<p className="text-sm text-amber-800">

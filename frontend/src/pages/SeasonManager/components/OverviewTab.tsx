@@ -6,6 +6,7 @@ import { seasonApi } from '@/services/api';
 import { GameStatus, SeasonStatus, type Game, type Season } from '@types';
 import type { SeasonTab } from '../Detail';
 import { SEASON_ACCENT, isPlayed, needsDate } from './util';
+import VisibilityCard from './VisibilityCard';
 
 interface OverviewTabProps {
 	season: Season;
@@ -174,6 +175,8 @@ export default function OverviewTab({
 					)}
 				</div>
 			</div>
+
+			<VisibilityCard season={season} onSeasonChange={onSeasonChange} />
 
 			{/* Next up */}
 			<div className="flex flex-col gap-2">

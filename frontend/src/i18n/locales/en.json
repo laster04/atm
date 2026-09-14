@@ -374,11 +374,14 @@
       "points": "Pts",
       "noData": "No standings data yet.",
       "tableTitle": "Standings after {{count}} games",
-      "liveHint": "Games are being played. Arrows show where each team would finish if they ended now.",
+      "liveHint": "Some results are not counted yet. Arrows show where each team would stand once the games in progress finish and every result is confirmed.",
       "liveTag": "Live",
       "playingNow": "Playing right now",
       "wouldClimb": "Would climb {{places}} to {{rank}}",
-      "wouldDrop": "Would drop {{places}} to {{rank}}"
+      "wouldDrop": "Would drop {{places}} to {{rank}}",
+      "unplaced": "Not placed",
+      "pendingTag": "Pending",
+      "awaitingConfirmation": "Played, waiting to be confirmed"
     },
     "schedule": {
       "noGames": "No games scheduled yet.",
@@ -730,11 +733,11 @@
       "empty": "No dated fixture yet"
     },
     "publish": {
-      "title": "Publish the season",
-      "hint": "Draft is hidden from viewers",
+      "title": "Season in preparation",
+      "hint": "Activate it once play begins",
       "action": "Activate",
       "liveTitle": "Season is live",
-      "liveHint": "Viewers can see the fixtures and the table",
+      "liveHint": "Games are being played",
       "complete": "Complete",
       "completedTitle": "Season completed",
       "completedHint": "Results are final",
@@ -809,11 +812,14 @@
       "played": "P",
       "points": "Pts",
       "empty": "No games played yet — the order is alphabetical until results come in.",
-      "liveHint": "Games are being played. Arrows show where each team would finish if they ended now.",
+      "liveHint": "Some results are not counted yet. Arrows show where each team would stand once the games in progress finish and every result is confirmed.",
       "liveTag": "Live",
       "playingNow": "Playing right now",
       "wouldClimb": "Would climb {{places}} to {{rank}}",
-      "wouldDrop": "Would drop {{places}} to {{rank}}"
+      "wouldDrop": "Would drop {{places}} to {{rank}}",
+      "unplaced": "Not placed",
+      "pendingTag": "Pending",
+      "awaitingConfirmation": "Played, waiting to be confirmed"
     },
     "more": {
       "seasonInfo": "Season info",
@@ -830,7 +836,9 @@
       "scoringInherited": "Using the default for this sport",
       "scoringCustom": "{{win}} for a win, {{draw}} for a draw",
       "roundSummary": "Send round summary",
-      "roundSummaryHint": "Emails results and the table to everyone in the season"
+      "roundSummaryHint": "Emails results and the table to everyone in the season",
+      "divisions": "Divisions",
+      "divisionsHint": "Split the season into groups with a table each"
     },
     "report": {
       "title": "Match report",
@@ -920,6 +928,41 @@
       "sentResult": "Sent to {{delivered}} of {{attempted}} recipients.",
       "previewError": "Failed to build the summary",
       "sendError": "Failed to send the summary"
+    },
+    "divisions": {
+      "title": "Divisions",
+      "intro": "Teams play only the others in their own division, and each division gets its own table. A season with no divisions is one table.",
+      "namePlaceholder": "Division name",
+      "empty": "No divisions. The whole season shares one table.",
+      "noTeams": "No teams placed here yet",
+      "unplaced": "Not placed yet",
+      "placeIn": "Place in…",
+      "remove": "Remove",
+      "loadError": "Failed to load the divisions",
+      "createError": "Failed to create the division",
+      "deleteError": "Failed to delete the division",
+      "placeError": "Failed to place the team"
+    },
+    "visibility": {
+      "label": "Visibility",
+      "PUBLIC": {
+        "title": "Published",
+        "hint": "Anyone can find this season."
+      },
+      "UNLISTED": {
+        "title": "Not published yet",
+        "hint": "Clubs you send the link to can open it. It stays out of lists and search."
+      },
+      "PRIVATE": {
+        "title": "Hidden",
+        "hint": "Only people who manage the league can see this season."
+      },
+      "publish": "Publish",
+      "change": "Change",
+      "done": "Done",
+      "leagueUNLISTED": "The league is unlisted, so this season is not listed either, whatever it is set to.",
+      "leaguePRIVATE": "The league is private, so nobody else can see this season, whatever it is set to.",
+      "error": "Failed to change who can see the season"
     }
   },
   "admin": {
@@ -1161,7 +1204,9 @@
       "targetSeason": "Target Season",
       "targetTeam": "Target Team",
       "noAvailableTeams": "No other teams available in this season",
-      "movePlayerBtn": "Move Player"
+      "movePlayerBtn": "Move Player",
+      "withinGroups": "Keep fixtures inside divisions",
+      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -1759,6 +1804,24 @@
         "PLAYOFF": "PLAY-OFF",
         "COMPLETED": "FINISHED"
       }
+    }
+  },
+  "visibility": {
+    "label": "Who can see this",
+    "levels": {
+      "PUBLIC": "Public",
+      "UNLISTED": "Unlisted",
+      "PRIVATE": "Private"
+    },
+    "options": {
+      "PUBLIC": "Anyone can find this",
+      "UNLISTED": "Only people with the link",
+      "PRIVATE": "Only people who manage it"
+    },
+    "hints": {
+      "PUBLIC": "Listed on the site and in search",
+      "UNLISTED": "Opens from a link you share, left out of every list and search",
+      "PRIVATE": "Hidden from everyone else, even with the link"
     }
   }
 }

@@ -11,6 +11,16 @@ export interface ManagedCounts {
   teams: number;
   series: number;
 }
+/**
+ * Who may see a league, a season or a tournament series. Inherited downwards,
+ * strictest wins: a season is never more visible than its league.
+ */
+export enum Visibility {
+  PUBLIC = 'PUBLIC',
+  UNLISTED = 'UNLISTED',
+  PRIVATE = 'PRIVATE',
+}
+
 export enum SeasonStatus {
   DRAFT = 'DRAFT',
   ACTIVE = 'ACTIVE',
@@ -113,6 +123,7 @@ export interface League {
   scoring?: ScoringPolicy | null;
   logo?: string | null;
   description?: string | null;
+  visibility?: Visibility;
   createdAt: string;
   updatedAt: string;
   managerId?: string | null;
@@ -128,6 +139,7 @@ export interface LeagueRef {
   name: string;
   sportType: SportType;
   managerId?: string | null;
+  visibility?: Visibility;
 }
 
 export interface Season {
@@ -138,6 +150,8 @@ export interface Season {
   status: SeasonStatus;
   /** Null inherits the league, which in turn falls back to the sport default. */
   scoring?: ScoringPolicy | null;
+  /** New seasons start UNLISTED and are published once the draw is ready. */
+  visibility?: Visibility;
   archivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -220,6 +234,24 @@ export interface Game {
   awayTeam?: Pick<Team, 'id' | 'name' | 'managerId' | 'logo' | 'primaryColor'>;
 }
 
+/** A division or group inside a season. */
+export interface SeasonGroup {
+  id: string;
+  name: string;
+  position: number;
+  seasonId: string;
+  seasonTeams?: { id: string; teamId: string; team: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'> }[];
+}
+
+/**
+ * One table. `group` is null for an undivided season, and for the teams in a
+ * divided season that have not been placed yet.
+ */
+export interface GroupTable {
+  group: Pick<SeasonGroup, 'id' | 'name' | 'position'> | null;
+  standings: Standing[];
+}
+
 export interface LiveProjection {
   rank: number;
   points: number;
@@ -242,6 +274,8 @@ export interface Standing {
   rank: number;
   /** True while this team has a game in progress. */
   inPlay: boolean;
+  /** True when this team has a result played but not yet confirmed. */
+  awaitingConfirmation: boolean;
   /** Where the team would stand if the games in progress ended as they are. */
   live: LiveProjection | null;
 }
@@ -433,6 +467,7 @@ export interface TournamentSeries {
   sportType: SportType;
   logo?: string | null;
   description?: string | null;
+  visibility?: Visibility;
   managerId?: string | null;
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   tournaments?: Tournament[];
@@ -448,7 +483,7 @@ export interface Tournament {
   endDate?: string | null;
   location?: string | null;
   seriesId: string;
-  series?: Pick<TournamentSeries, 'id' | 'name' | 'sportType' | 'logo'>;
+  series?: Pick<TournamentSeries, 'id' | 'name' | 'sportType' | 'logo' | 'visibility'>;
   teams?: TournamentTeam[];
   groups?: TournamentGroup[];
   games?: TournamentGame[];

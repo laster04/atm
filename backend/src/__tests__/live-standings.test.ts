@@ -22,6 +22,8 @@ async function playGame(home: string, away: string, homeScore: number, awayScore
     .send({ homeTeamId: teams[home], awayTeamId: teams[away] });
   await request(app).put(`/api/games/${game.body.id}`).set(auth())
     .send({ homeScore, awayScore, status: 'COMPLETED' });
+  // Only a confirmed result counts toward the table.
+  await request(app).post(`/api/games/${game.body.id}/confirm`).set(auth());
   return game.body.id as string;
 }
 
@@ -140,9 +142,20 @@ describe('while a game is being played', () => {
     expect(rows.every((row) => row.inPlay === false)).toBe(true);
   });
 
-  it('stops projecting once the game is finished', async () => {
+  it('keeps projecting a finished game until it is confirmed', async () => {
     await request(app).put(`/api/games/${liveGameId}`).set(auth())
       .send({ homeScore: 3, awayScore: 0, status: 'COMPLETED' });
+
+    const rows = await table();
+    // Played, but still open to correction: it must not have moved the table,
+    // and the move it would make is exactly what the projection is for.
+    expect(rowFor(rows, `Charlie ${stamp}`).points).toBe(2);
+    expect(rowFor(rows, `Charlie ${stamp}`).live!.points).toBe(4);
+    expect(rowFor(rows, `Charlie ${stamp}`).live!.movement).toBe(1);
+  });
+
+  it('stops projecting once the result is confirmed', async () => {
+    await request(app).post(`/api/games/${liveGameId}/confirm`).set(auth());
 
     const rows = await table();
     expect(rows.every((row) => row.live === null)).toBe(true);

@@ -10,8 +10,8 @@ export function Th({ children, className = '' }: { children?: React.ReactNode; c
 	);
 }
 
-export function Td({ children, className = '' }: { children?: React.ReactNode; className?: string }) {
-	return <td className={`px-3 py-3 text-[13px] ${className}`}>{children}</td>;
+export function Td({ children, className = '', colSpan }: { children?: React.ReactNode; className?: string; colSpan?: number }) {
+	return <td className={`px-3 py-3 text-[13px] ${className}`} colSpan={colSpan}>{children}</td>;
 }
 
 export function TableShell({ minWidth = 720, children }: { minWidth?: number; children: React.ReactNode }) {

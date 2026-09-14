@@ -5,7 +5,7 @@ import { TournamentStatus } from '@prisma/client';
 import { computeGroupStandings } from '../utils/tournamentStandings.js';
 
 const tournamentInclude = {
-  series: { select: { id: true, name: true, sportType: true, logo: true } },
+  series: { select: { id: true, name: true, sportType: true, logo: true, visibility: true } },
   _count: { select: { teams: true, groups: true, games: true } },
 };
 
@@ -30,7 +30,7 @@ export const getTournamentById = async (req: Request, res: Response): Promise<vo
     const tournament = await prisma.tournament.findUnique({
       where: { id: id },
       include: {
-        series: { select: { id: true, name: true, sportType: true, logo: true } },
+        series: { select: { id: true, name: true, sportType: true, logo: true, visibility: true } },
         teams: { orderBy: { name: 'asc' } },
         groups: {
           include: {

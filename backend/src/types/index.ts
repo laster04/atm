@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase } from '@prisma/client';
+import { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase, Visibility } from '@prisma/client';
 
 // ============================================================================
 // AUTH TYPES
@@ -139,6 +139,7 @@ export interface CreateLeagueRequest {
   sportType: SportType;
   logo?: string;
   description?: string;
+  visibility?: Visibility;
 }
 
 export interface UpdateLeagueRequest {
@@ -146,6 +147,7 @@ export interface UpdateLeagueRequest {
   sportType?: SportType;
   logo?: string;
   description?: string;
+  visibility?: Visibility;
 }
 
 // Response types
@@ -222,6 +224,7 @@ export interface CreateSeasonRequest {
   startDate: string;
   endDate: string;
   status?: SeasonStatus;
+  visibility?: Visibility;
 }
 
 export interface UpdateSeasonRequest {
@@ -230,6 +233,7 @@ export interface UpdateSeasonRequest {
   startDate?: string;
   endDate?: string;
   status?: SeasonStatus;
+  visibility?: Visibility;
 }
 
 // Response types
@@ -474,6 +478,11 @@ export interface UpdateGameRequest {
 
 export interface GenerateScheduleRequest {
   rounds?: number;
+  /**
+   * Pair teams only against others in their own division. Ignored when the
+   * season has no divisions.
+   */
+  withinGroups?: boolean;
 }
 
 // Response types
@@ -577,6 +586,8 @@ export interface Standing {
   rank: number;
   /** True while this team has a game in progress. */
   inPlay: boolean;
+  /** True when this team has a result played but not yet confirmed. */
+  awaitingConfirmation: boolean;
   /**
    * Where the team would stand if every game currently in progress ended on its
    * present score. Null when nothing is being played, so a settled table costs
@@ -622,6 +633,7 @@ export interface CreateTournamentSeriesRequest {
   logo?: string;
   description?: string;
   managerId?: string | null;
+  visibility?: Visibility;
 }
 
 export interface UpdateTournamentSeriesRequest {
@@ -630,6 +642,7 @@ export interface UpdateTournamentSeriesRequest {
   logo?: string | null;
   description?: string | null;
   managerId?: string | null;
+  visibility?: Visibility;
 }
 
 // --- Tournament (edition) ---
@@ -753,4 +766,4 @@ export interface UpdateTournamentGameStatisticRequest {
 // RE-EXPORT PRISMA ENUMS FOR CONVENIENCE
 // ============================================================================
 
-export { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase };
+export { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase, Visibility };

@@ -9,6 +9,7 @@ import { Calendar, Edit, Plus, Trash2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 import type { League } from '@types';
+import { VisibilityBadge } from '@/components/public';
 import LeagueFormModal, { type LeagueFormData } from './LeagueFormModal.tsx';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 import InviteLeagueManagerModal from './InviteLeagueManagerModal.tsx';
@@ -117,13 +118,16 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 							{leagues.map((league) => (
 								<TableRow key={league.id}>
 									<TableCell className="font-medium">
-										<button
-											type="button"
-											onClick={() => navigate(`/admin/seasons?leagueId=${league.id}`)}
-											className="hover:underline text-left"
-										>
-											{league.name}
-										</button>
+										<span className="flex items-center gap-2">
+											<button
+												type="button"
+												onClick={() => navigate(`/admin/seasons?leagueId=${league.id}`)}
+												className="hover:underline text-left"
+											>
+												{league.name}
+											</button>
+											<VisibilityBadge visibility={league.visibility} />
+										</span>
 									</TableCell>
 									<TableCell>{t(`sports.${league.sportType}`)}</TableCell>
 									<TableCell className="max-w-xs truncate">{league.description || '-'}</TableCell>
@@ -143,13 +147,16 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 						<AdminCard
 							key={league.id}
 							title={
-								<button
-									type="button"
-									onClick={() => navigate(`/admin/seasons?leagueId=${league.id}`)}
-									className="text-left hover:underline"
-								>
-									{league.name}
-								</button>
+								<span className="flex items-center gap-2">
+									<button
+										type="button"
+										onClick={() => navigate(`/admin/seasons?leagueId=${league.id}`)}
+										className="text-left hover:underline"
+									>
+										{league.name}
+									</button>
+									<VisibilityBadge visibility={league.visibility} />
+								</span>
 							}
 							actions={rowActions(league)}
 						>

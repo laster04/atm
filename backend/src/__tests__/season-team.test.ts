@@ -145,8 +145,10 @@ describe('Season-Team M:N Relationship', () => {
 
   describe('GET /api/teams/:id - Get team by id', () => {
     it('should return team with seasonTeams and convenience season field', async () => {
+      // The season is still unlisted, so only someone who runs it sees it here.
       const res = await request(app)
         .get(`/api/teams/${teamId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
       expect(res.body).toHaveProperty('seasonTeams');
@@ -222,6 +224,7 @@ describe('Season-Team M:N Relationship', () => {
     it('should return teams NOT in the given season', async () => {
       const res = await request(app)
         .get(`/api/teams/available/${seasonId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
       expect(Array.isArray(res.body)).toBe(true);
@@ -234,7 +237,14 @@ describe('Season-Team M:N Relationship', () => {
     it('should return 404 for non-existent season', async () => {
       await request(app)
         .get('/api/teams/available/999999')
+        .set('Authorization', `Bearer ${token}`)
         .expect(404);
+    });
+
+    it('is not open to a visitor', async () => {
+      await request(app)
+        .get(`/api/teams/available/${seasonId}`)
+        .expect(401);
     });
   });
 

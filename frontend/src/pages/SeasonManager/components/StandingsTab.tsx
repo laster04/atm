@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, Radio } from 'lucide-react';
-import type { Standing } from '@types';
+import type { GroupTable } from '@types';
 import { hasLiveGames, liveTone } from '@/utils/liveTable';
 
 interface StandingsTabProps {
-	standings: Standing[];
+	/** One entry per division; a season with none arrives as a single table. */
+	tables: GroupTable[];
 }
 
 /**
@@ -12,10 +13,13 @@ interface StandingsTabProps {
  * count ride under the team name, which is what keeps the row readable at
  * 390px without a horizontal scroller.
  */
-export default function StandingsTab({ standings }: StandingsTabProps) {
+export default function StandingsTab({ tables }: StandingsTabProps) {
 	const { t } = useTranslation();
+	const standings = tables.flatMap((table) => table.standings);
 	const nothingPlayed = standings.every((row) => row.played === 0);
 	const live = hasLiveGames(standings);
+	// A single unnamed table is an undivided season: it needs no heading.
+	const divided = tables.length > 1 || tables.some((table) => table.group !== null);
 
 	return (
 		<div className="-mx-4 flex flex-col lg:mx-0 lg:rounded-xl lg:border lg:border-border lg:overflow-hidden">
@@ -35,8 +39,14 @@ export default function StandingsTab({ standings }: StandingsTabProps) {
 				<span className="w-8 shrink-0 text-right">{t('seasonManagement.table.points')}</span>
 			</div>
 
-			<div className="flex flex-col bg-card">
-				{standings.map((row) => {
+			{tables.map((table) => (
+			<div key={table.group?.id ?? 'all'} className="flex flex-col bg-card">
+				{divided && (
+					<div className="flex h-[30px] items-center bg-muted/60 px-4 text-[11px] font-bold uppercase tracking-wide">
+						{table.group?.name ?? t('seasonManagement.table.unplaced')}
+					</div>
+				)}
+				{table.standings.map((row) => {
 					const tone = liveTone(row);
 					return (
 					<div
@@ -85,6 +95,14 @@ export default function StandingsTab({ standings }: StandingsTabProps) {
 										{t('seasonManagement.table.liveTag')}
 									</span>
 								)}
+								{!tone.inPlay && tone.awaiting && (
+									<span
+										className="shrink-0 rounded-full bg-amber-500 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-white"
+										title={t('seasonManagement.table.awaitingConfirmation')}
+									>
+										{t('seasonManagement.table.pendingTag')}
+									</span>
+								)}
 							</span>
 							<span className="text-[11.5px] tabular-nums text-muted-foreground">
 								{row.wins}-{row.draws}-{row.losses} · {row.goalsFor}–{row.goalsAgainst}
@@ -104,13 +122,14 @@ export default function StandingsTab({ standings }: StandingsTabProps) {
 					</div>
 					);
 				})}
-
-				{(standings.length === 0 || nothingPlayed) && (
-					<p className="p-4 text-xs leading-relaxed text-muted-foreground">
-						{t('seasonManagement.table.empty')}
-					</p>
-				)}
 			</div>
+			))}
+
+			{(standings.length === 0 || nothingPlayed) && (
+				<p className="bg-card p-4 text-xs leading-relaxed text-muted-foreground">
+					{t('seasonManagement.table.empty')}
+				</p>
+			)}
 		</div>
 	);
 }

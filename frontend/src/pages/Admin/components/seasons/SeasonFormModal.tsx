@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { SeasonStatus } from '@types';
+import { SeasonStatus, Visibility } from '@types';
 import type { Season, League, Team } from '@types';
 import { seasonApi } from '@/services/api';
 import { Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
@@ -10,6 +10,7 @@ import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
 import { formatDateForInput } from '@/utils/date';
+import VisibilityPicker from '@/components/VisibilityPicker';
 
 interface SeasonFormData {
 	name: string;
@@ -17,6 +18,7 @@ interface SeasonFormData {
 	startDate: string;
 	endDate: string;
 	status: SeasonStatus;
+	visibility: Visibility;
 	copyTeamIds?: string[];
 }
 
@@ -39,6 +41,8 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 		startDate: formatDateForInput(season?.startDate),
 		endDate: formatDateForInput(season?.endDate),
 		status: season?.status || SeasonStatus.DRAFT,
+		// A new season starts unlisted, as it does on the server.
+		visibility: season?.visibility || Visibility.UNLISTED,
 	};
 
 	const form = useForm<SeasonFormData>({
@@ -46,6 +50,7 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 	});
 
 	const watchedLeagueId = form.watch('leagueId');
+	const visibility = form.watch('visibility');
 	const [sourceSeasonId, setSourceSeasonId] = useState<string>('');
 	const [copyableTeams, setCopyableTeams] = useState<Team[]>([]);
 	const [selectedTeamIds, setSelectedTeamIds] = useState<Set<string>>(new Set());
@@ -168,6 +173,13 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 								<MenuItem value={SeasonStatus.COMPLETED}>{t('seasons.status.COMPLETED')}</MenuItem>
 							</Select>
 						</FormControl>
+					</div>
+					<div className="space-y-2">
+						<Label>{t('visibility.label')}</Label>
+						<VisibilityPicker
+							value={visibility}
+							onChange={(value) => form.setValue('visibility', value, { shouldDirty: true })}
+						/>
 					</div>
 
 					{!isEditing && sourceCandidates.length > 0 && (
