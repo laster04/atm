@@ -14,7 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
-    "db:review-game-times": "tsx prisma/review-game-times.ts"
+    "db:review-game-times": "tsx prisma/review-game-times.ts",
+    "db:import-schedule": "tsx prisma/import-season-schedule.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
