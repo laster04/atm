@@ -11,6 +11,8 @@ import { canManageTeam } from '../services/access.js';
 import { normalizeEmail } from '../utils/email.js';
 import { canSeeFullRoster, toPublicPlayer } from '../services/publicView.js';
 import { listedGameWhere, listedPlayerWhere, listedSeasonWhere } from '../services/visibility.js';
+import { checkPosition, positionsForSports } from '../utils/playerPositions.js';
+import { teamSports } from '../services/teamSports.js';
 
 export const getPlayersByTeamId = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -67,7 +69,7 @@ export const getPlayerById = async (req: AuthRequest, res: Response): Promise<vo
     const full = await canSeeFullRoster(req.user, player.teamId);
     res.json({
       ...(full ? player : toPublicPlayer(player)),
-      team: { ...player.team, season: activeSeason }
+      team: { ...player.team, season: activeSeason, sportTypes: await teamSports(player.teamId) }
     });
   } catch (error) {
     console.error('Get player error:', error);
@@ -85,16 +87,15 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    const team = await prisma.team.findUnique({
-      where: { id: teamId },
-      include: {
-        seasonTeams: {
-          include: { season: { include: { league: { select: { managerId: true } } } } }
-        }
-      }
-    });
+    const team = await prisma.team.findUnique({ where: { id: teamId }, select: { id: true } });
     if (!team) {
       res.status(404).json({ error: 'Team not found' });
+      return;
+    }
+
+    const positionCheck = checkPosition(position, await teamSports(teamId));
+    if (!positionCheck.ok) {
+      res.status(400).json({ error: positionCheck.error });
       return;
     }
 
@@ -105,7 +106,7 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
       data: {
         name,
         number: numberValue,
-        position,
+        position: positionCheck.value ?? null,
         bornYear: bornYearValue,
         note: note || null,
         teamId: teamId
@@ -132,12 +133,27 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
       ? (bornYear ? (typeof bornYear === 'string' ? parseInt(bornYear) : bornYear) : null)
       : undefined;
 
+    let positionValue: Prisma.PlayerUpdateInput['position'];
+    if (position !== undefined) {
+      const current = await prisma.player.findUnique({ where: { id: id }, select: { teamId: true } });
+      if (!current) {
+        res.status(404).json({ error: 'Player not found' });
+        return;
+      }
+      const positionCheck = checkPosition(position, await teamSports(current.teamId));
+      if (!positionCheck.ok) {
+        res.status(400).json({ error: positionCheck.error });
+        return;
+      }
+      positionValue = positionCheck.value;
+    }
+
     const player = await prisma.player.update({
       where: { id: id },
       data: {
         ...(name && { name }),
         ...(numberValue !== undefined && { number: numberValue }),
-        ...(position !== undefined && { position }),
+        ...(positionValue !== undefined && { position: positionValue }),
         ...(bornYearValue !== undefined && { bornYear: bornYearValue }),
         ...(note !== undefined && { note: note || null })
       }
@@ -251,9 +267,15 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
         where: { playerId: id, event: { teamId: player.teamId } },
       });
 
+      // A goalie moved to a basketball team has no position there any more.
+      const targetPositions = positionsForSports([
+        ...new Set(targetTeam.seasonTeams.map(entry => entry.season.league.sportType)),
+      ]);
+      const keepsPosition = !player.position || targetPositions.includes(player.position);
+
       return tx.player.update({
         where: { id: id },
-        data: { teamId: targetTeamId },
+        data: { teamId: targetTeamId, ...(!keepsPosition && { position: null }) },
         include: {
           team: {
             include: {

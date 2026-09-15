@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Player, Team, TopScorer } from '@types';
 import { EmptyState, Panel } from '@/components/public';
+import { positionLabel } from '@/utils/playerPositions';
 
 interface RosterTableProps {
 	topScorers: TopScorer[];
@@ -52,7 +53,7 @@ export default function RosterTable({ topScorers, players, team }: RosterTablePr
 							<div className="flex min-w-0 flex-col">
 								<span className="truncate text-sm font-semibold">{player.name}</span>
 								<span className="truncate text-xs text-muted-foreground">
-									{player.position || t('teamDetail.noPosition')}
+									{positionLabel(t, player.position) || t('teamDetail.noPosition')}
 								</span>
 							</div>
 							<div className="ml-auto flex flex-col items-end">

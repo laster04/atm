@@ -5,6 +5,7 @@ import { resolveInvitee } from '../services/invite.js';
 import { canAdministerTeam } from '../services/access.js';
 import { canSeeFullRoster, toPublicManager, toPublicPlayer } from '../services/publicView.js';
 import { listedSeasonWhere, listedTeamWhere } from '../services/visibility.js';
+import { teamSports } from '../services/teamSports.js';
 import {
   AuthRequest,
   CreateTeamRequest,
@@ -147,6 +148,8 @@ export const getTeamById = async (req: AuthRequest, res: Response): Promise<void
 
     // A visitor gets the roster a spectator needs and no contact details; the
     // team's own people get what they entered.
+    const sportTypes = await teamSports(team.id);
+
     if (!(await canSeeFullRoster(req.user, team.id))) {
       res.json({
         ...team,
@@ -154,11 +157,12 @@ export const getTeamById = async (req: AuthRequest, res: Response): Promise<void
         manager: toPublicManager(team.manager),
         games: allGames,
         season: activeSeason,
+        sportTypes,
       });
       return;
     }
 
-    res.json({ ...team, games: allGames, season: activeSeason });
+    res.json({ ...team, games: allGames, season: activeSeason, sportTypes });
   } catch (error) {
     console.error('Get team error:', error);
     res.status(500).json({ error: 'Failed to fetch team' });

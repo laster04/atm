@@ -11,6 +11,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import type { Player, Team, Season } from '@types';
 import PlayerFormModal, { type PlayerFormData } from './PlayerFormModal.tsx';
 import MovePlayerModal from './MovePlayerModal.tsx';
+import { positionLabel, positionsForSports } from '@/utils/playerPositions';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 
 interface PlayersTableProps {
@@ -64,6 +65,9 @@ export default function PlayersTable({
 		setIsModalOpen(false);
 		setEditingPlayer(null);
 	};
+
+	const selectedSeason = seasons.find((season) => season.id === selectedSeasonId);
+	const positions = positionsForSports([selectedSeason?.league?.sportType]);
 
 	// Identical in the table and the card list, so defined once.
 	const rowActions = (player: Player) => (
@@ -157,6 +161,7 @@ export default function PlayersTable({
 						<DialogContent>
 							<PlayerFormModal
 								player={editingPlayer}
+								positions={positions}
 								onSubmit={handleSubmit}
 								onClose={handleClose}
 							/>
@@ -200,7 +205,7 @@ export default function PlayersTable({
 											</Link>
 										</TableCell>
 										<TableCell>{player.number || '-'}</TableCell>
-										<TableCell>{player.position || '-'}</TableCell>
+										<TableCell>{positionLabel(t, player.position) || '-'}</TableCell>
 										<TableCell>{player.bornYear || '-'}</TableCell>
 										<TableCell>{player.note || '-'}</TableCell>
 										<TableCell className="text-right">
@@ -227,7 +232,7 @@ export default function PlayersTable({
 										{player.number || '-'}
 									</AdminCardField>
 									<AdminCardField label={t('admin.tabs.player.th-position')}>
-										{player.position || '-'}
+										{positionLabel(t, player.position) || '-'}
 									</AdminCardField>
 									<AdminCardField label={t('admin.tabs.player.th-bornYear')}>
 										{player.bornYear || '-'}

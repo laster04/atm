@@ -7,6 +7,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { League, PublicPlayer } from '@types';
 import { EmptyState, PublicHero, TeamCrest } from '@/components/public';
 import FilterTabs, { type FilterTab } from '@/components/public/FilterTabs';
+import { positionLabel } from '@/utils/playerPositions';
 
 const PAGE_SIZE = 40;
 type Sort = 'points' | 'name';
@@ -150,7 +151,7 @@ export default function PlayersScreen() {
 														{player.name}
 													</Link>
 													{player.position && (
-														<span className="ml-2 text-xs text-muted-foreground">{player.position}</span>
+														<span className="ml-2 text-xs text-muted-foreground">{positionLabel(t, player.position)}</span>
 													)}
 												</Td>
 												<Td className="text-left">

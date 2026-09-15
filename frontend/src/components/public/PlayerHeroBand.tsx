@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
 import type { Player } from '@types';
 import TeamCrest from './TeamCrest';
 import type { Crumb } from './PublicHero';
+import { positionLabel } from '@/utils/playerPositions';
 
 interface PlayerHeroBandProps {
 	player: Player;
@@ -15,6 +17,7 @@ interface PlayerHeroBandProps {
  * without competing with the name for contrast.
  */
 export default function PlayerHeroBand({ player, crumbs }: PlayerHeroBandProps) {
+	const { t } = useTranslation();
 	const color = player.team?.primaryColor || '#0F172A';
 
 	return (
@@ -66,7 +69,7 @@ export default function PlayerHeroBand({ player, crumbs }: PlayerHeroBandProps) 
 							)}
 							{player.position && (
 								<span className="rounded-full bg-brand/15 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
-									{player.position}
+									{positionLabel(t, player.position)}
 								</span>
 							)}
 							{player.team?.season && (

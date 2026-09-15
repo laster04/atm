@@ -95,7 +95,7 @@ describe('Players CRUD', () => {
         .send({
           name: 'John Doe',
           number: 10,
-          position: 'Forward',
+          position: 'FORWARD',
           bornYear: 1995,
           note: 'Star player',
         })
@@ -105,7 +105,7 @@ describe('Players CRUD', () => {
       expect(res.body).toHaveProperty('id');
       expect(res.body.name).toBe('John Doe');
       expect(res.body.number).toBe(10);
-      expect(res.body.position).toBe('Forward');
+      expect(res.body.position).toBe('FORWARD');
       expect(res.body.bornYear).toBe(1995);
       expect(res.body.note).toBe('Star player');
       expect(res.body.teamId).toBe(teamId);
@@ -122,6 +122,22 @@ describe('Players CRUD', () => {
       expect(res.body.name).toBe('Jane Smith');
       expect(res.body.number).toBeNull();
       expect(res.body.position).toBeNull();
+    });
+
+    it('should reject a free-text position', async () => {
+      await request(app)
+        .post(`/api/players/team/${teamId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ name: 'Free Text', position: 'Forward' })
+        .expect(400);
+    });
+
+    it('should reject a position from another sport', async () => {
+      await request(app)
+        .post(`/api/players/team/${teamId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ name: 'Libero', position: 'LIBERO' })
+        .expect(400);
     });
 
     it('should return 400 for missing name', async () => {
@@ -191,13 +207,39 @@ describe('Players CRUD', () => {
         .send({
           name: 'John Updated',
           number: 99,
-          position: 'Goalkeeper',
+          position: 'GOALIE',
         })
         .expect(200);
 
       expect(res.body.name).toBe('John Updated');
       expect(res.body.number).toBe(99);
-      expect(res.body.position).toBe('Goalkeeper');
+      expect(res.body.position).toBe('GOALIE');
+    });
+
+    it('should reject an invalid position without changing the player', async () => {
+      await request(app)
+        .put(`/api/players/${playerId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ name: 'Should Not Save', position: 'Golman' })
+        .expect(400);
+
+      const res = await request(app).get(`/api/players/${playerId}`).expect(200);
+      expect(res.body.name).toBe('John Updated');
+    });
+
+    it('should clear the position with null', async () => {
+      const res = await request(app)
+        .put(`/api/players/${playerId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ position: null })
+        .expect(200);
+      expect(res.body.position).toBeNull();
+
+      await request(app)
+        .put(`/api/players/${playerId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ position: 'GOALIE' })
+        .expect(200);
     });
 
     it('should return 404 for non-existent player', async () => {

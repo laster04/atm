@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Plus, Search } from 'lucide-react';
 import { gameStatisticApi } from '@/services/api';
 import type { Player } from '@types';
+import { positionLabel } from '@/utils/playerPositions';
 
 type SortKey = 'number' | 'name' | 'points' | 'penaltyMinutes';
 
@@ -78,7 +79,7 @@ export default function RosterTab({
 	];
 
 	const describe = (player: Player) => {
-		const parts = [player.position, player.bornYear ? String(player.bornYear) : null]
+		const parts = [positionLabel(t, player.position), player.bornYear ? String(player.bornYear) : null]
 			.filter(Boolean);
 		return parts.length ? parts.join(' · ') : t('teamManagement.pwa.noPosition');
 	};

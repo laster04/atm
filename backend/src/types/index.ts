@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { Role, SeasonStatus, GameStatus, SportType, TournamentStatus, TournamentGamePhase, Visibility } from '@prisma/client';
+import { Role, SeasonStatus, GameStatus, SportType, PlayerPosition, TournamentStatus, TournamentGamePhase, Visibility } from '@prisma/client';
 
 // ============================================================================
 // AUTH TYPES
@@ -408,7 +408,7 @@ export interface TeamResponse {
 export interface CreatePlayerRequest {
   name: string;
   number?: string | number;
-  position?: string;
+  position?: string | null;
   bornYear?: string | number;
   note?: string;
 }
@@ -416,7 +416,7 @@ export interface CreatePlayerRequest {
 export interface UpdatePlayerRequest {
   name?: string;
   number?: string | number;
-  position?: string;
+  position?: string | null;
   bornYear?: string | number | null;
   note?: string | null;
 }
@@ -426,7 +426,7 @@ export interface PlayerResponse {
   id: string;
   name: string;
   number: number | null;
-  position: string | null;
+  position: PlayerPosition | null;
   bornYear: number | null;
   note: string | null;
   createdAt: Date;
@@ -438,7 +438,7 @@ export interface PlayerDetail {
   id: string;
   name: string;
   number: number | null;
-  position: string | null;
+  position: PlayerPosition | null;
   bornYear: number | null;
   note: string | null;
   createdAt: Date;

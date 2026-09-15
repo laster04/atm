@@ -1321,6 +1321,23 @@
     "FLOORBALL": "Florbal",
     "OTHER": "Ostatní"
   },
+  "playerPositions": {
+    "none": "Bez pozice",
+    "GOALIE": "Golman",
+    "DEFENDER": "Obránce",
+    "MIDFIELDER": "Záložník",
+    "FORWARD": "Útočník",
+    "WING": "Křídlo",
+    "BACK": "Spojka",
+    "PIVOT": "Pivot",
+    "GUARD": "Rozehrávač",
+    "CENTER": "Pivot",
+    "SETTER": "Nahrávač",
+    "OUTSIDE_HITTER": "Smečař",
+    "OPPOSITE": "Univerzál",
+    "MIDDLE_BLOCKER": "Blokař",
+    "LIBERO": "Libero"
+  },
   "landing": {
     "tagline": "Správa amatérského sportu jednoduše",
     "nav": {

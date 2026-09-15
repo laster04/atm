@@ -4,30 +4,33 @@ import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/d
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
-import type { Player } from '@types';
+import PositionSelect from '@components/PositionSelect';
+import type { Player, PlayerPosition } from '@types';
 
 interface PlayerFormData {
 	name: string;
 	number?: number | null;
-	position?: string | null;
+	position?: PlayerPosition | null;
 	bornYear?: number | null;
 	note?: string | null;
 }
 
 interface PlayerFormModalProps {
 	player?: Player | null;
+	/** Positions the team's sport allows; the field is hidden when there are none. */
+	positions: PlayerPosition[];
 	onSubmit: (data: PlayerFormData) => void;
 	onClose: () => void;
 }
 
-export default function PlayerFormModal({ player, onSubmit, onClose }: PlayerFormModalProps) {
+export default function PlayerFormModal({ player, positions, onSubmit, onClose }: PlayerFormModalProps) {
 	const { t } = useTranslation();
 	const isEditing = !!player;
 
 	const initValues = {
 		name: player?.name || '',
 		number: player?.number || undefined,
-		position: player?.position || '',
+		position: player?.position ?? null,
 		bornYear: player?.bornYear || undefined,
 		note: player?.note || '',
 	};
@@ -65,7 +68,7 @@ export default function PlayerFormModal({ player, onSubmit, onClose }: PlayerFor
 							required
 						/>
 					</div>
-					<div className="grid grid-cols-2 gap-4">
+					<div className={positions.length > 0 ? 'grid grid-cols-2 gap-4' : 'space-y-2'}>
 						<div className="space-y-2">
 							<Label>{t('admin.modal.playerNumber')}</Label>
 							<Input
@@ -76,14 +79,17 @@ export default function PlayerFormModal({ player, onSubmit, onClose }: PlayerFor
 								max={99}
 							/>
 						</div>
-						<div className="space-y-2">
-							<Label>{t('admin.modal.playerPosition')}</Label>
-							<Input
-								type="text"
-								{...form.register('position')}
-								className="w-full px-3 py-2 border rounded"
-							/>
-						</div>
+						{positions.length > 0 && (
+							<div className="space-y-2">
+								<Label htmlFor="admin-player-position">{t('admin.modal.playerPosition')}</Label>
+								<PositionSelect
+									id="admin-player-position"
+									value={form.watch('position')}
+									positions={positions}
+									onChange={(position) => form.setValue('position', position || null)}
+								/>
+							</div>
+						)}
 					</div>
 					<div className="space-y-2">
 						<Label>{t('admin.modal.playerBornYear')}</Label>

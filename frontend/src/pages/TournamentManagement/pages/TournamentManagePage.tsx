@@ -6,7 +6,7 @@ import {
   tournamentGroupApi, tournamentGameApi, tournamentPlayoffApi,
 } from '@/services/api';
 import type {
-  Tournament, TournamentTeam, TournamentPlayer,
+  PlayerPosition, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentStatus, TournamentGamePhase,
 } from '@types';
 import { Button } from '@components/base/button';
@@ -21,6 +21,8 @@ import {
 import TeamsPanel from '../components/TeamsPanel';
 import TennisTeamsPanel from '../components/TennisTeamsPanel';
 import { APP_TIME_ZONE } from '@/utils/date';
+import PositionSelect from '@components/PositionSelect';
+import { positionsForSports } from '@/utils/playerPositions';
 
 // ── helpers ─────────────────────────────────────────────────
 
@@ -84,7 +86,7 @@ export default function TournamentManagePage() {
   const [playerModal, setPlayerModal] = useState(false);
   const [playerTeamId, setPlayerTeamId] = useState<string | null>(null);
   const [editingPlayer, setEditingPlayer] = useState<TournamentPlayer | null>(null);
-  const [playerForm, setPlayerForm] = useState({ name: '', number: '', position: '', bornYear: '' });
+  const [playerForm, setPlayerForm] = useState({ name: '', number: '', position: '' as PlayerPosition | '', bornYear: '' });
 
   const [groupModal, setGroupModal] = useState(false);
   const [editingGroup, setEditingGroup] = useState<TournamentGroup | null>(null);
@@ -192,7 +194,7 @@ export default function TournamentManagePage() {
     if (!playerForm.name || !playerTeamId) return;
     setSaving(true); setError('');
     try {
-      const payload = { name: playerForm.name, number: playerForm.number ? parseInt(playerForm.number) : undefined, position: playerForm.position || undefined, bornYear: playerForm.bornYear ? parseInt(playerForm.bornYear) : undefined };
+      const payload = { name: playerForm.name, number: playerForm.number ? parseInt(playerForm.number) : undefined, position: playerForm.position || null, bornYear: playerForm.bornYear ? parseInt(playerForm.bornYear) : undefined };
       if (editingPlayer) {
         const res = await tournamentPlayerApi.update(editingPlayer.id, payload);
         setTeamPlayers(prev => ({ ...prev, [playerTeamId]: (prev[playerTeamId] ?? []).map(p => p.id === editingPlayer.id ? res.data : p) }));
@@ -447,6 +449,7 @@ export default function TournamentManagePage() {
 
   const seriesId = tournament.seriesId;
   const tennisCtx = tournament.series?.sportType === 'TENNIS' ? 'TENNIS' : undefined;
+  const positions = positionsForSports([tournament.series?.sportType]);
 
   return (
     <div className="space-y-4">
@@ -704,7 +707,9 @@ export default function TournamentManagePage() {
               <Field label={t('tm.fields.number')}><input type="number" className={inp} value={playerForm.number} onChange={e => setPlayerForm(f => ({ ...f, number: e.target.value }))} placeholder="10" /></Field>
               <Field label={t('tm.fields.bornYear')}><input type="number" className={inp} value={playerForm.bornYear} onChange={e => setPlayerForm(f => ({ ...f, bornYear: e.target.value }))} placeholder="1995" /></Field>
             </div>
-            <Field label={t('tm.fields.position')}><input className={inp} value={playerForm.position} onChange={e => setPlayerForm(f => ({ ...f, position: e.target.value }))} placeholder="Forward / Defence / Goalie" /></Field>
+            {positions.length > 0 && (
+              <Field label={t('tm.fields.position')}><PositionSelect value={playerForm.position} positions={positions} onChange={position => setPlayerForm(f => ({ ...f, position }))} className={inp} /></Field>
+            )}
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setPlayerModal(false)}>{t('tm.common.cancel')}</Button>
               <Button onClick={savePlayer} disabled={saving || !playerForm.name}>{saving ? t('tm.common.saving') : t('tm.common.save')}</Button>

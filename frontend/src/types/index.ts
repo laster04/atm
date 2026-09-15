@@ -177,6 +177,8 @@ export interface Team {
   managerId?: string | null;
   season?: Season;
   seasonTeams?: { id: string; seasonId: string; teamId: string; season: Season }[];
+  /** Sports of every season the team is in, listed or not; from GET /teams/:id and GET /players/:id. */
+  sportTypes?: SportType[];
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   players?: Player[];
   homeGames?: Game[];
@@ -189,11 +191,28 @@ export interface Team {
   };
 }
 
+/** Mirrors the backend PlayerPosition enum; which ones a player may hold depends on the sport. */
+export type PlayerPosition =
+  | 'GOALIE'
+  | 'DEFENDER'
+  | 'MIDFIELDER'
+  | 'FORWARD'
+  | 'WING'
+  | 'BACK'
+  | 'PIVOT'
+  | 'GUARD'
+  | 'CENTER'
+  | 'SETTER'
+  | 'OUTSIDE_HITTER'
+  | 'OPPOSITE'
+  | 'MIDDLE_BLOCKER'
+  | 'LIBERO';
+
 export interface Player {
   id: string;
   name: string;
   number?: number | null;
-  position?: string | null;
+  position?: PlayerPosition | null;
   bornYear?: number | null;
   note?: string | null;
   teamId: string;
@@ -537,7 +556,7 @@ export interface TournamentPlayer {
   id: string;
   name: string;
   number?: number | null;
-  position?: string | null;
+  position?: PlayerPosition | null;
   bornYear?: number | null;
   note?: string | null;
   teamId: string;

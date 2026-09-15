@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { Player } from '@types';
 import { Panel } from '@/components/public';
+import { positionLabel } from '@/utils/playerPositions';
 
 /**
  * Public page, so most of a player's row never arrives: the API sends a name
@@ -13,7 +14,7 @@ export default function PlayerInfo({ player }: { player: Player }) {
 
 	const rows: { label: string; value: React.ReactNode }[] = [
 		...(player.number != null ? [{ label: t('playerDetail.info.number'), value: player.number }] : []),
-		...(player.position ? [{ label: t('playerDetail.info.position'), value: player.position }] : []),
+		...(player.position ? [{ label: t('playerDetail.info.position'), value: positionLabel(t, player.position) }] : []),
 		...(player.bornYear != null ? [{ label: t('playerDetail.info.bornYear'), value: player.bornYear }] : []),
 	];
 

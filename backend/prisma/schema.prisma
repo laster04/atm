@@ -53,6 +53,27 @@ enum SportType {
   OTHER
 }
 
+// What a player plays. One list for every sport so a roster row keeps a real
+// value that end-of-season tables can group by; which of these a player may
+// hold depends on the sport (src/utils/playerPositions.ts). Free text is gone
+// on purpose: "Obránce", "obránce" and "D" would be three positions in a table.
+enum PlayerPosition {
+  GOALIE
+  DEFENDER
+  MIDFIELDER
+  FORWARD
+  WING
+  BACK
+  PIVOT
+  GUARD
+  CENTER
+  SETTER
+  OUTSIDE_HITTER
+  OPPOSITE
+  MIDDLE_BLOCKER
+  LIBERO
+}
+
 model User {
   id                          String    @id @default(uuid())
   email                       String    @unique
@@ -212,7 +233,7 @@ model Player {
   id        String   @id @default(uuid())
   name      String
   number    Int?
-  position  String?
+  position  PlayerPosition?
   bornYear  Int?     @map("born_year")
   note      String?
   createdAt DateTime @default(now()) @map("created_at")
@@ -614,7 +635,7 @@ model TournamentPlayer {
   id        String   @id @default(uuid())
   name      String
   number    Int?
-  position  String?
+  position  PlayerPosition?
   bornYear  Int?     @map("born_year")
   note      String?
   createdAt DateTime @default(now()) @map("created_at")

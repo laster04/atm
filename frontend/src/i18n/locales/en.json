@@ -1311,6 +1311,23 @@
     "FLOORBALL": "Floorball",
     "OTHER": "Other"
   },
+  "playerPositions": {
+    "none": "No position",
+    "GOALIE": "Goalie",
+    "DEFENDER": "Defender",
+    "MIDFIELDER": "Midfielder",
+    "FORWARD": "Forward",
+    "WING": "Wing",
+    "BACK": "Back",
+    "PIVOT": "Pivot",
+    "GUARD": "Guard",
+    "CENTER": "Center",
+    "SETTER": "Setter",
+    "OUTSIDE_HITTER": "Outside hitter",
+    "OPPOSITE": "Opposite",
+    "MIDDLE_BLOCKER": "Middle blocker",
+    "LIBERO": "Libero"
+  },
   "landing": {
     "tagline": "Amateur sports management made simple",
     "nav": {

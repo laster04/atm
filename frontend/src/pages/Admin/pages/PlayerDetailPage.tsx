@@ -16,6 +16,7 @@ import { formatGameDateTime } from '@/utils/date';
 import type { Player, HockeyGameStatistic, Season, Team, Game } from '@types';
 import PlayerFormModal, { type PlayerFormData } from '../components/players/PlayerFormModal';
 import MovePlayerModal from '../components/players/MovePlayerModal';
+import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPositions';
 
 interface GameStatForm {
   gameId: string;
@@ -301,7 +302,7 @@ export default function PlayerDetailPage() {
             <div>
               <h1 className="text-3xl font-bold">{player.name}</h1>
               {player.position && (
-                <p className="text-lg text-muted-foreground">{player.position}</p>
+                <p className="text-lg text-muted-foreground">{positionLabel(t, player.position)}</p>
               )}
             </div>
           </div>
@@ -328,7 +329,7 @@ export default function PlayerDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{t('playerDetail.info.position')}</p>
-                  <p className="font-medium">{player.position || '-'}</p>
+                  <p className="font-medium">{positionLabel(t, player.position) || '-'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{t('playerDetail.info.bornYear')}</p>
@@ -593,6 +594,7 @@ export default function PlayerDetailPage() {
         <DialogContent>
           <PlayerFormModal
             player={player}
+            positions={positionsForSports(teamSports(player.team))}
             onSubmit={handleUpdatePlayer}
             onClose={() => setIsEditModalOpen(false)}
           />

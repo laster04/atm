@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { TournamentTeam, TournamentPlayer } from '@types';
 import { Button } from '@components/base/button';
 import { Plus, Pencil, Trash2, Users, ChevronDown, ChevronRight } from 'lucide-react';
+import { positionLabel } from '@/utils/playerPositions';
 
 interface TeamsPanelProps {
   teams: TournamentTeam[];
@@ -67,7 +68,7 @@ export default function TeamsPanel({
                           <tr key={p.id} className="border-t border-muted">
                             <td className="py-1.5 text-muted-foreground">{p.number ?? '-'}</td>
                             <td className="py-1.5 font-medium">{p.name}</td>
-                            <td className="py-1.5 text-muted-foreground">{p.position ?? '-'}</td>
+                            <td className="py-1.5 text-muted-foreground">{positionLabel(t, p.position) || '-'}</td>
                             <td className="py-1.5 text-muted-foreground">{p.bornYear ?? '-'}</td>
                             <td className="py-1.5 text-right">
                               <Button variant="ghost" size="sm" onClick={() => openPlayerEdit(p)}><Pencil className="size-3" /></Button>

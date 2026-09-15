@@ -12,8 +12,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@components/ba
 import { Input } from "@components/base/input.tsx";
 import { Label } from "@components/base/label.tsx";
 import { Textarea } from "@components/base/textarea.tsx";
-import type { Player, Team, HockeyGameStatistic } from "@types";
+import type { Player, PlayerPosition, Team, HockeyGameStatistic } from "@types";
 import { APP_TIME_ZONE } from '@/utils/date';
+import PositionSelect from '@components/PositionSelect';
+import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPositions';
 
 export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
@@ -30,7 +32,7 @@ export default function PlayerDetailPage() {
 	const [formData, setFormData] = useState({
 		name: '',
 		number: '',
-		position: '',
+		position: '' as PlayerPosition | '',
 		bornYear: '',
 		note: '',
 	});
@@ -112,6 +114,8 @@ export default function PlayerDetailPage() {
 		}
 	};
 
+	const positions = positionsForSports(teamSports(team));
+
 	// Calculate totals
 	const totalGoals = statistics.reduce((sum, s) => sum + (s.goals || 0), 0);
 	const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
@@ -184,14 +188,17 @@ export default function PlayerDetailPage() {
 								</div>
 							</div>
 
-							<div className="space-y-2">
-								<Label htmlFor="position">{t('teamManagement.playerDetail.position')}</Label>
-								<Input
-									id="position"
-									value={formData.position}
-									onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-								/>
-							</div>
+							{positions.length > 0 && (
+								<div className="space-y-2">
+									<Label htmlFor="position">{t('teamManagement.playerDetail.position')}</Label>
+									<PositionSelect
+										id="position"
+										value={formData.position}
+										positions={positions}
+										onChange={(position) => setFormData({ ...formData, position })}
+									/>
+								</div>
+							)}
 
 							<div className="space-y-2">
 								<Label htmlFor="note">{t('teamManagement.playerDetail.note')}</Label>
@@ -269,7 +276,7 @@ export default function PlayerDetailPage() {
 					<div className="mt-1 flex flex-wrap items-center gap-2">
 						{player.position && (
 							<span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[11.5px] font-semibold">
-								{player.position}
+								{positionLabel(t, player.position)}
 							</span>
 						)}
 						{player.bornYear && (
@@ -421,14 +428,17 @@ export default function PlayerDetailPage() {
 							</div>
 						</div>
 
-						<div className="space-y-2">
-							<Label htmlFor="edit-position">{t('teamManagement.playerDetail.position')}</Label>
-							<Input
-								id="edit-position"
-								value={formData.position}
-								onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-							/>
-						</div>
+						{positions.length > 0 && (
+							<div className="space-y-2">
+								<Label htmlFor="edit-position">{t('teamManagement.playerDetail.position')}</Label>
+								<PositionSelect
+									id="edit-position"
+									value={formData.position}
+									positions={positions}
+									onChange={(position) => setFormData({ ...formData, position })}
+								/>
+							</div>
+						)}
 
 						<div className="space-y-2">
 							<Label htmlFor="edit-note">{t('teamManagement.playerDetail.note')}</Label>

@@ -51,7 +51,7 @@ beforeAll(async () => {
   });
 
   const player = await request(app).post(`/api/players/team/${teamId}`).set(auth(adminToken))
-    .send({ name: 'Public Player', number: 8, position: 'Forward', bornYear: 2009, note: 'Ankle injury' });
+    .send({ name: 'Public Player', number: 8, position: 'FORWARD', bornYear: 2009, note: 'Ankle injury' });
   playerId = player.body.id;
 });
 
@@ -86,7 +86,7 @@ describe('a roster seen by the public', () => {
     const [player] = res.body;
     expect(player.bornYear).toBe(2009);
     expect(player.note).toBe('Ankle injury');
-    expect(player.position).toBe('Forward');
+    expect(player.position).toBe('FORWARD');
   });
 });
 

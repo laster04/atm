@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
 import {
   AuthRequest,
@@ -7,6 +8,7 @@ import {
   CreateTournamentPlayerRequest,
   UpdateTournamentPlayerRequest,
 } from '../types/index.js';
+import { checkPosition } from '../utils/playerPositions.js';
 
 // ── Teams ──────────────────────────────────────────────────
 
@@ -117,8 +119,16 @@ export const createPlayer = async (req: AuthRequest, res: Response): Promise<voi
     const { name, number, position, bornYear, note } = req.body as CreateTournamentPlayerRequest;
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
 
+    const team = await prisma.tournamentTeam.findUnique({
+      where: { id: teamId },
+      select: { tournament: { select: { series: { select: { sportType: true } } } } },
+    });
+    if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
+    const positionCheck = checkPosition(position, [team.tournament.series.sportType]);
+    if (!positionCheck.ok) { res.status(400).json({ error: positionCheck.error }); return; }
+
     const player = await prisma.tournamentPlayer.create({
-      data: { name, number, position, bornYear, note, teamId: teamId },
+      data: { name, number, position: positionCheck.value ?? null, bornYear, note, teamId: teamId },
     });
     res.status(201).json(player);
   } catch (error) {
@@ -132,12 +142,24 @@ export const updatePlayer = async (req: AuthRequest, res: Response): Promise<voi
     const { id } = req.params;
     const { name, number, position, bornYear, note } = req.body as UpdateTournamentPlayerRequest;
 
+    let positionValue: Prisma.TournamentPlayerUpdateInput['position'];
+    if (position !== undefined) {
+      const current = await prisma.tournamentPlayer.findUnique({
+        where: { id: id },
+        select: { team: { select: { tournament: { select: { series: { select: { sportType: true } } } } } } },
+      });
+      if (!current) { res.status(404).json({ error: 'Player not found' }); return; }
+      const positionCheck = checkPosition(position, [current.team.tournament.series.sportType]);
+      if (!positionCheck.ok) { res.status(400).json({ error: positionCheck.error }); return; }
+      positionValue = positionCheck.value;
+    }
+
     const player = await prisma.tournamentPlayer.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(number !== undefined && { number }),
-        ...(position !== undefined && { position }),
+        ...(positionValue !== undefined && { position: positionValue }),
         ...(bornYear !== undefined && { bornYear }),
         ...(note !== undefined && { note }),
       },
