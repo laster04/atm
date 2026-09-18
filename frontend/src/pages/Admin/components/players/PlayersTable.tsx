@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
-import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
 import { Edit, Plus, Trash2, ArrowRightLeft, Eye } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
@@ -151,22 +150,18 @@ export default function PlayersTable({
 							</Select>
 						</FormControl>
 					</div>
-					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-						<DialogTrigger asChild>
-							<Button onClick={handleOpenCreate} disabled={!selectedTeamId} className="w-full sm:w-auto">
-								<Plus className="size-4 mr-2" />
-								{t('admin.tabs.player.addPlayer')}
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<PlayerFormModal
-								player={editingPlayer}
-								positions={positions}
-								onSubmit={handleSubmit}
-								onClose={handleClose}
-							/>
-						</DialogContent>
-					</Dialog>
+					<Button onClick={handleOpenCreate} disabled={!selectedTeamId} className="w-full sm:w-auto">
+						<Plus className="size-4 mr-2" />
+						{t('admin.tabs.player.addPlayer')}
+					</Button>
+					{isModalOpen && (
+						<PlayerFormModal
+							player={editingPlayer}
+							positions={positions}
+							onSubmit={handleSubmit}
+							onClose={handleClose}
+						/>
+					)}
 				</div>
 			</CardHeader>
 			<CardContent className="px-0 sm:px-6">
@@ -246,20 +241,16 @@ export default function PlayersTable({
 					</>
 				)}
 			</CardContent>
-			<Dialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
-				<DialogContent>
-					{movingPlayer && selectedSeasonId && (
-						<MovePlayerModal
-							player={movingPlayer}
-							teams={allTeams}
-							seasons={seasons}
-							currentSeasonId={selectedSeasonId}
-							onSubmit={handleMoveSubmit}
-							onClose={handleCloseMove}
-						/>
-					)}
-				</DialogContent>
-			</Dialog>
+			{isMoveModalOpen && movingPlayer && selectedSeasonId && (
+				<MovePlayerModal
+					player={movingPlayer}
+					teams={allTeams}
+					seasons={seasons}
+					currentSeasonId={selectedSeasonId}
+					onSubmit={handleMoveSubmit}
+					onClose={handleCloseMove}
+				/>
+			)}
 		</Card>
 	);
 }

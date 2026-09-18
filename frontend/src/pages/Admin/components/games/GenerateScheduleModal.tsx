@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
@@ -47,71 +47,73 @@ export default function GenerateScheduleModal({ teamsCount, groupCount = 0, onSu
 	const totalGames = (Number(watchRounds) || 0) * gamesPerRound;
 
 	return (
-		<>
-			<DialogHeader>
-				<DialogTitle>{t('admin.modal.generateSchedule')}</DialogTitle>
-				<DialogDescription>{t('admin.modal.generateScheduleDesc')}</DialogDescription>
-			</DialogHeader>
-			<form onSubmit={form.handleSubmit(handleFormSubmit)}>
-				<div className="space-y-4 pt-4">
-					<div className="p-4 bg-muted rounded-lg">
-						<p className="text-sm text-muted-foreground">
-							{t('admin.modal.teamsInSeason', { count: teamsCount })}
-						</p>
-						<p className="text-sm text-muted-foreground">
-							{t('admin.modal.roundInfo', { gamesPerRound })}
-						</p>
-					</div>
-
-					<div className="space-y-2">
-						<Label>{t('admin.modal.numberOfRounds')}</Label>
-						<Input
-							type="number"
-							{...form.register('rounds', { required: true, valueAsNumber: true, min: 1 })}
-							className="w-full px-3 py-2 border rounded"
-							min={1}
-							required
-						/>
-						<p className="text-sm text-muted-foreground">
-							{t('admin.modal.totalGamesInfo', { total: totalGames })}
-						</p>
-					</div>
-
-					{groupCount > 0 && (
-						<div className="space-y-2">
-							<label className="flex items-start gap-2.5">
-								<input
-									type="checkbox"
-									{...form.register('withinGroups')}
-									className="mt-1 size-4 shrink-0"
-								/>
-								<span className="flex flex-col gap-0.5">
-									<span className="text-sm font-medium">{t('admin.modal.withinGroups')}</span>
-									<span className="text-sm text-muted-foreground">
-										{t('admin.modal.withinGroupsHint', { count: groupCount })}
-									</span>
-								</span>
-							</label>
+		<Dialog open onOpenChange={(open) => !open && onClose()}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{t('admin.modal.generateSchedule')}</DialogTitle>
+					<DialogDescription>{t('admin.modal.generateScheduleDesc')}</DialogDescription>
+				</DialogHeader>
+				<form onSubmit={form.handleSubmit(handleFormSubmit)}>
+					<div className="space-y-4 pt-4">
+						<div className="p-4 bg-muted rounded-lg">
+							<p className="text-sm text-muted-foreground">
+								{t('admin.modal.teamsInSeason', { count: teamsCount })}
+							</p>
+							<p className="text-sm text-muted-foreground">
+								{t('admin.modal.roundInfo', { gamesPerRound })}
+							</p>
 						</div>
-					)}
 
-					<div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-						<p className="text-sm text-amber-800">
-							{t('admin.modal.generateWarning')}
-						</p>
+						<div className="space-y-2">
+							<Label>{t('admin.modal.numberOfRounds')}</Label>
+							<Input
+								type="number"
+								{...form.register('rounds', { required: true, valueAsNumber: true, min: 1 })}
+								className="w-full px-3 py-2 border rounded"
+								min={1}
+								required
+							/>
+							<p className="text-sm text-muted-foreground">
+								{t('admin.modal.totalGamesInfo', { total: totalGames })}
+							</p>
+						</div>
+
+						{groupCount > 0 && (
+							<div className="space-y-2">
+								<label className="flex items-start gap-2.5">
+									<input
+										type="checkbox"
+										{...form.register('withinGroups')}
+										className="mt-1 size-4 shrink-0"
+									/>
+									<span className="flex flex-col gap-0.5">
+										<span className="text-sm font-medium">{t('admin.modal.withinGroups')}</span>
+										<span className="text-sm text-muted-foreground">
+											{t('admin.modal.withinGroupsHint', { count: groupCount })}
+										</span>
+									</span>
+								</label>
+							</div>
+						)}
+
+						<div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+							<p className="text-sm text-amber-800">
+								{t('admin.modal.generateWarning')}
+							</p>
+						</div>
 					</div>
-				</div>
 
-				<div className="flex gap-2 pt-4">
-					<Button className="flex-1" type="submit">
-						{t('admin.modal.generate')}
-					</Button>
-					<Button onClick={onClose} variant="outline" type="button">
-						{t('common.cancel')}
-					</Button>
-				</div>
-			</form>
-		</>
+					<div className="flex gap-2 pt-4">
+						<Button className="flex-1" type="submit">
+							{t('admin.modal.generate')}
+						</Button>
+						<Button onClick={onClose} variant="outline" type="button">
+							{t('common.cancel')}
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 

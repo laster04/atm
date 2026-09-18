@@ -4,6 +4,7 @@ import { CalendarDays, MoreHorizontal, Trophy, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '@/components/utils';
 import ManagerHeader from '@/components/ManagerHeader';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { ADMIN_GOLD, ADMIN_GOLD_INK } from './components/util';
 
 export default function AdminLayout() {
@@ -84,7 +85,9 @@ export default function AdminLayout() {
 				</div>
 
 				<div className="tm-content flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
-					<Outlet />
+					<ErrorBoundary>
+						<Outlet />
+					</ErrorBoundary>
 				</div>
 
 				{/* Phone bottom navigation */}

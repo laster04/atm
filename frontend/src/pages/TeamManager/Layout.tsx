@@ -2,6 +2,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import ManagerHeader from '@/components/ManagerHeader';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function TeamManagerLayout() {
 	const { isTeamManager, isAdmin, isSeasonManager } = useAuth();
@@ -33,7 +34,9 @@ export default function TeamManagerLayout() {
 				/>
 			)}
 			<div className={isListPage ? 'container mx-auto px-4 py-4' : ''}>
-				<Outlet />
+				<ErrorBoundary>
+					<Outlet />
+				</ErrorBoundary>
 			</div>
 		</div>
 	);

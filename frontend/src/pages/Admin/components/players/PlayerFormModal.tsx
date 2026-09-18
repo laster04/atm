@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
@@ -50,77 +50,79 @@ export default function PlayerFormModal({ player, positions, onSubmit, onClose }
 	};
 
 	return (
-		<>
-			<DialogHeader>
-				<DialogTitle>{isEditing ? t('admin.modal.editPlayer') : t('admin.modal.addPlayer')}</DialogTitle>
-				<DialogDescription>
-					{isEditing ? t('admin.modal.editPlayerDesc') : t('admin.modal.addPlayerDesc')}
-				</DialogDescription>
-			</DialogHeader>
-			<form onSubmit={form.handleSubmit(handleFormSubmit)}>
-				<div className="space-y-4 pt-4">
-					<div className="space-y-2">
-						<Label>{t('admin.modal.playerName')}</Label>
-						<Input
-							type="text"
-							{...form.register('name', { required: true })}
-							className="w-full px-3 py-2 border rounded"
-							required
-						/>
-					</div>
-					<div className={positions.length > 0 ? 'grid grid-cols-2 gap-4' : 'space-y-2'}>
+		<Dialog open onOpenChange={(open) => !open && onClose()}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{isEditing ? t('admin.modal.editPlayer') : t('admin.modal.addPlayer')}</DialogTitle>
+					<DialogDescription>
+						{isEditing ? t('admin.modal.editPlayerDesc') : t('admin.modal.addPlayerDesc')}
+					</DialogDescription>
+				</DialogHeader>
+				<form onSubmit={form.handleSubmit(handleFormSubmit)}>
+					<div className="space-y-4 pt-4">
 						<div className="space-y-2">
-							<Label>{t('admin.modal.playerNumber')}</Label>
+							<Label>{t('admin.modal.playerName')}</Label>
 							<Input
-								type="number"
-								{...form.register('number', { valueAsNumber: true })}
+								type="text"
+								{...form.register('name', { required: true })}
 								className="w-full px-3 py-2 border rounded"
-								min={0}
-								max={99}
+								required
 							/>
 						</div>
-						{positions.length > 0 && (
+						<div className={positions.length > 0 ? 'grid grid-cols-2 gap-4' : 'space-y-2'}>
 							<div className="space-y-2">
-								<Label htmlFor="admin-player-position">{t('admin.modal.playerPosition')}</Label>
-								<PositionSelect
-									id="admin-player-position"
-									value={form.watch('position')}
-									positions={positions}
-									onChange={(position) => form.setValue('position', position || null)}
+								<Label>{t('admin.modal.playerNumber')}</Label>
+								<Input
+									type="number"
+									{...form.register('number', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded"
+									min={0}
+									max={99}
 								/>
 							</div>
-						)}
+							{positions.length > 0 && (
+								<div className="space-y-2">
+									<Label htmlFor="admin-player-position">{t('admin.modal.playerPosition')}</Label>
+									<PositionSelect
+										id="admin-player-position"
+										value={form.watch('position')}
+										positions={positions}
+										onChange={(position) => form.setValue('position', position || null)}
+									/>
+								</div>
+							)}
+						</div>
+						<div className="space-y-2">
+							<Label>{t('admin.modal.playerBornYear')}</Label>
+							<Input
+								type="number"
+								{...form.register('bornYear', { valueAsNumber: true })}
+								className="w-full px-3 py-2 border rounded"
+								min={1900}
+								max={new Date().getFullYear()}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label>{t('admin.modal.playerNote')}</Label>
+							<Input
+								type="text"
+								{...form.register('note')}
+								className="w-full px-3 py-2 border rounded"
+							/>
+						</div>
 					</div>
-					<div className="space-y-2">
-						<Label>{t('admin.modal.playerBornYear')}</Label>
-						<Input
-							type="number"
-							{...form.register('bornYear', { valueAsNumber: true })}
-							className="w-full px-3 py-2 border rounded"
-							min={1900}
-							max={new Date().getFullYear()}
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label>{t('admin.modal.playerNote')}</Label>
-						<Input
-							type="text"
-							{...form.register('note')}
-							className="w-full px-3 py-2 border rounded"
-						/>
-					</div>
-				</div>
 
-				<div className="flex gap-2 pt-4">
-					<Button className="flex-1" type="submit">
-						{isEditing ? t('common.save') : t('common.create')}
-					</Button>
-					<Button onClick={onClose} variant="outline" type="button">
-						{t('common.cancel')}
-					</Button>
-				</div>
-			</form>
-		</>
+					<div className="flex gap-2 pt-4">
+						<Button className="flex-1" type="submit">
+							{isEditing ? t('common.save') : t('common.create')}
+						</Button>
+						<Button onClick={onClose} variant="outline" type="button">
+							{t('common.cancel')}
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 

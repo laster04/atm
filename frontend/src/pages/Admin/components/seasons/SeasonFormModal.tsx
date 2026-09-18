@@ -5,7 +5,7 @@ import { SeasonStatus, Visibility } from '@types';
 import type { Season, League, Team } from '@types';
 import { seasonApi } from '@/services/api';
 import { Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
-import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
@@ -100,146 +100,148 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 	};
 
 	return (
-		<>
-			<DialogHeader>
-				<DialogTitle>{isEditing ? t('admin.modal.editSeason') : t('admin.modal.createSeason')}</DialogTitle>
-				<DialogDescription>
-					{isEditing ? t('admin.modal.editSeasonDesc') : t('admin.modal.createSeasonDesc')}
-				</DialogDescription>
-			</DialogHeader>
-			<form onSubmit={form.handleSubmit(handleFormSubmit)}>
-				<div className="space-y-3 sm:space-y-4 pt-4">
-					<div className="space-y-2">
-						<Label>{t('admin.modal.name')}</Label>
-						<Input
-							type="text"
-							{...form.register('name', { required: true })}
-							className="w-full px-3 py-2.5 sm:py-2 border rounded"
-							required
-						/>
-					</div>
-					<div className="space-y-2">
-						<FormControl className="w-full" size="small">
-							<InputLabel id="select-league-label">{t('admin.modal.league')}</InputLabel>
-							<Select
-								labelId="select-league-label"
-								id="select-league"
-								label={t('admin.modal.league')}
-								disabled={isArchived}
-								{...form.register('leagueId', { valueAsNumber: true })}
-								defaultValue={initValues.leagueId}
-							>
-								{leagues.map((league) => (
-									<MenuItem key={league.id} value={league.id}>
-										{league.name} ({t(`sports.${league.sportType}`)})
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-					</div>
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+		<Dialog open onOpenChange={(open) => !open && onClose()}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{isEditing ? t('admin.modal.editSeason') : t('admin.modal.createSeason')}</DialogTitle>
+					<DialogDescription>
+						{isEditing ? t('admin.modal.editSeasonDesc') : t('admin.modal.createSeasonDesc')}
+					</DialogDescription>
+				</DialogHeader>
+				<form onSubmit={form.handleSubmit(handleFormSubmit)}>
+					<div className="space-y-3 sm:space-y-4 pt-4">
 						<div className="space-y-2">
-							<Label>{t('admin.modal.startDate')}</Label>
+							<Label>{t('admin.modal.name')}</Label>
 							<Input
-								type="date"
-								{...form.register('startDate', { required: true })}
+								type="text"
+								{...form.register('name', { required: true })}
 								className="w-full px-3 py-2.5 sm:py-2 border rounded"
 								required
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label>{t('admin.modal.endDate')}</Label>
-							<Input
-								type="date"
-								{...form.register('endDate', { required: true })}
-								className="w-full px-3 py-2.5 sm:py-2 border rounded"
-								required
-							/>
-						</div>
-					</div>
-					<div className="space-y-2">
-						<FormControl className="w-full" size="small">
-							<InputLabel id="select-season-status-label">{t('admin.modal.status')}</InputLabel>
-							<Select
-								labelId="select-season-status-label"
-								id="select-season-status"
-								label={t('admin.modal.status')}
-								disabled={isArchived}
-								{...form.register('status')}
-								defaultValue={initValues.status}
-							>
-								<MenuItem value={SeasonStatus.DRAFT}>{t('seasons.status.DRAFT')}</MenuItem>
-								<MenuItem value={SeasonStatus.ACTIVE}>{t('seasons.status.ACTIVE')}</MenuItem>
-								<MenuItem value={SeasonStatus.COMPLETED}>{t('seasons.status.COMPLETED')}</MenuItem>
-							</Select>
-						</FormControl>
-					</div>
-					<div className="space-y-2">
-						<Label>{t('visibility.label')}</Label>
-						<VisibilityPicker
-							value={visibility}
-							onChange={(value) => form.setValue('visibility', value, { shouldDirty: true })}
-						/>
-					</div>
-
-					{!isEditing && sourceCandidates.length > 0 && (
-						<div className="space-y-2 border-t pt-3 sm:pt-4">
-							<Label>{t('admin.modal.copyTeamsFrom')}</Label>
 							<FormControl className="w-full" size="small">
-								<InputLabel id="select-copy-source-label">{t('admin.modal.copyTeamsFromSeason')}</InputLabel>
+								<InputLabel id="select-league-label">{t('admin.modal.league')}</InputLabel>
 								<Select
-									labelId="select-copy-source-label"
-									id="select-copy-source"
-									label={t('admin.modal.copyTeamsFromSeason')}
-									value={sourceSeasonId}
-									onChange={(e) => setSourceSeasonId(e.target.value ? e.target.value : '')}
+									labelId="select-league-label"
+									id="select-league"
+									label={t('admin.modal.league')}
+									disabled={isArchived}
+									{...form.register('leagueId', { valueAsNumber: true })}
+									defaultValue={initValues.leagueId}
 								>
-									<MenuItem value="">{t('admin.modal.copyTeamsNone')}</MenuItem>
-									{sourceCandidates.map((s) => (
-										<MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+									{leagues.map((league) => (
+										<MenuItem key={league.id} value={league.id}>
+											{league.name} ({t(`sports.${league.sportType}`)})
+										</MenuItem>
 									))}
 								</Select>
 							</FormControl>
-
-							{loadingTeams && (
-								<p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-							)}
-
-							{!loadingTeams && sourceSeasonId && copyableTeams.length === 0 && (
-								<p className="text-sm text-muted-foreground">{t('admin.modal.copyTeamsEmpty')}</p>
-							)}
-
-							{!loadingTeams && copyableTeams.length > 0 && (
-								<div className="max-h-40 overflow-y-auto space-y-1 border rounded p-2">
-									{copyableTeams.map((team) => (
-										<FormControlLabel
-											key={team.id}
-											control={
-												<Checkbox
-													size="small"
-													checked={selectedTeamIds.has(team.id)}
-													onChange={() => toggleTeam(team.id)}
-												/>
-											}
-											label={`${team.name} (${team._count?.players ?? 0})`}
-										/>
-									))}
-								</div>
-							)}
 						</div>
-					)}
-				</div>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+							<div className="space-y-2">
+								<Label>{t('admin.modal.startDate')}</Label>
+								<Input
+									type="date"
+									{...form.register('startDate', { required: true })}
+									className="w-full px-3 py-2.5 sm:py-2 border rounded"
+									required
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label>{t('admin.modal.endDate')}</Label>
+								<Input
+									type="date"
+									{...form.register('endDate', { required: true })}
+									className="w-full px-3 py-2.5 sm:py-2 border rounded"
+									required
+								/>
+							</div>
+						</div>
+						<div className="space-y-2">
+							<FormControl className="w-full" size="small">
+								<InputLabel id="select-season-status-label">{t('admin.modal.status')}</InputLabel>
+								<Select
+									labelId="select-season-status-label"
+									id="select-season-status"
+									label={t('admin.modal.status')}
+									disabled={isArchived}
+									{...form.register('status')}
+									defaultValue={initValues.status}
+								>
+									<MenuItem value={SeasonStatus.DRAFT}>{t('seasons.status.DRAFT')}</MenuItem>
+									<MenuItem value={SeasonStatus.ACTIVE}>{t('seasons.status.ACTIVE')}</MenuItem>
+									<MenuItem value={SeasonStatus.COMPLETED}>{t('seasons.status.COMPLETED')}</MenuItem>
+								</Select>
+							</FormControl>
+						</div>
+						<div className="space-y-2">
+							<Label>{t('visibility.label')}</Label>
+							<VisibilityPicker
+								value={visibility}
+								onChange={(value) => form.setValue('visibility', value, { shouldDirty: true })}
+							/>
+						</div>
 
-				<div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4 sm:justify-end">
-					<Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
-						{t('common.cancel')}
-					</Button>
-					<Button className="w-full sm:w-auto" type="submit">
-						{isEditing ? t('common.save') : t('common.create')}
-					</Button>
-				</div>
-			</form>
-		</>
+						{!isEditing && sourceCandidates.length > 0 && (
+							<div className="space-y-2 border-t pt-3 sm:pt-4">
+								<Label>{t('admin.modal.copyTeamsFrom')}</Label>
+								<FormControl className="w-full" size="small">
+									<InputLabel id="select-copy-source-label">{t('admin.modal.copyTeamsFromSeason')}</InputLabel>
+									<Select
+										labelId="select-copy-source-label"
+										id="select-copy-source"
+										label={t('admin.modal.copyTeamsFromSeason')}
+										value={sourceSeasonId}
+										onChange={(e) => setSourceSeasonId(e.target.value ? e.target.value : '')}
+									>
+										<MenuItem value="">{t('admin.modal.copyTeamsNone')}</MenuItem>
+										{sourceCandidates.map((s) => (
+											<MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+
+								{loadingTeams && (
+									<p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+								)}
+
+								{!loadingTeams && sourceSeasonId && copyableTeams.length === 0 && (
+									<p className="text-sm text-muted-foreground">{t('admin.modal.copyTeamsEmpty')}</p>
+								)}
+
+								{!loadingTeams && copyableTeams.length > 0 && (
+									<div className="max-h-40 overflow-y-auto space-y-1 border rounded p-2">
+										{copyableTeams.map((team) => (
+											<FormControlLabel
+												key={team.id}
+												control={
+													<Checkbox
+														size="small"
+														checked={selectedTeamIds.has(team.id)}
+														onChange={() => toggleTeam(team.id)}
+													/>
+												}
+												label={`${team.name} (${team._count?.players ?? 0})`}
+											/>
+										))}
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+
+					<div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4 sm:justify-end">
+						<Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
+							{t('common.cancel')}
+						</Button>
+						<Button className="w-full sm:w-auto" type="submit">
+							{isEditing ? t('common.save') : t('common.create')}
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 

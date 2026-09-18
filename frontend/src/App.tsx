@@ -48,6 +48,7 @@ function DocsFallback() {
   );
 }
 import { Toaster } from "@components/base/toaster.tsx";
+import ErrorBoundary from './components/ErrorBoundary';
 
 /**
  * The signed-in utility pages — dashboard, sign-in, registration — keep the
@@ -59,7 +60,9 @@ function AccountShell() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container mx-auto px-2 py-3">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );

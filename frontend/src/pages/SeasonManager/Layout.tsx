@@ -2,6 +2,7 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import ManagerHeader from '@/components/ManagerHeader';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function SeasonManagerLayout() {
 	const { isAdmin, isSeasonManager } = useAuth();
@@ -30,7 +31,9 @@ export default function SeasonManagerLayout() {
 				/>
 			)}
 			<div className={isDetailPage ? '' : 'container mx-auto px-4 py-4'}>
-				<Outlet />
+				<ErrorBoundary>
+					<Outlet />
+				</ErrorBoundary>
 			</div>
 		</div>
 	);

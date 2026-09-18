@@ -7,7 +7,6 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { playerApi, gameStatisticApi, seasonApi, teamApi, gameApi } from '@/services/api';
 import { Button } from '@components/base/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card';
-import { Dialog, DialogContent } from '@components/base/dialog';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table';
 import { Checkbox } from '@components/base/checkbox';
 import { Input } from '@components/base/input';
@@ -590,32 +589,26 @@ export default function PlayerDetailPage() {
       </div>
 
       {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
-          <PlayerFormModal
-            player={player}
-            positions={positionsForSports(teamSports(player.team))}
-            onSubmit={handleUpdatePlayer}
-            onClose={() => setIsEditModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {isEditModalOpen && (
+        <PlayerFormModal
+          player={player}
+          positions={positionsForSports(teamSports(player.team))}
+          onSubmit={handleUpdatePlayer}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
 
       {/* Move Modal */}
-      <Dialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
-        <DialogContent>
-          {player.team?.season?.id && (
-            <MovePlayerModal
-              player={player}
-              teams={allTeams}
-              seasons={seasons}
-              currentSeasonId={player.team.season.id}
-              onSubmit={handleMovePlayer}
-              onClose={() => setIsMoveModalOpen(false)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {isMoveModalOpen && player.team?.season?.id && (
+        <MovePlayerModal
+          player={player}
+          teams={allTeams}
+          seasons={seasons}
+          currentSeasonId={player.team.season.id}
+          onSubmit={handleMovePlayer}
+          onClose={() => setIsMoveModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

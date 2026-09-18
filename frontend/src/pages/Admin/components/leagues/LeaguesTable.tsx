@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
-import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
 import { Calendar, Edit, Plus, Trash2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -84,21 +83,17 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 		<Card className="border-0 bg-transparent shadow-none rounded-none sm:border sm:bg-card sm:rounded-xl">
 			<CardHeader className="px-0 sm:px-6">
 				<div className="flex items-center justify-end">
-					<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-						<DialogTrigger asChild>
-							<Button onClick={handleOpenCreate}>
-								<Plus className="size-4 mr-2" />
-								{t('admin.tabs.league.addLeague')}
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<LeagueFormModal
-								league={editingLeague}
-								onSubmit={handleSubmit}
-								onClose={handleClose}
-							/>
-						</DialogContent>
-					</Dialog>
+					<Button onClick={handleOpenCreate}>
+						<Plus className="size-4 mr-2" />
+						{t('admin.tabs.league.addLeague')}
+					</Button>
+					{isModalOpen && (
+						<LeagueFormModal
+							league={editingLeague}
+							onSubmit={handleSubmit}
+							onClose={handleClose}
+						/>
+					)}
 				</div>
 			</CardHeader>
 			<CardContent className="px-0 sm:px-6">

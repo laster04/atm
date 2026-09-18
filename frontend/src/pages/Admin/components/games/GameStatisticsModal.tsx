@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/base/table.tsx';
 import { Button } from '@components/base/button';
 import { Input } from '@/components/base/input';
@@ -119,221 +119,223 @@ export default function HockeyGameStatisticsModal({ game, onClose }: HockeyGameS
 	};
 
 	return (
-		<>
-			<DialogHeader>
-				<DialogTitle>{t('admin.tabs.statistics.title')}</DialogTitle>
-				<DialogDescription>
-					{game.homeTeam?.name} vs {game.awayTeam?.name}
-				</DialogDescription>
-			</DialogHeader>
+		<Dialog open onOpenChange={(open) => !open && onClose()}>
+			<DialogContent className="max-w-3xl">
+				<DialogHeader>
+					<DialogTitle>{t('admin.tabs.statistics.title')}</DialogTitle>
+					<DialogDescription>
+						{game.homeTeam?.name} vs {game.awayTeam?.name}
+					</DialogDescription>
+				</DialogHeader>
 
-			{error && (
-				<div className="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">
-					{error}
-				</div>
-			)}
+				{error && (
+					<div className="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">
+						{error}
+					</div>
+				)}
 
-			<div className="space-y-4 pt-4">
-				{loading ? (
-					<div className="text-center py-4">{t('common.loading')}</div>
-				) : (
-					<>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>{t('admin.tabs.statistics.th-player')}</TableHead>
-									<TableHead>{t('admin.tabs.statistics.th-team')}</TableHead>
-									<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-goals')}</TableHead>
-									<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-assists')}</TableHead>
-									<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-penaltyMinutes')}</TableHead>
-									<TableHead className="w-24 text-right">{t('admin.tabs.statistics.th-actions')}</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{statistics.length === 0 && !isAdding ? (
+				<div className="space-y-4 pt-4">
+					{loading ? (
+						<div className="text-center py-4">{t('common.loading')}</div>
+					) : (
+						<>
+							<Table>
+								<TableHeader>
 									<TableRow>
-										<TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-											{t('admin.tabs.statistics.noStatistics')}
-										</TableCell>
+										<TableHead>{t('admin.tabs.statistics.th-player')}</TableHead>
+										<TableHead>{t('admin.tabs.statistics.th-team')}</TableHead>
+										<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-goals')}</TableHead>
+										<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-assists')}</TableHead>
+										<TableHead className="w-24 text-center">{t('admin.tabs.statistics.th-penaltyMinutes')}</TableHead>
+										<TableHead className="w-24 text-right">{t('admin.tabs.statistics.th-actions')}</TableHead>
 									</TableRow>
-								) : (
-									statistics.map((stat) => (
-										<TableRow key={stat.id}>
-											<TableCell className="font-medium">
-												{stat.player?.number ? `#${stat.player.number} ` : ''}{stat.player?.name}
+								</TableHeader>
+								<TableBody>
+									{statistics.length === 0 && !isAdding ? (
+										<TableRow>
+											<TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+												{t('admin.tabs.statistics.noStatistics')}
 											</TableCell>
-											<TableCell>{getPlayerTeamName(stat.playerId)}</TableCell>
-											<TableCell className="text-center">
-												{editingId === stat.id ? (
-													<Input
-														type="number"
-														value={editForm.goals ?? ''}
-														onChange={(e) => setEditForm({ ...editForm, goals: e.target.value ? parseInt(e.target.value) : null })}
-														className="w-16 text-center mx-auto"
-														min={0}
-													/>
-												) : (
-													stat.goals ?? '-'
-												)}
+										</TableRow>
+									) : (
+										statistics.map((stat) => (
+											<TableRow key={stat.id}>
+												<TableCell className="font-medium">
+													{stat.player?.number ? `#${stat.player.number} ` : ''}{stat.player?.name}
+												</TableCell>
+												<TableCell>{getPlayerTeamName(stat.playerId)}</TableCell>
+												<TableCell className="text-center">
+													{editingId === stat.id ? (
+														<Input
+															type="number"
+															value={editForm.goals ?? ''}
+															onChange={(e) => setEditForm({ ...editForm, goals: e.target.value ? parseInt(e.target.value) : null })}
+															className="w-16 text-center mx-auto"
+															min={0}
+														/>
+													) : (
+														stat.goals ?? '-'
+													)}
+												</TableCell>
+												<TableCell className="text-center">
+													{editingId === stat.id ? (
+														<Input
+															type="number"
+															value={editForm.assists ?? ''}
+															onChange={(e) => setEditForm({ ...editForm, assists: e.target.value ? parseInt(e.target.value) : null })}
+															className="w-16 text-center mx-auto"
+															min={0}
+														/>
+													) : (
+														stat.assists ?? '-'
+													)}
+												</TableCell>
+												<TableCell className="text-center">
+													{editingId === stat.id ? (
+														<Input
+															type="number"
+															value={editForm.penaltyMinutes ?? ''}
+															onChange={(e) => setEditForm({ ...editForm, penaltyMinutes: e.target.value ? parseInt(e.target.value) : null })}
+															className="w-16 text-center mx-auto"
+															min={0}
+															step={2}
+														/>
+													) : (
+														stat.penaltyMinutes ?? '-'
+													)}
+												</TableCell>
+												<TableCell className="text-right">
+													<div className="flex justify-end gap-1">
+														{editingId === stat.id ? (
+															<>
+																<Button variant="ghost" size="sm" onClick={() => handleUpdateStatistic(stat.id)}>
+																	<Save className="size-4 text-green-600" />
+																</Button>
+																<Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>
+																	{t('common.cancel')}
+																</Button>
+															</>
+														) : (
+															<>
+																<Button variant="ghost" size="sm" onClick={() => startEditing(stat)}>
+																	{t('common.edit')}
+																</Button>
+																<Button variant="ghost" size="sm" onClick={() => handleDeleteStatistic(stat.id)}>
+																	<Trash2 className="size-4 text-destructive" />
+																</Button>
+															</>
+														)}
+													</div>
+												</TableCell>
+											</TableRow>
+										))
+									)}
+									{isAdding && (
+										<TableRow>
+											<TableCell colSpan={2}>
+												<FormControl className="w-full" size="small">
+													<InputLabel id="select-player-label">{t('admin.tabs.statistics.selectPlayer')}</InputLabel>
+													<Select
+														labelId="select-player-label"
+														label={t('admin.tabs.statistics.selectPlayer')}
+														value={newStat.playerId || ''}
+														onChange={(e) => setNewStat({ ...newStat, playerId: e.target.value })}
+													>
+														{homePlayers.filter(p => !usedPlayerIds.includes(p.id)).length > 0 && (
+															<MenuItem disabled className="font-semibold bg-gray-100">
+																{game.homeTeam?.name}
+															</MenuItem>
+														)}
+														{homePlayers
+															.filter(p => !usedPlayerIds.includes(p.id))
+															.map((player) => (
+																<MenuItem key={player.id} value={player.id}>
+																	{player.number ? `#${player.number} ` : ''}{player.name}
+																</MenuItem>
+															))}
+														{awayPlayers.filter(p => !usedPlayerIds.includes(p.id)).length > 0 && (
+															<MenuItem disabled className="font-semibold bg-gray-100">
+																{game.awayTeam?.name}
+															</MenuItem>
+														)}
+														{awayPlayers
+															.filter(p => !usedPlayerIds.includes(p.id))
+															.map((player) => (
+																<MenuItem key={player.id} value={player.id}>
+																	{player.number ? `#${player.number} ` : ''}{player.name}
+																</MenuItem>
+															))}
+													</Select>
+												</FormControl>
 											</TableCell>
 											<TableCell className="text-center">
-												{editingId === stat.id ? (
-													<Input
-														type="number"
-														value={editForm.assists ?? ''}
-														onChange={(e) => setEditForm({ ...editForm, assists: e.target.value ? parseInt(e.target.value) : null })}
-														className="w-16 text-center mx-auto"
-														min={0}
-													/>
-												) : (
-													stat.assists ?? '-'
-												)}
+												<Input
+													type="number"
+													value={newStat.goals ?? ''}
+													onChange={(e) => setNewStat({ ...newStat, goals: e.target.value ? parseInt(e.target.value) : null })}
+													className="w-16 text-center mx-auto"
+													min={0}
+													placeholder="0"
+												/>
 											</TableCell>
 											<TableCell className="text-center">
-												{editingId === stat.id ? (
-													<Input
-														type="number"
-														value={editForm.penaltyMinutes ?? ''}
-														onChange={(e) => setEditForm({ ...editForm, penaltyMinutes: e.target.value ? parseInt(e.target.value) : null })}
-														className="w-16 text-center mx-auto"
-														min={0}
-														step={2}
-													/>
-												) : (
-													stat.penaltyMinutes ?? '-'
-												)}
+												<Input
+													type="number"
+													value={newStat.assists ?? ''}
+													onChange={(e) => setNewStat({ ...newStat, assists: e.target.value ? parseInt(e.target.value) : null })}
+													className="w-16 text-center mx-auto"
+													min={0}
+													placeholder="0"
+												/>
+											</TableCell>
+											<TableCell className="text-center">
+												<Input
+													type="number"
+													value={newStat.penaltyMinutes ?? ''}
+													onChange={(e) => setNewStat({ ...newStat, penaltyMinutes: e.target.value ? parseInt(e.target.value) : null })}
+													className="w-16 text-center mx-auto"
+													min={0}
+													step={2}
+													placeholder="0"
+												/>
 											</TableCell>
 											<TableCell className="text-right">
 												<div className="flex justify-end gap-1">
-													{editingId === stat.id ? (
-														<>
-															<Button variant="ghost" size="sm" onClick={() => handleUpdateStatistic(stat.id)}>
-																<Save className="size-4 text-green-600" />
-															</Button>
-															<Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>
-																{t('common.cancel')}
-															</Button>
-														</>
-													) : (
-														<>
-															<Button variant="ghost" size="sm" onClick={() => startEditing(stat)}>
-																{t('common.edit')}
-															</Button>
-															<Button variant="ghost" size="sm" onClick={() => handleDeleteStatistic(stat.id)}>
-																<Trash2 className="size-4 text-destructive" />
-															</Button>
-														</>
-													)}
+													<Button variant="ghost" size="sm" onClick={handleAddStatistic} disabled={!newStat.playerId}>
+														<Save className="size-4 text-green-600" />
+													</Button>
+													<Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>
+														{t('common.cancel')}
+													</Button>
 												</div>
 											</TableCell>
 										</TableRow>
-									))
-								)}
-								{isAdding && (
-									<TableRow>
-										<TableCell colSpan={2}>
-											<FormControl className="w-full" size="small">
-												<InputLabel id="select-player-label">{t('admin.tabs.statistics.selectPlayer')}</InputLabel>
-												<Select
-													labelId="select-player-label"
-													label={t('admin.tabs.statistics.selectPlayer')}
-													value={newStat.playerId || ''}
-													onChange={(e) => setNewStat({ ...newStat, playerId: e.target.value })}
-												>
-													{homePlayers.filter(p => !usedPlayerIds.includes(p.id)).length > 0 && (
-														<MenuItem disabled className="font-semibold bg-gray-100">
-															{game.homeTeam?.name}
-														</MenuItem>
-													)}
-													{homePlayers
-														.filter(p => !usedPlayerIds.includes(p.id))
-														.map((player) => (
-															<MenuItem key={player.id} value={player.id}>
-																{player.number ? `#${player.number} ` : ''}{player.name}
-															</MenuItem>
-														))}
-													{awayPlayers.filter(p => !usedPlayerIds.includes(p.id)).length > 0 && (
-														<MenuItem disabled className="font-semibold bg-gray-100">
-															{game.awayTeam?.name}
-														</MenuItem>
-													)}
-													{awayPlayers
-														.filter(p => !usedPlayerIds.includes(p.id))
-														.map((player) => (
-															<MenuItem key={player.id} value={player.id}>
-																{player.number ? `#${player.number} ` : ''}{player.name}
-															</MenuItem>
-														))}
-												</Select>
-											</FormControl>
-										</TableCell>
-										<TableCell className="text-center">
-											<Input
-												type="number"
-												value={newStat.goals ?? ''}
-												onChange={(e) => setNewStat({ ...newStat, goals: e.target.value ? parseInt(e.target.value) : null })}
-												className="w-16 text-center mx-auto"
-												min={0}
-												placeholder="0"
-											/>
-										</TableCell>
-										<TableCell className="text-center">
-											<Input
-												type="number"
-												value={newStat.assists ?? ''}
-												onChange={(e) => setNewStat({ ...newStat, assists: e.target.value ? parseInt(e.target.value) : null })}
-												className="w-16 text-center mx-auto"
-												min={0}
-												placeholder="0"
-											/>
-										</TableCell>
-										<TableCell className="text-center">
-											<Input
-												type="number"
-												value={newStat.penaltyMinutes ?? ''}
-												onChange={(e) => setNewStat({ ...newStat, penaltyMinutes: e.target.value ? parseInt(e.target.value) : null })}
-												className="w-16 text-center mx-auto"
-												min={0}
-												step={2}
-												placeholder="0"
-											/>
-										</TableCell>
-										<TableCell className="text-right">
-											<div className="flex justify-end gap-1">
-												<Button variant="ghost" size="sm" onClick={handleAddStatistic} disabled={!newStat.playerId}>
-													<Save className="size-4 text-green-600" />
-												</Button>
-												<Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>
-													{t('common.cancel')}
-												</Button>
-											</div>
-										</TableCell>
-									</TableRow>
-								)}
-							</TableBody>
-						</Table>
+									)}
+								</TableBody>
+							</Table>
 
-						{!isAdding && availablePlayers.length > 0 && (
-							<Button onClick={() => setIsAdding(true)} variant="outline" className="w-full">
-								<Plus className="size-4 mr-2" />
-								{t('admin.tabs.statistics.addStatistic')}
-							</Button>
-						)}
+							{!isAdding && availablePlayers.length > 0 && (
+								<Button onClick={() => setIsAdding(true)} variant="outline" className="w-full">
+									<Plus className="size-4 mr-2" />
+									{t('admin.tabs.statistics.addStatistic')}
+								</Button>
+							)}
 
-						{!isAdding && availablePlayers.length === 0 && statistics.length > 0 && (
-							<div className="text-center text-muted-foreground text-sm py-2">
-								{t('admin.tabs.statistics.allPlayersHaveStats')}
-							</div>
-						)}
-					</>
-				)}
-			</div>
+							{!isAdding && availablePlayers.length === 0 && statistics.length > 0 && (
+								<div className="text-center text-muted-foreground text-sm py-2">
+									{t('admin.tabs.statistics.allPlayersHaveStats')}
+								</div>
+							)}
+						</>
+					)}
+				</div>
 
-			<div className="flex gap-2 pt-4">
-				<Button onClick={onClose} variant="outline" className="flex-1">
-					{t('common.cancel')}
-				</Button>
-			</div>
-		</>
+				<div className="flex gap-2 pt-4">
+					<Button onClick={onClose} variant="outline" className="flex-1">
+						{t('common.cancel')}
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
