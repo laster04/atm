@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardTitle, CardHeader, CardContent } from '@/components/base/card';
 import { Button } from '@components/base/button';
-import { useAuth } from '@/context/AuthContext';
 import TeamColorPicker from './TeamColorPicker';
 import InviteManagerModal from './InviteManagerModal';
 import type { Standing, Team } from '@types';
@@ -21,7 +20,6 @@ export default function SettingsTab({
 	onTeamUpdate,
 }: SettingsTabProps) {
 	const { t } = useTranslation();
-	const { isAdmin, isSeasonManager } = useAuth();
 	const [showInviteModal, setShowInviteModal] = useState(false);
 
 	return (
@@ -65,8 +63,8 @@ export default function SettingsTab({
 				</div>
 			</div>
 
-			{/* Invite Manager - Admin/Season Manager only */}
-			{(isAdmin() || isSeasonManager()) && (
+			{/* Only the league side may name a team's manager, so the API decides. */}
+			{team.canAdminister && (
 				<Card className="settings-card">
 					<CardHeader>
 						<CardTitle className="text-base">

@@ -150,6 +150,11 @@ export const getTeamById = async (req: AuthRequest, res: Response): Promise<void
     // team's own people get what they entered.
     const sportTypes = await teamSports(team.id);
 
+    // Inviting a manager and deleting the team are league-side actions, so the
+    // UI has to know whether this viewer may take them - otherwise it offers
+    // buttons the API answers with 403.
+    const canAdminister = req.user ? await canAdministerTeam(req.user, team.id) : false;
+
     if (!(await canSeeFullRoster(req.user, team.id))) {
       res.json({
         ...team,
@@ -158,11 +163,12 @@ export const getTeamById = async (req: AuthRequest, res: Response): Promise<void
         games: allGames,
         season: activeSeason,
         sportTypes,
+        canAdminister,
       });
       return;
     }
 
-    res.json({ ...team, games: allGames, season: activeSeason, sportTypes });
+    res.json({ ...team, games: allGames, season: activeSeason, sportTypes, canAdminister });
   } catch (error) {
     console.error('Get team error:', error);
     res.status(500).json({ error: 'Failed to fetch team' });

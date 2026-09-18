@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { useAuth } from '@/context/AuthContext';
 import { gameStatisticApi, playerApi, seasonApi, teamApi } from '@/services/api';
 import { GameStatus, type Player, type Standing, type Team, type TopScorer } from '@types';
 import { Panel } from '@/components/public';
@@ -20,7 +19,6 @@ const FORM_TONE: Record<string, string> = {
 export default function TeamDetailScreen() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const { isAdmin, isSeasonManager } = useAuth();
 
   const [team, setTeam] = useState<Team | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -118,7 +116,7 @@ export default function TeamDetailScreen() {
       />
 
       <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-8">
-        {(isAdmin() || isSeasonManager()) && (
+        {team.canAdminister && (
           <button
             type="button"
             onClick={() => setShowInviteModal(true)}

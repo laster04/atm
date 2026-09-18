@@ -179,6 +179,11 @@ export interface Team {
   seasonTeams?: { id: string; seasonId: string; teamId: string; season: Season }[];
   /** Sports of every season the team is in, listed or not; from GET /teams/:id and GET /players/:id. */
   sportTypes?: SportType[];
+  /**
+   * Whether the signed-in viewer may invite this team's manager or delete the
+   * team - league side or admin only. From GET /teams/:id; false for a visitor.
+   */
+  canAdminister?: boolean;
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   players?: Player[];
   homeGames?: Game[];

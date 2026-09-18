@@ -166,7 +166,7 @@ Custom full-screen overlays (`fixed inset-0`) with no `role="dialog"`,
 no label" on season manager Games, Result sheet, Round dates and team manager
 Settings; every overlay closes with Escape and returns focus.
 
-### 0.5 Invite-manager button shown to people the API refuses — **open, confirmed**
+### 0.5 Invite-manager button shown to people the API refuses — **done 2026-09-18**
 
 Frontend gate: `isAdmin() || isSeasonManager()`
 (`TeamManager/components/SettingsTab.tsx:69`, `TeamDetail/Screen.tsx:121`);
