@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MapPin } from 'lucide-react';
+import { MapPin, Trophy } from 'lucide-react';
 import { formatGameTime } from '@/utils/date';
 import { GameStatus, type Game } from '@types';
 import { GameStatusBadge, TeamCrest } from '@/components/public';
@@ -50,7 +50,14 @@ export default function GameRow({ game }: { game: Game }) {
 				</div>
 			</div>
 
-			<div className="flex items-center gap-3 sm:w-72 sm:shrink-0 sm:justify-end">
+			<div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:w-72 sm:shrink-0 sm:justify-end">
+				{/* The list spans every league, so each row says which one it belongs to. */}
+				{game.season?.league?.name && (
+					<span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+						<Trophy className="size-3.5 shrink-0" />
+						<span className="truncate">{game.season.league.name}</span>
+					</span>
+				)}
 				{game.location && (
 					<span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
 						<MapPin className="size-3.5 shrink-0" />
