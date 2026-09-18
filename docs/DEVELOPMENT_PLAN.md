@@ -9,7 +9,7 @@ design detail.
 
 | # | Phase | State | Next step |
 |---|-------|-------|-----------|
-| 0 | Stability fixes | **Partly done** — 0.1, 0.3 done (browser check pending); 0.6 code done; 0.2, 0.4, 0.5 open | See [Phase 0](#phase-0--stability-detailed) |
+| 0 | Stability fixes | **Partly done** — 0.1, 0.2, 0.3 done; 0.6 code done; 0.4, 0.5 open | See [Phase 0](#phase-0--stability-detailed) |
 | 1 | Shared manager shell + context switcher | Not started | Decide D4, D11 |
 | 2 | Team manager, mobile-first | Backend for own-team match events done; rest not started | Decide D6 |
 | 3 | League manager workflow | Not started | — |
@@ -28,7 +28,7 @@ parallel whenever there is a gap. Phase 3 does not depend on the shell.
 Every item below was checked in the code. File paths are relative to
 `frontend/src/` unless stated otherwise.
 
-### 0.1 Modals without a `Dialog` wrapper blank the page — **done 2026-09-17, browser check pending**
+### 0.1 Modals without a `Dialog` wrapper blank the page — **done 2026-09-17**
 
 `DialogTitle` (Radix, `components/base/dialog.tsx`) throws when rendered outside
 `<Dialog>`. Three modals render `DialogHeader`/`DialogTitle` at the top level and
@@ -75,20 +75,20 @@ unmounts the whole app. The app uses `<BrowserRouter>` + `<Routes>`, so
 desktop width, Escape and the close button close them, and a thrown error inside
 a manager page shows the fallback with the shell still visible.
 
-### 0.2 Team manager bottom navigation wraps — **open, confirmed**
+### 0.2 Team manager bottom navigation wraps — **done 2026-09-18**
 
 `pages/TeamManager/Detail.tsx:231` uses `grid grid-cols-4` for five tabs
 (overview, roster, schedule, events, settings), so **Nastavení** falls onto a
 second row hidden under the safe area. `SeasonManager/Detail.tsx:265` already
 uses `grid-cols-5` and is fine.
 
-Found while checking — **likely second bug, verify in browser:** `.tm-content`
+Second bug, **measured and confirmed**: `.tm-content`
 sets `padding-bottom: calc(3.5rem + safe-area + 1rem)` inside
 `@layer components` (`frontend/style/theme.css:1311`), but the same elements
 also carry the utility `py-4` (`TeamManager/Detail.tsx:191`,
 `SeasonManager/Detail.tsx:226`, `Admin/Layout.tsx:86`). Utilities win over
-components, so the bottom padding is probably 1rem and the last ~56 px of every
-tab sit under the navigation.
+components, so the bottom padding was 16px instead of 72px and the last ~56 px
+of every tab sat under the navigation.
 
 **Tasks**
 
