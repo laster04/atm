@@ -188,7 +188,7 @@ export default function Detail() {
 				</div>
 
 				{/* Content Area */}
-				<div className="tm-content flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
+				<div className="tm-content flex-1 overflow-y-auto px-4 pt-4 lg:px-6 lg:py-6">
 					{activeTab === 'overview' && (
 						<OverviewTab
 							team={team}
@@ -228,7 +228,7 @@ export default function Detail() {
 
 				{/* Mobile Bottom Navigation */}
 				<div className="tm-bottom-nav lg:hidden">
-					<div className="grid grid-cols-4 h-14">
+					<div className="grid grid-cols-5 h-14">
 						{tabs.map((tab) => (
 							<button
 								key={tab.id}

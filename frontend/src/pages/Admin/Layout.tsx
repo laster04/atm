@@ -84,7 +84,7 @@ export default function AdminLayout() {
 					</div>
 				</div>
 
-				<div className="tm-content flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-6">
+				<div className="tm-content flex-1 overflow-y-auto px-4 pt-4 lg:px-6 lg:py-6">
 					<ErrorBoundary>
 						<Outlet />
 					</ErrorBoundary>
