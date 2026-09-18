@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent } from '@components/base/card';
 import ManagerHeader from '@/components/ManagerHeader';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function TournamentManagementLayout() {
   const { isAdmin, isTournamentManager, user, loading } = useAuth();
@@ -30,7 +31,9 @@ export default function TournamentManagementLayout() {
       <div className="container mx-auto px-3 sm:px-4 py-4">
         <Card>
           <CardContent className="p-3 sm:p-6">
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </CardContent>
         </Card>
       </div>

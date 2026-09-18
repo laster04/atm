@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card.tsx';
-import { Dialog, DialogContent, DialogTrigger } from '@components/base/dialog.tsx';
 import { Calendar, Edit, Plus, Trash2, BarChart3 } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
@@ -175,42 +174,34 @@ export default function GamesTable({
 						</Select>
 					</FormControl>
 					<div className="flex flex-col sm:flex-row gap-2">
-						<Dialog open={isGenerateModalOpen} onOpenChange={setIsGenerateModalOpen}>
-							<DialogTrigger asChild>
-								<Button
-									variant="outline"
-									onClick={() => setIsGenerateModalOpen(true)}
-									disabled={!selectedSeasonId || teams.length < 2 || seasons.find(s => s.id === selectedSeasonId)?.status !== SeasonStatus.DRAFT}
-									className="w-full sm:w-auto"
-								>
-									<Calendar className="size-4 mr-2" />
-									{t('admin.tabs.game.generateSchedule')}
-								</Button>
-							</DialogTrigger>
-							<DialogContent>
-								<GenerateScheduleModal
-									teamsCount={teams.length}
-									onSubmit={handleGenerateSubmit}
-									onClose={() => setIsGenerateModalOpen(false)}
-								/>
-							</DialogContent>
-						</Dialog>
-						<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-							<DialogTrigger asChild>
-								<Button onClick={handleOpenCreate} disabled={!selectedSeasonId || teams.length < 2} className="w-full sm:w-auto">
-									<Plus className="size-4 mr-2" />
-									{t('admin.tabs.game.addGame')}
-								</Button>
-							</DialogTrigger>
-							<DialogContent>
-								<GameFormModal
-									game={editingGame}
-									teams={teams}
-									onSubmit={handleSubmit}
-									onClose={handleClose}
-								/>
-							</DialogContent>
-						</Dialog>
+						<Button
+							variant="outline"
+							onClick={() => setIsGenerateModalOpen(true)}
+							disabled={!selectedSeasonId || teams.length < 2 || seasons.find(s => s.id === selectedSeasonId)?.status !== SeasonStatus.DRAFT}
+							className="w-full sm:w-auto"
+						>
+							<Calendar className="size-4 mr-2" />
+							{t('admin.tabs.game.generateSchedule')}
+						</Button>
+						{isGenerateModalOpen && (
+							<GenerateScheduleModal
+								teamsCount={teams.length}
+								onSubmit={handleGenerateSubmit}
+								onClose={() => setIsGenerateModalOpen(false)}
+							/>
+						)}
+						<Button onClick={handleOpenCreate} disabled={!selectedSeasonId || teams.length < 2} className="w-full sm:w-auto">
+							<Plus className="size-4 mr-2" />
+							{t('admin.tabs.game.addGame')}
+						</Button>
+						{isModalOpen && (
+							<GameFormModal
+								game={editingGame}
+								teams={teams}
+								onSubmit={handleSubmit}
+								onClose={handleClose}
+							/>
+						)}
 					</div>
 				</div>
 			</CardHeader>
@@ -306,16 +297,12 @@ export default function GamesTable({
 				)}
 			</CardContent>
 
-			<Dialog open={isStatsModalOpen} onOpenChange={setIsStatsModalOpen}>
-				<DialogContent className="max-w-3xl">
-					{statsGame && (
-						<GameStatisticsModal
-							game={statsGame}
-							onClose={handleCloseStats}
-						/>
-					)}
-				</DialogContent>
-			</Dialog>
+			{isStatsModalOpen && statsGame && (
+				<GameStatisticsModal
+					game={statsGame}
+					onClose={handleCloseStats}
+				/>
+			)}
 		</Card>
 	);
 }

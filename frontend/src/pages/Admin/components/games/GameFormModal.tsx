@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
@@ -82,195 +82,197 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 	};
 
 	return (
-		<>
-			<DialogHeader>
-				<DialogTitle>{isEditing ? t('admin.modal.editGame') : t('admin.modal.addGame')}</DialogTitle>
-				<DialogDescription>
-					{isEditing ? t('admin.modal.editGameDesc') : t('admin.modal.addGameDesc')}
-				</DialogDescription>
-			</DialogHeader>
-			<form onSubmit={form.handleSubmit(handleFormSubmit)}>
-				<div className="space-y-4 pt-4">
-					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-2">
-							<FormControl className="w-full" size="small">
-								<InputLabel id="select-home-team-label">{t('admin.modal.homeTeam')}</InputLabel>
-								<Select
-									labelId="select-home-team-label"
-									label={t('admin.modal.homeTeam')}
-									{...form.register('homeTeamId', { required: true })}
-									defaultValue={initValues.homeTeamId}
-								>
-									{teams
-										.filter((team) => team.id !== watchAwayTeam)
-										.map((team) => (
-											<MenuItem key={team.id} value={team.id}>
-												{team.name}
-											</MenuItem>
-										))}
-								</Select>
-							</FormControl>
-						</div>
-						<div className="space-y-2">
-							<FormControl className="w-full" size="small">
-								<InputLabel id="select-away-team-label">{t('admin.modal.awayTeam')}</InputLabel>
-								<Select
-									labelId="select-away-team-label"
-									label={t('admin.modal.awayTeam')}
-									{...form.register('awayTeamId', { required: true })}
-									defaultValue={initValues.awayTeamId}
-								>
-									{teams
-										.filter((team) => team.id !== watchHomeTeam)
-										.map((team) => (
-											<MenuItem key={team.id} value={team.id}>
-												{team.name}
-											</MenuItem>
-										))}
-								</Select>
-							</FormControl>
-						</div>
-					</div>
-
-					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-2">
-							<div className="flex items-center justify-between gap-2">
-								<Label>{t('admin.modal.gameDate')}</Label>
-								{watchDate && (
-									<button
-										type="button"
-										onClick={() => form.setValue('date', '', { shouldDirty: true })}
-										className="text-xs text-muted-foreground underline hover:text-foreground"
+		<Dialog open onOpenChange={(open) => !open && onClose()}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{isEditing ? t('admin.modal.editGame') : t('admin.modal.addGame')}</DialogTitle>
+					<DialogDescription>
+						{isEditing ? t('admin.modal.editGameDesc') : t('admin.modal.addGameDesc')}
+					</DialogDescription>
+				</DialogHeader>
+				<form onSubmit={form.handleSubmit(handleFormSubmit)}>
+					<div className="space-y-4 pt-4">
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<FormControl className="w-full" size="small">
+									<InputLabel id="select-home-team-label">{t('admin.modal.homeTeam')}</InputLabel>
+									<Select
+										labelId="select-home-team-label"
+										label={t('admin.modal.homeTeam')}
+										{...form.register('homeTeamId', { required: true })}
+										defaultValue={initValues.homeTeamId}
 									>
-										{t('admin.modal.clearGameDate')}
-									</button>
+										{teams
+											.filter((team) => team.id !== watchAwayTeam)
+											.map((team) => (
+												<MenuItem key={team.id} value={team.id}>
+													{team.name}
+												</MenuItem>
+											))}
+									</Select>
+								</FormControl>
+							</div>
+							<div className="space-y-2">
+								<FormControl className="w-full" size="small">
+									<InputLabel id="select-away-team-label">{t('admin.modal.awayTeam')}</InputLabel>
+									<Select
+										labelId="select-away-team-label"
+										label={t('admin.modal.awayTeam')}
+										{...form.register('awayTeamId', { required: true })}
+										defaultValue={initValues.awayTeamId}
+									>
+										{teams
+											.filter((team) => team.id !== watchHomeTeam)
+											.map((team) => (
+												<MenuItem key={team.id} value={team.id}>
+													{team.name}
+												</MenuItem>
+											))}
+									</Select>
+								</FormControl>
+							</div>
+						</div>
+
+						<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<div className="flex items-center justify-between gap-2">
+									<Label>{t('admin.modal.gameDate')}</Label>
+									{watchDate && (
+										<button
+											type="button"
+											onClick={() => form.setValue('date', '', { shouldDirty: true })}
+											className="text-xs text-muted-foreground underline hover:text-foreground"
+										>
+											{t('admin.modal.clearGameDate')}
+										</button>
+									)}
+								</div>
+								<Input
+									type="datetime-local"
+									{...form.register('date')}
+									className="w-full px-3 py-2 border rounded"
+								/>
+								{!watchDate && (
+									<p className="text-xs text-muted-foreground">{t('admin.modal.gameDateTbdHint')}</p>
 								)}
 							</div>
-							<Input
-								type="datetime-local"
-								{...form.register('date')}
-								className="w-full px-3 py-2 border rounded"
-							/>
-							{!watchDate && (
-								<p className="text-xs text-muted-foreground">{t('admin.modal.gameDateTbdHint')}</p>
-							)}
-						</div>
-						<div className="space-y-2">
-							<Label>{t('admin.modal.gameRound')}</Label>
-							<Input
-								type="number"
-								{...form.register('round', { valueAsNumber: true })}
-								className="w-full px-3 py-2 border rounded"
-								min={1}
-							/>
-						</div>
-					</div>
-
-					<div className="space-y-2">
-						<Label>{t('admin.modal.gameLocation')}</Label>
-						<Input
-							type="text"
-							{...form.register('location')}
-							className="w-full px-3 py-2 border rounded"
-							placeholder={t('admin.modal.gameLocationPlaceholder')}
-						/>
-					</div>
-
-					<div className="space-y-2">
-						<FormControl className="w-full" size="small">
-							<InputLabel id="select-game-status-label">{t('admin.modal.gameStatus')}</InputLabel>
-							<Select
-								labelId="select-game-status-label"
-								label={t('admin.modal.gameStatus')}
-								{...form.register('status')}
-								defaultValue={initValues.status}
-							>
-								<MenuItem value="SCHEDULED">{t('admin.tabs.game.status.SCHEDULED')}</MenuItem>
-								<MenuItem value="IN_PROGRESS">{t('admin.tabs.game.status.IN_PROGRESS')}</MenuItem>
-								<MenuItem value="COMPLETED">{t('admin.tabs.game.status.COMPLETED')}</MenuItem>
-								<MenuItem value="POSTPONED">{t('admin.tabs.game.status.POSTPONED')}</MenuItem>
-								<MenuItem value="CANCELLED">{t('admin.tabs.game.status.CANCELLED')}</MenuItem>
-							</Select>
-						</FormControl>
-					</div>
-
-					{isEditing && (
-						<div className="space-y-3">
-							<div className="grid grid-cols-[auto_1fr_1fr] items-center gap-x-3 gap-y-2">
-								<div />
-								<Label className="text-center text-xs text-muted-foreground">{t('admin.modal.homeScore')}</Label>
-								<Label className="text-center text-xs text-muted-foreground">{t('admin.modal.awayScore')}</Label>
-
-								<Label className="text-sm whitespace-nowrap">{t('admin.modal.totalScore', 'Total')}</Label>
+							<div className="space-y-2">
+								<Label>{t('admin.modal.gameRound')}</Label>
 								<Input
 									type="number"
-									{...form.register('homeScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-								<Input
-									type="number"
-									{...form.register('awayScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-
-								<Label className="text-sm whitespace-nowrap">{t('admin.modal.period1', 'Period 1')}</Label>
-								<Input
-									type="number"
-									{...form.register('period1HomeScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-								<Input
-									type="number"
-									{...form.register('period1AwayScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-
-								<Label className="text-sm whitespace-nowrap">{t('admin.modal.period2', 'Period 2')}</Label>
-								<Input
-									type="number"
-									{...form.register('period2HomeScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-								<Input
-									type="number"
-									{...form.register('period2AwayScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-
-								<Label className="text-sm whitespace-nowrap">{t('admin.modal.period3', 'Period 3')}</Label>
-								<Input
-									type="number"
-									{...form.register('period3HomeScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
-								/>
-								<Input
-									type="number"
-									{...form.register('period3AwayScore', { valueAsNumber: true })}
-									className="w-full px-3 py-2 border rounded text-center"
-									min={0}
+									{...form.register('round', { valueAsNumber: true })}
+									className="w-full px-3 py-2 border rounded"
+									min={1}
 								/>
 							</div>
 						</div>
-					)}
-				</div>
 
-				<div className="flex gap-2 pt-4">
-					<Button className="flex-1" type="submit">
-						{isEditing ? t('common.save') : t('common.create')}
-					</Button>
-					<Button onClick={onClose} variant="outline" type="button">
-						{t('common.cancel')}
-					</Button>
-				</div>
-			</form>
-		</>
+						<div className="space-y-2">
+							<Label>{t('admin.modal.gameLocation')}</Label>
+							<Input
+								type="text"
+								{...form.register('location')}
+								className="w-full px-3 py-2 border rounded"
+								placeholder={t('admin.modal.gameLocationPlaceholder')}
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<FormControl className="w-full" size="small">
+								<InputLabel id="select-game-status-label">{t('admin.modal.gameStatus')}</InputLabel>
+								<Select
+									labelId="select-game-status-label"
+									label={t('admin.modal.gameStatus')}
+									{...form.register('status')}
+									defaultValue={initValues.status}
+								>
+									<MenuItem value="SCHEDULED">{t('admin.tabs.game.status.SCHEDULED')}</MenuItem>
+									<MenuItem value="IN_PROGRESS">{t('admin.tabs.game.status.IN_PROGRESS')}</MenuItem>
+									<MenuItem value="COMPLETED">{t('admin.tabs.game.status.COMPLETED')}</MenuItem>
+									<MenuItem value="POSTPONED">{t('admin.tabs.game.status.POSTPONED')}</MenuItem>
+									<MenuItem value="CANCELLED">{t('admin.tabs.game.status.CANCELLED')}</MenuItem>
+								</Select>
+							</FormControl>
+						</div>
+
+						{isEditing && (
+							<div className="space-y-3">
+								<div className="grid grid-cols-[auto_1fr_1fr] items-center gap-x-3 gap-y-2">
+									<div />
+									<Label className="text-center text-xs text-muted-foreground">{t('admin.modal.homeScore')}</Label>
+									<Label className="text-center text-xs text-muted-foreground">{t('admin.modal.awayScore')}</Label>
+
+									<Label className="text-sm whitespace-nowrap">{t('admin.modal.totalScore', 'Total')}</Label>
+									<Input
+										type="number"
+										{...form.register('homeScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+									<Input
+										type="number"
+										{...form.register('awayScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+
+									<Label className="text-sm whitespace-nowrap">{t('admin.modal.period1', 'Period 1')}</Label>
+									<Input
+										type="number"
+										{...form.register('period1HomeScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+									<Input
+										type="number"
+										{...form.register('period1AwayScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+
+									<Label className="text-sm whitespace-nowrap">{t('admin.modal.period2', 'Period 2')}</Label>
+									<Input
+										type="number"
+										{...form.register('period2HomeScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+									<Input
+										type="number"
+										{...form.register('period2AwayScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+
+									<Label className="text-sm whitespace-nowrap">{t('admin.modal.period3', 'Period 3')}</Label>
+									<Input
+										type="number"
+										{...form.register('period3HomeScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+									<Input
+										type="number"
+										{...form.register('period3AwayScore', { valueAsNumber: true })}
+										className="w-full px-3 py-2 border rounded text-center"
+										min={0}
+									/>
+								</div>
+							</div>
+						)}
+					</div>
+
+					<div className="flex gap-2 pt-4">
+						<Button className="flex-1" type="submit">
+							{isEditing ? t('common.save') : t('common.create')}
+						</Button>
+						<Button onClick={onClose} variant="outline" type="button">
+							{t('common.cancel')}
+						</Button>
+					</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }
 

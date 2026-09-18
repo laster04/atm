@@ -13,7 +13,15 @@
     "players": "players",
     "seasons": "seasons",
     "all": "All",
-    "close": "Close"
+    "close": "Close",
+    "name": "Name",
+    "unknown": "Unknown"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "This page could not be displayed. Try again, or go back to the dashboard.",
+    "retry": "Try again",
+    "backToDashboard": "Back to dashboard"
   },
   "nav": {
     "brand": "Sport Scheduler",
@@ -289,6 +297,17 @@
       "goToLogin": "Go to Login",
       "registerAgain": "Register Again"
     }
+  },
+  "activate": {
+    "title": "Account activation",
+    "activating": "Activating your account…",
+    "success": "Account activated!",
+    "successMessage": "Your account has been activated. You can now log in.",
+    "goToLogin": "Go to login",
+    "error": "Activation failed",
+    "failed": "Account activation failed",
+    "invalidToken": "Invalid activation link",
+    "registerAgain": "Register again"
   },
   "leagues": {
     "title": "Leagues",
@@ -1209,6 +1228,10 @@
       "gameStatus": "Status",
       "homeScore": "Home Score",
       "awayScore": "Away Score",
+      "totalScore": "Total",
+      "period1": "Period 1",
+      "period2": "Period 2",
+      "period3": "Period 3",
       "generateSchedule": "Generate Schedule",
       "generateScheduleDesc": "Automatically create a round-robin schedule for all teams. Dates will be added later.",
       "numberOfRounds": "Number of Rounds",
@@ -1961,7 +1984,7 @@
       "view": "View",
       "searchPlaceholder": "Search a league…",
       "emptyHint": "Try another sport, or clear the search.",
-      "activeCount": "{{count}} season in progress",
+      "activeCount_one": "{{count}} season in progress",
       "activeCount_other": "{{count}} seasons in progress",
       "seasonCount_one": "{{count}} season",
       "seasonCount_other": "{{count}} seasons"

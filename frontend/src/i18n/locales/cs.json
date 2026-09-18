@@ -13,7 +13,15 @@
     "players": "hracu",
     "seasons": "sezon",
     "all": "Vse",
-    "close": "Zavřít"
+    "close": "Zavřít",
+    "name": "Jméno",
+    "unknown": "Neznámý"
+  },
+  "errorBoundary": {
+    "title": "Něco se pokazilo",
+    "description": "Tuto stránku se nepodařilo zobrazit. Zkuste to znovu, nebo se vraťte na nástěnku.",
+    "retry": "Zkusit znovu",
+    "backToDashboard": "Zpět na nástěnku"
   },
   "nav": {
     "brand": "Amateur Team Manager",
@@ -289,6 +297,17 @@
       "goToLogin": "Prejit na prihlaseni",
       "registerAgain": "Registrovat znovu"
     }
+  },
+  "activate": {
+    "title": "Aktivace účtu",
+    "activating": "Aktivuji váš účet…",
+    "success": "Účet aktivován!",
+    "successMessage": "Váš účet byl aktivován. Nyní se můžete přihlásit.",
+    "goToLogin": "Přejít na přihlášení",
+    "error": "Aktivace se nezdařila",
+    "failed": "Aktivace účtu se nezdařila",
+    "invalidToken": "Neplatný aktivační odkaz",
+    "registerAgain": "Zaregistrovat se znovu"
   },
   "leagues": {
     "title": "Ligy",
@@ -1219,6 +1238,10 @@
       "gameStatus": "Stav",
       "homeScore": "Skóre domácích",
       "awayScore": "Skóre hostů",
+      "totalScore": "Celkem",
+      "period1": "1. třetina",
+      "period2": "2. třetina",
+      "period3": "3. třetina",
       "generateSchedule": "Generovat rozpis",
       "generateScheduleDesc": "Automaticky vytvořit rozpis každý s každým pro všechny týmy. Data budou přidána později.",
       "numberOfRounds": "Počet kol",

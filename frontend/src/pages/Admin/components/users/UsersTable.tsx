@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader } from "@components/base/card.tsx";
 import { Role } from '@types';
 import type { User } from '@types';
-import { Dialog, DialogContent, DialogTrigger } from "@components/base/dialog.tsx";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@components/base/tooltip.tsx";
 import UserFormModal, { type UserFormData } from "@/pages/Admin/components/users/UserFormModal.tsx";
 import { authApi } from '@/services/api';
@@ -181,21 +180,17 @@ export default function UsersTable({ users, onCreateUser, onUpdateUser, onDelete
 							</Button>
 						)}
 						<div className="ml-auto">
-							<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-								<DialogTrigger asChild>
-									<Button onClick={handleOpenCreate}>
-										<Plus className="size-4 mr-2"/>
-										{t('admin.tabs.user.addUser')}
-									</Button>
-								</DialogTrigger>
-								<DialogContent>
-									<UserFormModal
-										user={editingUser}
-										onSubmit={handleSubmit}
-										onClose={handleClose}
-									/>
-								</DialogContent>
-							</Dialog>
+							<Button onClick={handleOpenCreate}>
+								<Plus className="size-4 mr-2"/>
+								{t('admin.tabs.user.addUser')}
+							</Button>
+							{isModalOpen && (
+								<UserFormModal
+									user={editingUser}
+									onSubmit={handleSubmit}
+									onClose={handleClose}
+								/>
+							)}
 						</div>
 					</div>
 				</div>
