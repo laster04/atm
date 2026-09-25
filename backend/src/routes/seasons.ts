@@ -17,7 +17,11 @@ import {
 import {
   previewRoundSummary,
   sendRoundSummary,
-  listSentDigests
+  listSentDigests,
+  listUnsentGames,
+  previewResultsEmail,
+  sendResultsEmail,
+  sendTestResultsEmail,
 } from '../controllers/digestController.js';
 import {
   getGroupsBySeason,
@@ -62,5 +66,10 @@ router.put('/:seasonId/teams/:teamId/group', authenticate, requireSeasonAccess('
 router.get('/:id/digests', authenticate, requireSeasonAccess(), listSentDigests);
 router.get('/:id/rounds/:round/summary', authenticate, requireSeasonAccess(), previewRoundSummary);
 router.post('/:id/rounds/:round/summary', authenticate, requireSeasonAccess(), sendRoundSummary);
+// Results email for hand-picked finished games that have not been mailed yet.
+router.get('/:id/results-email', authenticate, requireSeasonAccess(), listUnsentGames);
+router.post('/:id/results-email/preview', authenticate, requireSeasonAccess(), previewResultsEmail);
+router.post('/:id/results-email/test', authenticate, requireSeasonAccess(), sendTestResultsEmail);
+router.post('/:id/results-email', authenticate, requireSeasonAccess(), sendResultsEmail);
 
 export default router;

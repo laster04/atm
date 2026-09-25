@@ -381,7 +381,7 @@ class EmailService {
       seasonId: string;
       seasonName: string;
       leagueName: string;
-      round: number;
+      round: number | null;
       results: {
         homeTeam: string;
         awayTeam: string;
@@ -391,10 +391,57 @@ class EmailService {
       }[];
       standings: { rank: number; team: string; played: number; points: number }[];
       topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
-    }
+    },
+    locale?: string
   ): Promise<boolean> {
     const accent = '#003E7E';
     const seasonLink = `${this.getAppUrl()}/season-detail/${summary.seasonId}`;
+    const season = escapeHtml(summary.seasonName);
+    const league = escapeHtml(summary.leagueName);
+    // An email of hand-picked games has no round to name.
+    const round = summary.round;
+
+    const texts = locale === 'cs' ? {
+      greeting: `Dobrý den, <strong>${escapeHtml(name)}</strong>,`,
+      intro: round !== null
+        ? `${round}. kolo sezóny ${season} je odehrané. Takhle dopadlo.`
+        : `Máme nové výsledky ze sezóny ${season}. Takhle dopadly.`,
+      notConfirmed: 'nepotvrzeno',
+      results: 'Výsledky',
+      table: 'Tabulka',
+      topScorers: 'Nejlepší střelci',
+      colTeam: 'Tým',
+      colPlayed: 'Z',
+      colPoints: 'B',
+      colPlayer: 'Hráč',
+      colGoalsAssists: 'G+A',
+      button: 'Otevřít sezónu',
+      optOut: 'Tyto souhrny můžete vypnout na své nástěnce v ATM.',
+      header: round !== null ? `${league} &mdash; ${round}. kolo` : `${league} &mdash; Výsledky`,
+      subject: round !== null
+        ? `${summary.seasonName} - souhrn ${round}. kola`
+        : `${summary.seasonName} - nové výsledky`,
+    } : {
+      greeting: `Hello, <strong>${escapeHtml(name)}</strong>,`,
+      intro: round !== null
+        ? `Round ${round} of ${season} is in. Here is how it went.`
+        : `New results from ${season} are in. Here is how it went.`,
+      notConfirmed: 'not confirmed',
+      results: 'Results',
+      table: 'Table',
+      topScorers: 'Top scorers',
+      colTeam: 'Team',
+      colPlayed: 'P',
+      colPoints: 'Pts',
+      colPlayer: 'Player',
+      colGoalsAssists: 'G+A',
+      button: 'Open the season',
+      optOut: 'You can turn these summaries off from your ATM dashboard.',
+      header: round !== null ? `${league} &mdash; Round ${round}` : `${league} &mdash; Results`,
+      subject: round !== null
+        ? `${summary.seasonName} - round ${round} summary`
+        : `${summary.seasonName} - latest results`,
+    };
 
     const cell = (content: string, opts: { align?: string; bold?: boolean; muted?: boolean } = {}) =>
       `<td style="padding:7px 8px;font-size:14px;text-align:${opts.align ?? 'left'};` +
@@ -419,7 +466,7 @@ class EmailService {
         // it is marked rather than shown as if it had.
         const pending = game.confirmed
           ? ''
-          : ` <span style="font-size:11px;color:${COLORS.muted};">(not confirmed)</span>`;
+          : ` <span style="font-size:11px;color:${COLORS.muted};">(${texts.notConfirmed})</span>`;
         return `<tr>${cell(escapeHtml(game.homeTeam), { align: 'right' })}` +
           `${cell(score, { align: 'center', bold: true })}` +
           `${cell(escapeHtml(game.awayTeam) + pending)}</tr>`;
@@ -447,37 +494,35 @@ class EmailService {
       .join('');
 
     const body = [
-      this.p(`Hello, <strong>${escapeHtml(name)}</strong>,`),
-      this.p(
-        `Round ${summary.round} of ${escapeHtml(summary.seasonName)} is in. Here is how it went.`,
-        { mb: 24 }
-      ),
-      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">Results</p>`,
+      this.p(texts.greeting),
+      this.p(texts.intro, { mb: 24 }),
+      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">${texts.results}</p>`,
       table('', resultRows),
-      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">Table</p>`,
-      table(`${th('#', 'right')}${th('Team')}${th('P', 'center')}${th('Pts', 'right')}`, standingRows),
+      `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">${texts.table}</p>`,
+      table(
+        `${th('#', 'right')}${th(texts.colTeam)}${th(texts.colPlayed, 'center')}${th(texts.colPoints, 'right')}`,
+        standingRows
+      ),
       summary.topScorers.length > 0
-        ? `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">Top scorers</p>` +
-          table(`${th('Player')}${th('Team')}${th('G+A', 'center')}${th('Pts', 'right')}`, scorerRows)
+        ? `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">${texts.topScorers}</p>` +
+          table(
+            `${th(texts.colPlayer)}${th(texts.colTeam)}${th(texts.colGoalsAssists, 'center')}${th(texts.colPoints, 'right')}`,
+            scorerRows
+          )
         : '',
-      this.button('Open the season', seasonLink, accent),
-      this.p('You can turn these summaries off from your ATM dashboard.', {
+      this.button(texts.button, seasonLink, accent),
+      this.p(texts.optOut, {
         mb: 0,
         size: 13,
         color: COLORS.muted,
       }),
     ].join('');
 
-    const html = this.buildEmailHtml(
-      accent,
-      'trophy',
-      `${escapeHtml(summary.leagueName)} &mdash; Round ${summary.round}`,
-      body
-    );
+    const html = this.buildEmailHtml(accent, 'trophy', texts.header, body);
 
     return this.sendEmail({
       to,
-      subject: `${summary.seasonName} - round ${summary.round} summary`,
+      subject: texts.subject,
       html,
     });
   }
