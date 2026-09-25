@@ -82,6 +82,35 @@ describe('confirming a match report', () => {
   });
 });
 
+describe('confirming while saving the result', () => {
+  it('confirms a game saved as completed with the flag', async () => {
+    const game = await newGame();
+    const res = await request(app).put(`/api/games/${game}`).set(auth())
+      .send({ homeScore: 9, awayScore: 4, status: 'COMPLETED', confirm: true });
+    expect(res.status).toBe(200);
+    expect(res.body.confirmedAt).toBeTruthy();
+    expect(res.body.confirmedById).toBeTruthy();
+
+    const trail = await prisma.auditLog.findMany({ where: { entityType: 'Game', entityId: game, action: 'CONFIRM' } });
+    expect(trail).toHaveLength(1);
+  });
+
+  it('ignores the flag on a game that is not completed', async () => {
+    const game = await newGame();
+    const res = await request(app).put(`/api/games/${game}`).set(auth())
+      .send({ status: 'POSTPONED', confirm: true });
+    expect(res.status).toBe(200);
+    expect(res.body.confirmedAt).toBeNull();
+  });
+
+  it('leaves a completed game unconfirmed without the flag', async () => {
+    const game = await newGame();
+    const res = await request(app).put(`/api/games/${game}`).set(auth())
+      .send({ homeScore: 1, awayScore: 0, status: 'COMPLETED' });
+    expect(res.body.confirmedAt).toBeNull();
+  });
+});
+
 describe('a confirmed report is closed', () => {
   it('refuses a new event', async () => {
     const res = await request(app).post(`/api/games/${gameId}/events`).set(auth())

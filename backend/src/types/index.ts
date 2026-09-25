@@ -475,6 +475,12 @@ export interface UpdateGameRequest {
   period3AwayScore?: number | null;
   status?: GameStatus;
   round?: string | number | null;
+  /**
+   * Confirm the result in the same save. Honoured only when the game ends up
+   * completed; the league manager's result screen sends it so recording a final
+   * score does not need a second trip to the match report.
+   */
+  confirm?: boolean;
 }
 
 export interface GenerateScheduleRequest {

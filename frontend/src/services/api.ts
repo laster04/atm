@@ -186,7 +186,9 @@ export const gameApi = {
   getById: (id: string | number) => api.get<Game>(`/games/${id}`),
   create: (seasonId: string | number, data: Partial<Game>) =>
     api.post<Game>(`/games/season/${seasonId}`, data),
-  update: (id: string | number, data: Partial<Game>) => api.put<Game>(`/games/${id}`, data),
+  // `confirm` also confirms the result when the game ends up completed.
+  update: (id: string | number, data: Partial<Game> & { confirm?: boolean }) =>
+    api.put<Game>(`/games/${id}`, data),
   delete: (id: string | number) => api.delete(`/games/${id}`),
   generateSchedule: (
     seasonId: string | number,

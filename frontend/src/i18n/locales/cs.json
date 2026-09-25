@@ -821,6 +821,7 @@
       "openReport": "Zápis o utkání",
       "fromReport": "ze zápisu",
       "saveStatus": "Uložit stav",
+      "saveAndConfirm": "Uložit a potvrdit",
       "confirmedNote": "Zápas je potvrzený a nelze ho měnit. Nejdřív otevřete zápis o utkání a odemkněte ho."
     },
     "teams": {

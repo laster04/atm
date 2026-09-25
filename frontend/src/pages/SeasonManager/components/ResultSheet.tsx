@@ -72,6 +72,10 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 		});
 	};
 
+	// A finished game saved from here is the league's final word on it, so it is
+	// confirmed in the same save rather than left waiting in the match report.
+	const confirmsOnSave = status === GameStatus.COMPLETED;
+
 	const handleSave = async () => {
 		setError('');
 		setSaving(true);
@@ -79,7 +83,7 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 			const res = await gameApi.update(
 				game.id,
 				derived
-					? { status }
+					? { status, confirm: confirmsOnSave }
 					: {
 							homeScore,
 							awayScore,
@@ -90,6 +94,7 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 							period3HomeScore: periods[2][0],
 							period3AwayScore: periods[2][1],
 							status,
+							confirm: confirmsOnSave,
 						}
 			);
 			onSaved(res.data);
@@ -288,7 +293,11 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 					style={{ backgroundColor: SEASON_ACCENT }}
 				>
 					<Save className="size-4" aria-hidden />
-					{derived ? t('seasonManagement.result.saveStatus') : t('seasonManagement.result.save')}
+					{confirmsOnSave
+						? t('seasonManagement.result.saveAndConfirm')
+						: derived
+							? t('seasonManagement.result.saveStatus')
+							: t('seasonManagement.result.save')}
 				</button>
 			</div>
 		</div>
