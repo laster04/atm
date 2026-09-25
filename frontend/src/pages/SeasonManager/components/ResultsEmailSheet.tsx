@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, FlaskConical, Mail, Send, X } from 'lucide-react';
+import { Check, Download, FlaskConical, Mail, Send, Share2, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { seasonApi } from '@/services/api';
 import type { RoundSummary, Season, SeasonDigest, UnsentGame } from '@types';
@@ -13,6 +13,20 @@ interface ResultsEmailSheetProps {
 }
 
 const PREVIEW_DELAY_MS = 300;
+
+/**
+ * Whether this browser can hand an image file to the system share sheet
+ * (phones, mostly). Elsewhere the card is downloaded instead.
+ */
+const CAN_SHARE_FILES =
+	typeof navigator !== 'undefined' &&
+	typeof navigator.canShare === 'function' &&
+	navigator.canShare({ files: [new File([], 'probe.png', { type: 'image/png' })] });
+
+interface ShareImage {
+	file: File;
+	url: string;
+}
 
 /**
  * Emails the results of finished games to everyone involved in the season.
@@ -30,6 +44,8 @@ export default function ResultsEmailSheet({ season, onClose }: ResultsEmailSheet
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const [sent, setSent] = useState<SeasonDigest[]>([]);
 	const [preview, setPreview] = useState<RoundSummary | null>(null);
+	const [shareImage, setShareImage] = useState<ShareImage | null>(null);
+	const [imageLoading, setImageLoading] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [sending, setSending] = useState(false);
 	const [testing, setTesting] = useState(false);
@@ -62,19 +78,68 @@ export default function ResultsEmailSheet({ season, onClose }: ResultsEmailSheet
 
 	// The table and scorers come from the server, so the preview follows the
 	// selection with a short delay rather than on every tick of a checkbox.
+	//
+	// The share image is fetched here too, ahead of the tap: iOS only opens the
+	// share sheet straight from a tap, and waiting for the image first would
+	// lose it.
 	useEffect(() => {
 		if (selectedIds.length === 0) {
 			setPreview(null);
+			setShareImage(null);
 			return;
 		}
+		let stale = false;
 		const timer = setTimeout(() => {
 			seasonApi
 				.previewResultsEmail(season.id, selectedIds)
-				.then((res) => setPreview(res.data.summary))
-				.catch(() => setPreview(null));
+				.then((res) => !stale && setPreview(res.data.summary))
+				.catch(() => !stale && setPreview(null));
+
+			setImageLoading(true);
+			seasonApi
+				.getResultsImage(season.id, selectedIds, i18n.language)
+				.then((res) => {
+					if (stale) return;
+					const file = new File([res.data], `${t('seasonManagement.resultsEmail.imageFile')}.png`, {
+						type: 'image/png',
+					});
+					setShareImage({ file, url: URL.createObjectURL(file) });
+				})
+				.catch(() => !stale && setShareImage(null))
+				.finally(() => !stale && setImageLoading(false));
 		}, PREVIEW_DELAY_MS);
-		return () => clearTimeout(timer);
-	}, [season.id, selectedIds]);
+		return () => {
+			stale = true;
+			clearTimeout(timer);
+		};
+	}, [season.id, selectedIds, i18n.language, t]);
+
+	// Each card is held as an object URL for the thumbnail; let the old one go.
+	useEffect(() => {
+		return () => {
+			if (shareImage) URL.revokeObjectURL(shareImage.url);
+		};
+	}, [shareImage]);
+
+	const shareCard = async () => {
+		if (!shareImage) return;
+		setError('');
+		if (CAN_SHARE_FILES) {
+			try {
+				await navigator.share({ files: [shareImage.file] });
+			} catch (err) {
+				// Closing the share sheet is not an error.
+				if ((err as DOMException).name !== 'AbortError') {
+					setError(t('seasonManagement.resultsEmail.shareError'));
+				}
+			}
+			return;
+		}
+		const link = document.createElement('a');
+		link.href = shareImage.url;
+		link.download = shareImage.file.name;
+		link.click();
+	};
 
 	const toggle = (id: string) => {
 		setSelected((prev) => {
@@ -237,6 +302,40 @@ export default function ResultsEmailSheet({ season, onClose }: ResultsEmailSheet
 								);
 							})}
 						</div>
+					</div>
+				)}
+
+				{selectedIds.length > 0 && (
+					<div className="flex flex-col gap-2">
+						<span className="tm-section-label mt-1">{t('seasonManagement.resultsEmail.shareTitle')}</span>
+						<p className="text-[12.5px] leading-snug text-muted-foreground">
+							{t('seasonManagement.resultsEmail.shareHint')}
+						</p>
+						{shareImage && (
+							<img
+								src={shareImage.url}
+								alt={t('seasonManagement.resultsEmail.shareTitle')}
+								className="mx-auto w-full max-w-[280px] rounded-xl border border-border shadow-sm"
+								style={{ opacity: imageLoading ? 0.5 : 1 }}
+							/>
+						)}
+						<button
+							onClick={() => void shareCard()}
+							disabled={!shareImage || imageLoading}
+							className="flex h-11 items-center justify-center gap-2 rounded-[10px] border text-[14.5px] font-semibold disabled:opacity-60"
+							style={{ borderColor: SEASON_ACCENT, color: SEASON_ACCENT }}
+						>
+							{CAN_SHARE_FILES ? (
+								<Share2 className="size-4" aria-hidden />
+							) : (
+								<Download className="size-4" aria-hidden />
+							)}
+							{imageLoading && !shareImage
+								? t('seasonManagement.resultsEmail.imageLoading')
+								: CAN_SHARE_FILES
+									? t('seasonManagement.resultsEmail.shareImage')
+									: t('seasonManagement.resultsEmail.downloadImage')}
+						</button>
 					</div>
 				)}
 

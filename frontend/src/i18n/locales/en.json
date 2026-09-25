@@ -959,7 +959,14 @@
       "send_other": "Send {{count}} games",
       "sentResult": "{{games}} games sent to {{delivered}} of {{attempted}} recipients.",
       "alreadySent": "Some of these games were emailed in the meantime. The list has been refreshed.",
-      "sendError": "Failed to send the email"
+      "sendError": "Failed to send the email",
+      "shareTitle": "Image to share",
+      "shareHint": "Post the results to a WhatsApp group or any other chat. Sharing does not mark the games as sent.",
+      "shareImage": "Share image",
+      "downloadImage": "Download image",
+      "imageLoading": "Preparing image…",
+      "shareError": "Failed to share the image",
+      "imageFile": "results"
     },
     "divisions": {
       "title": "Divisions",

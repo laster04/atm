@@ -122,6 +122,9 @@ export const seasonApi = {
   // `locale` picks the email's language; recipients have none of their own.
   sendTestResultsEmail: (id: string | number, gameIds: string[], locale?: string) =>
     api.post<{ to: string }>(`/seasons/${id}/results-email/test`, { gameIds, locale }),
+  // The picked games drawn as a PNG card for sharing into a chat.
+  getResultsImage: (id: string | number, gameIds: string[], locale?: string) =>
+    api.post<Blob>(`/seasons/${id}/results-email/image`, { gameIds, locale }, { responseType: 'blob' }),
   sendResultsEmail: (id: string | number, gameIds: string[], locale?: string) =>
     api.post<{ games: number; attempted: number; delivered: number; sentAt: string }>(
       `/seasons/${id}/results-email`,

@@ -295,6 +295,28 @@ describe('the results email', () => {
     expect(game!.digestId).toBeNull();
   });
 
+  it('draws the picked games as a PNG without marking them sent', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email/image`)
+      .set(auth(admin.token)).send({ gameIds: [freshGame], locale: 'cs' })
+      .buffer(true).parse((response, done) => {
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk: Buffer) => chunks.push(chunk));
+        response.on('end', () => done(null, Buffer.concat(chunks)));
+      });
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toBe('image/png');
+    // PNG signature.
+    expect((res.body as Buffer).subarray(0, 4).toString('hex')).toBe('89504e47');
+    const game = await prisma.game.findUnique({ where: { id: freshGame } });
+    expect(game!.digestId).toBeNull();
+  });
+
+  it('refuses the image to someone without season access', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email/image`)
+      .set(auth(stranger.token)).send({ gameIds: [freshGame] });
+    expect(res.status).toBe(403);
+  });
+
   it('sends the picked games and stops offering them', async () => {
     const res = await request(app).post(`/api/seasons/${seasonId}/results-email`)
       .set(auth(admin.token)).send({ gameIds: [freshGame] });
