@@ -136,7 +136,7 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       period1HomeScore, period1AwayScore,
       period2HomeScore, period2AwayScore,
       period3HomeScore, period3AwayScore,
-      status, round
+      status, round, confirm
     } = req.body as UpdateGameRequest;
 
     const existingGame = await prisma.game.findUnique({
@@ -180,6 +180,10 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
 
     const roundNum = round !== undefined ? (round ? (typeof round === 'string' ? parseInt(round) : round) : null) : undefined;
 
+    // Confirming a fixture nobody has played would lock in an empty result, so
+    // the flag only takes effect on a game that ends up completed.
+    const confirms = confirm === true && (status ?? existingGame.status) === 'COMPLETED';
+
     const game = await prisma.game.update({
       where: { id: id },
       data: {
@@ -197,13 +201,25 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         ...(period3HomeScore !== undefined && { period3HomeScore: period3HomeScore !== null ? period3HomeScore : null }),
         ...(period3AwayScore !== undefined && { period3AwayScore: period3AwayScore !== null ? period3AwayScore : null }),
         ...(status && { status }),
-        ...(roundNum !== undefined && { round: roundNum })
+        ...(roundNum !== undefined && { round: roundNum }),
+        ...(confirms && { confirmedAt: new Date(), confirmedById: req.user?.id ?? null })
       },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } },
         awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } }
       }
     });
+
+    if (confirms) {
+      await recordAudit({
+        entityType: 'Game',
+        entityId: id,
+        action: 'CONFIRM',
+        before: auditSnapshot(existingGame, [...GAME_AUDIT_FIELDS]),
+        after: auditSnapshot(game, [...GAME_AUDIT_FIELDS]),
+        actorId: req.user?.id ?? null,
+      });
+    }
 
     // Rescheduling, postponing or calling a game off all change whether - and
     // when - the two teams are expected somewhere.

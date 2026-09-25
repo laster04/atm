@@ -813,6 +813,7 @@
       "openReport": "Match report",
       "fromReport": "from report",
       "saveStatus": "Save status",
+      "saveAndConfirm": "Save and confirm",
       "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first."
     },
     "teams": {
