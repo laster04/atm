@@ -6,6 +6,9 @@ import { COUNTS_TOWARD_TABLE } from '../standings/filters.js';
 export interface RoundResult {
   homeTeam: string;
   awayTeam: string;
+  /** Team colours, for the shareable image; null when a team has none. */
+  homeColor: string | null;
+  awayColor: string | null;
   homeScore: number | null;
   awayScore: number | null;
   playedOn: Date | null;
@@ -20,6 +23,7 @@ export interface RoundResult {
 export interface SummaryRow {
   rank: number;
   team: string;
+  color: string | null;
   played: number;
   wins: number;
   draws: number;
@@ -91,8 +95,8 @@ const buildSummary = async (
       homeScore: true,
       awayScore: true,
       confirmedAt: true,
-      homeTeam: { select: { name: true } },
-      awayTeam: { select: { name: true } },
+      homeTeam: { select: { name: true, primaryColor: true } },
+      awayTeam: { select: { name: true, primaryColor: true } },
     },
     orderBy: [{ date: 'asc' }, { createdAt: 'asc' }],
   });
@@ -100,7 +104,7 @@ const buildSummary = async (
 
   const seasonTeams = await prisma.seasonTeam.findMany({
     where: { seasonId },
-    select: { team: { select: { id: true, name: true } } },
+    select: { team: { select: { id: true, name: true, primaryColor: true } } },
   });
   // The table counts confirmed results only, exactly as the season's own table
   // does; a summary that disagreed with the site would be worse than none.
@@ -153,6 +157,8 @@ const buildSummary = async (
     results: roundGames.map(game => ({
       homeTeam: game.homeTeam.name,
       awayTeam: game.awayTeam.name,
+      homeColor: game.homeTeam.primaryColor,
+      awayColor: game.awayTeam.primaryColor,
       homeScore: game.homeScore,
       awayScore: game.awayScore,
       playedOn: game.date,
@@ -161,6 +167,7 @@ const buildSummary = async (
     standings: table.map((row, index) => ({
       rank: index + 1,
       team: row.team.name,
+      color: row.team.primaryColor,
       played: row.played,
       wins: row.wins,
       draws: row.draws,

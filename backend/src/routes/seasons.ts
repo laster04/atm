@@ -22,6 +22,7 @@ import {
   previewResultsEmail,
   sendResultsEmail,
   sendTestResultsEmail,
+  resultsImage,
 } from '../controllers/digestController.js';
 import {
   getGroupsBySeason,
@@ -70,6 +71,7 @@ router.post('/:id/rounds/:round/summary', authenticate, requireSeasonAccess(), s
 router.get('/:id/results-email', authenticate, requireSeasonAccess(), listUnsentGames);
 router.post('/:id/results-email/preview', authenticate, requireSeasonAccess(), previewResultsEmail);
 router.post('/:id/results-email/test', authenticate, requireSeasonAccess(), sendTestResultsEmail);
+router.post('/:id/results-email/image', authenticate, requireSeasonAccess(), resultsImage);
 router.post('/:id/results-email', authenticate, requireSeasonAccess(), sendResultsEmail);
 
 export default router;

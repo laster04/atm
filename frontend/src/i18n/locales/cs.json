@@ -972,7 +972,14 @@
       "send_other": "Odeslat {{count}} zápasů",
       "sentResult": "Zápasy ({{games}}) odeslány {{delivered}} z {{attempted}} příjemců.",
       "alreadySent": "Některé z těchto zápasů mezitím někdo rozeslal. Seznam byl obnoven.",
-      "sendError": "E-mail se nepodařilo odeslat"
+      "sendError": "E-mail se nepodařilo odeslat",
+      "shareTitle": "Obrázek ke sdílení",
+      "shareHint": "Pošlete výsledky do skupiny na WhatsAppu nebo do jiného chatu. Sdílení zápasy neoznačí jako odeslané.",
+      "shareImage": "Sdílet obrázek",
+      "downloadImage": "Stáhnout obrázek",
+      "imageLoading": "Připravuji obrázek…",
+      "shareError": "Obrázek se nepodařilo sdílet",
+      "imageFile": "vysledky"
     },
     "divisions": {
       "title": "Skupiny",

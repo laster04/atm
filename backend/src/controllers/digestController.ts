@@ -8,6 +8,7 @@ import {
 } from '../services/digest/roundSummary.js';
 import { emailService } from '../services/emailService.js';
 import { recordAudit } from '../services/audit/record.js';
+import { renderResultsImage } from '../services/digest/resultsImage.js';
 
 const parseRound = (raw: string): number | null => {
   const round = Number(raw);
@@ -334,5 +335,32 @@ export const sendResultsEmail = async (req: AuthRequest, res: Response): Promise
   } catch (error) {
     console.error('Send results email error:', error);
     res.status(500).json({ error: 'Failed to send the results email' });
+  }
+};
+
+/**
+ * The picked games as a PNG card, for the manager to share into a team chat.
+ * Sharing is not sending: the games stay offered for the email.
+ */
+export const resultsImage = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const gameIds = parseGameIds(req.body);
+    if (!gameIds) {
+      res.status(400).json({ error: 'Pick at least one game' });
+      return;
+    }
+
+    const summary = await buildGamesSummary(id, gameIds);
+    if (!summary) {
+      res.status(404).json({ error: 'None of these games is finished' });
+      return;
+    }
+
+    const png = await renderResultsImage(summary, parseLocale(req.body) === 'en' ? 'en' : 'cs');
+    res.type('image/png').set('Cache-Control', 'no-store').send(png);
+  } catch (error) {
+    console.error('Results image error:', error);
+    res.status(500).json({ error: 'Failed to draw the results image' });
   }
 };
