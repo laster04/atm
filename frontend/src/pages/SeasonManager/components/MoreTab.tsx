@@ -7,7 +7,7 @@ import { gameApi, seasonApi } from '@/services/api';
 import type { Game, Season, Team } from '@types';
 import GenerateScheduleModal, { type GenerateScheduleData } from '@/pages/Admin/components/games/GenerateScheduleModal';
 import ScoringSheet from './ScoringSheet';
-import RoundSummarySheet from './RoundSummarySheet';
+import ResultsEmailSheet from './ResultsEmailSheet';
 import DivisionsSheet from './DivisionsSheet';
 import { SEASON_ACCENT } from './util';
 
@@ -136,9 +136,9 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 				>
 					<Mail className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
 					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
-						<span className="text-sm font-semibold">{t('seasonManagement.more.roundSummary')}</span>
+						<span className="text-sm font-semibold">{t('seasonManagement.more.resultsEmail')}</span>
 						<span className="text-xs text-muted-foreground">
-							{t('seasonManagement.more.roundSummaryHint')}
+							{t('seasonManagement.more.resultsEmailHint')}
 						</span>
 					</span>
 				</button>
@@ -164,7 +164,7 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 			)}
 
 			{showSummary && (
-				<RoundSummarySheet season={season} games={games} onClose={() => setShowSummary(false)} />
+				<ResultsEmailSheet season={season} onClose={() => setShowSummary(false)} />
 			)}
 
 			{showScoring && (

@@ -41,7 +41,8 @@ export interface RoundSummary {
   seasonId: string;
   seasonName: string;
   leagueName: string;
-  round: number;
+  /** The round being summarised, or null for an email of hand-picked games. */
+  round: number | null;
   results: RoundResult[];
   standings: SummaryRow[];
   topScorers: SummaryScorer[];
@@ -56,17 +57,17 @@ export interface Recipient {
 const TOP_SCORER_LIMIT = 5;
 
 /**
- * Everything a round summary says: what was played, where that leaves the table,
- * and who is leading the scoring.
+ * Everything a results email says: what was played, where that leaves the
+ * table, and who is leading the scoring.
  *
- * The table is the season to date rather than the round alone - a round in
- * isolation tells a reader nothing about where their team stands. Returns null
- * when the round has no finished games, so nothing is sent about a round that
- * has not happened.
+ * The table is the season to date rather than the listed games alone - a
+ * handful of results in isolation tells a reader nothing about where their team
+ * stands. Returns null when none of the games is finished, so nothing is sent
+ * about games that have not happened.
  */
-export const buildRoundSummary = async (
+const buildSummary = async (
   seasonId: string,
-  round: number
+  games: { round: number } | { ids: string[] }
 ): Promise<RoundSummary | null> => {
   const season = await prisma.season.findUnique({
     where: { id: seasonId },
@@ -80,7 +81,11 @@ export const buildRoundSummary = async (
   if (!season) return null;
 
   const roundGames = await prisma.game.findMany({
-    where: { seasonId, round, status: 'COMPLETED' },
+    where: {
+      seasonId,
+      status: 'COMPLETED',
+      ...('round' in games ? { round: games.round } : { id: { in: games.ids } }),
+    },
     select: {
       date: true,
       homeScore: true,
@@ -144,7 +149,7 @@ export const buildRoundSummary = async (
     seasonId: season.id,
     seasonName: season.name,
     leagueName: season.league.name,
-    round,
+    round: 'round' in games ? games.round : null,
     results: roundGames.map(game => ({
       homeTeam: game.homeTeam.name,
       awayTeam: game.awayTeam.name,
@@ -167,6 +172,18 @@ export const buildRoundSummary = async (
     topScorers,
   };
 };
+
+/** The summary of one round's finished games. */
+export const buildRoundSummary = (seasonId: string, round: number) =>
+  buildSummary(seasonId, { round });
+
+/**
+ * The summary of the games a manager picked. Games that are not finished or
+ * belong to another season are left out rather than refused, so the caller
+ * decides what to make of a short list.
+ */
+export const buildGamesSummary = (seasonId: string, gameIds: string[]) =>
+  buildSummary(seasonId, { ids: gameIds });
 
 /**
  * Who hears about a round: whoever runs the league, whoever runs a team in it,

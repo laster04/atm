@@ -78,18 +78,20 @@ export interface ScoringPolicy {
   tiebreakers: Tiebreaker[];
 }
 
-/** What a round summary email says, as the preview endpoint returns it. */
+/** What a results email says, as the preview endpoint returns it. */
 export interface RoundSummary {
   seasonId: string;
   seasonName: string;
   leagueName: string;
-  round: number;
+  /** Null for an email of hand-picked games. */
+  round: number | null;
   results: {
     homeTeam: string;
     awayTeam: string;
     homeScore: number | null;
     awayScore: number | null;
     playedOn: string | null;
+    confirmed: boolean;
   }[];
   standings: {
     rank: number;
@@ -107,16 +109,29 @@ export interface RoundSummary {
 
 export interface SeasonDigest {
   id: string;
-  round: number;
+  /** Null for an email of hand-picked games. */
+  round: number | null;
   sentAt: string;
   recipientCount: number;
   sentBy?: Pick<User, 'id' | 'name'> | null;
+  _count?: { games: number };
 }
 
-export interface RoundSummaryPreview {
-  summary: RoundSummary;
+/** A finished game no results email has mentioned yet. */
+export interface UnsentGame {
+  id: string;
+  date: string | null;
+  round: number | null;
+  homeScore: number | null;
+  awayScore: number | null;
+  confirmedAt: string | null;
+  homeTeam: { id: string; name: string };
+  awayTeam: { id: string; name: string };
+}
+
+export interface ResultsEmailCandidates {
+  games: UnsentGame[];
   recipientCount: number;
-  lastSent: SeasonDigest | null;
 }
 
 export interface League {

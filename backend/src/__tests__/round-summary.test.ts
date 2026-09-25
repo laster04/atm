@@ -2,7 +2,9 @@ import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import app from '../app.js';
 import prisma from '../config/database.js';
+import { jest } from '@jest/globals';
 import { buildRoundSummary, summaryRecipients } from '../services/digest/roundSummary.js';
+import { emailService } from '../services/emailService.js';
 
 const stamp = Date.now();
 
@@ -227,5 +229,119 @@ describe('the endpoints', () => {
     expect(entries.length).toBeGreaterThanOrEqual(2);
     expect(entries.some((entry) => entry.reason === 'Round summary sent')).toBe(true);
     expect(entries.some((entry) => entry.reason === 'Round summary sent again')).toBe(true);
+  });
+});
+
+describe('the results email', () => {
+  let freshGame: string;
+  // The test environment has no mail provider, so delivery is stubbed.
+  const deliver = jest.spyOn(emailService, 'sendRoundSummaryEmail');
+
+  afterAll(() => deliver.mockRestore());
+
+  beforeAll(async () => {
+    deliver.mockResolvedValue(true);
+    const game = await request(app).post(`/api/games/season/${seasonId}`).set(auth(admin.token))
+      .send({ homeTeamId: teamB, awayTeamId: teamA, round: 2, date: '2026-02-08T18:00:00.000Z' });
+    freshGame = game.body.id;
+    await request(app).put(`/api/games/${freshGame}`).set(auth(admin.token))
+      .send({ status: 'COMPLETED', homeScore: 2, awayScore: 2 });
+  });
+
+  it('offers only finished games that no email has mentioned', async () => {
+    const res = await request(app).get(`/api/seasons/${seasonId}/results-email`).set(auth(admin.token));
+    expect(res.status).toBe(200);
+    // Round 1 went out as a round summary above.
+    expect(res.body.games.map((g: { id: string }) => g.id)).toEqual([freshGame]);
+    expect(res.body.recipientCount).toBeGreaterThan(0);
+  });
+
+  it('refuses the list to someone without season access', async () => {
+    const res = await request(app).get(`/api/seasons/${seasonId}/results-email`).set(auth(stranger.token));
+    expect(res.status).toBe(403);
+  });
+
+  it('previews the picked games without a round', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email/preview`)
+      .set(auth(admin.token)).send({ gameIds: [freshGame] });
+    expect(res.status).toBe(200);
+    expect(res.body.summary.round).toBeNull();
+    expect(res.body.summary.results).toHaveLength(1);
+    expect(res.body.summary.results[0].confirmed).toBe(false);
+  });
+
+  it('rejects an empty pick', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email/preview`)
+      .set(auth(admin.token)).send({ gameIds: [] });
+    expect(res.status).toBe(400);
+  });
+
+  it('sends a test copy to the manager alone and marks nothing as sent', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email/test`)
+      .set(auth(admin.token)).send({ gameIds: [freshGame] });
+    expect(res.status).toBe(200);
+    expect(res.body.to).toBe(admin.email);
+    const game = await prisma.game.findUnique({ where: { id: freshGame } });
+    expect(game!.digestId).toBeNull();
+  });
+
+  it('keeps the games unsent when nobody could be reached', async () => {
+    deliver.mockResolvedValue(false);
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email`)
+      .set(auth(admin.token)).send({ gameIds: [freshGame] });
+    deliver.mockResolvedValue(true);
+    expect(res.status).toBe(502);
+    const game = await prisma.game.findUnique({ where: { id: freshGame } });
+    expect(game!.digestId).toBeNull();
+  });
+
+  it('sends the picked games and stops offering them', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email`)
+      .set(auth(admin.token)).send({ gameIds: [freshGame] });
+    expect(res.status).toBe(200);
+    expect(res.body.games).toBe(1);
+
+    const game = await prisma.game.findUnique({ where: { id: freshGame }, include: { digest: true } });
+    expect(game!.digest!.round).toBeNull();
+
+    const list = await request(app).get(`/api/seasons/${seasonId}/results-email`).set(auth(admin.token));
+    expect(list.body.games).toHaveLength(0);
+  });
+
+  it('refuses to send the same games twice', async () => {
+    const res = await request(app).post(`/api/seasons/${seasonId}/results-email`)
+      .set(auth(admin.token)).send({ gameIds: [freshGame] });
+    expect(res.status).toBe(409);
+    expect(await prisma.seasonDigest.count({ where: { seasonId, round: null } })).toBe(1);
+  });
+});
+
+describe('the email language', () => {
+  const summary = {
+    seasonId: 'season',
+    seasonName: 'Zimní liga',
+    leagueName: 'ATM',
+    round: null,
+    results: [{ homeTeam: 'A', awayTeam: 'B', homeScore: 1, awayScore: 0, confirmed: false }],
+    standings: [{ rank: 1, team: 'A', played: 1, points: 3 }],
+    topScorers: [],
+  };
+
+  it('writes Czech when the sender works in Czech', async () => {
+    const send = jest.spyOn(emailService, 'sendEmail').mockResolvedValue(true);
+    await emailService.sendRoundSummaryEmail('a@test.com', 'Anna', summary, 'cs');
+    const mail = send.mock.calls[0][0];
+    send.mockRestore();
+    expect(mail.subject).toBe('Zimní liga - nové výsledky');
+    expect(mail.html).toContain('Výsledky');
+    expect(mail.html).toContain('nepotvrzeno');
+  });
+
+  it('falls back to English', async () => {
+    const send = jest.spyOn(emailService, 'sendEmail').mockResolvedValue(true);
+    await emailService.sendRoundSummaryEmail('a@test.com', 'Anna', { ...summary, round: 3 });
+    const mail = send.mock.calls[0][0];
+    send.mockRestore();
+    expect(mail.subject).toBe('Zimní liga - round 3 summary');
   });
 });

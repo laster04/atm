@@ -2,7 +2,7 @@ import axios from 'axios';
 import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
-  RoundSummaryPreview, SeasonDigest, SeasonGroup, GroupTable,
+  RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
@@ -112,14 +112,20 @@ export const seasonApi = {
   getCopyableTeams: (id: string | number) => api.get<Team[]>(`/seasons/${id}/copyable-teams`),
   copyTeams: (id: string | number, teamIds: string[]) =>
     api.post<{ message: string; teams: Team[] }>(`/seasons/${id}/copy-teams`, { teamIds }),
-  // Round summary emails: what would be sent, what has been, and sending it.
+  // Results emails: finished games not mailed yet, what an email of the picked
+  // ones would say, a test copy to the manager, and sending it to everyone.
   getSentDigests: (id: string | number) => api.get<SeasonDigest[]>(`/seasons/${id}/digests`),
-  previewRoundSummary: (id: string | number, round: number) =>
-    api.get<RoundSummaryPreview>(`/seasons/${id}/rounds/${round}/summary`),
-  sendRoundSummary: (id: string | number, round: number, resend = false) =>
-    api.post<{ round: number; attempted: number; delivered: number; sentAt: string }>(
-      `/seasons/${id}/rounds/${round}/summary`,
-      { resend }
+  getUnsentGames: (id: string | number) =>
+    api.get<ResultsEmailCandidates>(`/seasons/${id}/results-email`),
+  previewResultsEmail: (id: string | number, gameIds: string[]) =>
+    api.post<{ summary: RoundSummary }>(`/seasons/${id}/results-email/preview`, { gameIds }),
+  // `locale` picks the email's language; recipients have none of their own.
+  sendTestResultsEmail: (id: string | number, gameIds: string[], locale?: string) =>
+    api.post<{ to: string }>(`/seasons/${id}/results-email/test`, { gameIds, locale }),
+  sendResultsEmail: (id: string | number, gameIds: string[], locale?: string) =>
+    api.post<{ games: number; attempted: number; delivered: number; sentAt: string }>(
+      `/seasons/${id}/results-email`,
+      { gameIds, locale }
     )
 };
 

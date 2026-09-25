@@ -300,14 +300,22 @@ model Game {
   events     MatchEvent[]
   teamEvents TeamEvent[]
 
+  // The results email this game went out in. Null while it has not been mailed,
+  // which is what the results email screen offers to send.
+  digestId String?       @map("digest_id")
+  digest   SeasonDigest? @relation(fields: [digestId], references: [id], onDelete: SetNull)
+
+  @@index([seasonId, digestId])
   @@map("games")
 }
 
-// A round summary that has gone out, so the same round is not mailed twice by
+// A results email that has gone out, so the same games are not mailed twice by
 // accident and the manager can see when it last went and to how many people.
+// A round summary names its round; an email of hand-picked games has none and
+// is known by the games linked to it.
 model SeasonDigest {
   id    String @id @default(uuid())
-  round Int
+  round Int?
 
   seasonId String @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -317,6 +325,8 @@ model SeasonDigest {
 
   sentById String? @map("sent_by_id")
   sentBy   User?   @relation("DigestSender", fields: [sentById], references: [id], onDelete: SetNull)
+
+  games Game[]
 
   @@unique([seasonId, round])
   @@map("season_digests")
