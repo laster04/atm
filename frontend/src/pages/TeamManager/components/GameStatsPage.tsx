@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, Loader2, Minus, Plus, Save } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,7 +26,8 @@ const signature = (s: PlayerStatForm) => `${s.played}|${s.goals}|${s.assists}|${
 
 export default function GameStatsPage() {
 	const { id: teamId, gameId } = useParams<{ id: string; gameId: string }>();
-	const navigate = useNavigate();
+	// Back to the team screen that opened this one, not a fresh copy of it.
+	const goBackToTeam = useGoBack(`/team-management/${teamId}`);
 	const { t, i18n } = useTranslation();
 
 	const [loading, setLoading] = useState(true);
@@ -55,7 +57,7 @@ export default function GameStatsPage() {
 				// Verify this team is part of the game
 				if (gameData.homeTeamId !== teamId && gameData.awayTeamId !== teamId) {
 					toast.error(t('teamManagement.gameStats.notYourGame'));
-					navigate(`/team-management/${teamId}`);
+					goBackToTeam();
 					return;
 				}
 
@@ -90,7 +92,7 @@ export default function GameStatsPage() {
 			}
 		};
 		fetchData();
-	}, [gameId, teamId, t, navigate]);
+	}, [gameId, teamId, t, goBackToTeam]);
 
 	const dirty = useMemo(
 		() => teamStats.filter((s) => baseline[s.playerId] !== signature(s)),
@@ -242,7 +244,7 @@ export default function GameStatsPage() {
 						size="sm"
 						className="-ml-2 size-11 text-white hover:bg-white/20"
 						aria-label={t('common.back')}
-						onClick={() => navigate(`/team-management/${teamId}`)}
+						onClick={goBackToTeam}
 					>
 						<ArrowLeft className="size-5" />
 					</Button>

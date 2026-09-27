@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Loader2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,6 +21,8 @@ import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPos
 export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
 	const navigate = useNavigate();
+	// Back to the team screen that opened this one, not a fresh copy of it.
+	const goBackToTeam = useGoBack(`/team-management/${teamId}`);
 	const { t, i18n } = useTranslation();
 	const isNew = playerId === 'new';
 
@@ -63,13 +66,13 @@ export default function PlayerDetailPage() {
 				}
 			} catch (error) {
 				toast.error(t('teamManagement.playerDetail.fetchError'));
-				navigate(`/team-management/${teamId}`);
+				goBackToTeam();
 			} finally {
 				setLoading(false);
 			}
 		};
 		fetchData();
-	}, [teamId, playerId, isNew, t, navigate]);
+	}, [teamId, playerId, isNew, t, goBackToTeam]);
 
 	const handleSave = async () => {
 		if (!teamId) return;
@@ -108,7 +111,7 @@ export default function PlayerDetailPage() {
 		try {
 			await playerApi.delete(playerId);
 			toast.success(t('teamManagement.playerDetail.deleteSuccess'));
-			navigate(`/team-management/${teamId}`);
+			goBackToTeam();
 		} catch (error) {
 			toast.error(t('teamManagement.playerDetail.deleteError'));
 		}
@@ -138,7 +141,7 @@ export default function PlayerDetailPage() {
 					<Button
 						variant="ghost"
 						size="sm"
-						onClick={() => navigate(`/team-management/${teamId}`)}
+						onClick={goBackToTeam}
 					>
 						<ArrowLeft className="h-4 w-4 mr-1" />
 						{t('common.back')}
@@ -214,7 +217,7 @@ export default function PlayerDetailPage() {
 								<Button
 									variant="outline"
 									className="flex-1"
-									onClick={() => navigate(`/team-management/${teamId}`)}
+									onClick={goBackToTeam}
 								>
 									{t('common.cancel')}
 								</Button>
@@ -248,7 +251,7 @@ export default function PlayerDetailPage() {
 				<Button
 					variant="ghost"
 					size="sm"
-					onClick={() => navigate(`/team-management/${teamId}`)}
+					onClick={goBackToTeam}
 				>
 					<ArrowLeft className="h-4 w-4 mr-1" />
 					{t('common.back')}
