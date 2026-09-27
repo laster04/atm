@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import {
 	ArrowLeft,
@@ -25,7 +26,6 @@ type TabType = 'overview' | 'roster' | 'schedule' | 'events' | 'settings';
 export default function Detail() {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { canManageTeam } = useAuth();
 
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -65,11 +65,9 @@ export default function Detail() {
 	}, [team]);
 
 	// Reached from three places now — the manager's own team list, a season's
-	// Teams tab, and a deep link — so the caller's history is the only correct
-	// destination.
-	const handleBack = () => {
-		navigate(-1);
-	};
+	// Teams tab, and a deep link — so the caller's history is the right
+	// destination, and the team list when there is none.
+	const handleBack = useGoBack('/team-management/my-teams');
 
 	const tabs = [
 		{ id: 'overview' as TabType, icon: Home, label: t('teamManagement.pwa.tabs.overview') },
