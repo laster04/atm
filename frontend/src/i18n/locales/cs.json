@@ -225,6 +225,15 @@
       "title": "E-maily se souhrnem kola",
       "hint": "Výsledky, tabulka a nejlepší střelci po každém kole. E-maily k účtu chodí vždy.",
       "error": "Nastavení se nepodařilo uložit"
+    },
+    "installApp": {
+      "title": "Nainstalujte si ATM jako aplikaci",
+      "hint": "Otevřete ji z plochy, přes celou obrazovku a bez prohlížeče.",
+      "iosBefore": "V Safari klepněte na",
+      "iosAfter": "a pak na Přidat na plochu.",
+      "share": "Sdílet",
+      "install": "Nainstalovat",
+      "dismiss": "Skrýt"
     }
   },
   "auth": {

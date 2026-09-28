@@ -9,6 +9,7 @@ import type { Season, Team } from '@types';
 import MyTeamsSection from './components/MyTeamsSection';
 import MyEventsSection from './components/MyEventsSection';
 import EmailPreferenceCard from './components/EmailPreferenceCard';
+import InstallAppCard from './components/InstallAppCard';
 import ActiveSeasonsSection from './components/ActiveSeasonsSection';
 import OnboardingTour from '@/components/OnboardingTour';
 
@@ -63,6 +64,7 @@ export default function HomeScreen() {
         <ActiveSeasonsSection seasons={activeSeasons} loading={seasonsLoading} />
       </div>
 
+      <InstallAppCard />
       <EmailPreferenceCard />
 
       {user && !seasonsLoading && <OnboardingTour />}
