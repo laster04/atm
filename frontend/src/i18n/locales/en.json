@@ -225,6 +225,15 @@
       "title": "Round summary emails",
       "hint": "Results, the table and top scorers after each round. Account emails are always sent.",
       "error": "Failed to save that"
+    },
+    "installApp": {
+      "title": "Install ATM as an app",
+      "hint": "Opens from your home screen, full screen, without the browser.",
+      "iosBefore": "In Safari tap",
+      "iosAfter": "and then Add to Home Screen.",
+      "share": "Share",
+      "install": "Install",
+      "dismiss": "Hide"
     }
   },
   "auth": {
