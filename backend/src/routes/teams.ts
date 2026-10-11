@@ -7,11 +7,11 @@ import {
   createTeam,
   updateTeam,
   deleteTeam,
-  inviteManager,
   addTeamToSeason,
   removeTeamFromSeason,
   getTeamsAvailableForSeason
 } from '../controllers/teamController.js';
+import { inviteTeamManager } from '../controllers/inviteController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSeasonAccess, requireTeamAccess, requireTeamAdmin, requireVisible } from '../middleware/access.js';
 
@@ -35,6 +35,6 @@ router.put('/:id', authenticate, requireTeamAccess(), updateTeam);
 // Deleting a team or naming its manager is a league decision, so the team's own
 // manager cannot do either.
 router.delete('/:id', authenticate, requireTeamAdmin(), deleteTeam);
-router.post('/:id/invite-manager', authenticate, requireTeamAdmin(), inviteManager);
+router.post('/:id/invite-manager', authenticate, requireTeamAdmin(), inviteTeamManager);
 
 export default router;

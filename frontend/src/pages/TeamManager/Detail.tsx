@@ -19,14 +19,14 @@ import RosterTab from './components/RosterTab';
 import ScheduleTab from './components/ScheduleTab';
 import EventsTab from './components/EventsTab';
 import SettingsTab from './components/SettingsTab';
-import TeamManagerTour from './components/TeamManagerTour';
+import TeamChecklist from './components/TeamChecklist';
 
 type TabType = 'overview' | 'roster' | 'schedule' | 'events' | 'settings';
 
 export default function Detail() {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
-	const { canManageTeam } = useAuth();
+	const { canManageTeam, user } = useAuth();
 
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
 	const [team, setTeam] = useState<Team | null>(null);
@@ -188,13 +188,26 @@ export default function Detail() {
 				{/* Content Area */}
 				<div className="tm-content flex-1 overflow-y-auto px-4 pt-4 lg:px-6 lg:py-6">
 					{activeTab === 'overview' && (
-						<OverviewTab
-							team={team}
-							standing={standing}
-							playerCount={players.length}
-							teamColor={localColor}
-							onTabChange={setActiveTab}
-						/>
+						<div className="flex flex-col gap-4">
+							{/* Setup steps are for the team's own manager, not the season side
+							    looking in. */}
+							{user && user.id === team.managerId && (
+								<TeamChecklist
+									team={team}
+									playerCount={players.length}
+									color={localColor || '#003E7E'}
+									email={user.email}
+									onTabChange={setActiveTab}
+								/>
+							)}
+							<OverviewTab
+								team={team}
+								standing={standing}
+								playerCount={players.length}
+								teamColor={localColor}
+								onTabChange={setActiveTab}
+							/>
+						</div>
 					)}
 					{activeTab === 'roster' && (
 						<RosterTab
@@ -219,7 +232,6 @@ export default function Detail() {
 							team={team}
 							standing={standing}
 							onColorChange={setLocalColor}
-							onTeamUpdate={setTeam}
 						/>
 					)}
 				</div>
@@ -244,8 +256,6 @@ export default function Detail() {
 					</div>
 				</div>
 			</div>
-
-			<TeamManagerTour />
 		</div>
 	);
 }

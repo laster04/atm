@@ -18,6 +18,31 @@ import {
   Role,
 } from '../types/index.js';
 
+/**
+ * Signs the user in: the JWT plus the user payload every sign-in answers with.
+ * Shared by login and by accepting an invitation, which signs the invitee in.
+ */
+export const startSession = async (userId: string) => {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { lastLoggedInAt: new Date() },
+  });
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      onboardingCompletedAt: user.onboardingCompletedAt,
+      teamTourCompletedAt: user.teamTourCompletedAt,
+      updatesSeenAt: user.updatesSeenAt,
+      manages: await getManagedCounts(user.id),
+    },
+    token,
+  };
+};
+
 const generateActivationToken = (): string => {
   return crypto.randomBytes(32).toString('hex');
 };
@@ -115,23 +140,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
-
-    await prisma.user.update({ where: { id: user.id }, data: { lastLoggedInAt: new Date() } });
-
-    res.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        onboardingCompletedAt: user.onboardingCompletedAt,
-        teamTourCompletedAt: user.teamTourCompletedAt,
-        updatesSeenAt: user.updatesSeenAt,
-        manages: await getManagedCounts(user.id),
-      },
-      token
-    });
+    res.json(await startSession(user.id));
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });

@@ -454,6 +454,50 @@ export interface HockeyGameStatistic {
   game?: Game & { homeTeam?: Team; awayTeam?: Team };
 }
 
+/** An invitation to manage a team or league, as its sender sees it. */
+export type ManagerInviteStatus = 'PENDING' | 'EXPIRED' | 'ACCEPTED' | 'REVOKED';
+
+export interface ManagerInvite {
+  id: string;
+  teamId: string | null;
+  leagueId: string | null;
+  email: string;
+  name: string;
+  locale: string;
+  sentAt: string;
+  expiresAt: string;
+  status: ManagerInviteStatus;
+}
+
+/** Sending or resending answers with the link; it is the only time it is known. */
+export interface ManagerInviteSent {
+  invite: ManagerInvite;
+  link: string;
+}
+
+/** What the person holding an invitation link sees before accepting. */
+export interface PublicManagerInvite {
+  status: ManagerInviteStatus;
+  kind: 'TEAM' | 'LEAGUE';
+  email: string;
+  name: string;
+  team: { id: string; name: string; primaryColor: string | null } | null;
+  league: { id: string; name: string } | null;
+  seasonName: string | null;
+  leagueName: string | null;
+  invitedByName: string | null;
+  expiresAt: string;
+  hasAccount: boolean;
+}
+
+export interface AcceptedManagerInvite {
+  kind: 'TEAM' | 'LEAGUE';
+  teamId: string | null;
+  leagueId: string | null;
+  /** Set when the invite created the account; the invitee is signed in with it. */
+  session: { user: User; token: string } | null;
+}
+
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -468,6 +512,10 @@ export interface AuthContextType {
   isTournamentManager: () => boolean;
   canManageTeam: (teamManagerId?: string | null) => boolean;
   markUpdatesSeen: () => Promise<void>;
+  /** Adopts a session the server already started, e.g. by accepting an invitation. */
+  startSession: (session: { user: User; token: string }) => void;
+  /** Re-reads the signed-in user, e.g. after they were given something to manage. */
+  refreshUser: () => Promise<void>;
 }
 
 export type SupportCategory = 'QUESTION' | 'PROBLEM' | 'COMPLAINT' | 'IDEA';

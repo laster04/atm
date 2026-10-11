@@ -109,6 +109,7 @@ model User {
   attendanceResponses     Attendance[]       @relation("AttendanceResponder")
   sentDigests             SeasonDigest[]     @relation("DigestSender")
   supportTickets          SupportTicket[]
+  sentManagerInvites      ManagerInvite[]    @relation("InviteSender")
 
   @@map("users")
 }
@@ -129,7 +130,8 @@ model League {
   managerId String? @map("manager_id")
   manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
-  seasons Season[]
+  seasons        Season[]
+  managerInvites ManagerInvite[]
 
   @@map("leagues")
 }
@@ -225,8 +227,38 @@ model Team {
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
+  managerInvites      ManagerInvite[]
 
   @@map("teams")
+}
+
+/// An invitation to manage a team or a league. Exactly one of teamId / leagueId
+/// is set. The manager relation (Team.managerId / League.managerId) is only
+/// written when the invitee accepts; until then the invite is what the season
+/// manager sees as "Invited". Only a hash of the link's token is stored, so a
+/// lost link is replaced by resending, never recovered.
+model ManagerInvite {
+  id          String    @id @default(uuid())
+  teamId      String?   @map("team_id")
+  team        Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  leagueId    String?   @map("league_id")
+  league      League?   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  email       String
+  name        String
+  locale      String    @default("cs")
+  tokenHash   String    @unique @map("token_hash")
+  expiresAt   DateTime  @map("expires_at")
+  sentAt      DateTime  @default(now()) @map("sent_at")
+  acceptedAt  DateTime? @map("accepted_at")
+  revokedAt   DateTime? @map("revoked_at")
+  invitedById String?   @map("invited_by_id")
+  invitedBy   User?     @relation("InviteSender", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([teamId])
+  @@index([leagueId])
+  @@map("manager_invites")
 }
 
 model Player {

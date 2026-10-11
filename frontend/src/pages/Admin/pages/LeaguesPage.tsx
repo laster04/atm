@@ -74,10 +74,6 @@ export default function LeaguesPage() {
 		}
 	};
 
-	const handleInviteManager = (updatedLeague: League) => {
-		setLeagues((prev) => prev.map((l) => (l.id === updatedLeague.id ? updatedLeague : l)));
-	};
-
 	return (
 		<div className="space-y-4">
 			{error && (
@@ -90,7 +86,6 @@ export default function LeaguesPage() {
 				onCreateLeague={handleCreateLeague}
 				onUpdateLeague={handleUpdateLeague}
 				onDeleteLeague={handleDeleteLeague}
-				onInviteManager={handleInviteManager}
 			/>
 		</div>
 	);

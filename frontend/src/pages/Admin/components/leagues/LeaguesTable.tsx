@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
@@ -7,27 +7,54 @@ import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
 import { Calendar, Edit, Plus, Trash2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-import type { League } from '@types';
+import type { League, ManagerInvite, ManagerInviteSent } from '@types';
+import { inviteApi } from '@/services/api';
 import { VisibilityBadge } from '@/components/public';
 import LeagueFormModal, { type LeagueFormData } from './LeagueFormModal.tsx';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
-import InviteLeagueManagerModal from './InviteLeagueManagerModal.tsx';
+import InviteManagerSheet from '@/components/invite/InviteManagerSheet';
+import { invitesByTarget } from '@/components/invite/inviteState';
+import { ADMIN_GOLD, ADMIN_INK } from '../util';
 
 interface LeaguesTableProps {
 	leagues: League[];
 	onCreateLeague?: (data: LeagueFormData) => void;
 	onUpdateLeague?: (id: string, data: LeagueFormData) => void;
 	onDeleteLeague?: (id: string) => void;
-	onInviteManager?: (league: League) => void;
 }
 
-export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, onDeleteLeague, onInviteManager }: LeaguesTableProps) {
+export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, onDeleteLeague }: LeaguesTableProps) {
 	const { t } = useTranslation();
 	const { isAdmin } = useAuth();
 	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingLeague, setEditingLeague] = useState<League | null>(null);
 	const [invitingLeague, setInvitingLeague] = useState<League | null>(null);
+	const [invites, setInvites] = useState<ManagerInvite[]>([]);
+
+	// Open season-manager invitations, so the list can say who was asked.
+	useEffect(() => {
+		if (!isAdmin()) return;
+		inviteApi.getForLeagues()
+			.then((res) => setInvites(res.data))
+			.catch((err) => console.error(err));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+	const inviteFor = useMemo(() => invitesByTarget(invites, 'leagueId'), [invites]);
+
+	const onInviteSent = (result: ManagerInviteSent) => {
+		setInvites((prev) => [result.invite, ...prev.filter((i) => i.leagueId !== result.invite.leagueId)]);
+	};
+
+	// The manager, or who was invited when there is none yet.
+	const managerLabel = (league: League) => {
+		if (league.manager?.name) return league.manager.name;
+		const invite = inviteFor.get(league.id);
+		if (!invite) return '-';
+		return invite.status === 'EXPIRED'
+			? t('invites.status.expired', { email: invite.email })
+			: t('invites.status.invitedShort', { email: invite.email });
+	};
 
 	const handleOpenCreate = () => {
 		setEditingLeague(null);
@@ -56,7 +83,13 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 				<Calendar className="size-4" />
 			</Button>
 			{isAdmin() && (
-				<Button variant="ghost" size="sm" onClick={() => setInvitingLeague(league)}>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => setInvitingLeague(league)}
+					title={t('invites.sheet.titleLeague')}
+					aria-label={t('invites.sheet.titleLeague')}
+				>
 					<UserPlus className="size-4" />
 				</Button>
 			)}
@@ -126,7 +159,7 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 									</TableCell>
 									<TableCell>{t(`sports.${league.sportType}`)}</TableCell>
 									<TableCell className="max-w-xs truncate">{league.description || '-'}</TableCell>
-									<TableCell>{league.manager?.name || '-'}</TableCell>
+									<TableCell>{managerLabel(league)}</TableCell>
 									<TableCell>{league._count?.seasons || 0}</TableCell>
 									<TableCell className="text-right">
 										<div className="flex justify-end gap-1">{rowActions(league)}</div>
@@ -159,7 +192,7 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 								{t(`sports.${league.sportType}`)}
 							</AdminCardField>
 							<AdminCardField label={t('admin.tabs.league.th-manager')}>
-								{league.manager?.name || '-'}
+								{managerLabel(league)}
 							</AdminCardField>
 							<AdminCardField label={t('admin.tabs.league.th-seasons-c')}>
 								{league._count?.seasons || 0}
@@ -174,12 +207,12 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 		</Card>
 
 		{invitingLeague && (
-			<InviteLeagueManagerModal
-				leagueId={invitingLeague.id}
-				onSuccess={(league) => {
-					onInviteManager?.(league);
-					setInvitingLeague(null);
-				}}
+			<InviteManagerSheet
+				target={{ kind: 'LEAGUE', id: invitingLeague.id, name: invitingLeague.name }}
+				accent={ADMIN_GOLD}
+				accentInk={ADMIN_INK}
+				currentManagerName={invitingLeague.manager?.name}
+				onSent={onInviteSent}
 				onClose={() => setInvitingLeague(null)}
 			/>
 		)}

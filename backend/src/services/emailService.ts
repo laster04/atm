@@ -4,6 +4,7 @@ interface EmailOptions {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 }
 
 const COLORS = {
@@ -141,6 +142,7 @@ class EmailService {
         to: options.to,
         subject: options.subject,
         html: options.html,
+        ...(options.replyTo ? { replyTo: options.replyTo } : {}),
       });
 
       if (error) {
@@ -262,113 +264,115 @@ class EmailService {
     });
   }
 
-  async sendManagerInviteEmail(
-    to: string,
-    name: string,
-    teamName: string,
-    resetToken: string,
-    locale?: string
-  ): Promise<boolean> {
-    const resetLink = `${this.getAppUrl()}/reset-password/${resetToken}`;
-    const accent = '#f97316';
-    const isCs = locale === 'cs';
-    const safeName = escapeHtml(name);
-    const safeTeamName = escapeHtml(teamName);
+  /**
+   * The invitation to manage a team or a league. Someone new to ATM is asked to
+   * choose a password; someone who already has an account signs in. Either way
+   * nothing is granted until they open the link and accept.
+   */
+  async sendManagerInvitationEmail(params: {
+    to: string;
+    inviteeName: string;
+    kind: 'TEAM' | 'LEAGUE';
+    targetName: string;
+    /** "League · Season" the team plays in, when there is one. */
+    contextName: string | null;
+    inviterName: string | null;
+    inviterEmail: string | null;
+    link: string;
+    expiresAt: Date;
+    hasAccount: boolean;
+    locale?: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const isCs = params.locale !== 'en';
+    const isTeam = params.kind === 'TEAM';
+    const name = escapeHtml(params.inviteeName);
+    const target = escapeHtml(params.targetName);
+    const context = params.contextName ? escapeHtml(params.contextName) : null;
+    const inviter = params.inviterName ? escapeHtml(params.inviterName) : null;
+    const until = params.expiresAt.toLocaleDateString(isCs ? 'cs-CZ' : 'en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/Prague',
+    });
 
-    const texts = isCs ? {
-      subject: `Byli jste pozváni ke správě týmu ${teamName} v ATM`,
-      headerTitle: 'Pozvánka pro manažera týmu',
-      greeting: `Dobrý den, <strong>${safeName}</strong>,`,
-      invited: `Byli jste pozváni jako manažer týmu <strong>${safeTeamName}</strong> v ATM &ndash; Amateur Team Management.`,
-      setPassword: 'Pro začátek si prosím nastavte heslo kliknutím na tlačítko níže:',
-      buttonText: 'Nastavit heslo',
-      copyLink: 'Nebo zkopírujte a vložte tento odkaz do prohlížeče:',
-      expiry: 'Platnost tohoto odkazu vyprší za <strong>1 hodinu</strong>.',
-      afterSetup: 'Po nastavení hesla se můžete přihlásit a začít spravovat svůj tým.',
-    } : {
-      subject: `You've been invited to manage ${teamName} on ATM`,
-      headerTitle: 'Team Manager Invitation',
-      greeting: `Hello, <strong>${safeName}</strong>,`,
-      invited: `You have been invited as the manager of <strong>${safeTeamName}</strong> in ATM (Amateur Team Management).`,
-      setPassword: 'To get started, please set your password by clicking the button below:',
-      buttonText: 'Set My Password',
-      copyLink: 'Or copy and paste this link into your browser:',
-      expiry: 'This link will expire in <strong>1 hour</strong>.',
-      afterSetup: 'Once you\'ve set your password, you can log in and start managing your team.',
-    };
+    const t = isCs
+      ? {
+          subject: inviter
+            ? `${params.inviterName} vás zve ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`
+            : `Pozvánka ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`,
+          header: isTeam ? 'Pozvánka pro manažera týmu' : 'Pozvánka pro manažera sezóny',
+          greeting: `Dobrý den, <strong>${name}</strong>,`,
+          invited: `${inviter ? `<strong>${inviter}</strong> vás zve` : 'Jste zváni'} ke správě ${isTeam ? 'týmu' : 'ligy'} <strong>${target}</strong>${context ? ` (${context})` : ''} v ATM.`,
+          next: params.hasAccount
+            ? 'Účet v ATM už máte. Otevřete pozvánku, přihlaste se svým heslem a pozvánku přijměte.'
+            : 'Otevřete pozvánku, zvolte si heslo a rovnou se dostanete do své správy.',
+          button: 'Přijmout pozvánku',
+          expiry: `Odkaz platí do <strong>${until}</strong>.`,
+          canTitle: 'Co budete moci dělat',
+          can: isTeam
+            ? ['spravovat soupisku a hráče', 'nastavit barvy a logo týmu', 'plánovat tréninky a sledovat docházku', 'doplnit statistiky svých hráčů po zápase']
+            : ['zakládat sezóny a přidávat do nich týmy', 'zvát manažery týmů', 'generovat rozpis a zapisovat výsledky', 'zveřejnit sezónu a rozesílat výsledky'],
+          keepTitle: inviter ? `${inviter} se dál stará o` : 'Manažer sezóny se dál stará o',
+          keep: ['rozpis a termíny zápasů', 'skóre a tabulku', 'potvrzování zápisů o utkání'],
+          copyLink: 'Tlačítko nefunguje? Vložte do prohlížeče tento odkaz:',
+          ignore: 'Pozvánku nečekáte? Ignorujte tento e-mail – dokud ji nepřijmete, nic se nezmění.',
+          reply: params.inviterEmail ? 'Na otázky k soutěži vám odpoví ten, kdo vás pozval – stačí odpovědět na tento e-mail.' : '',
+        }
+      : {
+          subject: inviter
+            ? `${params.inviterName} invited you to manage ${params.targetName}`
+            : `You're invited to manage ${params.targetName}`,
+          header: isTeam ? 'Team manager invitation' : 'Season manager invitation',
+          greeting: `Hello <strong>${name}</strong>,`,
+          invited: `${inviter ? `<strong>${inviter}</strong> has invited you` : 'You have been invited'} to manage <strong>${target}</strong>${context ? ` (${context})` : ''} in ATM.`,
+          next: params.hasAccount
+            ? 'You already have an ATM account. Open the invitation, sign in with your usual password and accept it.'
+            : `Open the invitation, choose a password and you go straight to your ${isTeam ? 'team' : 'league'}.`,
+          button: 'Accept invitation',
+          expiry: `The link works until <strong>${until}</strong>.`,
+          canTitle: "You'll be able to",
+          can: isTeam
+            ? ['keep the roster up to date', 'set the team colours and logo', 'plan training and see who is coming', "add your players' stats after a game"]
+            : ['create seasons and add teams to them', 'invite team managers', 'generate the schedule and record results', 'publish the season and email the results'],
+          keepTitle: inviter ? `${inviter} takes care of` : 'The season manager takes care of',
+          keep: ['the schedule and game dates', 'scores and the table', 'confirming match reports'],
+          copyLink: 'Button not working? Paste this link into your browser:',
+          ignore: 'Not expecting this? Ignore this email. Nothing changes until you accept.',
+          reply: params.inviterEmail ? 'Questions about the competition? Reply to this email to reach the person who invited you.' : '',
+        };
+
+    const list = (title: string, items: string[]) => `
+      <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:${COLORS.text};">${title}</p>
+      <ul style="margin:0 0 18px;padding-left:20px;font-size:14px;line-height:1.6;color:${COLORS.text};">
+        ${items.map((item) => `<li>${item}</li>`).join('')}
+      </ul>`;
 
     const body = [
-      this.p(texts.greeting),
-      this.p(texts.invited, { mb: 8 }),
-      this.p(texts.setPassword, { mb: 0, size: 13, color: COLORS.muted }),
-      this.button(texts.buttonText, resetLink, accent),
-      this.linkChip(texts.copyLink, resetLink, accent),
-      this.p(texts.expiry, { mb: 8, size: 13, color: COLORS.muted }),
-      this.p(texts.afterSetup, { mb: 0 }),
+      this.p(t.greeting),
+      this.p(t.invited),
+      this.p(t.next, { mb: 0 }),
+      this.button(t.button, params.link, accent),
+      this.p(t.expiry, { mb: 24, size: 13, color: COLORS.muted }),
+      list(t.canTitle, t.can),
+      // A season manager answers to an administrator, not to another season
+      // manager, so the "who keeps what" split only makes sense for a team.
+      isTeam ? list(t.keepTitle, t.keep) : '',
+      this.linkChip(t.copyLink, params.link, accent),
+      `<div style="height:20px"></div>`,
+      this.p(t.ignore, { mb: t.reply ? 8 : 0, size: 13, color: COLORS.muted }),
+      t.reply ? this.p(t.reply, { mb: 0, size: 13, color: COLORS.muted }) : '',
     ].join('');
 
-    const html = this.buildEmailHtml(accent, 'user-plus', texts.headerTitle, body);
-
     return this.sendEmail({
-      to,
-      subject: texts.subject,
-      html,
+      to: params.to,
+      subject: t.subject,
+      html: this.buildEmailHtml(accent, isTeam ? 'user-plus' : 'trophy', t.header, body),
+      replyTo: params.inviterEmail ?? undefined,
     });
   }
 
-  async sendLeagueManagerInviteEmail(
-    to: string,
-    name: string,
-    leagueName: string,
-    resetToken: string,
-    locale?: string
-  ): Promise<boolean> {
-    const resetLink = `${this.getAppUrl()}/reset-password/${resetToken}`;
-    const accent = '#f97316';
-    const isCs = locale === 'cs';
-    const safeName = escapeHtml(name);
-    const safeLeagueName = escapeHtml(leagueName);
-
-    const texts = isCs ? {
-      subject: `Byli jste pozváni ke správě ligy ${leagueName} v ATM`,
-      headerTitle: 'Pozvánka pro správce ligy',
-      greeting: `Dobrý den, <strong>${safeName}</strong>,`,
-      invited: `Byli jste pozváni jako správce ligy <strong>${safeLeagueName}</strong> v ATM &ndash; Amateur Team Management.`,
-      setPassword: 'Pro začátek si prosím nastavte heslo kliknutím na tlačítko níže:',
-      buttonText: 'Nastavit heslo',
-      copyLink: 'Nebo zkopírujte a vložte tento odkaz do prohlížeče:',
-      expiry: 'Platnost tohoto odkazu vyprší za <strong>1 hodinu</strong>.',
-      afterSetup: 'Po nastavení hesla se můžete přihlásit a začít spravovat svou ligu.',
-    } : {
-      subject: `You've been invited to manage ${leagueName} on ATM`,
-      headerTitle: 'League Manager Invitation',
-      greeting: `Hello, <strong>${safeName}</strong>,`,
-      invited: `You have been invited as the manager of <strong>${safeLeagueName}</strong> in ATM (Amateur Team Management).`,
-      setPassword: 'To get started, please set your password by clicking the button below:',
-      buttonText: 'Set My Password',
-      copyLink: 'Or copy and paste this link into your browser:',
-      expiry: 'This link will expire in <strong>1 hour</strong>.',
-      afterSetup: 'Once you\'ve set your password, you can log in and start managing your league.',
-    };
-
-    const body = [
-      this.p(texts.greeting),
-      this.p(texts.invited, { mb: 8 }),
-      this.p(texts.setPassword, { mb: 0, size: 13, color: COLORS.muted }),
-      this.button(texts.buttonText, resetLink, accent),
-      this.linkChip(texts.copyLink, resetLink, accent),
-      this.p(texts.expiry, { mb: 8, size: 13, color: COLORS.muted }),
-      this.p(texts.afterSetup, { mb: 0 }),
-    ].join('');
-
-    const html = this.buildEmailHtml(accent, 'trophy', texts.headerTitle, body);
-
-    return this.sendEmail({
-      to,
-      subject: texts.subject,
-      html,
-    });
-  }
   /**
    * The round summary: what was played, the table it leaves behind, and who is
    * leading the scoring. Sent to everyone involved in a season who has not
