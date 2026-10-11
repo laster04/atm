@@ -6,8 +6,8 @@ import {
   createLeague,
   updateLeague,
   deleteLeague,
-  inviteManager,
 } from '../controllers/leagueController.js';
+import { inviteLeagueManager } from '../controllers/inviteController.js';
 import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
 import { requireLeagueAccess, requireVisible } from '../middleware/access.js';
 
@@ -26,6 +26,6 @@ router.get('/:id', optionalAuth, requireVisible('league'), getLeagueById);
 router.post('/', authenticate, createLeague);
 router.put('/:id', authenticate, requireLeagueAccess(), updateLeague);
 router.delete('/:id', authenticate, requireLeagueAccess(), deleteLeague);
-router.post('/:id/invite-manager', authenticate, authorize('ADMIN'), inviteManager);
+router.post('/:id/invite-manager', authenticate, authorize('ADMIN'), inviteLeagueManager);
 
 export default router;

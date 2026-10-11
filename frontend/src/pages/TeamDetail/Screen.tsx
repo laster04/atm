@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/context/AuthContext';
@@ -9,7 +9,6 @@ import { Panel } from '@/components/public';
 import TeamHeroBand from '@/components/public/TeamHeroBand';
 import RosterTable from './components/RosterTable';
 import GamesList, { resultOf } from './components/GamesList';
-import InviteManagerModal from '../TeamManager/components/InviteManagerModal';
 
 const FORM_TONE: Record<string, string> = {
   W: 'bg-success-soft text-success-strong',
@@ -20,14 +19,13 @@ const FORM_TONE: Record<string, string> = {
 export default function TeamDetailScreen() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
-  const { isAdmin, isSeasonManager } = useAuth();
+  const { canManageTeam } = useAuth();
 
   const [team, setTeam] = useState<Team | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
   const [standing, setStanding] = useState<Standing | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useDocumentTitle([team?.season?.league?.name, team?.season?.name, team?.name]);
 
@@ -118,14 +116,15 @@ export default function TeamDetailScreen() {
       />
 
       <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-7 sm:px-8">
-        {(isAdmin() || isSeasonManager()) && (
-          <button
-            type="button"
-            onClick={() => setShowInviteModal(true)}
+        {/* Inviting a manager lives in team management, next to the rest of
+            running the team; the public page only points there. */}
+        {canManageTeam(team.managerId) && (
+          <Link
+            to={`/team-management/${team.id}`}
             className="flex h-10 items-center self-start rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            {t('teamDetail.inviteManager.button')}
-          </button>
+            {t('teamDetail.manageTeam')}
+          </Link>
         )}
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
@@ -166,16 +165,6 @@ export default function TeamDetailScreen() {
         />
       </div>
 
-      {showInviteModal && (
-        <InviteManagerModal
-          teamId={team.id}
-          onSuccess={(updatedTeam) => {
-            setTeam(updatedTeam);
-            setShowInviteModal(false);
-          }}
-          onClose={() => setShowInviteModal(false)}
-        />
-      )}
     </>
   );
 }

@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import Activate from './pages/Activate';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Invite from './pages/Invite';
 import Leagues from './pages/Leagues';
 import LeagueDetail from './pages/LeagueDetail';
 import Seasons from './pages/Seasons';
@@ -105,6 +106,7 @@ function AppContent() {
           <Route path="/activate/:token" element={<Activate />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/invite/:token" element={<Invite />} />
         </Route>
 
         <Route path="/team-management" element={<TeamManagerLayout />}>

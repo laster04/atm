@@ -1,8 +1,5 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import emailService from '../services/emailService.js';
-import { resolveInvitee } from '../services/invite.js';
-import { normalizeEmail } from '../utils/email.js';
 import { toNullableId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
 import { isVisibility, listedLeagueWhere, listedSeasonInLeagueWhere } from '../services/visibility.js';
@@ -10,7 +7,6 @@ import {
   AuthRequest,
   CreateLeagueRequest,
   UpdateLeagueRequest,
-  InviteManagerRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
 
@@ -182,47 +178,3 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
-export const inviteManager = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const { email: rawEmail, name, locale } = req.body as InviteManagerRequest;
-
-    if (!rawEmail || !name) {
-      res.status(400).json({ error: 'Email and name are required' });
-      return;
-    }
-
-    const email = normalizeEmail(rawEmail);
-
-    const league = await prisma.league.findUnique({ where: { id: id } });
-    if (!league) {
-      res.status(404).json({ error: 'League not found' });
-      return;
-    }
-
-    const invitee = await resolveInvitee(email, name);
-
-    // Assign as league manager
-    const updatedLeague = await prisma.league.update({
-      where: { id: id },
-      data: { managerId: invitee.id },
-      include: {
-        _count: { select: { seasons: true } },
-        manager: { select: { id: true, name: true, email: true } }
-      }
-    });
-
-    // Only a freshly created account needs the set-your-password link; an
-    // existing user just gains the relation.
-    if (invitee.resetToken) {
-      emailService.sendLeagueManagerInviteEmail(email, name, league.name, invitee.resetToken, locale).catch((err) => {
-        console.error('Failed to send league manager invite email:', err);
-      });
-    }
-
-    res.status(201).json(updatedLeague);
-  } catch (error) {
-    console.error('Invite league manager error:', error);
-    res.status(500).json({ error: 'Failed to invite manager' });
-  }
-};

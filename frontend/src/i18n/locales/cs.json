@@ -39,30 +39,6 @@
     "toggleMenu": "Přepnout menu",
     "loggedInAs": "Přihlášen jako"
   },
-  "teamTour": {
-    "steps": {
-      "overview": {
-        "title": "Přehled",
-        "body": "Nejbližší zápas, bilance sezony a zkratka na soupisku."
-      },
-      "roster": {
-        "title": "Soupiska",
-        "body": "Přidávejte a spravujte hráče. Vyhledávejte nebo řaďte podle čísla, jména, bodů či trestných minut."
-      },
-      "schedule": {
-        "title": "Rozpis",
-        "body": "Nadcházející i odehrané zápasy a také odložené, zrušené nebo právě hrané."
-      },
-      "settings": {
-        "title": "Nastavení",
-        "body": "Zde můžete upravit barvu týmu a zobrazit jeho informace."
-      },
-      "lineup": {
-        "title": "Zapsat sestavu",
-        "body": "Před zápasem sem klepněte a zaškrtněte, kdo hrál, a zapište góly, asistence a trestné minuty."
-      }
-    }
-  },
   "onboarding": {
     "stepCounter": "Krok {{current}} z {{total}}",
     "skip": "Přeskočit",
@@ -476,21 +452,6 @@
       "number": "Cislo",
       "position": "Pozice"
     },
-    "inviteManager": {
-      "button": "Pozvat manažera",
-      "title": "Pozvat manažera týmu",
-      "description": "Zadejte email a jméno osoby, kterou chcete pozvat jako manažera tohoto tymu. Obdrží email s odkazem pro nastavení hesla.",
-      "emailLabel": "Email",
-      "emailPlaceholder": "manazer@atm.cz",
-      "nameLabel": "Jméno",
-      "namePlaceholder": "Jan Novak",
-      "languageLabel": "Jazyk pozvánky",
-      "languageCs": "Čeština",
-      "languageEn": "Angličtina",
-      "submit": "Odeslat pozvanku",
-      "sending": "Odesílam...",
-      "error": "Nepodařilo se pozvat manažera"
-    },
     "noPosition": "Pozice neuvedena",
     "figures": {
       "rank": "Pořadí",
@@ -500,7 +461,8 @@
     "form": {
       "title": "Forma — posledních {{count}} zápasů",
       "none": "Zatím se neodehrál žádný zápas."
-    }
+    },
+    "manageTeam": "Spravovat tým"
   },
   "playerDetail": {
     "loading": "Nacitam hrace...",
@@ -723,7 +685,7 @@
     "title": "Správa sezóny",
     "subtitle": "Moje sezóny",
     "accessDenied": "Přístup odepřen",
-    "noPrivileges": "Potřebujete oprávnění správce sezóny.",
+    "noPrivileges": "Potřebujete oprávnění manažera sezóny.",
     "noSeasons": "Zatím nespravujete žádnou sezónu.",
     "newSeason": "Nová sezóna",
     "createError": "Nepodařilo se vytvořit sezónu",
@@ -746,18 +708,6 @@
       "played": "Odehráno"
     },
     "attention": {
-      "label": "Vyžaduje pozornost",
-      "noTeams": "V sezóně nejsou žádné týmy",
-      "noTeamsHint": "Před vygenerováním rozpisu přidejte týmy.",
-      "addTeams": "Přidat týmy",
-      "noGames": "Zatím žádné zápasy",
-      "noGamesHint": "Jakmile budou týmy hotové, vygenerujte rozpis.",
-      "generate": "Vygenerovat rozpis",
-      "noDates_one": "{{count}} zápas nemá termín",
-      "noDates_few": "{{count}} zápasy nemají termín",
-      "noDates_other": "{{count}} zápasů nemá termín",
-      "noDatesHint": "Dokud termín nemají, týmy je ve svém rozpisu neuvidí.",
-      "setDates": "Nastavit termíny po kolech",
       "allClear": "Vše je nastaveno",
       "allClearHint": "Každý zápas má termín. Zapisujte výsledky, jak přicházejí."
     },
@@ -1065,21 +1015,7 @@
         "th-manager": "Manazer",
         "th-seasons-c": "Sezon",
         "th-actions": "Akce",
-        "goToSeasons": "Zobrazit sezóny",
-        "inviteManager": {
-          "title": "Pozvat správce ligy",
-          "description": "Zadejte email a jméno osoby, kterou chcete pozvat jako správce této ligy. Obdrží email s odkazem pro nastavení hesla.",
-          "emailLabel": "Email",
-          "emailPlaceholder": "manazer@atm.cz",
-          "nameLabel": "Jméno",
-          "namePlaceholder": "Jan Novak",
-          "languageLabel": "Jazyk pozvánky",
-          "languageCs": "Čeština",
-          "languageEn": "Angličtina",
-          "submit": "Odeslat pozvanku",
-          "sending": "Odesílam...",
-          "error": "Nepodařilo se pozvat správce"
-        }
+        "goToSeasons": "Zobrazit sezóny"
       },
       "user": {
         "title": "Uživatelé",
@@ -1358,7 +1294,7 @@
   },
   "hats": {
     "none": "Zatím žádné týmy",
-    "leagueManager": "Manažer ligy",
+    "leagueManager": "Manažer sezóny",
     "teamManager": "Manažer týmu",
     "tournamentManager": "Manažer turnaje"
   },
@@ -1767,13 +1703,13 @@
       "noteImportant": "Důležité",
       "categories": {
         "start": "Začínáme",
-        "league": "Manažer ligy",
+        "league": "Manažer sezóny",
         "team": "Manažer týmu",
         "more": "Turnaje a podpora"
       },
       "audience": {
         "ALL": "Pro všechny",
-        "LEAGUE": "Pro manažera ligy",
+        "LEAGUE": "Pro manažera sezóny",
         "TEAM": "Pro manažera týmu",
         "TOURNAMENT": "Pro manažera turnaje"
       }
@@ -2084,6 +2020,233 @@
       "PUBLIC": "Zobrazí se na webu i ve vyhledávání",
       "UNLISTED": "Otevře se z odkazu, který pošlete, v seznamech ani ve vyhledávání není",
       "PRIVATE": "Nikdo jiný to neuvidí, ani s odkazem"
+    }
+  },
+  "invites": {
+    "sheet": {
+      "titleTeam": "Pozvat manažera týmu",
+      "titleLeague": "Pozvat manažera sezóny",
+      "changeTitleTeam": "Změnit manažera týmu",
+      "changeTitleLeague": "Změnit manažera sezóny",
+      "nameLabel": "Jméno",
+      "namePlaceholder": "např. Tomáš Král",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "jmeno@example.cz",
+      "emailHint": "Už ATM používá? Zadejte e-mail, kterým se přihlašuje.",
+      "languageLabel": "Jazyk e-mailu",
+      "languageCs": "Čeština",
+      "languageEn": "English",
+      "canTitle": "Co bude moci dělat",
+      "canTeam": [
+        "Upravovat soupisku, barvy a logo týmu",
+        "Plánovat tréninky a sledovat docházku",
+        "Doplňovat statistiky svých hráčů po zápase"
+      ],
+      "canLeague": [
+        "Zakládat sezóny a přidávat týmy",
+        "Zvát manažery týmů",
+        "Generovat rozpis a zapisovat výsledky",
+        "Zveřejnit sezónu a rozesílat výsledky"
+      ],
+      "keepNote": "Termíny, skóre a rozpis zůstávají u vás.",
+      "replaceTeam": "Tým teď spravuje {{name}}. Jakmile nový manažer pozvánku přijme, o přístup přijde.",
+      "replaceLeague": "Ligu teď spravuje {{name}}. Jakmile nový manažer pozvánku přijme, o přístup přijde.",
+      "validity": "Pozvánku pošleme e-mailem. Odkaz platí 7 dní.",
+      "submit": "Odeslat pozvánku",
+      "sending": "Odesílám…",
+      "error": "Pozvánku se nepodařilo odeslat."
+    },
+    "sent": {
+      "title": "Pozvánka odeslána",
+      "body": "Poslali jsme e-mail pro {{name}} na {{email}}.",
+      "spamHint": "E-maily občas skončí ve spamu. Pošlete odkaz i sami, třeba přes WhatsApp.",
+      "share": "Sdílet odkaz",
+      "copy": "Kopírovat odkaz",
+      "copied": "Zkopírováno",
+      "copyError": "Odkaz se nepodařilo zkopírovat.",
+      "shareText": "{{name}}, tady je pozvánka ke správě {{target}} v ATM: {{link}}",
+      "nextTitle": "Co bude dál",
+      "next1": "{{name}} otevře odkaz a nastaví si heslo, nebo se přihlásí, pokud už účet má.",
+      "next2Team": "Tým se otevře s krátkým seznamem úkolů: barvy, soupiska, nejbližší zápas.",
+      "next2League": "Liga se otevře se seznamem kroků pro založení první sezóny.",
+      "next3Team": "Na záložce Týmy uvidíte u týmu jeho jméno.",
+      "next3League": "V seznamu lig uvidíte u ligy jeho jméno.",
+      "until": "Odkaz platí do {{date}}. Kdykoli ho můžete poslat znovu.",
+      "inviteNext": "Pozvat další: {{team}}",
+      "done": "Hotovo"
+    },
+    "status": {
+      "invited": "Pozván(a) {{when}} · {{email}}",
+      "invitedShort": "Pozván(a): {{email}}",
+      "expired": "Pozvánka vypršela · {{email}}",
+      "noManager": "Zatím bez manažera",
+      "invitedLabel": "Pozván(a)",
+      "expiredLabel": "Vypršela"
+    },
+    "actions": {
+      "invite": "Pozvat",
+      "inviteManager": "Pozvat manažera",
+      "resend": "Poslat znovu",
+      "cancel": "Zrušit pozvánku",
+      "menuLabel": "Pozvánka pro {{team}}",
+      "resendError": "Pozvánku se nepodařilo poslat znovu.",
+      "cancelError": "Pozvánku se nepodařilo zrušit."
+    },
+    "summary": {
+      "title": "Manažeři týmů",
+      "activeOf": "{{active}} z {{total}} aktivních",
+      "active": "{{count}} aktivní",
+      "invited": "{{count}} pozváno",
+      "none": "{{count}} bez manažera"
+    },
+    "teamCard": {
+      "title": "Manažer týmu",
+      "current": "Tým spravuje {{name}} ({{email}}).",
+      "change": "Změnit manažera"
+    }
+  },
+  "invitePage": {
+    "documentTitle": "Pozvánka",
+    "roleTeam": "Pozvánka pro manažera týmu",
+    "roleLeague": "Pozvánka pro manažera sezóny",
+    "email": "E-mail",
+    "showPassword": "Zobrazit heslo",
+    "hidePassword": "Skrýt heslo",
+    "submitTeam": "Přijmout a otevřít tým",
+    "submitLeague": "Přijmout a otevřít ligu",
+    "notYou": "Nejste {{name}}? Nepokračujte a požádejte o novou pozvánku.",
+    "help": "Nápověda",
+    "goHome": "Přejít do ATM",
+    "new": {
+      "title": "Vítejte, {{name}}",
+      "introTeam": "{{name}} vás zve ke správě tohoto týmu. Zvolte si heslo a můžete začít.",
+      "introLeague": "{{name}} vás zve ke správě této ligy. Zvolte si heslo a můžete začít.",
+      "introTeamAnonymous": "Byli jste pozváni ke správě tohoto týmu. Zvolte si heslo a můžete začít.",
+      "introLeagueAnonymous": "Byli jste pozváni ke správě této ligy. Zvolte si heslo a můžete začít.",
+      "name": "Vaše jméno",
+      "password": "Zvolte heslo",
+      "passwordHint": "Alespoň {{min}} znaků. Budete se přihlašovat tímto e-mailem a heslem."
+    },
+    "existing": {
+      "title": "Přihlaste se a přijměte",
+      "intro": "ATM už používáte. Po přihlášení přibude {{target}} k tomu, co už spravujete.",
+      "password": "Heslo",
+      "forgot": "Zapomněli jste?",
+      "submit": "Přihlásit a přijmout",
+      "signedIn": "Jste přihlášeni jako {{email}}."
+    },
+    "wrongAccount": {
+      "body": "Jste přihlášeni jako {{current}}, ale pozvánka je pro {{email}}.",
+      "signOut": "Odhlásit se a pokračovat"
+    },
+    "expired": {
+      "title": "Platnost pozvánky vypršela",
+      "body": "Pozvánky do {{target}} platí 7 dní. Tato skončila {{date}}.",
+      "howTitle": "Jak získat novou",
+      "how1": "Napište osobě, která vás pozvala: {{name}}.",
+      "how1Anonymous": "Obraťte se na toho, kdo vás pozval.",
+      "how2Team": "U vašeho týmu klepne na Poslat znovu a nový odkaz dorazí do minuty.",
+      "how2League": "Pošle pozvánku znovu ze seznamu lig a nový odkaz dorazí do minuty."
+    },
+    "revoked": {
+      "title": "Pozvánka byla zrušena",
+      "body": "Byla zrušena nebo nahrazena novější. Otevřete nejnovější e-mail, nebo se obraťte na toho, kdo vás pozval."
+    },
+    "accepted": {
+      "title": "Pozvánka už byla přijata",
+      "body": "Tato pozvánka už byla použita. Pokračujte přihlášením.",
+      "signIn": "Přihlásit se"
+    },
+    "notFound": {
+      "title": "Pozvánka nenalezena",
+      "body": "Odkaz může být neúplný nebo nahrazený novějším. Otevřete nejnovější e-mail, nebo požádejte o novou pozvánku."
+    },
+    "errors": {
+      "weakPassword": "Heslo musí mít alespoň {{min}} znaků.",
+      "wrongAccount": "Pozvánka je pro jiný účet.",
+      "generic": "Něco se pokazilo. Zkuste to prosím znovu."
+    }
+  },
+  "seasonChecklist": {
+    "title": "Spuštění sezóny",
+    "progress": "{{done}} z {{total}}",
+    "nextLabel": "Další krok · {{current}} z {{total}}",
+    "done": "Hotovo",
+    "guide": "Přečtěte si průvodce pro manažera sezóny",
+    "steps": {
+      "teams": {
+        "title": "Přidejte týmy",
+        "status_one": "{{count}} tým",
+        "status_few": "{{count}} týmy",
+        "status_other": "{{count}} týmů",
+        "none": "Zatím žádné týmy",
+        "body": "Přidejte všechny týmy, které sezónu hrají. Můžete je převzít z dřívější sezóny.",
+        "action": "Přidat týmy"
+      },
+      "managers": {
+        "title": "Pozvěte manažery týmů",
+        "status": "{{active}} aktivní · {{invited}} pozváno · {{missing}} zbývá",
+        "body": "Každý tým dostane někoho, kdo udržuje soupisku. Pozvánka přijde e-mailem a odkaz můžete poslat i přes WhatsApp.",
+        "action_one": "Pozvat zbývající tým",
+        "action_few": "Pozvat zbývající {{count}}",
+        "action_other": "Pozvat zbývajících {{count}}",
+        "skip": "Týmy budu spravovat sám/sama"
+      },
+      "schedule": {
+        "title": "Vygenerujte rozpis",
+        "status_one": "{{count}} zápas",
+        "status_few": "{{count}} zápasy",
+        "status_other": "{{count}} zápasů",
+        "none": "Zatím nevygenerován",
+        "body": "Zvolte formát a ATM sestaví dvojice. Zápasy můžete i potom upravit.",
+        "action": "Vygenerovat rozpis"
+      },
+      "dates": {
+        "title": "Nastavte termíny",
+        "status": "{{undated}} z {{total}} bez termínu",
+        "body": "Týmy vidí zápas ve svém rozpisu, až když má termín.",
+        "action": "Nastavit termíny"
+      },
+      "publish": {
+        "title": "Zveřejněte sezónu",
+        "draft": "Koncept",
+        "live": "Zveřejněno",
+        "body": "Zveřejněním se rozpis a tabulka objeví ve veřejné části.",
+        "action": "Zveřejnit sezónu"
+      }
+    }
+  },
+  "teamChecklist": {
+    "title": "Připravte svůj tým",
+    "progress": "Hotovo {{done}} z {{total}}",
+    "hide": "Skrýt",
+    "done": "Hotovo",
+    "guide": "Nevíte si rady? Přečtěte si průvodce pro manažera týmu",
+    "steps": {
+      "account": {
+        "title": "Účet je připraven",
+        "hint": "Přihlášeni jako {{email}}"
+      },
+      "look": {
+        "title": "Zkontrolujte název, barvy a logo",
+        "hint": "Zobrazují se v rozpisu, tabulce i veřejném profilu"
+      },
+      "roster": {
+        "title": "Přidejte hráče",
+        "hint": "Zatím žádní hráči",
+        "count_one": "{{count}} hráč",
+        "count_few": "{{count}} hráči",
+        "count_other": "{{count}} hráčů"
+      },
+      "schedule": {
+        "title": "Podívejte se na rozpis",
+        "hint": "Zatím žádné zápasy s termínem",
+        "next": "Další: {{date}} proti {{opponent}}"
+      },
+      "training": {
+        "title": "Naplánujte trénink",
+        "hint": "Nepovinné. Hráči odpoví, zda přijdou"
+      }
     }
   }
 }

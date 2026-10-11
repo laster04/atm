@@ -53,6 +53,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return res.data;
   };
 
+  const startSession = (session: { user: User; token: string }) => {
+    localStorage.setItem('token', session.token);
+    localStorage.setItem('user', JSON.stringify(session.user));
+    setUser(session.user);
+  };
+
+  const refreshUser = async () => {
+    const res = await authApi.getMe();
+    localStorage.setItem('user', JSON.stringify(res.data.user));
+    setUser(res.data.user);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -105,7 +117,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isTeamManager,
       isTournamentManager,
       canManageTeam,
-      markUpdatesSeen
+      markUpdatesSeen,
+      startSession,
+      refreshUser
     }}>
       {children}
     </AuthContext.Provider>

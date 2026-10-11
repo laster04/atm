@@ -39,30 +39,6 @@
     "toggleMenu": "Toggle menu",
     "loggedInAs": "Logged in as"
   },
-  "teamTour": {
-    "steps": {
-      "overview": {
-        "title": "Overview",
-        "body": "Your next fixture, the season record, and a shortcut to the roster."
-      },
-      "roster": {
-        "title": "Roster",
-        "body": "Add and manage players. Search, or sort by number, name, points or penalty minutes."
-      },
-      "schedule": {
-        "title": "Schedule",
-        "body": "Upcoming and played games, plus anything postponed, cancelled or in progress."
-      },
-      "settings": {
-        "title": "Settings",
-        "body": "Customize your team's color and view its info here."
-      },
-      "lineup": {
-        "title": "Set the line-up",
-        "body": "Tap here before a game to tick who played and record goals, assists and penalty minutes."
-      }
-    }
-  },
   "onboarding": {
     "stepCounter": "Step {{current}} of {{total}}",
     "skip": "Skip tour",
@@ -476,21 +452,6 @@
       "number": "Number",
       "position": "Position"
     },
-    "inviteManager": {
-      "button": "Invite Manager",
-      "title": "Invite Team Manager",
-      "description": "Enter the email and name of the person you want to invite as manager of this team. They will receive an email with a link to set their password.",
-      "emailLabel": "Email",
-      "emailPlaceholder": "manager@atm.com",
-      "nameLabel": "Name",
-      "namePlaceholder": "John Doe",
-      "languageLabel": "Invitation email language",
-      "languageCs": "Czech",
-      "languageEn": "English",
-      "submit": "Send Invitation",
-      "sending": "Sending...",
-      "error": "Failed to invite manager"
-    },
     "noPosition": "Position not set",
     "figures": {
       "rank": "Rank",
@@ -500,7 +461,8 @@
     "form": {
       "title": "Form — last {{count}} games",
       "none": "No game played yet."
-    }
+    },
+    "manageTeam": "Manage team"
   },
   "playerDetail": {
     "loading": "Loading player...",
@@ -718,7 +680,7 @@
     "title": "Season Management",
     "subtitle": "My Seasons",
     "accessDenied": "Access Denied",
-    "noPrivileges": "You need Season Manager privileges.",
+    "noPrivileges": "You need season manager privileges.",
     "noSeasons": "You do not manage any season yet.",
     "newSeason": "New season",
     "createError": "Failed to create the season",
@@ -741,17 +703,6 @@
       "played": "Played"
     },
     "attention": {
-      "label": "Needs your attention",
-      "noTeams": "No teams in this season",
-      "noTeamsHint": "Add the teams before generating a schedule.",
-      "addTeams": "Add teams",
-      "noGames": "No fixtures yet",
-      "noGamesHint": "Generate a schedule once the teams are in.",
-      "generate": "Generate schedule",
-      "noDates_one": "{{count}} fixture has no date",
-      "noDates_other": "{{count}} fixtures have no date",
-      "noDatesHint": "Teams cannot see them in their schedule until they do.",
-      "setDates": "Set dates round by round",
       "allClear": "Everything is set",
       "allClearHint": "Every fixture has a date. Record results as they come in."
     },
@@ -1052,21 +1003,7 @@
         "th-manager": "Manager",
         "th-seasons-c": "Seasons",
         "th-actions": "Actions",
-        "goToSeasons": "View seasons",
-        "inviteManager": {
-          "title": "Invite Season Manager",
-          "description": "Enter the email and name of the person you want to invite as manager of this league. They will receive an email with a link to set their password.",
-          "emailLabel": "Email",
-          "emailPlaceholder": "manager@atm.com",
-          "nameLabel": "Name",
-          "namePlaceholder": "John Doe",
-          "languageLabel": "Invitation email language",
-          "languageCs": "Czech",
-          "languageEn": "English",
-          "submit": "Send Invitation",
-          "sending": "Sending...",
-          "error": "Failed to invite manager"
-        }
+        "goToSeasons": "View seasons"
       },
       "user": {
         "title": "Users",
@@ -1345,7 +1282,7 @@
   },
   "hats": {
     "none": "No teams yet",
-    "leagueManager": "League Manager",
+    "leagueManager": "Season Manager",
     "teamManager": "Team Manager",
     "tournamentManager": "Tournament Manager"
   },
@@ -1753,13 +1690,13 @@
       "noteImportant": "Important",
       "categories": {
         "start": "Getting started",
-        "league": "League manager",
+        "league": "Season manager",
         "team": "Team manager",
         "more": "Tournaments and support"
       },
       "audience": {
         "ALL": "For everyone",
-        "LEAGUE": "For league managers",
+        "LEAGUE": "For season managers",
         "TEAM": "For team managers",
         "TOURNAMENT": "For tournament managers"
       }
@@ -2056,6 +1993,229 @@
       "PUBLIC": "Listed on the site and in search",
       "UNLISTED": "Opens from a link you share, left out of every list and search",
       "PRIVATE": "Hidden from everyone else, even with the link"
+    }
+  },
+  "invites": {
+    "sheet": {
+      "titleTeam": "Invite a team manager",
+      "titleLeague": "Invite a season manager",
+      "changeTitleTeam": "Change the team manager",
+      "changeTitleLeague": "Change the season manager",
+      "nameLabel": "Their name",
+      "namePlaceholder": "e.g. Tomáš Král",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "emailHint": "Already using ATM? Use the email they sign in with.",
+      "languageLabel": "Email language",
+      "languageCs": "Čeština",
+      "languageEn": "English",
+      "canTitle": "What they will be able to do",
+      "canTeam": [
+        "Edit the roster, team colours and logo",
+        "Plan training and track attendance",
+        "Fill in their players' stats after a game"
+      ],
+      "canLeague": [
+        "Create seasons and add teams",
+        "Invite team managers",
+        "Generate the schedule and record results",
+        "Publish the season and email the results"
+      ],
+      "keepNote": "Dates, scores and the schedule stay with you.",
+      "replaceTeam": "{{name}} manages this team now. They lose access once the new manager accepts.",
+      "replaceLeague": "{{name}} manages this league now. They lose access once the new manager accepts.",
+      "validity": "We email the invitation. The link stays valid for 7 days.",
+      "submit": "Send invitation",
+      "sending": "Sending…",
+      "error": "The invitation could not be sent."
+    },
+    "sent": {
+      "title": "Invitation sent",
+      "body": "We emailed {{name}} at {{email}}.",
+      "spamHint": "Emails sometimes land in spam. Send them the link yourself as well, for example in WhatsApp.",
+      "share": "Share link",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "copyError": "The link could not be copied.",
+      "shareText": "{{name}}, here is your invitation to manage {{target}} in ATM: {{link}}",
+      "nextTitle": "What happens next",
+      "next1": "{{name}} opens the link and sets a password, or signs in if they already have an account.",
+      "next2Team": "The team opens with a short checklist: colours, roster, next game.",
+      "next2League": "The league opens with a checklist for setting up its first season.",
+      "next3Team": "You see their name next to the team on your Teams tab.",
+      "next3League": "You see their name next to the league in the Leagues list.",
+      "until": "The link works until {{date}}. You can resend it at any time.",
+      "inviteNext": "Invite next: {{team}}",
+      "done": "Done"
+    },
+    "status": {
+      "invited": "Invited {{when}} · {{email}}",
+      "invitedShort": "Invited: {{email}}",
+      "expired": "Invitation expired · {{email}}",
+      "noManager": "No manager yet",
+      "invitedLabel": "Invited",
+      "expiredLabel": "Expired"
+    },
+    "actions": {
+      "invite": "Invite",
+      "inviteManager": "Invite a manager",
+      "resend": "Resend",
+      "cancel": "Cancel invitation",
+      "menuLabel": "Invitation for {{team}}",
+      "resendError": "The invitation could not be resent.",
+      "cancelError": "The invitation could not be cancelled."
+    },
+    "summary": {
+      "title": "Team managers",
+      "activeOf": "{{active}} of {{total}} active",
+      "active": "{{count}} active",
+      "invited": "{{count}} invited",
+      "none": "{{count}} without a manager"
+    },
+    "teamCard": {
+      "title": "Team manager",
+      "current": "Managed by {{name}} ({{email}}).",
+      "change": "Change manager"
+    }
+  },
+  "invitePage": {
+    "documentTitle": "Invitation",
+    "roleTeam": "Team manager invitation",
+    "roleLeague": "Season manager invitation",
+    "email": "Email",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submitTeam": "Accept and open my team",
+    "submitLeague": "Accept and open my league",
+    "notYou": "Not {{name}}? Don't continue, and ask for a new invitation.",
+    "help": "Help",
+    "goHome": "Go to ATM",
+    "new": {
+      "title": "Welcome, {{name}}",
+      "introTeam": "{{name}} invited you to manage this team. Choose a password and you're in.",
+      "introLeague": "{{name}} invited you to run this league. Choose a password and you're in.",
+      "introTeamAnonymous": "You were invited to manage this team. Choose a password and you're in.",
+      "introLeagueAnonymous": "You were invited to run this league. Choose a password and you're in.",
+      "name": "Your name",
+      "password": "Choose a password",
+      "passwordHint": "At least {{min}} characters. You'll sign in with this email and password."
+    },
+    "existing": {
+      "title": "Sign in to accept",
+      "intro": "You already use ATM. Sign in and {{target}} is added next to everything you manage now.",
+      "password": "Password",
+      "forgot": "Forgot it?",
+      "submit": "Sign in and accept",
+      "signedIn": "You're signed in as {{email}}."
+    },
+    "wrongAccount": {
+      "body": "You're signed in as {{current}}, but this invitation is for {{email}}.",
+      "signOut": "Sign out and continue"
+    },
+    "expired": {
+      "title": "This invitation has expired",
+      "body": "Invitations to {{target}} work for 7 days. This one ended on {{date}}.",
+      "howTitle": "How to get a new one",
+      "how1": "Message {{name}}, who invited you.",
+      "how1Anonymous": "Contact the person who invited you.",
+      "how2Team": "They tap Resend next to your team, and a fresh link arrives within a minute.",
+      "how2League": "They send the invitation again from the Leagues list, and a fresh link arrives within a minute."
+    },
+    "revoked": {
+      "title": "This invitation was cancelled",
+      "body": "It was cancelled or replaced by a newer one. Open the latest email, or ask the person who invited you."
+    },
+    "accepted": {
+      "title": "Already accepted",
+      "body": "This invitation has been used. Sign in to continue.",
+      "signIn": "Sign in"
+    },
+    "notFound": {
+      "title": "Invitation not found",
+      "body": "The link may be incomplete or replaced by a newer one. Open the latest email, or ask for a new invitation."
+    },
+    "errors": {
+      "weakPassword": "The password needs at least {{min}} characters.",
+      "wrongAccount": "This invitation is for a different account.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "seasonChecklist": {
+    "title": "Get the season live",
+    "progress": "{{done}} of {{total}}",
+    "nextLabel": "Next step · {{current}} of {{total}}",
+    "done": "Done",
+    "guide": "Read the season manager guide",
+    "steps": {
+      "teams": {
+        "title": "Add teams",
+        "status_one": "{{count}} team",
+        "status_other": "{{count}} teams",
+        "none": "No teams yet",
+        "body": "Add every team that plays this season. You can bring them over from an earlier season.",
+        "action": "Add teams"
+      },
+      "managers": {
+        "title": "Invite team managers",
+        "status": "{{active}} active · {{invited}} invited · {{missing}} to go",
+        "body": "Give each team someone who keeps its roster up to date. They get an email, and a link you can also send in WhatsApp.",
+        "action_one": "Invite the remaining team",
+        "action_other": "Invite the remaining {{count}}",
+        "skip": "I'll manage the teams myself"
+      },
+      "schedule": {
+        "title": "Generate the schedule",
+        "status_one": "{{count}} game",
+        "status_other": "{{count}} games",
+        "none": "Not generated yet",
+        "body": "Pick the format and ATM pairs every team. You can still change games afterwards.",
+        "action": "Generate schedule"
+      },
+      "dates": {
+        "title": "Set game dates",
+        "status": "{{undated}} of {{total}} without a date",
+        "body": "Teams only see a game in their schedule once it has a date.",
+        "action": "Set dates"
+      },
+      "publish": {
+        "title": "Publish the season",
+        "draft": "Draft",
+        "live": "Published",
+        "body": "Publishing shows the schedule and table on the public site.",
+        "action": "Publish season"
+      }
+    }
+  },
+  "teamChecklist": {
+    "title": "Get your team ready",
+    "progress": "{{done}} of {{total}} done",
+    "hide": "Hide",
+    "done": "Done",
+    "guide": "Stuck? Read the team manager guide",
+    "steps": {
+      "account": {
+        "title": "Your account is ready",
+        "hint": "Signed in as {{email}}"
+      },
+      "look": {
+        "title": "Check name, colours and logo",
+        "hint": "They show in the schedule, the table and the public profile"
+      },
+      "roster": {
+        "title": "Add your players",
+        "hint": "No players yet",
+        "count_one": "{{count}} player",
+        "count_other": "{{count}} players"
+      },
+      "schedule": {
+        "title": "Look at your schedule",
+        "hint": "No dated games yet",
+        "next": "Next: {{date}} vs {{opponent}}"
+      },
+      "training": {
+        "title": "Plan a training",
+        "hint": "Optional. Players answer whether they're coming"
+      }
     }
   }
 }

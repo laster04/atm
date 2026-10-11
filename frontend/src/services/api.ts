@@ -10,6 +10,7 @@ import type {
   Paged, PublicTeam, PublicPlayer, PublicTeamQuery, PublicPlayerQuery,
   PublicGameQuery, TopScorerQuery, SearchResults,
   SupportTicket, SupportTicketInput, SupportTicketStatus,
+  ManagerInvite, ManagerInviteSent, PublicManagerInvite, AcceptedManagerInvite,
 } from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -29,7 +30,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register'];
+// A 401 from these is an answer for the screen, not an expired session: a wrong
+// password, or an invitation asking its holder to sign in first.
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/invites/token/'];
 
 api.interceptors.response.use(
   (response) => response,
@@ -79,7 +82,7 @@ export const leagueApi = {
   create: (data: Partial<League>) => api.post<League>('/leagues', data),
   update: (id: string | number, data: Partial<League>) => api.put<League>(`/leagues/${id}`, data),
   inviteManager: (id: string | number, data: { email: string; name: string; locale?: string }) =>
-    api.post<League>(`/leagues/${id}/invite-manager`, data),
+    api.post<ManagerInviteSent>(`/leagues/${id}/invite-manager`, data),
   delete: (id: string | number) => api.delete(`/leagues/${id}`)
 };
 
@@ -143,13 +146,26 @@ export const teamApi = {
   update: (id: string | number, data: Partial<Team>) => api.put<Team>(`/teams/${id}`, data),
   delete: (id: string | number) => api.delete(`/teams/${id}`),
   inviteManager: (teamId: string | number, data: { email: string; name: string; locale?: string }) =>
-    api.post<Team>(`/teams/${teamId}/invite-manager`, data),
+    api.post<ManagerInviteSent>(`/teams/${teamId}/invite-manager`, data),
   addToSeason: (teamId: string | number, seasonId: string | number) =>
     api.post(`/teams/${teamId}/seasons/${seasonId}`),
   removeFromSeason: (teamId: string | number, seasonId: string | number) =>
     api.delete(`/teams/${teamId}/seasons/${seasonId}`),
   getAvailableForSeason: (seasonId: string | number) =>
     api.get<Team[]>(`/teams/available/${seasonId}`),
+};
+
+// Manager invitations. The sender's side lists, resends and cancels them; the
+// invitee's side reads one by its link token and accepts it.
+export const inviteApi = {
+  getBySeason: (seasonId: string) => api.get<ManagerInvite[]>(`/invites/season/${seasonId}`),
+  getForTeam: (teamId: string) => api.get<ManagerInvite | null>(`/invites/team/${teamId}`),
+  getForLeagues: () => api.get<ManagerInvite[]>('/invites/leagues'),
+  resend: (id: string) => api.post<ManagerInviteSent>(`/invites/${id}/resend`),
+  cancel: (id: string) => api.delete<ManagerInvite>(`/invites/${id}`),
+  getByToken: (token: string) => api.get<PublicManagerInvite>(`/invites/token/${token}`),
+  accept: (token: string, data: { name?: string; password?: string }) =>
+    api.post<AcceptedManagerInvite>(`/invites/token/${token}/accept`, data),
 };
 
 export const playerApi = {

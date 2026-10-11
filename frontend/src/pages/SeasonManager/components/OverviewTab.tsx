@@ -1,17 +1,32 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CalendarPlus, CalendarX2, CheckCircle2, ListPlus, Users } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { seasonApi } from '@/services/api';
-import { GameStatus, SeasonStatus, type Game, type Season } from '@types';
+import { GameStatus, SeasonStatus, type Game, type ManagerInvite, type Season, type Team } from '@types';
 import type { SeasonTab } from '../Detail';
 import { SEASON_ACCENT, isPlayed, needsDate } from './util';
 import VisibilityCard from './VisibilityCard';
+import SeasonChecklist, { type SeasonStep } from './SeasonChecklist';
+import { invitesByTarget, managerState } from '@/components/invite/inviteState';
 import { APP_TIME_ZONE } from '@/utils/date';
+
+/** Per season and browser: the manager chose to run the teams themselves. */
+const skipManagersKey = (seasonId: string) => `atm.seasonChecklist.skipManagers.${seasonId}`;
+
+function readSkip(seasonId: string): boolean {
+	try {
+		return localStorage.getItem(skipManagersKey(seasonId)) === '1';
+	} catch {
+		return false;
+	}
+}
 
 interface OverviewTabProps {
 	season: Season;
 	games: Game[];
+	teams: Team[];
+	invites: ManagerInvite[];
 	teamCount: number;
 	undatedCount: number;
 	onTabChange: (tab: SeasonTab) => void;
@@ -23,6 +38,8 @@ interface OverviewTabProps {
 export default function OverviewTab({
 	season,
 	games,
+	teams,
+	invites,
 	teamCount,
 	undatedCount,
 	onTabChange,
@@ -33,51 +50,6 @@ export default function OverviewTab({
 	const { t, i18n } = useTranslation();
 	const [statusError, setStatusError] = useState('');
 	const [savingStatus, setSavingStatus] = useState(false);
-
-	// The one blocking thing, in the order a season is actually built up.
-	const task = useMemo(() => {
-		if (teamCount === 0) {
-			return {
-				icon: Users,
-				title: t('seasonManagement.attention.noTeams'),
-				hint: t('seasonManagement.attention.noTeamsHint'),
-				action: t('seasonManagement.attention.addTeams'),
-				actionIcon: ListPlus,
-				run: () => onTabChange('teams'),
-			};
-		}
-		if (games.length === 0) {
-			return {
-				icon: CalendarX2,
-				title: t('seasonManagement.attention.noGames'),
-				hint: t('seasonManagement.attention.noGamesHint'),
-				action: t('seasonManagement.attention.generate'),
-				actionIcon: CalendarPlus,
-				run: () => onTabChange('more'),
-			};
-		}
-		if (undatedCount > 0) {
-			// Send the manager to the earliest round that still has a gap.
-			const undatedRounds = games.filter(needsDate).map((g) => g.round ?? 0);
-			const firstRound = Math.min(...undatedRounds);
-			return {
-				icon: CalendarX2,
-				title: t('seasonManagement.attention.noDates', { count: undatedCount }),
-				hint: t('seasonManagement.attention.noDatesHint'),
-				action: t('seasonManagement.attention.setDates'),
-				actionIcon: CalendarPlus,
-				run: () => onOpenDates(firstRound),
-			};
-		}
-		return {
-			icon: CheckCircle2,
-			title: t('seasonManagement.attention.allClear'),
-			hint: t('seasonManagement.attention.allClearHint'),
-			action: null,
-			actionIcon: null,
-			run: () => {},
-		};
-	}, [teamCount, games, undatedCount, t, onTabChange, onOpenDates]);
 
 	// The API sorts fixtures soonest-first with undated ones last.
 	const nextUp = useMemo(
@@ -98,6 +70,92 @@ export default function OverviewTab({
 			setSavingStatus(false);
 		}
 	};
+
+	const [skipManagers, setSkipManagers] = useState(() => readSkip(season.id));
+
+	// Getting the season live, in the order it is actually built up.
+	const steps = useMemo<SeasonStep[]>(() => {
+		const inviteFor = invitesByTarget(invites, 'teamId');
+		const tally = { ACTIVE: 0, INVITED: 0, EXPIRED: 0, NONE: 0 };
+		teams.forEach((team) => {
+			tally[managerState(team.managerId ?? team.manager?.id, inviteFor.get(team.id))] += 1;
+		});
+		const undatedRounds = games.filter(needsDate).map((g) => g.round ?? 0);
+		return [
+			{
+				id: 'teams',
+				title: t('seasonChecklist.steps.teams.title'),
+				status: teamCount > 0
+					? t('seasonChecklist.steps.teams.status', { count: teamCount })
+					: t('seasonChecklist.steps.teams.none'),
+				body: t('seasonChecklist.steps.teams.body'),
+				action: t('seasonChecklist.steps.teams.action'),
+				run: () => onTabChange('teams'),
+				done: teamCount > 0,
+			},
+			{
+				id: 'managers',
+				title: t('seasonChecklist.steps.managers.title'),
+				status: t('seasonChecklist.steps.managers.status', {
+					active: tally.ACTIVE,
+					invited: tally.INVITED + tally.EXPIRED,
+					missing: tally.NONE,
+				}),
+				body: t('seasonChecklist.steps.managers.body'),
+				action: t('seasonChecklist.steps.managers.action', { count: tally.NONE }),
+				run: () => onTabChange('teams'),
+				// Expired invites still count as asked: the Teams tab offers the resend.
+				done: skipManagers || (teams.length > 0 && tally.NONE === 0),
+				skip: {
+					label: t('seasonChecklist.steps.managers.skip'),
+					run: () => {
+						try {
+							localStorage.setItem(skipManagersKey(season.id), '1');
+						} catch {
+							// Private mode: the skip lasts until the page is left.
+						}
+						setSkipManagers(true);
+					},
+				},
+			},
+			{
+				id: 'schedule',
+				title: t('seasonChecklist.steps.schedule.title'),
+				status: games.length > 0
+					? t('seasonChecklist.steps.schedule.status', { count: games.length })
+					: t('seasonChecklist.steps.schedule.none'),
+				body: t('seasonChecklist.steps.schedule.body'),
+				action: t('seasonChecklist.steps.schedule.action'),
+				run: () => onTabChange('more'),
+				done: games.length > 0,
+			},
+			{
+				id: 'dates',
+				title: t('seasonChecklist.steps.dates.title'),
+				status: t('seasonChecklist.steps.dates.status', { undated: undatedCount, total: games.length }),
+				body: t('seasonChecklist.steps.dates.body'),
+				action: t('seasonChecklist.steps.dates.action'),
+				// Send the manager to the earliest round that still has a gap.
+				run: () => onOpenDates(undatedRounds.length ? Math.min(...undatedRounds) : 1),
+				done: games.length > 0 && undatedCount === 0,
+			},
+			{
+				id: 'publish',
+				title: t('seasonChecklist.steps.publish.title'),
+				status: season.status === SeasonStatus.DRAFT
+					? t('seasonChecklist.steps.publish.draft')
+					: t('seasonChecklist.steps.publish.live'),
+				body: t('seasonChecklist.steps.publish.body'),
+				action: t('seasonChecklist.steps.publish.action'),
+				run: () => void changeStatus(SeasonStatus.ACTIVE),
+				done: season.status !== SeasonStatus.DRAFT,
+				busy: savingStatus,
+			},
+		];
+		// changeStatus is recreated each render but only reads its argument.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [t, teams, invites, games, teamCount, undatedCount, season.id, season.status, skipManagers, savingStatus, onTabChange, onOpenDates]);
+	const setupDone = steps.every((step) => step.done);
 
 	const lifecycle = {
 		[SeasonStatus.DRAFT]: {
@@ -123,9 +181,6 @@ export default function OverviewTab({
 		},
 	}[season.status];
 
-	const TaskIcon = task.icon;
-	const ActionIcon = task.actionIcon;
-
 	return (
 		<div className="flex flex-col gap-4">
 			{/* The counts ride in the coloured header on a phone; the desktop layout
@@ -148,34 +203,19 @@ export default function OverviewTab({
 				))}
 			</div>
 
-			{/* The one thing blocking this season */}
-			<div className="flex flex-col gap-2">
-				<span className="tm-section-label">{t('seasonManagement.attention.label')}</span>
-				<div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
-					<div className="flex items-start gap-3">
-						<span
-							className="flex size-9 shrink-0 items-center justify-center rounded-[10px]"
-							style={task.action ? { backgroundColor: '#fef3c7' } : { backgroundColor: '#dcfce7' }}
-						>
-							<TaskIcon className="size-[19px]" style={{ color: task.action ? '#92400e' : '#166534' }} aria-hidden />
-						</span>
-						<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-							<span className="text-[15px] font-semibold leading-snug">{task.title}</span>
-							<span className="text-[12.5px] leading-snug text-muted-foreground">{task.hint}</span>
-						</div>
+			{setupDone ? (
+				<div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+					<span className="flex size-9 shrink-0 items-center justify-center rounded-[10px]" style={{ backgroundColor: '#dcfce7' }}>
+						<CheckCircle2 className="size-[19px]" style={{ color: '#166534' }} aria-hidden />
+					</span>
+					<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-[15px] font-semibold leading-snug">{t('seasonManagement.attention.allClear')}</span>
+						<span className="text-[12.5px] leading-snug text-muted-foreground">{t('seasonManagement.attention.allClearHint')}</span>
 					</div>
-					{task.action && (
-						<button
-							onClick={task.run}
-							className="flex h-11 items-center justify-center gap-2 rounded-[10px] text-[14.5px] font-semibold text-white"
-							style={{ backgroundColor: SEASON_ACCENT }}
-						>
-							{ActionIcon && <ActionIcon className="size-4" aria-hidden />}
-							{task.action}
-						</button>
-					)}
 				</div>
-			</div>
+			) : (
+				<SeasonChecklist steps={steps} />
+			)}
 
 			<VisibilityCard season={season} onSeasonChange={onSeasonChange} />
 
@@ -234,7 +274,8 @@ export default function OverviewTab({
 				)}
 			</div>
 
-			{/* Season lifecycle */}
+			{/* Season lifecycle; while setting up, publishing is the checklist's last step. */}
+			{(setupDone || season.status !== SeasonStatus.DRAFT) && (
 			<div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5">
 				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
 					<span className="text-sm font-semibold">{lifecycle.title}</span>
@@ -251,6 +292,7 @@ export default function OverviewTab({
 					</button>
 				)}
 			</div>
+			)}
 
 			{statusError && <p className="text-sm text-red-600">{statusError}</p>}
 		</div>

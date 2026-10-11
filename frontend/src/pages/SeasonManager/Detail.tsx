@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CalendarDays, MoreHorizontal, Table2, Trophy, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { gameApi, seasonApi, teamApi } from '@/services/api';
+import { gameApi, inviteApi, seasonApi, teamApi } from '@/services/api';
 import { Button } from '@components/base/button';
 import { VisibilityBadge } from '@/components/public';
 import { strictest } from '@/utils/visibility';
-import type { Game, GroupTable, Season, Team } from '@types';
+import type { Game, GroupTable, ManagerInvite, Season, Team } from '@types';
 import OverviewTab from './components/OverviewTab';
 import GamesTab from './components/GamesTab';
 import TeamsTab from './components/TeamsTab';
@@ -31,6 +31,7 @@ export default function Detail() {
 	const [season, setSeason] = useState<Season | null>(null);
 	const [teams, setTeams] = useState<Team[]>([]);
 	const [games, setGames] = useState<Game[]>([]);
+	const [invites, setInvites] = useState<ManagerInvite[]>([]);
 	const [tables, setTables] = useState<GroupTable[]>([]);
 	const [loading, setLoading] = useState(false);
 
@@ -55,6 +56,11 @@ export default function Detail() {
 			})
 			.catch((err) => console.error(err))
 			.finally(() => setLoading(false));
+		// Open manager invitations drive the Teams tab and the setup checklist;
+		// without them both still work, just without the "invited" state.
+		inviteApi.getBySeason(id)
+			.then((res) => setInvites(res.data))
+			.catch((err) => console.error(err));
 	}, [id]);
 
 	// Standings only mean something once a game has been played, and the endpoint
@@ -228,6 +234,8 @@ export default function Detail() {
 						<OverviewTab
 							season={season}
 							games={games}
+							teams={teams}
+							invites={invites}
 							teamCount={counts.teams}
 							undatedCount={counts.undated}
 							onTabChange={setActiveTab}
@@ -244,7 +252,13 @@ export default function Detail() {
 						/>
 					)}
 					{activeTab === 'teams' && (
-						<TeamsTab season={season} teams={teams} onTeamsChange={setTeams} />
+						<TeamsTab
+							season={season}
+							teams={teams}
+							invites={invites}
+							onTeamsChange={setTeams}
+							onInvitesChange={setInvites}
+						/>
 					)}
 					{activeTab === 'table' && <StandingsTab tables={tables} />}
 					{activeTab === 'more' && (

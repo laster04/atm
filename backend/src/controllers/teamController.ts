@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import emailService from '../services/emailService.js';
-import { resolveInvitee } from '../services/invite.js';
 import { canAdministerTeam } from '../services/access.js';
 import { canSeeFullRoster, toPublicManager, toPublicPlayer } from '../services/publicView.js';
 import { listedSeasonWhere, listedTeamWhere } from '../services/visibility.js';
@@ -10,10 +8,8 @@ import {
   AuthRequest,
   CreateTeamRequest,
   UpdateTeamRequest,
-  InviteManagerRequest,
 } from '../types/index.js';
 import { toNullableId } from '../utils/ids.js';
-import { normalizeEmail } from '../utils/email.js';
 import { Prisma } from '@prisma/client';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -439,88 +435,6 @@ export const getTeamsAvailableForSeason = async (req: Request, res: Response): P
   } catch (error) {
     console.error('Get available teams error:', error);
     res.status(500).json({ error: 'Failed to fetch available teams' });
-  }
-};
-
-export const inviteManager = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const { email: rawEmail, name, locale } = req.body as InviteManagerRequest;
-
-    if (!rawEmail || !name) {
-      res.status(400).json({ error: 'Email and name are required' });
-      return;
-    }
-
-    const email = normalizeEmail(rawEmail);
-
-    const team = await prisma.team.findUnique({
-      where: { id: id },
-      include: {
-        seasonTeams: {
-          include: {
-            season: { include: { league: { select: { managerId: true } } } }
-          }
-        }
-      }
-    });
-    if (!team) {
-      res.status(404).json({ error: 'Team not found' });
-      return;
-    }
-
-
-    const invitee = await resolveInvitee(email, name);
-
-    // Assign as team manager
-    const updatedTeam = await prisma.team.update({
-      where: { id: id },
-      data: { managerId: invitee.id },
-      include: {
-        seasonTeams: {
-          include: {
-            season: {
-              include: {
-                league: { select: { id: true, name: true, sportType: true } }
-              }
-            }
-          }
-        },
-        players: { orderBy: { number: 'asc' } },
-        manager: { select: { id: true, name: true, email: true } },
-        homeGames: {
-          include: { awayTeam: { select: { id: true, name: true } } },
-          orderBy: { date: 'asc' }
-        },
-        awayGames: {
-          include: { homeTeam: { select: { id: true, name: true } } },
-          orderBy: { date: 'asc' }
-        }
-      }
-    });
-
-    // Only a freshly created account needs the set-your-password link; an existing
-    // user simply gains the team relation alongside whatever they already manage.
-    if (invitee.resetToken) {
-      emailService.sendManagerInviteEmail(email, name, team.name, invitee.resetToken, locale).catch((err) => {
-        console.error('Failed to send manager invite email:', err);
-      });
-    }
-
-    const allGames = [...updatedTeam.homeGames, ...updatedTeam.awayGames].sort(
-      (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime()
-    );
-
-    // Add convenience `season` field
-    const activeSeason = updatedTeam.seasonTeams
-      .map(st => st.season)
-      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-      .find(s => s.status === 'ACTIVE') || updatedTeam.seasonTeams[0]?.season || null;
-
-    res.status(201).json({ ...updatedTeam, games: allGames, season: activeSeason });
-  } catch (error) {
-    console.error('Invite manager error:', error);
-    res.status(500).json({ error: 'Failed to invite manager' });
   }
 };
 
