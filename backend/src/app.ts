@@ -13,6 +13,7 @@ import tournamentRoutes from './routes/tournaments.js';
 import searchRoutes from './routes/search.js';
 import contactRoutes from './routes/contact.js';
 import inviteRoutes from './routes/invites.js';
+import { getSitemap } from './controllers/sitemapController.js';
 
 /**
  * The whole HTTP app: middleware, every route, the error handler. index.ts only
@@ -71,6 +72,9 @@ app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/invites', inviteRoutes);
+
+// Proxied by the frontend server as /sitemap-data.xml on the public domain.
+app.get('/api/sitemap.xml', getSitemap);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

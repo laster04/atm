@@ -386,3 +386,41 @@ describe('a league', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('the sitemap', () => {
+  const sitemap = async () => (await request(app).get('/api/sitemap.xml')).text;
+
+  it('is XML a search engine can read', async () => {
+    const res = await request(app).get('/api/sitemap.xml');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/application\/xml/);
+    expect(res.text).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+  });
+
+  it('lists a public league, its season and everything in it', async () => {
+    await setLeague('PUBLIC');
+    await setSeason('PUBLIC');
+    await setSeries('PUBLIC');
+    const xml = await sitemap();
+    expect(xml).toContain(`/leagues/${leagueId}</loc>`);
+    expect(xml).toContain(`/season-detail/${seasonId}</loc>`);
+    expect(xml).toContain(`/teams/${teamId}</loc>`);
+    expect(xml).toContain(`/players/${playerId}</loc>`);
+    expect(xml).toContain(`/tournaments/${seriesId}</loc>`);
+    expect(xml).toContain(`/tournament/${tournamentId}</loc>`);
+  });
+
+  it('leaves out what is only reachable by link, and what is private', async () => {
+    for (const level of ['UNLISTED', 'PRIVATE'] as const) {
+      await setLeague(level);
+      await setSeries(level);
+      const xml = await sitemap();
+      expect(xml).not.toContain(leagueId);
+      expect(xml).not.toContain(seasonId);
+      expect(xml).not.toContain(teamId);
+      expect(xml).not.toContain(playerId);
+      expect(xml).not.toContain(seriesId);
+      expect(xml).not.toContain(tournamentId);
+    }
+  });
+});

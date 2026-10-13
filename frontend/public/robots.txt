@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /admin
+Disallow: /season-management
+Disallow: /team-management
+Disallow: /tournament-management
+Disallow: /dashboard
+Disallow: /activate/
+Disallow: /reset-password/
+Disallow: /invite/
+
+Sitemap: https://www.atm-online.cz/sitemap.xml
