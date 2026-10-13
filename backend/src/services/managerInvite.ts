@@ -5,12 +5,13 @@ import emailService from './emailService.js';
 import { normalizeEmail } from '../utils/email.js';
 
 /**
- * Inviting someone to manage a team or a league.
+ * Inviting someone to manage a team or a league, or a player to take their
+ * spot on a roster.
  *
- * Nothing is granted when the invite is sent: the manager relation is written
- * only when the invitee opens the link and accepts it, signing in or creating
- * their account on the way. Until then the inviter sees the team as "Invited"
- * and may resend or cancel it.
+ * Nothing is granted when the invite is sent: the manager relation (or the
+ * player's account link) is written only when the invitee opens the link and
+ * accepts it, signing in or creating their account on the way. Until then the
+ * inviter sees the team or player as "Invited" and may resend or cancel it.
  *
  * The link carries a random token; only its SHA-256 is stored, so a link that
  * was lost is replaced by resending, never read back.
@@ -18,7 +19,9 @@ import { normalizeEmail } from '../utils/email.js';
 
 export const INVITE_TTL_DAYS = 7;
 
-export type InviteTarget = { teamId: string } | { leagueId: string };
+export type InviteTarget = { teamId: string } | { leagueId: string } | { playerId: string };
+
+export type InviteKind = 'TEAM' | 'LEAGUE' | 'PLAYER';
 
 export type InviteStatus = 'PENDING' | 'EXPIRED' | 'ACCEPTED' | 'REVOKED';
 
@@ -34,19 +37,20 @@ const expiryFromNow = (): Date => new Date(Date.now() + INVITE_TTL_DAYS * 24 * 6
 export const inviteLink = (token: string): string =>
   `${process.env.APP_URL || 'http://localhost:5173'}/invite/${token}`;
 
-const inviteInclude = {
-  team: {
-    select: {
-      id: true,
-      name: true,
-      primaryColor: true,
-      managerId: true,
-      seasonTeams: {
-        select: { season: { select: { name: true, startDate: true, league: { select: { name: true } } } } },
-      },
-    },
+const teamSelect = {
+  id: true,
+  name: true,
+  primaryColor: true,
+  managerId: true,
+  seasonTeams: {
+    select: { season: { select: { name: true, startDate: true, league: { select: { name: true } } } } },
   },
+} as const;
+
+const inviteInclude = {
+  team: { select: teamSelect },
   league: { select: { id: true, name: true, managerId: true } },
+  player: { select: { id: true, name: true, number: true, userId: true, team: { select: teamSelect } } },
   invitedBy: { select: { id: true, name: true, email: true } },
 } as const;
 
@@ -62,9 +66,15 @@ export const inviteStatus = (invite: { acceptedAt: Date | null; revokedAt: Date 
   return 'PENDING';
 };
 
-/** The newest season a team plays in, which is what the invite is "for". */
+const inviteKind = (invite: { teamId: string | null; playerId: string | null }): InviteKind =>
+  invite.playerId ? 'PLAYER' : invite.teamId ? 'TEAM' : 'LEAGUE';
+
+/** The team an invite is about: the one to manage, or the player's. */
+const inviteTeam = (invite: InviteRow) => invite.team ?? invite.player?.team ?? null;
+
+/** The newest season the team plays in, which is what the invite is "for". */
 const latestSeason = (invite: InviteRow) =>
-  invite.team?.seasonTeams
+  inviteTeam(invite)?.seasonTeams
     .map((st) => st.season)
     .sort((a, b) => b.startDate.getTime() - a.startDate.getTime())[0] ?? null;
 
@@ -73,6 +83,7 @@ export const toInviteSummary = (invite: {
   id: string;
   teamId: string | null;
   leagueId: string | null;
+  playerId: string | null;
   email: string;
   name: string;
   locale: string;
@@ -84,6 +95,7 @@ export const toInviteSummary = (invite: {
   id: invite.id,
   teamId: invite.teamId,
   leagueId: invite.leagueId,
+  playerId: invite.playerId,
   email: invite.email,
   name: invite.name,
   locale: invite.locale,
@@ -98,8 +110,8 @@ const sendInviteEmail = async (invite: InviteRow, token: string): Promise<void> 
   await emailService.sendManagerInvitationEmail({
     to: invite.email,
     inviteeName: invite.name,
-    kind: invite.team ? 'TEAM' : 'LEAGUE',
-    targetName: invite.team?.name ?? invite.league!.name,
+    kind: inviteKind(invite),
+    targetName: inviteTeam(invite)?.name ?? invite.league!.name,
     contextName: season ? `${season.league.name} · ${season.name}` : null,
     inviterName: invite.invitedBy?.name ?? null,
     inviterEmail: invite.invitedBy?.email ?? null,
@@ -111,8 +123,9 @@ const sendInviteEmail = async (invite: InviteRow, token: string): Promise<void> 
 };
 
 /**
- * Starts a new invitation for a team or league. Any invite still pending for
- * the same target is cancelled, so there is only ever one live link per team.
+ * Starts a new invitation for a team, league or player. Any invite still
+ * pending for the same target is cancelled, so there is only ever one live
+ * link per team (or player).
  */
 export const createInvite = async (params: {
   target: InviteTarget;
@@ -122,7 +135,10 @@ export const createInvite = async (params: {
   invitedById: string;
 }) => {
   const { token, tokenHash } = newToken();
-  const targetWhere = 'teamId' in params.target ? { teamId: params.target.teamId } : { leagueId: params.target.leagueId };
+  const targetWhere =
+    'teamId' in params.target ? { teamId: params.target.teamId }
+    : 'leagueId' in params.target ? { leagueId: params.target.leagueId }
+    : { playerId: params.target.playerId };
 
   const created = await prisma.$transaction(async (tx) => {
     await tx.managerInvite.updateMany({
@@ -143,13 +159,13 @@ export const createInvite = async (params: {
   });
 
   const invite = (await findInvite({ id: created.id }))!;
-  sendInviteEmail(invite, token).catch((err) => console.error('Failed to send manager invitation:', err));
+  sendInviteEmail(invite, token).catch((err) => console.error('Failed to send invitation:', err));
   return { invite: toInviteSummary(invite), link: inviteLink(token) };
 };
 
 /** The invite as it stands, for permission checks on resend/cancel. */
 export const getInviteTarget = (id: string) =>
-  prisma.managerInvite.findUnique({ where: { id }, select: { id: true, teamId: true, leagueId: true, acceptedAt: true, revokedAt: true, expiresAt: true } });
+  prisma.managerInvite.findUnique({ where: { id }, select: { id: true, teamId: true, leagueId: true, playerId: true, acceptedAt: true, revokedAt: true, expiresAt: true } });
 
 /**
  * Issues a fresh link for an invite that has not been accepted or cancelled.
@@ -162,7 +178,7 @@ export const resendInvite = async (id: string) => {
     data: { tokenHash, expiresAt: expiryFromNow(), sentAt: new Date() },
   });
   const invite = (await findInvite({ id }))!;
-  sendInviteEmail(invite, token).catch((err) => console.error('Failed to resend manager invitation:', err));
+  sendInviteEmail(invite, token).catch((err) => console.error('Failed to resend invitation:', err));
   return { invite: toInviteSummary(invite), link: inviteLink(token) };
 };
 
@@ -180,13 +196,15 @@ export const findByToken = (token: string) => findInvite({ tokenHash: hashToken(
 export const toPublicInvite = async (invite: InviteRow) => {
   const season = latestSeason(invite);
   const hasAccount = !!(await prisma.user.findUnique({ where: { email: invite.email }, select: { id: true } }));
+  const team = inviteTeam(invite);
   return {
     status: inviteStatus(invite),
-    kind: invite.team ? ('TEAM' as const) : ('LEAGUE' as const),
+    kind: inviteKind(invite),
     email: invite.email,
     name: invite.name,
-    team: invite.team ? { id: invite.team.id, name: invite.team.name, primaryColor: invite.team.primaryColor } : null,
+    team: team ? { id: team.id, name: team.name, primaryColor: team.primaryColor } : null,
     league: invite.league ? { id: invite.league.id, name: invite.league.name } : null,
+    player: invite.player ? { name: invite.player.name, number: invite.player.number } : null,
     seasonName: season?.name ?? null,
     leagueName: season?.league.name ?? invite.league?.name ?? null,
     invitedByName: invite.invitedBy?.name ?? null,
@@ -196,10 +214,11 @@ export const toPublicInvite = async (invite: InviteRow) => {
 };
 
 /**
- * Hands the team or league to the accepting user and closes the invite, in one
- * transaction so a link cannot be used twice. `resolveUser` runs inside it and
- * returns the user's id; for someone new it creates the account, which is then
- * rolled back if the invite turns out to be gone.
+ * Hands the team or league (or the roster spot) to the accepting user and
+ * closes the invite, in one transaction so a link cannot be used twice.
+ * `resolveUser` runs inside it and returns the user's id; for someone new it
+ * creates the account, which is then rolled back if the invite turns out to be
+ * gone or the roster spot cannot be taken.
  */
 export const acceptInvite = async (
   inviteId: string,
@@ -218,6 +237,17 @@ export const acceptInvite = async (
       await tx.team.update({ where: { id: invite.teamId }, data: { managerId: userId } });
     } else if (invite.leagueId) {
       await tx.league.update({ where: { id: invite.leagueId }, data: { managerId: userId } });
+    } else if (invite.playerId) {
+      // The same rules as linking by hand: the spot is still free, and one
+      // person holds at most one spot per team.
+      const player = await tx.player.findUniqueOrThrow({ where: { id: invite.playerId }, select: { teamId: true, userId: true } });
+      if (player.userId && player.userId !== userId) throw new InviteConflictError('PLAYER_TAKEN');
+      const elsewhere = await tx.player.findFirst({
+        where: { teamId: player.teamId, userId, id: { not: invite.playerId } },
+        select: { id: true },
+      });
+      if (elsewhere) throw new InviteConflictError('ALREADY_ON_TEAM');
+      await tx.player.update({ where: { id: invite.playerId }, data: { userId } });
     }
     return userId;
   });
@@ -225,5 +255,16 @@ export const acceptInvite = async (
 export class InviteUnavailableError extends Error {
   constructor() {
     super('This invitation is no longer valid');
+  }
+}
+
+/** The invite is valid, but the roster spot it offers cannot be taken. */
+export class InviteConflictError extends Error {
+  constructor(public readonly code: 'PLAYER_TAKEN' | 'ALREADY_ON_TEAM') {
+    super(
+      code === 'PLAYER_TAKEN'
+        ? 'This player is already linked to another account'
+        : 'Your account already holds a different spot on this team',
+    );
   }
 }

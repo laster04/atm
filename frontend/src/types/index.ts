@@ -457,10 +457,14 @@ export interface HockeyGameStatistic {
 /** An invitation to manage a team or league, as its sender sees it. */
 export type ManagerInviteStatus = 'PENDING' | 'EXPIRED' | 'ACCEPTED' | 'REVOKED';
 
+/** What an invitation is for: running a team or a league, or a spot on a roster. */
+export type InviteKind = 'TEAM' | 'LEAGUE' | 'PLAYER';
+
 export interface ManagerInvite {
   id: string;
   teamId: string | null;
   leagueId: string | null;
+  playerId: string | null;
   email: string;
   name: string;
   locale: string;
@@ -478,11 +482,13 @@ export interface ManagerInviteSent {
 /** What the person holding an invitation link sees before accepting. */
 export interface PublicManagerInvite {
   status: ManagerInviteStatus;
-  kind: 'TEAM' | 'LEAGUE';
+  kind: InviteKind;
   email: string;
   name: string;
+  /** The team to manage, or the one a player joins. */
   team: { id: string; name: string; primaryColor: string | null } | null;
   league: { id: string; name: string } | null;
+  player: { name: string; number: number | null } | null;
   seasonName: string | null;
   leagueName: string | null;
   invitedByName: string | null;
@@ -491,9 +497,10 @@ export interface PublicManagerInvite {
 }
 
 export interface AcceptedManagerInvite {
-  kind: 'TEAM' | 'LEAGUE';
+  kind: InviteKind;
   teamId: string | null;
   leagueId: string | null;
+  playerId: string | null;
   /** Set when the invite created the account; the invitee is signed in with it. */
   session: { user: User; token: string } | null;
 }

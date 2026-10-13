@@ -232,17 +232,20 @@ model Team {
   @@map("teams")
 }
 
-/// An invitation to manage a team or a league. Exactly one of teamId / leagueId
-/// is set. The manager relation (Team.managerId / League.managerId) is only
-/// written when the invitee accepts; until then the invite is what the season
-/// manager sees as "Invited". Only a hash of the link's token is stored, so a
-/// lost link is replaced by resending, never recovered.
+/// An invitation to manage a team or a league, or to take a player's place on
+/// a roster. Exactly one of teamId / leagueId / playerId is set. The relation
+/// (Team.managerId / League.managerId / Player.userId) is only written when the
+/// invitee accepts; until then the invite is what the inviter sees as
+/// "Invited". Only a hash of the link's token is stored, so a lost link is
+/// replaced by resending, never recovered.
 model ManagerInvite {
   id          String    @id @default(uuid())
   teamId      String?   @map("team_id")
   team        Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   leagueId    String?   @map("league_id")
   league      League?   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  playerId    String?   @map("player_id")
+  player      Player?   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   email       String
   name        String
   locale      String    @default("cs")
@@ -258,6 +261,7 @@ model ManagerInvite {
 
   @@index([teamId])
   @@index([leagueId])
+  @@index([playerId])
   @@map("manager_invites")
 }
 
@@ -287,6 +291,7 @@ model Player {
   matchEventAssists    MatchEvent[] @relation("MatchEventAssist")
   matchEventAssists2nd  MatchEvent[] @relation("MatchEventSecondaryAssist")
   attendances           Attendance[]
+  invites               ManagerInvite[]
 
   // One person may hold a roster spot in several teams, but only one per team.
   @@unique([teamId, userId])

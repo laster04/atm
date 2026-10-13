@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Loader2, Edit } from 'lucide-react';
@@ -25,6 +25,8 @@ export default function PlayerDetailPage() {
 	const goBackToTeam = useGoBack(`/team-management/${teamId}`);
 	const { t, i18n } = useTranslation();
 	const isNew = playerId === 'new';
+	// The team checklist links here with ?invite=1 to open the invitation at once.
+	const [searchParams] = useSearchParams();
 
 	const [loading, setLoading] = useState(!isNew);
 	const [saving, setSaving] = useState(false);
@@ -316,7 +318,9 @@ export default function PlayerDetailPage() {
 
 			<PlayerAccountCard
 				player={player}
+				teamName={team?.name ?? ''}
 				accent={team?.primaryColor || '#003E7E'}
+				autoInvite={searchParams.get('invite') === '1'}
 				onChanged={setPlayer}
 			/>
 

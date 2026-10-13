@@ -160,6 +160,8 @@ export const teamApi = {
 export const inviteApi = {
   getBySeason: (seasonId: string) => api.get<ManagerInvite[]>(`/invites/season/${seasonId}`),
   getForTeam: (teamId: string) => api.get<ManagerInvite | null>(`/invites/team/${teamId}`),
+  getForTeamPlayers: (teamId: string) => api.get<ManagerInvite[]>(`/invites/team/${teamId}/players`),
+  getForPlayer: (playerId: string) => api.get<ManagerInvite | null>(`/invites/player/${playerId}`),
   getForLeagues: () => api.get<ManagerInvite[]>('/invites/leagues'),
   resend: (id: string) => api.post<ManagerInviteSent>(`/invites/${id}/resend`),
   cancel: (id: string) => api.delete<ManagerInvite>(`/invites/${id}`),
@@ -184,7 +186,10 @@ export const playerApi = {
   // Links a roster row to an account that already exists; never creates one.
   linkAccount: (id: string | number, email: string) =>
     api.patch<Player>(`/players/${id}/link`, { email }),
-  unlinkAccount: (id: string | number) => api.delete<Player>(`/players/${id}/link`)
+  unlinkAccount: (id: string | number) => api.delete<Player>(`/players/${id}/link`),
+  // The player gets an emailed link; their account is linked when they accept.
+  invite: (id: string | number, data: { email: string; name?: string; locale?: string }) =>
+    api.post<ManagerInviteSent>(`/players/${id}/invite`, data)
 };
 
 // ── Match report ────────────────────────────────────────────

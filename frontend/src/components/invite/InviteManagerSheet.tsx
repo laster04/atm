@@ -2,15 +2,20 @@ import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Check, Copy, Send, Share2, X } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { leagueApi, teamApi } from '@/services/api';
-import type { ManagerInviteSent } from '@types';
+import { leagueApi, playerApi, teamApi } from '@/services/api';
+import type { InviteKind, ManagerInviteSent } from '@types';
 import { APP_TIME_ZONE } from '@/utils/date';
 
 export interface InviteTarget {
-	kind: 'TEAM' | 'LEAGUE';
+	kind: InviteKind;
+	/** The team, league or player invited to. */
 	id: string;
+	/** Shown under the title; for a player, their team. */
 	name: string;
 }
+
+/** The i18n key suffix for each kind, e.g. titleTeam / titlePlayer. */
+const KEY_SUFFIX: Record<InviteKind, string> = { TEAM: 'Team', LEAGUE: 'League', PLAYER: 'Player' };
 
 interface InviteManagerSheetProps {
 	target: InviteTarget;
@@ -20,6 +25,8 @@ interface InviteManagerSheetProps {
 	accentInk?: string;
 	/** Who manages it now; inviting someone else hands it over once they accept. */
 	currentManagerName?: string | null;
+	/** Fills the name field, e.g. with the player's name from the roster. */
+	defaultName?: string;
 	/** Opens straight on the "sent" step, e.g. right after a resend. */
 	sent?: ManagerInviteSent | null;
 	/** Offered on the "sent" step so a whole season can be invited in one go. */
@@ -29,15 +36,16 @@ interface InviteManagerSheetProps {
 }
 
 /**
- * Inviting a team or season manager, as a full-screen sheet in two steps: the
- * form, then what was sent with the link to pass on by hand. Nothing changes
- * hands when it is sent — the invitee has to accept.
+ * Inviting a team or season manager, or a player, as a full-screen sheet in two
+ * steps: the form, then what was sent with the link to pass on by hand.
+ * Nothing changes hands when it is sent — the invitee has to accept.
  */
 export default function InviteManagerSheet({
 	target,
 	accent,
 	accentInk = '#ffffff',
 	currentManagerName,
+	defaultName = '',
 	sent: initialSent = null,
 	next = null,
 	onSent,
@@ -45,8 +53,10 @@ export default function InviteManagerSheet({
 }: InviteManagerSheetProps) {
 	const { t, i18n } = useTranslation();
 	const isTeam = target.kind === 'TEAM';
+	const isPlayer = target.kind === 'PLAYER';
+	const suffix = KEY_SUFFIX[target.kind];
 
-	const [name, setName] = useState('');
+	const [name, setName] = useState(defaultName);
 	const [email, setEmail] = useState('');
 	const [locale, setLocale] = useState<'cs' | 'en'>(i18n.language === 'en' ? 'en' : 'cs');
 	const [saving, setSaving] = useState(false);
@@ -59,8 +69,10 @@ export default function InviteManagerSheet({
 		setError('');
 		setSaving(true);
 		try {
-			const api = isTeam ? teamApi : leagueApi;
-			const res = await api.inviteManager(target.id, { name, email, locale });
+			const body = { name, email, locale };
+			const res = isPlayer
+				? await playerApi.invite(target.id, body)
+				: await (isTeam ? teamApi : leagueApi).inviteManager(target.id, body);
 			setSent(res.data);
 			onSent(res.data);
 		} catch (err) {
@@ -72,7 +84,7 @@ export default function InviteManagerSheet({
 	};
 
 	const shareText = sent
-		? t('invites.sent.shareText', { name: sent.invite.name, target: target.name, link: sent.link })
+		? t(isPlayer ? 'invites.sent.shareTextPlayer' : 'invites.sent.shareText', { name: sent.invite.name, target: target.name, link: sent.link })
 		: '';
 	const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
@@ -111,8 +123,8 @@ export default function InviteManagerSheet({
 						{sent
 							? t('invites.sent.title')
 							: currentManagerName
-								? t(isTeam ? 'invites.sheet.changeTitleTeam' : 'invites.sheet.changeTitleLeague')
-								: t(isTeam ? 'invites.sheet.titleTeam' : 'invites.sheet.titleLeague')}
+								? t(`invites.sheet.changeTitle${suffix}`)
+								: t(`invites.sheet.title${suffix}`)}
 					</h1>
 					<p className="truncate text-xs opacity-85">{target.name}</p>
 				</div>
@@ -128,8 +140,8 @@ export default function InviteManagerSheet({
 		});
 		const steps = [
 			t('invites.sent.next1', { name: sent.invite.name }),
-			t(isTeam ? 'invites.sent.next2Team' : 'invites.sent.next2League'),
-			t(isTeam ? 'invites.sent.next3Team' : 'invites.sent.next3League'),
+			t(`invites.sent.next2${suffix}`),
+			t(`invites.sent.next3${suffix}`),
 		];
 		return (
 			<div className="fixed inset-0 z-50 flex flex-col bg-background" role="dialog" aria-modal="true">
@@ -213,9 +225,7 @@ export default function InviteManagerSheet({
 		);
 	}
 
-	const abilities = t(isTeam ? 'invites.sheet.canTeam' : 'invites.sheet.canLeague', {
-		returnObjects: true,
-	}) as string[];
+	const abilities = t(`invites.sheet.can${suffix}`, { returnObjects: true }) as string[];
 
 	return (
 		<form
@@ -279,7 +289,9 @@ export default function InviteManagerSheet({
 				</fieldset>
 
 				<div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5">
-					<span className="text-[13px] font-bold">{t('invites.sheet.canTitle')}</span>
+					<span className="text-[13px] font-bold">
+						{t(isPlayer ? 'invites.sheet.canTitlePlayer' : 'invites.sheet.canTitle')}
+					</span>
 					<ul className="flex list-disc flex-col gap-1 pl-5 text-[13px] leading-snug">
 						{abilities.map((item) => (
 							<li key={item}>{item}</li>

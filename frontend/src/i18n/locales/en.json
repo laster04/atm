@@ -641,12 +641,11 @@
     },
     "account": {
       "title": "Account",
-      "hint": "Link this player to the account they registered with, so they can sign in and see the team.",
-      "emailPlaceholder": "Email address",
-      "link": "Link",
+      "hint": "Invite the player to ATM. Once they accept, they see the team calendar and say whether they're coming.",
       "unlink": "Unlink account",
       "linked": "Linked account",
-      "error": "Failed to change the account link"
+      "error": "Failed to change the account link",
+      "invite": "Invite to ATM"
     },
     "events": {
       "add": "New event",
@@ -2029,7 +2028,13 @@
       "validity": "We email the invitation. The link stays valid for 7 days.",
       "submit": "Send invitation",
       "sending": "Sending…",
-      "error": "The invitation could not be sent."
+      "error": "The invitation could not be sent.",
+      "titlePlayer": "Invite a player",
+      "canTitlePlayer": "What they will see",
+      "canPlayer": [
+        "The team calendar: trainings, games and meetings",
+        "A quick way to say whether they're coming"
+      ]
     },
     "sent": {
       "title": "Invitation sent",
@@ -2048,7 +2053,10 @@
       "next3League": "You see their name next to the league in the Leagues list.",
       "until": "The link works until {{date}}. You can resend it at any time.",
       "inviteNext": "Invite next: {{team}}",
-      "done": "Done"
+      "done": "Done",
+      "shareTextPlayer": "{{name}}, here is your invitation to join {{target}} in ATM: {{link}}",
+      "next2Player": "They land on their home page with the team calendar.",
+      "next3Player": "Their player card shows the account they joined with."
     },
     "status": {
       "invited": "Invited {{when}} · {{email}}",
@@ -2100,7 +2108,9 @@
       "introLeagueAnonymous": "You were invited to run this league. Choose a password and you're in.",
       "name": "Your name",
       "password": "Choose a password",
-      "passwordHint": "At least {{min}} characters. You'll sign in with this email and password."
+      "passwordHint": "At least {{min}} characters. You'll sign in with this email and password.",
+      "introPlayer": "{{name}} invited you to join this team. Choose a password and you're in.",
+      "introPlayerAnonymous": "You were invited to join this team. Choose a password and you're in."
     },
     "existing": {
       "title": "Sign in to accept",
@@ -2121,7 +2131,8 @@
       "how1": "Message {{name}}, who invited you.",
       "how1Anonymous": "Contact the person who invited you.",
       "how2Team": "They tap Resend next to your team, and a fresh link arrives within a minute.",
-      "how2League": "They send the invitation again from the Leagues list, and a fresh link arrives within a minute."
+      "how2League": "They send the invitation again from the Leagues list, and a fresh link arrives within a minute.",
+      "how2Player": "They tap Resend on your player card, and a fresh link arrives within a minute."
     },
     "revoked": {
       "title": "This invitation was cancelled",
@@ -2139,14 +2150,20 @@
     "errors": {
       "weakPassword": "The password needs at least {{min}} characters.",
       "wrongAccount": "This invitation is for a different account.",
-      "generic": "Something went wrong. Please try again."
-    }
+      "generic": "Something went wrong. Please try again.",
+      "playerTaken": "This roster spot is already linked to another account. Ask the person who invited you.",
+      "alreadyOnTeam": "Your account already holds a different spot on this team. Ask the person who invited you."
+    },
+    "rolePlayer": "Player invitation",
+    "submitPlayer": "Accept and join the team"
+  },
+  "setupChecklist": {
+    "nextLabel": "Next step · {{current}} of {{total}}",
+    "progress": "{{done}} of {{total}}",
+    "done": "Done"
   },
   "seasonChecklist": {
     "title": "Get the season live",
-    "progress": "{{done}} of {{total}}",
-    "nextLabel": "Next step · {{current}} of {{total}}",
-    "done": "Done",
     "guide": "Read the season manager guide",
     "steps": {
       "teams": {
@@ -2190,33 +2207,41 @@
   },
   "teamChecklist": {
     "title": "Get your team ready",
-    "progress": "{{done}} of {{total}} done",
-    "hide": "Hide",
-    "done": "Done",
-    "guide": "Stuck? Read the team manager guide",
+    "guide": "Read the team manager guide",
     "steps": {
-      "account": {
-        "title": "Your account is ready",
-        "hint": "Signed in as {{email}}"
-      },
       "look": {
-        "title": "Check name, colours and logo",
-        "hint": "They show in the schedule, the table and the public profile"
+        "title": "Set your team colours",
+        "set": "Colours set",
+        "default": "Default colours",
+        "body": "Your colour runs through this screen, the schedule and your public team page. Add a logo too if you have one.",
+        "action": "Choose colours",
+        "skip": "Keep the default colours"
       },
       "roster": {
         "title": "Add your players",
-        "hint": "No players yet",
-        "count_one": "{{count}} player",
-        "count_other": "{{count}} players"
+        "status_one": "{{count}} player",
+        "status_other": "{{count}} players",
+        "none": "No players yet",
+        "body": "A name is enough to start; number and position can come later. You pick the line-up for each game from this list.",
+        "action": "Add a player"
       },
-      "schedule": {
-        "title": "Look at your schedule",
-        "hint": "No dated games yet",
-        "next": "Next: {{date}} vs {{opponent}}"
+      "accounts": {
+        "title": "Invite your players",
+        "status": "{{joined}} joined · {{invited}} invited · {{missing}} to go",
+        "body": "Players who join see the team calendar on their home page and say whether they're coming. Each gets an email with a link you can also send in WhatsApp.",
+        "action": "Invite {{name}}",
+        "actionAny": "Add a player",
+        "skip": "My players won't sign in",
+        "skipRest": "That's everyone who uses ATM"
       },
       "training": {
         "title": "Plan a training",
-        "hint": "Optional. Players answer whether they're coming"
+        "status_one": "{{count}} event in the calendar",
+        "status_other": "{{count}} events in the calendar",
+        "none": "Nothing planned yet",
+        "body": "Put your next training in the calendar. Players with an account answer whether they're coming, so you know who to expect.",
+        "action": "Plan a training",
+        "skip": "We don't train together"
       }
     }
   }
