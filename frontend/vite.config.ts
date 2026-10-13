@@ -2,10 +2,12 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { sitemap } from './sitemap'
 
 export default defineConfig({
   plugins: [
     react(),
+    sitemap(),
     // Installable app: manifest plus a service worker that caches only the app
     // shell. API calls always go to the network - a cached score or table would
     // be worse than none.
@@ -33,7 +35,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
+        // The sitemaps and robots.txt are for crawlers; a browser opening one
+        // should get the file, not the app shell.
+        navigateFallbackDenylist: [/^\/api\//, /^\/sitemap[\w-]*\.xml$/, /^\/robots\.txt$/],
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
@@ -62,6 +66,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true
+      },
+      // server.mjs does the same in production.
+      '/sitemap-data.xml': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: () => '/api/sitemap.xml'
       }
     }
   }
