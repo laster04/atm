@@ -1679,6 +1679,8 @@
     "fetchError": "Nepodařilo se načíst data zápasu",
     "saveSuccess": "Statistiky byly úspěšně uloženy",
     "saveError": "Nepodařilo se uložit statistiky",
+    "saveAndConfirm": "Uložit a potvrdit",
+    "confirmedNote": "Zápas je potvrzený a nelze ho měnit. Nejdřív otevřete zápis o utkání a odemkněte ho.",
     "allSaved": "Vše uloženo",
     "unsavedChanges_one": "{{count}} neuložená změna",
     "unsavedChanges_few": "{{count}} neuložené změny",

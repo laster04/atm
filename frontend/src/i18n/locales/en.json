@@ -1667,6 +1667,8 @@
     "fetchError": "Failed to fetch game data",
     "saveSuccess": "Statistics saved successfully",
     "saveError": "Failed to save statistics",
+    "saveAndConfirm": "Save and confirm",
+    "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first.",
     "allSaved": "All changes saved",
     "unsavedChanges_one": "{{count}} unsaved change",
     "unsavedChanges_other": "{{count}} unsaved changes"
