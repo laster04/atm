@@ -194,9 +194,8 @@ export default function Detail() {
 							{user && user.id === team.managerId && (
 								<TeamChecklist
 									team={team}
-									playerCount={players.length}
-									color={localColor || '#003E7E'}
-									email={user.email}
+									players={players}
+									color={localColor}
 									onTabChange={setActiveTab}
 								/>
 							)}

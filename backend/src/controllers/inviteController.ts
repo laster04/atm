@@ -1,12 +1,13 @@
 import { Response } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
-import { canAdministerTeam, isAdmin } from '../services/access.js';
+import { canAdministerTeam, canManagePlayer, isAdmin } from '../services/access.js';
 import {
   acceptInvite,
   createInvite,
   findByToken,
   getInviteTarget,
+  InviteConflictError,
   inviteStatus,
   InviteUnavailableError,
   openInvitesWhere,
@@ -65,6 +66,40 @@ export const inviteLeagueManager = async (req: AuthRequest, res: Response): Prom
   }
 };
 
+/**
+ * POST /players/:id/invite — guarded by requirePlayerAccess, so the team's own
+ * manager may send it. The name defaults to the one on the roster.
+ */
+export const invitePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email, name, locale } = req.body as Partial<InviteManagerRequest>;
+    if (!email?.trim()) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+    const player = await prisma.player.findUnique({ where: { id: req.params.id }, select: { id: true, name: true, userId: true } });
+    if (!player) {
+      res.status(404).json({ error: 'Player not found' });
+      return;
+    }
+    if (player.userId) {
+      res.status(409).json({ error: 'Player is already linked to an account', code: 'PLAYER_LINKED' });
+      return;
+    }
+    const result = await createInvite({
+      target: { playerId: player.id },
+      email,
+      name: name?.trim() || player.name,
+      locale,
+      invitedById: req.user!.id,
+    });
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Invite player error:', error);
+    res.status(500).json({ error: 'Failed to invite player' });
+  }
+};
+
 /** Open invites (pending or expired) for every team in a season. */
 export const getSeasonInvites = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -93,6 +128,34 @@ export const getTeamInvite = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+/** Open invites for the players of one team, for its roster and checklist. */
+export const getTeamPlayerInvites = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const invites = await prisma.managerInvite.findMany({
+      where: { ...openInvitesWhere, player: { teamId: req.params.id } },
+      orderBy: { sentAt: 'desc' },
+    });
+    res.json(invites.map(toInviteSummary));
+  } catch (error) {
+    console.error('Get player invites error:', error);
+    res.status(500).json({ error: 'Failed to fetch invitations' });
+  }
+};
+
+/** The open invite for one player, if any. */
+export const getPlayerInvite = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const invite = await prisma.managerInvite.findFirst({
+      where: { ...openInvitesWhere, playerId: req.params.id },
+      orderBy: { sentAt: 'desc' },
+    });
+    res.json(invite ? toInviteSummary(invite) : null);
+  } catch (error) {
+    console.error('Get player invite error:', error);
+    res.status(500).json({ error: 'Failed to fetch invitation' });
+  }
+};
+
 /** Open season-manager invites across every league; administrators only. */
 export const getLeagueInvites = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -109,10 +172,14 @@ export const getLeagueInvites = async (_req: AuthRequest, res: Response): Promis
 
 /**
  * Whoever may send an invite may also resend or cancel it: the season side for
- * a team, an administrator for a league.
+ * a team, the team's own side for a player, an administrator for a league.
  */
-const canHandleInvite = async (user: AuthUser, invite: { teamId: string | null; leagueId: string | null }) => {
+const canHandleInvite = async (
+  user: AuthUser,
+  invite: { teamId: string | null; leagueId: string | null; playerId: string | null },
+) => {
   if (invite.teamId) return canAdministerTeam(user, invite.teamId);
+  if (invite.playerId) return canManagePlayer(user, invite.playerId);
   return isAdmin(user);
 };
 
@@ -190,7 +257,13 @@ export const accept = async (req: AuthRequest, res: Response): Promise<void> => 
       return;
     }
 
-    const target = { kind: invite.teamId ? 'TEAM' : 'LEAGUE', teamId: invite.teamId, leagueId: invite.leagueId };
+    const target = {
+      kind: invite.playerId ? 'PLAYER' : invite.teamId ? 'TEAM' : 'LEAGUE',
+      // For a player, the team they join, so the app can open it.
+      teamId: invite.teamId ?? invite.player?.team.id ?? null,
+      leagueId: invite.leagueId,
+      playerId: invite.playerId,
+    };
     const existing = await prisma.user.findUnique({ where: { email: invite.email }, select: { id: true, active: true } });
 
     if (existing) {
@@ -231,6 +304,10 @@ export const accept = async (req: AuthRequest, res: Response): Promise<void> => 
   } catch (error) {
     if (error instanceof InviteUnavailableError) {
       res.status(410).json({ error: error.message, code: 'UNAVAILABLE' });
+      return;
+    }
+    if (error instanceof InviteConflictError) {
+      res.status(409).json({ error: error.message, code: error.code });
       return;
     }
     console.error('Accept invite error:', error);

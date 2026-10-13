@@ -272,7 +272,8 @@ class EmailService {
   async sendManagerInvitationEmail(params: {
     to: string;
     inviteeName: string;
-    kind: 'TEAM' | 'LEAGUE';
+    /** PLAYER: joining a roster, with the team as the target. */
+    kind: 'TEAM' | 'LEAGUE' | 'PLAYER';
     targetName: string;
     /** "League · Season" the team plays in, when there is one. */
     contextName: string | null;
@@ -286,6 +287,7 @@ class EmailService {
     const accent = '#0F172A';
     const isCs = params.locale !== 'en';
     const isTeam = params.kind === 'TEAM';
+    const isPlayer = params.kind === 'PLAYER';
     const name = escapeHtml(params.inviteeName);
     const target = escapeHtml(params.targetName);
     const context = params.contextName ? escapeHtml(params.contextName) : null;
@@ -299,48 +301,76 @@ class EmailService {
 
     const t = isCs
       ? {
-          subject: inviter
-            ? `${params.inviterName} vás zve ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`
-            : `Pozvánka ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`,
-          header: isTeam ? 'Pozvánka pro manažera týmu' : 'Pozvánka pro manažera sezóny',
+          subject: isPlayer
+            ? inviter
+              ? `${params.inviterName} vás zve do týmu ${params.targetName}`
+              : `Pozvánka do týmu ${params.targetName}`
+            : inviter
+              ? `${params.inviterName} vás zve ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`
+              : `Pozvánka ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`,
+          header: isPlayer ? 'Pozvánka pro hráče' : isTeam ? 'Pozvánka pro manažera týmu' : 'Pozvánka pro manažera sezóny',
           greeting: `Dobrý den, <strong>${name}</strong>,`,
-          invited: `${inviter ? `<strong>${inviter}</strong> vás zve` : 'Jste zváni'} ke správě ${isTeam ? 'týmu' : 'ligy'} <strong>${target}</strong>${context ? ` (${context})` : ''} v ATM.`,
+          invited: isPlayer
+            ? `${inviter ? `<strong>${inviter}</strong> vás zve` : 'Jste zváni'} do týmu <strong>${target}</strong>${context ? ` (${context})` : ''} v ATM.`
+            : `${inviter ? `<strong>${inviter}</strong> vás zve` : 'Jste zváni'} ke správě ${isTeam ? 'týmu' : 'ligy'} <strong>${target}</strong>${context ? ` (${context})` : ''} v ATM.`,
           next: params.hasAccount
             ? 'Účet v ATM už máte. Otevřete pozvánku, přihlaste se svým heslem a pozvánku přijměte.'
-            : 'Otevřete pozvánku, zvolte si heslo a rovnou se dostanete do své správy.',
+            : isPlayer
+              ? 'Otevřete pozvánku, zvolte si heslo a jste v týmu.'
+              : 'Otevřete pozvánku, zvolte si heslo a rovnou se dostanete do své správy.',
           button: 'Přijmout pozvánku',
           expiry: `Odkaz platí do <strong>${until}</strong>.`,
-          canTitle: 'Co budete moci dělat',
-          can: isTeam
-            ? ['spravovat soupisku a hráče', 'nastavit barvy a logo týmu', 'plánovat tréninky a sledovat docházku', 'doplnit statistiky svých hráčů po zápase']
-            : ['zakládat sezóny a přidávat do nich týmy', 'zvát manažery týmů', 'generovat rozpis a zapisovat výsledky', 'zveřejnit sezónu a rozesílat výsledky'],
+          canTitle: isPlayer ? 'Co v ATM uvidíte' : 'Co budete moci dělat',
+          can: isPlayer
+            ? ['kalendář týmu – tréninky, zápasy a srazy', 'u každé akce odpovíte, zda přijdete']
+            : isTeam
+              ? ['spravovat soupisku a hráče', 'nastavit barvy a logo týmu', 'plánovat tréninky a sledovat docházku', 'doplnit statistiky svých hráčů po zápase']
+              : ['zakládat sezóny a přidávat do nich týmy', 'zvát manažery týmů', 'generovat rozpis a zapisovat výsledky', 'zveřejnit sezónu a rozesílat výsledky'],
           keepTitle: inviter ? `${inviter} se dál stará o` : 'Manažer sezóny se dál stará o',
           keep: ['rozpis a termíny zápasů', 'skóre a tabulku', 'potvrzování zápisů o utkání'],
           copyLink: 'Tlačítko nefunguje? Vložte do prohlížeče tento odkaz:',
           ignore: 'Pozvánku nečekáte? Ignorujte tento e-mail – dokud ji nepřijmete, nic se nezmění.',
-          reply: params.inviterEmail ? 'Na otázky k soutěži vám odpoví ten, kdo vás pozval – stačí odpovědět na tento e-mail.' : '',
+          reply: params.inviterEmail
+            ? isPlayer
+              ? 'Na otázky k týmu vám odpoví ten, kdo vás pozval – stačí odpovědět na tento e-mail.'
+              : 'Na otázky k soutěži vám odpoví ten, kdo vás pozval – stačí odpovědět na tento e-mail.'
+            : '',
         }
       : {
-          subject: inviter
-            ? `${params.inviterName} invited you to manage ${params.targetName}`
-            : `You're invited to manage ${params.targetName}`,
-          header: isTeam ? 'Team manager invitation' : 'Season manager invitation',
+          subject: isPlayer
+            ? inviter
+              ? `${params.inviterName} invited you to join ${params.targetName}`
+              : `You're invited to join ${params.targetName}`
+            : inviter
+              ? `${params.inviterName} invited you to manage ${params.targetName}`
+              : `You're invited to manage ${params.targetName}`,
+          header: isPlayer ? 'Player invitation' : isTeam ? 'Team manager invitation' : 'Season manager invitation',
           greeting: `Hello <strong>${name}</strong>,`,
-          invited: `${inviter ? `<strong>${inviter}</strong> has invited you` : 'You have been invited'} to manage <strong>${target}</strong>${context ? ` (${context})` : ''} in ATM.`,
+          invited: isPlayer
+            ? `${inviter ? `<strong>${inviter}</strong> has invited you` : 'You have been invited'} to join <strong>${target}</strong>${context ? ` (${context})` : ''} in ATM.`
+            : `${inviter ? `<strong>${inviter}</strong> has invited you` : 'You have been invited'} to manage <strong>${target}</strong>${context ? ` (${context})` : ''} in ATM.`,
           next: params.hasAccount
             ? 'You already have an ATM account. Open the invitation, sign in with your usual password and accept it.'
-            : `Open the invitation, choose a password and you go straight to your ${isTeam ? 'team' : 'league'}.`,
+            : isPlayer
+              ? "Open the invitation, choose a password and you're on the team."
+              : `Open the invitation, choose a password and you go straight to your ${isTeam ? 'team' : 'league'}.`,
           button: 'Accept invitation',
           expiry: `The link works until <strong>${until}</strong>.`,
-          canTitle: "You'll be able to",
-          can: isTeam
-            ? ['keep the roster up to date', 'set the team colours and logo', 'plan training and see who is coming', "add your players' stats after a game"]
-            : ['create seasons and add teams to them', 'invite team managers', 'generate the schedule and record results', 'publish the season and email the results'],
+          canTitle: isPlayer ? "In ATM you'll" : "You'll be able to",
+          can: isPlayer
+            ? ['see the team calendar: trainings, games and meetings', "say for each one whether you're coming"]
+            : isTeam
+              ? ['keep the roster up to date', 'set the team colours and logo', 'plan training and see who is coming', "add your players' stats after a game"]
+              : ['create seasons and add teams to them', 'invite team managers', 'generate the schedule and record results', 'publish the season and email the results'],
           keepTitle: inviter ? `${inviter} takes care of` : 'The season manager takes care of',
           keep: ['the schedule and game dates', 'scores and the table', 'confirming match reports'],
           copyLink: 'Button not working? Paste this link into your browser:',
           ignore: 'Not expecting this? Ignore this email. Nothing changes until you accept.',
-          reply: params.inviterEmail ? 'Questions about the competition? Reply to this email to reach the person who invited you.' : '',
+          reply: params.inviterEmail
+            ? isPlayer
+              ? 'Questions about the team? Reply to this email to reach the person who invited you.'
+              : 'Questions about the competition? Reply to this email to reach the person who invited you.'
+            : '',
         };
 
     const list = (title: string, items: string[]) => `
@@ -357,7 +387,8 @@ class EmailService {
       this.p(t.expiry, { mb: 24, size: 13, color: COLORS.muted }),
       list(t.canTitle, t.can),
       // A season manager answers to an administrator, not to another season
-      // manager, so the "who keeps what" split only makes sense for a team.
+      // manager, and a player keeps nothing, so the "who keeps what" split only
+      // makes sense for a team manager.
       isTeam ? list(t.keepTitle, t.keep) : '',
       this.linkChip(t.copyLink, params.link, accent),
       `<div style="height:20px"></div>`,
@@ -368,7 +399,7 @@ class EmailService {
     return this.sendEmail({
       to: params.to,
       subject: t.subject,
-      html: this.buildEmailHtml(accent, isTeam ? 'user-plus' : 'trophy', t.header, body),
+      html: this.buildEmailHtml(accent, isTeam || isPlayer ? 'user-plus' : 'trophy', t.header, body),
       replyTo: params.inviterEmail ?? undefined,
     });
   }

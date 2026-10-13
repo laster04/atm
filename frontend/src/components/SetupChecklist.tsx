@@ -1,9 +1,9 @@
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
-import { SEASON_ACCENT } from './util';
 
-export interface SeasonStep {
+export interface SetupStep {
 	id: string;
 	title: string;
 	/** Where the step stands, e.g. "6 teams" or "0 of 30 dated". */
@@ -18,12 +18,23 @@ export interface SeasonStep {
 	busy?: boolean;
 }
 
+interface SetupChecklistProps {
+	steps: SetupStep[];
+	title: string;
+	/** The shell's colour: season navy, or the team's own. */
+	accent: string;
+	guide: { to: string; label: string };
+}
+
 /**
- * Setting a season up, in the order it is actually built: the first open step
+ * Setting something up, in the order it is actually built: the first open step
  * is pulled out as the one thing to do next, the rest stay listed beneath it.
+ * Shared by the season and team manager screens.
  */
-export default function SeasonChecklist({ steps }: { steps: SeasonStep[] }) {
+export default function SetupChecklist({ steps, title, accent, guide }: SetupChecklistProps) {
 	const { t } = useTranslation();
+	const headingId = useId();
+	const listId = useId();
 	const nextIndex = steps.findIndex((step) => !step.done);
 	const next = steps[nextIndex];
 	const doneCount = steps.filter((step) => step.done).length;
@@ -32,14 +43,14 @@ export default function SeasonChecklist({ steps }: { steps: SeasonStep[] }) {
 	return (
 		<div className="flex flex-col gap-3">
 			<section
-				aria-labelledby="season-next-step"
+				aria-labelledby={headingId}
 				className="flex flex-col gap-2.5 rounded-xl border-2 bg-card p-4 shadow-sm"
-				style={{ borderColor: SEASON_ACCENT }}
+				style={{ borderColor: accent }}
 			>
 				<span className="tm-section-label">
-					{t('seasonChecklist.nextLabel', { current: nextIndex + 1, total: steps.length })}
+					{t('setupChecklist.nextLabel', { current: nextIndex + 1, total: steps.length })}
 				</span>
-				<h2 id="season-next-step" className="text-[17px] font-bold leading-snug">
+				<h2 id={headingId} className="text-[17px] font-bold leading-snug">
 					{next.title}
 				</h2>
 				<p className="text-[13.5px] leading-snug text-muted-foreground">{next.body}</p>
@@ -48,7 +59,7 @@ export default function SeasonChecklist({ steps }: { steps: SeasonStep[] }) {
 					onClick={next.run}
 					disabled={next.busy}
 					className="flex h-11 items-center justify-center rounded-[10px] text-[14.5px] font-semibold text-white disabled:opacity-60"
-					style={{ backgroundColor: SEASON_ACCENT }}
+					style={{ backgroundColor: accent }}
 				>
 					{next.action}
 				</button>
@@ -63,13 +74,13 @@ export default function SeasonChecklist({ steps }: { steps: SeasonStep[] }) {
 				)}
 			</section>
 
-			<section aria-labelledby="season-checklist" className="flex flex-col rounded-xl border border-border bg-card px-3.5 pt-3 shadow-sm">
+			<section aria-labelledby={listId} className="flex flex-col rounded-xl border border-border bg-card px-3.5 pt-3 shadow-sm">
 				<div className="flex items-baseline justify-between pb-2">
-					<h2 id="season-checklist" className="text-[15px] font-bold">
-						{t('seasonChecklist.title')}
+					<h2 id={listId} className="text-[15px] font-bold">
+						{title}
 					</h2>
 					<span className="text-[13px] text-muted-foreground">
-						{t('seasonChecklist.progress', { done: doneCount, total: steps.length })}
+						{t('setupChecklist.progress', { done: doneCount, total: steps.length })}
 					</span>
 				</div>
 				<ol className="flex flex-col">
@@ -78,14 +89,14 @@ export default function SeasonChecklist({ steps }: { steps: SeasonStep[] }) {
 							{step.done ? (
 								<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white">
 									<Check className="size-3.5" aria-hidden />
-									<span className="sr-only">{t('seasonChecklist.done')}</span>
+									<span className="sr-only">{t('setupChecklist.done')}</span>
 								</span>
 							) : (
 								<span
 									className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
 										index === nextIndex ? 'text-white' : 'border-2 border-border text-muted-foreground'
 									}`}
-									style={index === nextIndex ? { backgroundColor: SEASON_ACCENT } : undefined}
+									style={index === nextIndex ? { backgroundColor: accent } : undefined}
 								>
 									{index + 1}
 								</span>
@@ -100,10 +111,10 @@ export default function SeasonChecklist({ steps }: { steps: SeasonStep[] }) {
 					))}
 				</ol>
 				<Link
-					to="/docs/zacinate-jako-manazer-sezony"
+					to={guide.to}
 					className="border-t border-border-subtle py-3 text-center text-[13px] font-medium text-primary"
 				>
-					{t('seasonChecklist.guide')}
+					{guide.label}
 				</Link>
 			</section>
 		</div>

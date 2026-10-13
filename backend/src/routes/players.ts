@@ -11,6 +11,7 @@ import {
   getMyPlayerProfiles,
   getPublicPlayers
 } from '../controllers/playerController.js';
+import { invitePlayer } from '../controllers/inviteController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requirePlayerAccess, requireTeamAccess } from '../middleware/access.js';
 
@@ -36,5 +37,7 @@ router.patch('/:id/move', authenticate, requirePlayerAccess(), movePlayer);
 // Linking a roster row to an account is team administration, not self-service.
 router.patch('/:id/link', authenticate, requirePlayerAccess(), linkPlayerToUser);
 router.delete('/:id/link', authenticate, requirePlayerAccess(), unlinkPlayerFromUser);
+// The usual way: the player accepts an emailed link, and the link is made then.
+router.post('/:id/invite', authenticate, requirePlayerAccess(), invitePlayer);
 
 export default router;

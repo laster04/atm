@@ -646,12 +646,11 @@
     },
     "account": {
       "title": "Účet",
-      "hint": "Propojte hráče s účtem, se kterým se zaregistroval, aby se mohl přihlásit a vidět svůj tým.",
-      "emailPlaceholder": "E-mailová adresa",
-      "link": "Propojit",
+      "hint": "Pozvěte hráče do ATM. Jakmile pozvánku přijme, uvidí kalendář týmu a bude odpovídat, zda přijde.",
       "unlink": "Zrušit propojení",
       "linked": "Propojený účet",
-      "error": "Propojení účtu se nepodařilo změnit"
+      "error": "Propojení účtu se nepodařilo změnit",
+      "invite": "Pozvat do ATM"
     },
     "events": {
       "add": "Nová akce",
@@ -2056,7 +2055,13 @@
       "validity": "Pozvánku pošleme e-mailem. Odkaz platí 7 dní.",
       "submit": "Odeslat pozvánku",
       "sending": "Odesílám…",
-      "error": "Pozvánku se nepodařilo odeslat."
+      "error": "Pozvánku se nepodařilo odeslat.",
+      "titlePlayer": "Pozvat hráče",
+      "canTitlePlayer": "Co uvidí",
+      "canPlayer": [
+        "Kalendář týmu: tréninky, zápasy a srazy",
+        "U každé akce rychle odpoví, zda přijde"
+      ]
     },
     "sent": {
       "title": "Pozvánka odeslána",
@@ -2075,7 +2080,10 @@
       "next3League": "V seznamu lig uvidíte u ligy jeho jméno.",
       "until": "Odkaz platí do {{date}}. Kdykoli ho můžete poslat znovu.",
       "inviteNext": "Pozvat další: {{team}}",
-      "done": "Hotovo"
+      "done": "Hotovo",
+      "shareTextPlayer": "{{name}}, tady je pozvánka do týmu {{target}} v ATM: {{link}}",
+      "next2Player": "Dostane se na svou úvodní stránku s kalendářem týmu.",
+      "next3Player": "Na kartě hráče uvidíte účet, se kterým se připojil(a)."
     },
     "status": {
       "invited": "Pozván(a) {{when}} · {{email}}",
@@ -2127,7 +2135,9 @@
       "introLeagueAnonymous": "Byli jste pozváni ke správě této ligy. Zvolte si heslo a můžete začít.",
       "name": "Vaše jméno",
       "password": "Zvolte heslo",
-      "passwordHint": "Alespoň {{min}} znaků. Budete se přihlašovat tímto e-mailem a heslem."
+      "passwordHint": "Alespoň {{min}} znaků. Budete se přihlašovat tímto e-mailem a heslem.",
+      "introPlayer": "{{name}} vás zve do tohoto týmu. Zvolte si heslo a můžete začít.",
+      "introPlayerAnonymous": "Byli jste pozváni do tohoto týmu. Zvolte si heslo a můžete začít."
     },
     "existing": {
       "title": "Přihlaste se a přijměte",
@@ -2148,7 +2158,8 @@
       "how1": "Napište osobě, která vás pozvala: {{name}}.",
       "how1Anonymous": "Obraťte se na toho, kdo vás pozval.",
       "how2Team": "U vašeho týmu klepne na Poslat znovu a nový odkaz dorazí do minuty.",
-      "how2League": "Pošle pozvánku znovu ze seznamu lig a nový odkaz dorazí do minuty."
+      "how2League": "Pošle pozvánku znovu ze seznamu lig a nový odkaz dorazí do minuty.",
+      "how2Player": "Na vaší kartě hráče klepne na Poslat znovu a nový odkaz dorazí do minuty."
     },
     "revoked": {
       "title": "Pozvánka byla zrušena",
@@ -2166,14 +2177,20 @@
     "errors": {
       "weakPassword": "Heslo musí mít alespoň {{min}} znaků.",
       "wrongAccount": "Pozvánka je pro jiný účet.",
-      "generic": "Něco se pokazilo. Zkuste to prosím znovu."
-    }
+      "generic": "Něco se pokazilo. Zkuste to prosím znovu.",
+      "playerTaken": "Toto místo v soupisce už je propojené s jiným účtem. Obraťte se na toho, kdo vás pozval.",
+      "alreadyOnTeam": "Váš účet už má v tomto týmu jiné místo v soupisce. Obraťte se na toho, kdo vás pozval."
+    },
+    "rolePlayer": "Pozvánka pro hráče",
+    "submitPlayer": "Přijmout a připojit se k týmu"
+  },
+  "setupChecklist": {
+    "nextLabel": "Další krok · {{current}} z {{total}}",
+    "progress": "{{done}} z {{total}}",
+    "done": "Hotovo"
   },
   "seasonChecklist": {
     "title": "Spuštění sezóny",
-    "progress": "{{done}} z {{total}}",
-    "nextLabel": "Další krok · {{current}} z {{total}}",
-    "done": "Hotovo",
     "guide": "Přečtěte si průvodce pro manažera sezóny",
     "steps": {
       "teams": {
@@ -2220,34 +2237,43 @@
   },
   "teamChecklist": {
     "title": "Připravte svůj tým",
-    "progress": "Hotovo {{done}} z {{total}}",
-    "hide": "Skrýt",
-    "done": "Hotovo",
-    "guide": "Nevíte si rady? Přečtěte si průvodce pro manažera týmu",
+    "guide": "Přečtěte si průvodce pro manažera týmu",
     "steps": {
-      "account": {
-        "title": "Účet je připraven",
-        "hint": "Přihlášeni jako {{email}}"
-      },
       "look": {
-        "title": "Zkontrolujte název, barvy a logo",
-        "hint": "Zobrazují se v rozpisu, tabulce i veřejném profilu"
+        "title": "Nastavte barvy týmu",
+        "set": "Barvy nastaveny",
+        "default": "Výchozí barvy",
+        "body": "Vaše barva se propíše do této obrazovky, rozpisu i veřejného profilu týmu. Pokud máte logo, přidejte ho také.",
+        "action": "Vybrat barvy",
+        "skip": "Ponechat výchozí barvy"
       },
       "roster": {
         "title": "Přidejte hráče",
-        "hint": "Zatím žádní hráči",
-        "count_one": "{{count}} hráč",
-        "count_few": "{{count}} hráči",
-        "count_other": "{{count}} hráčů"
+        "status_one": "{{count}} hráč",
+        "status_few": "{{count}} hráči",
+        "status_other": "{{count}} hráčů",
+        "none": "Zatím žádní hráči",
+        "body": "Na začátek stačí jméno, číslo a post doplníte později. Z tohoto seznamu pak vybíráte sestavu na každý zápas.",
+        "action": "Přidat hráče"
       },
-      "schedule": {
-        "title": "Podívejte se na rozpis",
-        "hint": "Zatím žádné zápasy s termínem",
-        "next": "Další: {{date}} proti {{opponent}}"
+      "accounts": {
+        "title": "Pozvěte hráče",
+        "status": "{{joined}} připojeno · {{invited}} pozváno · {{missing}} zbývá",
+        "body": "Hráči, kteří se připojí, vidí kalendář týmu na své úvodní stránce a odpovídají, zda přijdou. Každý dostane e-mail s odkazem, který můžete poslat i přes WhatsApp.",
+        "action": "Pozvat: {{name}}",
+        "actionAny": "Přidat hráče",
+        "skip": "Moji hráči se přihlašovat nebudou",
+        "skipRest": "Víc hráčů ATM nepoužívá"
       },
       "training": {
         "title": "Naplánujte trénink",
-        "hint": "Nepovinné. Hráči odpoví, zda přijdou"
+        "status_one": "{{count}} událost v kalendáři",
+        "status_few": "{{count}} události v kalendáři",
+        "status_other": "{{count}} událostí v kalendáři",
+        "none": "Zatím nic naplánováno",
+        "body": "Zapište příští trénink do kalendáře. Hráči s účtem odpoví, zda přijdou, a vy víte, s kým počítat.",
+        "action": "Naplánovat trénink",
+        "skip": "Společně netrénujeme"
       }
     }
   }

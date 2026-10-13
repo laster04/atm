@@ -1,11 +1,12 @@
 import type { ManagerInvite } from '@types';
 
-/** Where a team or league stands on having a manager. */
+/** Where a team or league stands on having a manager, or a player on joining. */
 export type ManagerState = 'ACTIVE' | 'INVITED' | 'EXPIRED' | 'NONE';
 
 /**
  * A manager in place wins over any invite: an open invite to replace them is
- * shown next to it, but the team is still being run.
+ * shown next to it, but the team is still being run. For a player, pass the
+ * linked account's id: once they have joined, the invite no longer matters.
  */
 export function managerState(managerId: string | null | undefined, invite: ManagerInvite | undefined): ManagerState {
 	if (managerId) return 'ACTIVE';
@@ -14,8 +15,8 @@ export function managerState(managerId: string | null | undefined, invite: Manag
 	return 'NONE';
 }
 
-/** The newest open invite per team (or league), keyed by its id. */
-export function invitesByTarget(invites: ManagerInvite[], key: 'teamId' | 'leagueId'): Map<string, ManagerInvite> {
+/** The newest open invite per team, league or player, keyed by its id. */
+export function invitesByTarget(invites: ManagerInvite[], key: 'teamId' | 'leagueId' | 'playerId'): Map<string, ManagerInvite> {
 	const map = new Map<string, ManagerInvite>();
 	[...invites]
 		.sort((a, b) => b.sentAt.localeCompare(a.sentAt))

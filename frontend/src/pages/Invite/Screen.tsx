@@ -7,11 +7,21 @@ import { useAuth } from '@/context/AuthContext';
 import { inviteApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { initials } from '@/pages/SeasonManager/components/util';
-import type { AcceptedManagerInvite, PublicManagerInvite } from '@types';
+import type { AcceptedManagerInvite, InviteKind, PublicManagerInvite } from '@types';
 import { APP_TIME_ZONE } from '@/utils/date';
 
 const NAVY = '#0F172A';
 const MIN_PASSWORD = 6;
+
+/** The i18n key suffix for each kind, e.g. roleTeam / rolePlayer. */
+const KEY_SUFFIX: Record<InviteKind, string> = { TEAM: 'Team', LEAGUE: 'League', PLAYER: 'Player' };
+
+/** Where each kind of invitee lands: their team, their seasons, or home with the team calendar. */
+const landing = (result: AcceptedManagerInvite): string => {
+	if (result.kind === 'PLAYER') return '/';
+	if (result.kind === 'TEAM' && result.teamId) return `/team-management/${result.teamId}`;
+	return '/season-management';
+};
 
 /**
  * Where an invitation link lands. Someone new picks a password here and is
@@ -46,9 +56,7 @@ export default function InviteScreen() {
 	const finish = async (result: AcceptedManagerInvite) => {
 		if (result.session) startSession(result.session);
 		else await refreshUser();
-		navigate(result.kind === 'TEAM' && result.teamId ? `/team-management/${result.teamId}` : '/season-management', {
-			replace: true,
-		});
+		navigate(landing(result), { replace: true });
 	};
 
 	const failWith = (err: unknown) => {
@@ -56,6 +64,8 @@ export default function InviteScreen() {
 		const code = axiosError.response?.data?.code;
 		if (code === 'WEAK_PASSWORD') setError(t('invitePage.errors.weakPassword', { min: MIN_PASSWORD }));
 		else if (code === 'WRONG_ACCOUNT') setError(t('invitePage.errors.wrongAccount'));
+		else if (code === 'PLAYER_TAKEN') setError(t('invitePage.errors.playerTaken'));
+		else if (code === 'ALREADY_ON_TEAM') setError(t('invitePage.errors.alreadyOnTeam'));
 		else if (code && ['EXPIRED', 'REVOKED', 'ACCEPTED', 'UNAVAILABLE'].includes(code)) {
 			// Changed while the page was open; show the matching dead end.
 			void inviteApi.getByToken(token).then((res) => setInvite(res.data)).catch(() => setMissing(true));
@@ -110,7 +120,7 @@ export default function InviteScreen() {
 		return <div className="flex min-h-[60vh] items-center justify-center text-muted-foreground">{t('common.loading')}</div>;
 	}
 
-	const isTeam = invite.kind === 'TEAM';
+	const suffix = KEY_SUFFIX[invite.kind];
 	const targetName = invite.team?.name ?? invite.league?.name ?? '';
 	const inviter = invite.invitedByName;
 
@@ -127,7 +137,7 @@ export default function InviteScreen() {
 					<h2 className="text-[15px] font-bold text-foreground">{t('invitePage.expired.howTitle')}</h2>
 					<ol className="flex list-decimal flex-col gap-1.5 pl-5 text-sm">
 						<li>{inviter ? t('invitePage.expired.how1', { name: inviter }) : t('invitePage.expired.how1Anonymous')}</li>
-						<li>{t(isTeam ? 'invitePage.expired.how2Team' : 'invitePage.expired.how2League')}</li>
+						<li>{t(`invitePage.expired.how2${suffix}`)}</li>
 					</ol>
 				</div>
 			</DeadEnd>
@@ -159,8 +169,8 @@ export default function InviteScreen() {
 	const intro = invite.hasAccount
 		? t('invitePage.existing.intro', { target: targetName })
 		: inviter
-			? t(isTeam ? 'invitePage.new.introTeam' : 'invitePage.new.introLeague', { name: inviter })
-			: t(isTeam ? 'invitePage.new.introTeamAnonymous' : 'invitePage.new.introLeagueAnonymous');
+			? t(`invitePage.new.intro${suffix}`, { name: inviter })
+			: t(`invitePage.new.intro${suffix}Anonymous`);
 
 	const passwordField = (id: string, label: string, hint?: string, autoComplete = 'current-password') => (
 		<div className="flex flex-col gap-1.5">
@@ -208,7 +218,7 @@ export default function InviteScreen() {
 		</div>
 	);
 
-	const submitLabel = t(isTeam ? 'invitePage.submitTeam' : 'invitePage.submitLeague');
+	const submitLabel = t(`invitePage.submit${suffix}`);
 
 	let form: ReactNode;
 	if (!invite.hasAccount) {
@@ -269,7 +279,7 @@ export default function InviteScreen() {
 		<div className="mx-auto flex w-full max-w-md flex-col gap-4 pb-10">
 			<header className="flex flex-col gap-1.5 rounded-2xl px-5 pb-12 pt-5 text-white" style={{ backgroundColor: NAVY }}>
 				<span className="text-xs font-semibold uppercase tracking-wider text-white/75">
-					{t(isTeam ? 'invitePage.roleTeam' : 'invitePage.roleLeague')}
+					{t(`invitePage.role${suffix}`)}
 				</span>
 				<h1 className="text-2xl font-bold leading-tight">
 					{invite.hasAccount ? t('invitePage.existing.title') : t('invitePage.new.title', { name: invite.name })}
@@ -286,7 +296,7 @@ export default function InviteScreen() {
 				</span>
 				<div className="flex min-w-0 flex-col gap-0.5">
 					<span className="truncate text-base font-bold">{targetName}</span>
-					{(invite.leagueName || invite.seasonName) && isTeam && (
+					{(invite.leagueName || invite.seasonName) && invite.kind !== 'LEAGUE' && (
 						<span className="truncate text-[13px] text-muted-foreground">
 							{[invite.leagueName, invite.seasonName].filter(Boolean).join(' · ')}
 						</span>
@@ -298,7 +308,12 @@ export default function InviteScreen() {
 
 			<p className="px-6 text-center text-[13px] leading-snug text-muted-foreground">
 				{t('invitePage.notYou', { name: invite.name })}{' '}
-				<Link to="/docs/pozvani-manazera-tymu" className="font-medium text-primary">{t('invitePage.help')}</Link>
+				<Link
+					to={invite.kind === 'PLAYER' ? '/docs/pozvani-hracu' : '/docs/pozvani-manazera-tymu'}
+					className="font-medium text-primary"
+				>
+					{t('invitePage.help')}
+				</Link>
 			</p>
 		</div>
 	);

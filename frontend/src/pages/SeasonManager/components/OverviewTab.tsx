@@ -7,7 +7,7 @@ import { GameStatus, SeasonStatus, type Game, type ManagerInvite, type Season, t
 import type { SeasonTab } from '../Detail';
 import { SEASON_ACCENT, isPlayed, needsDate } from './util';
 import VisibilityCard from './VisibilityCard';
-import SeasonChecklist, { type SeasonStep } from './SeasonChecklist';
+import SetupChecklist, { type SetupStep } from '@/components/SetupChecklist';
 import { invitesByTarget, managerState } from '@/components/invite/inviteState';
 import { APP_TIME_ZONE } from '@/utils/date';
 
@@ -74,7 +74,7 @@ export default function OverviewTab({
 	const [skipManagers, setSkipManagers] = useState(() => readSkip(season.id));
 
 	// Getting the season live, in the order it is actually built up.
-	const steps = useMemo<SeasonStep[]>(() => {
+	const steps = useMemo<SetupStep[]>(() => {
 		const inviteFor = invitesByTarget(invites, 'teamId');
 		const tally = { ACTIVE: 0, INVITED: 0, EXPIRED: 0, NONE: 0 };
 		teams.forEach((team) => {
@@ -214,7 +214,12 @@ export default function OverviewTab({
 					</div>
 				</div>
 			) : (
-				<SeasonChecklist steps={steps} />
+				<SetupChecklist
+					steps={steps}
+					title={t('seasonChecklist.title')}
+					accent={SEASON_ACCENT}
+					guide={{ to: '/docs/zacinate-jako-manazer-sezony', label: t('seasonChecklist.guide') }}
+				/>
 			)}
 
 			<VisibilityCard season={season} onSeasonChange={onSeasonChange} />

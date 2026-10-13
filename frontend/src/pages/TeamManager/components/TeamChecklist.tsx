@@ -1,181 +1,147 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { Check, ChevronRight } from 'lucide-react';
-import { GameStatus, type Team } from '@types';
-import { APP_TIME_ZONE } from '@/utils/date';
+import { useNavigate } from 'react-router-dom';
+import { inviteApi, teamEventApi } from '@/services/api';
+import SetupChecklist, { type SetupStep } from '@/components/SetupChecklist';
+import { invitesByTarget, managerState } from '@/components/invite/inviteState';
+import type { ManagerInvite, Player, Team } from '@types';
 
-type ChecklistTab = 'roster' | 'schedule' | 'events' | 'settings';
+type SkippableStep = 'look' | 'accounts' | 'training';
 
 interface TeamChecklistProps {
 	team: Team;
-	playerCount: number;
-	color: string;
-	email: string;
-	onTabChange: (tab: ChecklistTab) => void;
+	players: Player[];
+	/** The colour picked this visit, which the team object does not know yet. */
+	color: string | null | undefined;
+	onTabChange: (tab: 'settings' | 'events') => void;
 }
 
-interface Stored {
-	hidden?: boolean;
-	/** Steps that are done once looked at; the server has no trace of them. */
-	seen?: string[];
-}
+/** Per team and browser: steps the manager chose to leave, e.g. no trainings. */
+const skipKey = (teamId: string) => `atm.teamChecklist.skip.${teamId}`;
 
-const storageKey = (teamId: string) => `atm.teamChecklist.${teamId}`;
-
-function read(teamId: string): Stored {
+function readSkips(teamId: string): SkippableStep[] {
 	try {
-		return JSON.parse(localStorage.getItem(storageKey(teamId)) ?? '{}') as Stored;
+		return JSON.parse(localStorage.getItem(skipKey(teamId)) ?? '[]') as SkippableStep[];
 	} catch {
-		return {};
-	}
-}
-
-function write(teamId: string, value: Stored) {
-	try {
-		localStorage.setItem(storageKey(teamId), JSON.stringify(value));
-	} catch {
-		// Private mode: the checklist simply comes back next visit.
+		return [];
 	}
 }
 
 /**
  * A new team manager's first steps, on the screen they will use every week.
- * Steps the data can answer (players, colours) tick themselves; the rest tick
- * once opened. It goes away when everything is done or the manager hides it.
+ * Every step ticks from the team's own data; the optional ones can be skipped.
  */
-export default function TeamChecklist({ team, playerCount, color, email, onTabChange }: TeamChecklistProps) {
-	const { t, i18n } = useTranslation();
-	const [stored, setStored] = useState<Stored>(() => read(team.id));
+export default function TeamChecklist({ team, players, color, onTabChange }: TeamChecklistProps) {
+	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const [skips, setSkips] = useState(() => readSkips(team.id));
+	const [loaded, setLoaded] = useState<{ eventCount: number; invites: ManagerInvite[] } | null>(null);
 
-	const update = (next: Stored) => {
-		setStored(next);
-		write(team.id, next);
+	useEffect(() => {
+		let cancelled = false;
+		// Without either answer its step simply stays open.
+		Promise.all([
+			teamEventApi.getByTeam(team.id).then((res) => res.data.length).catch(() => 0),
+			inviteApi.getForTeamPlayers(team.id).then((res) => res.data).catch(() => [] as ManagerInvite[]),
+		]).then(([eventCount, invites]) => !cancelled && setLoaded({ eventCount, invites }));
+		return () => { cancelled = true; };
+	}, [team.id]);
+
+	// Until both answer, the next step could jump; show nothing yet.
+	if (!loaded) return null;
+	const { eventCount } = loaded;
+
+	const skip = (id: SkippableStep) => () => {
+		const next = [...skips, id];
+		try {
+			localStorage.setItem(skipKey(team.id), JSON.stringify(next));
+		} catch {
+			// Private mode: the skip lasts until the page is left.
+		}
+		setSkips(next);
 	};
 
-	const seen = new Set(stored.seen ?? []);
-	const open = (id: string, tab: ChecklistTab) => {
-		if (!seen.has(id)) update({ ...stored, seen: [...seen, id] });
-		onTabChange(tab);
-	};
+	// Where each player stands: joined, invited (expired invites count as asked:
+	// the player card offers the resend), or still to invite.
+	const inviteFor = invitesByTarget(loaded.invites, 'playerId');
+	const tally = { ACTIVE: 0, INVITED: 0, EXPIRED: 0, NONE: 0 };
+	let uninvited: Player | undefined;
+	for (const p of players) {
+		const state = managerState(p.userId, inviteFor.get(p.id));
+		tally[state] += 1;
+		if (state === 'NONE' && !uninvited) uninvited = p;
+	}
+	const asked = tally.ACTIVE + tally.INVITED + tally.EXPIRED;
 
-	const nextGame = (team.games ?? []).find((g) => g.status === GameStatus.SCHEDULED && g.date);
-	const opponent = nextGame
-		? (nextGame.homeTeamId === team.id ? nextGame.awayTeam?.name : nextGame.homeTeam?.name) ?? ''
-		: '';
-
-	const steps = [
-		{
-			id: 'account',
-			title: t('teamChecklist.steps.account.title'),
-			hint: t('teamChecklist.steps.account.hint', { email }),
-			done: true,
-			run: null,
-		},
+	const steps: SetupStep[] = [
 		{
 			id: 'look',
 			title: t('teamChecklist.steps.look.title'),
-			hint: t('teamChecklist.steps.look.hint'),
-			done: !!team.primaryColor || !!team.logo || seen.has('look'),
-			run: () => open('look', 'settings'),
+			status: color || team.logo
+				? t('teamChecklist.steps.look.set')
+				: t('teamChecklist.steps.look.default'),
+			body: t('teamChecklist.steps.look.body'),
+			action: t('teamChecklist.steps.look.action'),
+			run: () => onTabChange('settings'),
+			done: !!color || !!team.logo || skips.includes('look'),
+			skip: { label: t('teamChecklist.steps.look.skip'), run: skip('look') },
 		},
 		{
 			id: 'roster',
 			title: t('teamChecklist.steps.roster.title'),
-			hint: playerCount > 0
-				? t('teamChecklist.steps.roster.count', { count: playerCount })
-				: t('teamChecklist.steps.roster.hint'),
-			done: playerCount > 0,
-			run: () => onTabChange('roster'),
+			status: players.length > 0
+				? t('teamChecklist.steps.roster.status', { count: players.length })
+				: t('teamChecklist.steps.roster.none'),
+			body: t('teamChecklist.steps.roster.body'),
+			action: t('teamChecklist.steps.roster.action'),
+			run: () => navigate(`/team-management/${team.id}/player/new`),
+			done: players.length > 0,
 		},
 		{
-			id: 'schedule',
-			title: t('teamChecklist.steps.schedule.title'),
-			hint: nextGame
-				? t('teamChecklist.steps.schedule.next', {
-					date: new Date(nextGame.date!).toLocaleDateString(i18n.language, {
-						timeZone: APP_TIME_ZONE,
-						weekday: 'short',
-						day: 'numeric',
-						month: 'numeric',
-					}),
-					opponent,
-				})
-				: t('teamChecklist.steps.schedule.hint'),
-			done: seen.has('schedule'),
-			run: () => open('schedule', 'schedule'),
+			id: 'accounts',
+			title: t('teamChecklist.steps.accounts.title'),
+			status: t('teamChecklist.steps.accounts.status', {
+				joined: tally.ACTIVE,
+				invited: tally.INVITED + tally.EXPIRED,
+				missing: tally.NONE,
+			}),
+			body: t('teamChecklist.steps.accounts.body'),
+			action: uninvited
+				? t('teamChecklist.steps.accounts.action', { name: uninvited.name })
+				: t('teamChecklist.steps.accounts.actionAny'),
+			// The invitation lives on the player's own page; open it there for the
+			// first player nobody has asked yet.
+			run: () => navigate(uninvited
+				? `/team-management/${team.id}/player/${uninvited.id}?invite=1`
+				: `/team-management/${team.id}/player/new`),
+			done: (players.length > 0 && !uninvited) || skips.includes('accounts'),
+			skip: {
+				label: asked > 0
+					? t('teamChecklist.steps.accounts.skipRest')
+					: t('teamChecklist.steps.accounts.skip'),
+				run: skip('accounts'),
+			},
 		},
 		{
 			id: 'training',
 			title: t('teamChecklist.steps.training.title'),
-			hint: t('teamChecklist.steps.training.hint'),
-			done: seen.has('training'),
-			run: () => open('training', 'events'),
+			status: eventCount > 0
+				? t('teamChecklist.steps.training.status', { count: eventCount })
+				: t('teamChecklist.steps.training.none'),
+			body: t('teamChecklist.steps.training.body'),
+			action: t('teamChecklist.steps.training.action'),
+			run: () => onTabChange('events'),
+			done: eventCount > 0 || skips.includes('training'),
+			skip: { label: t('teamChecklist.steps.training.skip'), run: skip('training') },
 		},
 	];
 
-	const doneCount = steps.filter((step) => step.done).length;
-	if (stored.hidden || doneCount === steps.length) return null;
-
 	return (
-		<section aria-labelledby="team-checklist" className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">
-			<div className="flex items-start justify-between gap-3">
-				<div>
-					<h2 id="team-checklist" className="text-base font-bold">
-						{t('teamChecklist.title')}
-					</h2>
-					<p className="text-[13px] text-muted-foreground">
-						{t('teamChecklist.progress', { done: doneCount, total: steps.length })}
-					</p>
-				</div>
-				<button
-					type="button"
-					onClick={() => update({ ...stored, hidden: true })}
-					className="h-9 shrink-0 px-1 text-[13px] font-medium text-muted-foreground"
-				>
-					{t('teamChecklist.hide')}
-				</button>
-			</div>
-			<div className="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden>
-				<div className="h-full rounded-full" style={{ width: `${(doneCount / steps.length) * 100}%`, backgroundColor: color }} />
-			</div>
-			<ol className="flex flex-col">
-				{steps.map((step) => {
-					const content = (
-						<>
-							{step.done ? (
-								<span className="flex size-[26px] shrink-0 items-center justify-center rounded-full text-white" style={{ backgroundColor: color }}>
-									<Check className="size-3.5" aria-hidden />
-									<span className="sr-only">{t('teamChecklist.done')}</span>
-								</span>
-							) : (
-								<span className="size-[26px] shrink-0 rounded-full border-2 border-border" aria-hidden />
-							)}
-							<span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-								<span className={`text-[15px] font-semibold ${step.done ? 'text-muted-foreground' : ''}`}>
-									{step.title}
-								</span>
-								<span className="text-[13px] leading-snug text-muted-foreground">{step.hint}</span>
-							</span>
-							{step.run && !step.done && <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />}
-						</>
-					);
-					return (
-						<li key={step.id} className="border-t border-border-subtle">
-							{step.run ? (
-								<button type="button" onClick={step.run} className="flex min-h-[60px] w-full items-center gap-3 py-2.5">
-									{content}
-								</button>
-							) : (
-								<div className="flex min-h-[60px] items-center gap-3 py-2.5">{content}</div>
-							)}
-						</li>
-					);
-				})}
-			</ol>
-			<Link to="/docs/zacinate-jako-manazer-tymu" className="pt-1 text-center text-[13px] font-medium text-primary">
-				{t('teamChecklist.guide')}
-			</Link>
-		</section>
+		<SetupChecklist
+			steps={steps}
+			title={t('teamChecklist.title')}
+			accent={color || '#003E7E'}
+			guide={{ to: '/docs/zacinate-jako-manazer-tymu', label: t('teamChecklist.guide') }}
+		/>
 	);
 }
