@@ -193,6 +193,8 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 	};
 
 	const canEditFull = isAdmin() || isSeasonManager();
+	// A confirmed game refuses every edit until it is reopened from the match report.
+	const confirmed = game?.confirmedAt != null;
 	const canEditHome = canEditFull || canManageTeam(game?.homeTeam?.managerId);
 	const canEditAway = canEditFull || canManageTeam(game?.awayTeam?.managerId);
 
@@ -212,6 +214,15 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 
 	const dirtyCount = dirtyStats.length + (scoreDirty ? 1 : 0);
 
+	// A scheduled game that gets a full score is saved as played (see handleSubmit).
+	const endsCompleted = game?.status === GameStatus.COMPLETED || (
+		game?.status === GameStatus.SCHEDULED && scoreDirty
+		&& periodScores.homeScore != null && periodScores.awayScore != null
+	);
+	// The league side entering the result is the confirmation itself, so the
+	// report doesn't wait for a second visit to the match report.
+	const confirmsOnSave = canEditFull && !confirmed && endsCompleted;
+
 	const setScore = (field: keyof PeriodScores, raw: string) => {
 		const parsed = raw === '' ? null : Math.max(0, parseInt(raw));
 		setPeriodScores(prev => ({ ...prev, [field]: Number.isNaN(parsed as number) ? null : parsed }));
@@ -222,6 +233,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 
 		setSaving(true);
 		try {
+			let status = game?.status;
 			if (scoreDirty) {
 				// A game still marked SCHEDULED but carrying a score has been played;
 				// the season manager's result sheet flips it the same way.
@@ -229,6 +241,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 				const updated = await gameApi.update(id, played ? { ...periodScores, status: GameStatus.COMPLETED } : periodScores);
 				// Only the status is taken back: the rest of the loaded game (colours,
 				// managers, season) is richer than what the update endpoint returns.
+				status = updated.data.status;
 				setGame(prev => (prev ? { ...prev, status: updated.data.status } : prev));
 				setScoreBaseline(periodScores);
 			}
@@ -254,6 +267,12 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 					// Player didn't participate but has existing stat - delete it
 					await gameStatisticApi.delete(stat.existingStatId);
 				}
+			}
+
+			// Confirm last: a confirmed game refuses further statistic changes.
+			if (confirmsOnSave && status === GameStatus.COMPLETED) {
+				const res = await gameApi.confirm(id);
+				setGame(prev => (prev ? { ...prev, confirmedAt: res.data.confirmedAt, confirmedById: res.data.confirmedById } : prev));
 			}
 
 			toast.success(t('gameStatistic.saveSuccess'));
@@ -462,6 +481,15 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 			</div>
 
 			<div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-4">
+				{confirmed && (
+					<div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3.5">
+						<Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+						<p className="text-[12.5px] leading-snug text-muted-foreground">
+							{t('gameStatistic.confirmedNote')}
+						</p>
+					</div>
+				)}
+
 				{/* Score */}
 				<section className="flex flex-col gap-2">
 					<span className="tm-section-label">{t('gameStatistic.score')}</span>
@@ -550,11 +578,11 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 					<Button
 						className="h-11 px-6 text-[15px] font-semibold"
 						style={{ backgroundColor: ADMIN_GOLD, color: ADMIN_INK }}
-						disabled={saving || dirtyCount === 0}
+						disabled={saving || confirmed || dirtyCount === 0}
 						onClick={handleSubmit}
 					>
 						{saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-						{t('common.save')}
+						{confirmsOnSave ? t('gameStatistic.saveAndConfirm') : t('common.save')}
 					</Button>
 				</div>
 			</div>
