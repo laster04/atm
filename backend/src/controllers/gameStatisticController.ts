@@ -119,7 +119,8 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		if (game.confirmedAt) {
+		// An admin corrects a confirmed game in place; everyone else reopens it first.
+		if (game.confirmedAt && !isAdmin(req.user!)) {
 			res.status(409).json({
 				error: 'This game is confirmed. Reopen it before changing its statistics.'
 			});
@@ -222,7 +223,7 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		if (existingStatistic.game.confirmedAt) {
+		if (existingStatistic.game.confirmedAt && !isAdmin(req.user!)) {
 			res.status(409).json({
 				error: 'This game is confirmed. Reopen it before changing its statistics.'
 			});
@@ -285,7 +286,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		if (existingStatistic.game.confirmedAt) {
+		if (existingStatistic.game.confirmedAt && !isAdmin(req.user!)) {
 			res.status(409).json({
 				error: 'This game is confirmed. Reopen it before changing its statistics.'
 			});

@@ -13,6 +13,8 @@ let playerId: string;
 let gameId: string;
 
 const auth = () => ({ Authorization: `Bearer ${token}` });
+let managerToken: string;
+const managerAuth = () => ({ Authorization: `Bearer ${managerToken}` });
 
 async function newGame(): Promise<string> {
   const res = await request(app).post(`/api/games/season/${seasonId}`).set(auth())
@@ -53,6 +55,22 @@ beforeAll(async () => {
   playerId = player.body.id;
 
   gameId = await newGame();
+
+  // A plain user who runs this league: the confirmation lock applies to them.
+  const managerEmail = `manager-confirm-${stamp}@test.com`;
+  const manager = await prisma.user.create({
+    data: {
+      email: managerEmail,
+      password: await bcrypt.hash('password123', 10),
+      name: 'Confirm Manager',
+      role: 'USER',
+      active: true,
+      emailVerified: true,
+    },
+  });
+  await prisma.league.update({ where: { id: league.body.id }, data: { managerId: manager.id } });
+  const managerLogin = await request(app).post('/api/auth/login').send({ email: managerEmail, password: 'password123' });
+  managerToken = managerLogin.body.token;
 });
 
 afterAll(async () => {
@@ -132,9 +150,58 @@ describe('a confirmed report is closed', () => {
     expect((await request(app).get(`/api/games/${gameId}/events`)).body).toHaveLength(1);
   });
 
-  it('refuses to edit the game itself', async () => {
-    const res = await request(app).put(`/api/games/${gameId}`).set(auth()).send({ location: 'Elsewhere' });
+  it('refuses to edit the game itself for the season manager', async () => {
+    const res = await request(app).put(`/api/games/${gameId}`).set(managerAuth()).send({ location: 'Elsewhere' });
     expect(res.status).toBe(409);
+  });
+});
+
+describe('an admin corrects a confirmed game in place', () => {
+  let confirmed: string;
+
+  beforeAll(async () => {
+    confirmed = await newGame();
+    await request(app).put(`/api/games/${confirmed}`).set(auth())
+      .send({ homeScore: 3, awayScore: 2, status: 'COMPLETED', confirm: true });
+  });
+
+  it('still refuses the season manager', async () => {
+    const edit = await request(app).put(`/api/games/${confirmed}`).set(managerAuth()).send({ homeScore: 4 });
+    expect(edit.status).toBe(409);
+
+    const stat = await request(app).post(`/api/game-statistics/game/${confirmed}`).set(managerAuth())
+      .send({ playerId, goals: 1 });
+    expect(stat.status).toBe(409);
+  });
+
+  it('saves the score and keeps the game confirmed', async () => {
+    const res = await request(app).put(`/api/games/${confirmed}`).set(auth()).send({ homeScore: 4 });
+    expect(res.status).toBe(200);
+    expect(res.body.homeScore).toBe(4);
+    expect(res.body.confirmedAt).toBeTruthy();
+  });
+
+  it('saves, changes and removes statistics', async () => {
+    const created = await request(app).post(`/api/game-statistics/game/${confirmed}`).set(auth())
+      .send({ playerId, goals: 1 });
+    expect(created.status).toBe(201);
+
+    const updated = await request(app).put(`/api/game-statistics/${created.body.id}`).set(auth()).send({ goals: 2 });
+    expect(updated.status).toBe(200);
+
+    const removed = await request(app).delete(`/api/game-statistics/${created.body.id}`).set(auth());
+    expect(removed.status).toBe(200);
+  });
+
+  it('records the correction in the trail', async () => {
+    const trail = await prisma.auditLog.findMany({ where: { entityType: 'Game', entityId: confirmed, action: 'UPDATE' } });
+    expect(trail).toHaveLength(1);
+  });
+
+  it('drops the confirmation when the game is no longer played', async () => {
+    const res = await request(app).put(`/api/games/${confirmed}`).set(auth()).send({ status: 'POSTPONED' });
+    expect(res.status).toBe(200);
+    expect(res.body.confirmedAt).toBeNull();
   });
 });
 

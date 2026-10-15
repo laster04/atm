@@ -11,6 +11,7 @@ import {
 import { Prisma, GameStatus } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { listedGameWhere } from '../services/visibility.js';
+import { isAdmin } from '../services/access.js';
 
 export const getGamesBySeasonId = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -155,8 +156,10 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     // A confirmed game is a closed record. Reopening it is a deliberate act with
-    // a reason attached, not a side effect of saving an edit.
-    if (existingGame.confirmedAt) {
+    // a reason attached, not a side effect of saving an edit. Only an admin
+    // corrects one in place; the trail below still records the change.
+    const correctsConfirmed = existingGame.confirmedAt != null;
+    if (correctsConfirmed && !isAdmin(req.user!)) {
       res.status(409).json({
         error: 'This game is confirmed. Reopen it before making changes.',
       });
@@ -182,7 +185,9 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
 
     // Confirming a fixture nobody has played would lock in an empty result, so
     // the flag only takes effect on a game that ends up completed.
-    const confirms = confirm === true && (status ?? existingGame.status) === 'COMPLETED';
+    const confirms = !correctsConfirmed && confirm === true && (status ?? existingGame.status) === 'COMPLETED';
+    // A confirmed result that is no longer a played game has nothing left to confirm.
+    const unconfirms = correctsConfirmed && (status ?? existingGame.status) !== 'COMPLETED';
 
     const game = await prisma.game.update({
       where: { id: id },
@@ -202,7 +207,8 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         ...(period3AwayScore !== undefined && { period3AwayScore: period3AwayScore !== null ? period3AwayScore : null }),
         ...(status && { status }),
         ...(roundNum !== undefined && { round: roundNum }),
-        ...(confirms && { confirmedAt: new Date(), confirmedById: req.user?.id ?? null })
+        ...(confirms && { confirmedAt: new Date(), confirmedById: req.user?.id ?? null }),
+        ...(unconfirms && { confirmedAt: null, confirmedById: null })
       },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } },
@@ -210,11 +216,11 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
 
-    if (confirms) {
+    if (confirms || correctsConfirmed) {
       await recordAudit({
         entityType: 'Game',
         entityId: id,
-        action: 'CONFIRM',
+        action: confirms ? 'CONFIRM' : 'UPDATE',
         before: auditSnapshot(existingGame, [...GAME_AUDIT_FIELDS]),
         after: auditSnapshot(game, [...GAME_AUDIT_FIELDS]),
         actorId: req.user?.id ?? null,

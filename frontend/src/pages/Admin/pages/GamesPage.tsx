@@ -167,6 +167,25 @@ export default function GamesPage() {
 		}
 	};
 
+	const handleConfirmGame = async (id: string) => {
+		if (!selectedSeason) return;
+		setError('');
+		try {
+			const res = await gameApi.confirm(id);
+			// The confirm endpoint returns the bare row, so only the confirmation is
+			// taken from it; the listed game keeps its team details.
+			setGamesBySeason((prev) => ({
+				...prev,
+				[selectedSeason.id]: (prev[selectedSeason.id] || []).map((g) =>
+					g.id === id ? { ...g, confirmedAt: res.data.confirmedAt, confirmedById: res.data.confirmedById } : g
+				)
+			}));
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('admin.errors.confirmGame'));
+		}
+	};
+
 	const handleSeasonChange = (seasonId: string) => {
 		const season = seasons.find((s) => s.id === seasonId);
 		if (season) setSelectedSeason(season);
@@ -188,6 +207,7 @@ export default function GamesPage() {
 				onCreateGame={handleCreateGame}
 				onUpdateGame={handleUpdateGame}
 				onDeleteGame={handleDeleteGame}
+				onConfirmGame={handleConfirmGame}
 				onGenerateSchedule={handleGenerateSchedule}
 			/>
 		</div>
