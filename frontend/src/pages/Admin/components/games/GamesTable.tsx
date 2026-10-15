@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@components/base/badge.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/base/card.tsx';
-import { Calendar, Edit, Plus, Trash2, BarChart3 } from 'lucide-react';
+import { Calendar, Check, CheckCheck, Edit, Plus, Trash2, BarChart3 } from 'lucide-react';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import { Game, Season, SeasonStatus, Team } from '@types';
@@ -24,6 +24,7 @@ interface GamesTableProps {
 	onCreateGame?: (data: GameFormData) => void;
 	onUpdateGame?: (id: string, data: GameFormData) => void;
 	onDeleteGame?: (id: string) => void;
+	onConfirmGame?: (id: string) => void;
 	onGenerateSchedule?: (data: GenerateScheduleData) => void;
 }
 
@@ -50,6 +51,7 @@ export default function GamesTable({
 	onCreateGame,
 	onUpdateGame,
 	onDeleteGame,
+	onConfirmGame,
 	onGenerateSchedule,
 }: GamesTableProps) {
 	const navigate = useNavigate();
@@ -89,6 +91,24 @@ export default function GamesTable({
 			<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(game)}>
 				<Edit className="size-4" />
 			</Button>
+			{/* Only a played game has a result to confirm; once confirmed it counts in the table. */}
+			{game.status === 'COMPLETED' && (
+				game.confirmedAt ? (
+					<Button variant="ghost" size="sm" disabled title={t('admin.tabs.game.confirmed')} aria-label={t('admin.tabs.game.confirmed')}>
+						<CheckCheck className="size-4 text-green-600" />
+					</Button>
+				) : (
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={() => onConfirmGame?.(game.id)}
+						title={t('admin.tabs.game.confirm')}
+						aria-label={t('admin.tabs.game.confirm')}
+					>
+						<Check className="size-4" />
+					</Button>
+				)
+			)}
 			<Button variant="ghost" size="sm" onClick={() => onDeleteGame?.(game.id)}>
 				<Trash2 className="size-4 text-destructive" />
 			</Button>

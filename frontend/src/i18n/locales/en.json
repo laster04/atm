@@ -1091,6 +1091,8 @@
         "th-location": "Location",
         "th-status": "Status",
         "th-actions": "Actions",
+        "confirm": "Confirm result",
+        "confirmed": "Result confirmed",
         "status": {
           "SCHEDULED": "Scheduled",
           "IN_PROGRESS": "In Progress",
@@ -1249,6 +1251,7 @@
       "createGame": "Failed to create game",
       "updateGame": "Failed to update game",
       "deleteGame": "Failed to delete game",
+      "confirmGame": "Failed to confirm the result",
       "createUser": "Failed to create user",
       "updateUser": "Failed to update user",
       "deleteUser": "Failed to delete user",
@@ -1668,6 +1671,7 @@
     "saveError": "Failed to save statistics",
     "saveAndConfirm": "Save and confirm",
     "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first.",
+    "confirmedAdminNote": "This game is confirmed. As an admin you can still correct it here; it stays confirmed and the change is recorded in the history.",
     "allSaved": "All changes saved",
     "unsavedChanges_one": "{{count}} unsaved change",
     "unsavedChanges_other": "{{count}} unsaved changes"

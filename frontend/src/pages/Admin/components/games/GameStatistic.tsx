@@ -193,8 +193,10 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 	};
 
 	const canEditFull = isAdmin() || isSeasonManager();
-	// A confirmed game refuses every edit until it is reopened from the match report.
+	// A confirmed game refuses every edit until it is reopened from the match
+	// report, except from an admin, who corrects it in place.
 	const confirmed = game?.confirmedAt != null;
+	const locked = confirmed && !isAdmin();
 	const canEditHome = canEditFull || canManageTeam(game?.homeTeam?.managerId);
 	const canEditAway = canEditFull || canManageTeam(game?.awayTeam?.managerId);
 
@@ -485,7 +487,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 					<div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3.5">
 						<Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
 						<p className="text-[12.5px] leading-snug text-muted-foreground">
-							{t('gameStatistic.confirmedNote')}
+							{locked ? t('gameStatistic.confirmedNote') : t('gameStatistic.confirmedAdminNote')}
 						</p>
 					</div>
 				)}
@@ -578,7 +580,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 					<Button
 						className="h-11 px-6 text-[15px] font-semibold"
 						style={{ backgroundColor: ADMIN_GOLD, color: ADMIN_INK }}
-						disabled={saving || confirmed || dirtyCount === 0}
+						disabled={saving || locked || dirtyCount === 0}
 						onClick={handleSubmit}
 					>
 						{saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
