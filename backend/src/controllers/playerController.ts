@@ -409,6 +409,8 @@ export const getMyPlayerProfiles = async (req: AuthRequest, res: Response): Prom
             name: true,
             logo: true,
             primaryColor: true,
+            // The player is on this roster, so the team's chat is theirs to open.
+            chatUrl: true,
             seasonTeams: {
               select: { season: { select: { id: true, name: true, status: true, startDate: true } } },
             },

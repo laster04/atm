@@ -1,6 +1,7 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -212,6 +213,10 @@ model Team {
   name         String
   logo         String?
   primaryColor String?  @map("primary_color")
+  /// Invite link to the team's own group chat (WhatsApp, Messenger...). Anyone
+  /// holding it can join the group, so the client omits it everywhere
+  /// (config/database.ts) and only the team's people are handed it.
+  chatUrl      String?  @map("chat_url")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

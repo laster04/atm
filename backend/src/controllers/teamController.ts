@@ -158,7 +158,11 @@ export const getTeamById = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    res.json({ ...team, games: allGames, season: activeSeason, sportTypes });
+    // The chat link joins the group, so only the team's own people see it here;
+    // players on the roster get it from /players/me.
+    const { chatUrl } = await prisma.team.findUniqueOrThrow({ where: { id: team.id }, select: { chatUrl: true } });
+
+    res.json({ ...team, chatUrl, games: allGames, season: activeSeason, sportTypes });
   } catch (error) {
     console.error('Get team error:', error);
     res.status(500).json({ error: 'Failed to fetch team' });
@@ -224,11 +228,37 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
+const CHAT_URL_MAX = 500;
+
+/**
+ * A chat link as stored: undefined leaves it alone, null clears it. Only https
+ * is taken - the link is a button players tap, so anything else (javascript:,
+ * a bare word) is refused rather than rendered.
+ */
+const parseChatUrl = (value: unknown): string | null | undefined | false => {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== 'string') return false;
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+  if (trimmed.length > CHAT_URL_MAX) return false;
+  try {
+    return new URL(trimmed).protocol === 'https:' ? trimmed : false;
+  } catch {
+    return false;
+  }
+};
+
 export const updateTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, logo, primaryColor } = req.body as UpdateTeamRequest;
     const managerId = toNullableId(req.body.managerId);
+    const chatUrl = parseChatUrl(req.body.chatUrl);
+    if (chatUrl === false) {
+      res.status(400).json({ error: 'Chat link must be an https:// address' });
+      return;
+    }
 
     const existingTeam = await prisma.team.findUnique({
       where: { id: id },
@@ -261,8 +291,11 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
         ...(name && { name }),
         ...(logo !== undefined && { logo }),
         ...(primaryColor !== undefined && { primaryColor }),
+        ...(chatUrl !== undefined && { chatUrl }),
         ...(managerId !== undefined && { managerId }),
       },
+      // Only someone who may edit the team gets here, so they get the link back.
+      omit: { chatUrl: false },
       include: {
         manager: { select: { id: true, name: true, email: true } }
       }

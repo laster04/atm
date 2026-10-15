@@ -210,6 +210,13 @@
       "share": "Sdílet",
       "install": "Nainstalovat",
       "dismiss": "Skrýt"
+    },
+    "myPlayerTeams": {
+      "title": "Týmy, za které hraju",
+      "number": "č. {{number}}",
+      "teamPage": "Stránka týmu",
+      "openChat": "Otevřít chat týmu",
+      "noChat": "Manažer zatím nepřidal týmový chat"
     }
   },
   "auth": {
@@ -678,6 +685,18 @@
         "MAYBE": "Možná",
         "NO_RESPONSE": "Bez odpovědi"
       }
+    },
+    "chat": {
+      "title": "Týmový chat",
+      "description": "Propojte skupinový chat týmu (WhatsApp, Messenger, Discord…). Hráči k němu dostanou tlačítko na svém přehledu.",
+      "label": "Odkaz s pozvánkou do chatu",
+      "privacy": "Odkaz uvidí jen manažer týmu a hráči na soupisce.",
+      "save": "Uložit odkaz",
+      "remove": "Odebrat",
+      "saved": "Odkaz na chat uložen",
+      "removed": "Odkaz na chat odebrán",
+      "invalid": "Vložte celý odkaz s pozvánkou, začínající https://",
+      "saveError": "Odkaz na chat se nepodařilo uložit"
     }
   },
   "seasonManagement": {

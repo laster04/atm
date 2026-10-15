@@ -312,6 +312,8 @@ export interface UpdateTeamRequest {
   logo?: string;
   managerId?: string;
   primaryColor?: string;
+  /** An https link to the team's group chat; null or '' removes it. */
+  chatUrl?: string | null;
 }
 
 export interface InviteManagerRequest {

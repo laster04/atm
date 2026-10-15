@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../../config/database.js';
+import prisma, { type DbClient } from '../../config/database.js';
 
 export type AuditAction =
   | 'CREATE'
@@ -30,7 +30,7 @@ export interface AuditEntry {
  */
 export const recordAudit = async (
   entry: AuditEntry,
-  tx: Prisma.TransactionClient = prisma
+  tx: DbClient = prisma
 ): Promise<void> => {
   try {
     await tx.auditLog.create({
