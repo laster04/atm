@@ -37,8 +37,8 @@ export default function ActiveSeasonsSection({ seasons, loading }: ActiveSeasons
             to={`/season-detail/${season.id}`}
             className="block bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow"
           >
-            <h3 className="font-semibold text-lg">{season.name}</h3>
-            <p className="text-gray-600">{season.league?.name || '-'}</p>
+            <h3 className="font-semibold text-lg">{season.league?.name ?? season.name}</h3>
+            {season.league && <p className="text-gray-600">{season.name}</p>}
             <p className="text-sm text-gray-500 mt-2">
               {season._count?.seasonTeams ?? season._count?.teams ?? 0} {t('common.teams')} · {season._count?.games} {t('common.games')}
             </p>

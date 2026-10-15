@@ -12,6 +12,7 @@ import PlayerFormModal, { type PlayerFormData } from './PlayerFormModal.tsx';
 import MovePlayerModal from './MovePlayerModal.tsx';
 import { positionLabel, positionsForSports } from '@/utils/playerPositions';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
+import { seasonLabel } from '@/utils/season';
 
 interface PlayersTableProps {
 	players: Player[];
@@ -129,7 +130,7 @@ export default function PlayersTable({
 							>
 								{seasons.map((season) => (
 									<MenuItem key={season.id} value={season.id}>
-										{season.name}
+										{seasonLabel(season)}
 									</MenuItem>
 								))}
 							</Select>

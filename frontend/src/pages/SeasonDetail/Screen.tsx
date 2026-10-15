@@ -132,9 +132,10 @@ export default function SeasonDetailScreen() {
 
   return (
     <>
+      {/* The league is what people look for; the season name is usually just its years. */}
       <PublicHero
-        title={season.name}
-        subtitle={season.league?.name}
+        title={season.league?.name ?? season.name}
+        subtitle={season.league ? season.name : undefined}
         sport={season.league?.sportType}
         badge={
           <>
@@ -145,6 +146,7 @@ export default function SeasonDetailScreen() {
         crumbs={[
           { label: t('public.nav.home'), to: '/' },
           { label: t('public.seasons.title'), to: '/seasons' },
+          ...(season.league ? [{ label: season.league.name, to: `/leagues/${season.leagueId}` }] : []),
           { label: season.name },
         ]}
         meta={

@@ -165,10 +165,10 @@ export default function Detail() {
 							<ArrowLeft className="size-5" />
 						</Button>
 						<div className="min-w-0 flex-1">
+							<h1 className="truncate text-lg font-bold">{season.league?.name ?? season.name}</h1>
 							{season.league && (
-								<p className="truncate text-xs text-white/85">{season.league.name}</p>
+								<p className="truncate text-xs text-white/85">{season.name}</p>
 							)}
-							<h1 className="truncate text-lg font-bold">{season.name}</h1>
 						</div>
 						<VisibilityBadge visibility={visibility} />
 						<span
@@ -197,8 +197,8 @@ export default function Detail() {
 						<ArrowLeft className="mr-2 size-5" />
 						{t('common.back')}
 					</Button>
-					<h1 className="text-2xl font-bold">{season.name}</h1>
-					{season.league && <p className="mt-2 text-sm opacity-80">{season.league.name}</p>}
+					<h1 className="text-2xl font-bold">{season.league?.name ?? season.name}</h1>
+					{season.league && <p className="mt-2 text-sm opacity-80">{season.name}</p>}
 					<div className="mt-3 empty:hidden">
 						<VisibilityBadge visibility={visibility} />
 					</div>

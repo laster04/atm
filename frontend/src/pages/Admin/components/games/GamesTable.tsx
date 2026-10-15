@@ -9,6 +9,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import { Game, Season, SeasonStatus, Team } from '@types';
 import { formatGameDateTime } from '@/utils/date';
+import { seasonLabel } from '@/utils/season';
 import GameFormModal, { type GameFormData } from './GameFormModal.tsx';
 import GenerateScheduleModal, { type GenerateScheduleData } from './GenerateScheduleModal.tsx';
 import GameStatisticsModal from './GameStatisticsModal.tsx';
@@ -188,7 +189,7 @@ export default function GamesTable({
 						>
 							{seasons.map((season) => (
 								<MenuItem key={season.id} value={season.id}>
-									{season.name}
+									{seasonLabel(season)}
 								</MenuItem>
 							))}
 						</Select>

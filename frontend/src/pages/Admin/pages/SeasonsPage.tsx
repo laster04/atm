@@ -68,7 +68,7 @@ export default function SeasonsPage() {
 	);
 
 	const leagueName = (season: Season) =>
-		season.league?.name ?? leagues.find((l) => l.id === season.leagueId)?.name ?? '—';
+		season.league?.name ?? leagues.find((l) => l.id === season.leagueId)?.name;
 
 	const handleSubmit = async (data: SeasonFormData) => {
 		setError('');
@@ -179,7 +179,7 @@ export default function SeasonsPage() {
 								<span className="flex min-w-0 flex-1 flex-col gap-1.5">
 									<span className="flex min-w-0 items-center gap-2">
 										<span className="truncate text-[15.5px] font-semibold leading-tight">
-											{season.name}
+											{leagueName(season) ?? season.name}
 										</span>
 										<span
 											className="tm-status-pill uppercase tracking-wide"
@@ -194,7 +194,9 @@ export default function SeasonsPage() {
 											</span>
 										)}
 									</span>
-									<span className="truncate text-xs text-muted-foreground">{leagueName(season)}</span>
+									{leagueName(season) && (
+										<span className="truncate text-xs text-muted-foreground">{season.name}</span>
+									)}
 									<span className="flex items-center gap-3.5 text-xs text-muted-foreground">
 										<span className="flex items-center gap-1">
 											<Users className="size-3.5" aria-hidden />
