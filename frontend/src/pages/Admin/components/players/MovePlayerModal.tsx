@@ -6,6 +6,7 @@ import { Button } from '@components/base/button';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { teamApi } from '@/services/api';
 import type { Player, Team, Season } from '@types';
+import { seasonLabel } from '@/utils/season';
 
 interface MovePlayerModalProps {
 	player: Player;
@@ -85,7 +86,7 @@ export default function MovePlayerModal({
 								>
 									{seasons.map((season) => (
 										<MenuItem key={season.id} value={season.id}>
-											{season.name}
+											{seasonLabel(season)}
 										</MenuItem>
 									))}
 								</Select>

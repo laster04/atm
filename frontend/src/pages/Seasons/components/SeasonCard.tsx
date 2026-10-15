@@ -37,8 +37,8 @@ export default function SeasonCard({ season }: { season: Season }) {
 
 			<div className="relative flex items-start justify-between gap-3">
 				<div className="flex flex-col gap-1">
-					<h2 className="text-2xl font-extrabold leading-tight tracking-tight">{season.name}</h2>
-					<p className="text-sm text-subtle-foreground">{season.league?.name || '—'}</p>
+					<h2 className="text-2xl font-extrabold leading-tight tracking-tight">{season.league?.name ?? season.name}</h2>
+					{season.league && <p className="text-sm text-subtle-foreground">{season.name}</p>}
 				</div>
 				<div className="flex shrink-0 flex-col items-end gap-1.5">
 					<SeasonStatusBadge status={season.status} archived={!!season.archivedAt} />

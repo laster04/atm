@@ -83,7 +83,7 @@ export default function Screen() {
 								<div className="flex min-w-0 flex-1 flex-col gap-1.5">
 									<div className="flex items-center gap-2">
 										<span className="truncate text-[15.5px] font-semibold leading-tight">
-											{season.name}
+											{season.league?.name ?? season.name}
 										</span>
 										<span
 											className="tm-status-pill uppercase tracking-wide"
@@ -94,7 +94,7 @@ export default function Screen() {
 										<VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
 									</div>
 									{season.league && (
-										<span className="truncate text-xs text-muted-foreground">{season.league.name}</span>
+										<span className="truncate text-xs text-muted-foreground">{season.name}</span>
 									)}
 									<div className="flex items-center gap-3 text-xs text-muted-foreground">
 										<span className="flex items-center gap-1">
