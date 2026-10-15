@@ -189,6 +189,8 @@ export interface Team {
   name: string;
   logo?: string | null;
   primaryColor?: string | null;
+  /** Invite link to the team's group chat; only sent to the team's own people. */
+  chatUrl?: string | null;
   managerId?: string | null;
   season?: Season;
   seasonTeams?: { id: string; seasonId: string; teamId: string; season: Season }[];

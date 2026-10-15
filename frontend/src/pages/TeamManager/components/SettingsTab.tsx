@@ -8,6 +8,7 @@ import InviteManagerSheet from '@/components/invite/InviteManagerSheet';
 import { sentAgo } from '@/components/invite/inviteState';
 import { SEASON_ACCENT } from '@/pages/SeasonManager/components/util';
 import TeamColorPicker from './TeamColorPicker';
+import TeamChatCard from './TeamChatCard';
 import type { ManagerInvite, ManagerInviteSent, Standing, Team } from '@types';
 
 interface SettingsTabProps {
@@ -82,6 +83,8 @@ export default function SettingsTab({
 				points={standing?.points}
 				onColorChange={onColorChange}
 			/>
+
+			<TeamChatCard teamId={team.id} initialUrl={team.chatUrl} />
 
 			{/* Team Info */}
 			<div className="flex flex-col gap-2">

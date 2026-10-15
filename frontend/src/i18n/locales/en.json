@@ -210,6 +210,13 @@
       "share": "Share",
       "install": "Install",
       "dismiss": "Hide"
+    },
+    "myPlayerTeams": {
+      "title": "Teams I play for",
+      "number": "#{{number}}",
+      "teamPage": "Team page",
+      "openChat": "Open team chat",
+      "noChat": "Your manager hasn't added a team chat yet"
     }
   },
   "auth": {
@@ -673,6 +680,18 @@
         "MAYBE": "Maybe",
         "NO_RESPONSE": "No response"
       }
+    },
+    "chat": {
+      "title": "Team chat",
+      "description": "Link your team's group chat (WhatsApp, Messenger, Discord...). Players get a button to it on their dashboard.",
+      "label": "Chat invite link",
+      "privacy": "Only the team's manager and players on the roster see this link.",
+      "save": "Save link",
+      "remove": "Remove",
+      "saved": "Chat link saved",
+      "removed": "Chat link removed",
+      "invalid": "Paste the full invite link, starting with https://",
+      "saveError": "Couldn't save the chat link"
     }
   },
   "seasonManagement": {
