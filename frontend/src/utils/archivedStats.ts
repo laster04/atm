@@ -12,7 +12,11 @@ export function mapArchivedPlayerStat(row: ArchivedPlayerStat): TopScorer {
 		goals: row.goals,
 		assists: row.assists,
 		penaltyMinutes: row.penaltyMinutes ?? 0,
+		yellowCards: row.yellowCards ?? 0,
+		redCards: row.redCards ?? 0,
+		points: row.points ?? 0,
+		fouls: row.fouls ?? 0,
 		gamesPlayed: row.gamesPlayed,
-		points: row.points
+		rankTotal: row.rankTotal
 	};
 }
