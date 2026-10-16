@@ -7,22 +7,25 @@ import { toast } from 'sonner';
 import { gameApi, playerApi, gameStatisticApi, teamApi } from '@/services/api';
 
 import { Button } from '@components/base/button';
-import { GameStatus, type Game, type HockeyGameStatistic, type Player } from '@types';
+import { GameStatus, type Game, type PlayerGameStatistic, type Player, type StatKey } from '@types';
 import { APP_TIME_ZONE } from '@/utils/date';
+import { formatParts, profileFor } from '@/utils/sportProfiles';
 
 interface PlayerStatForm {
 	playerId: string;
 	playerName: string;
 	playerNumber: number | null;
 	played: boolean;
-	goals: number;
-	assists: number;
-	penaltyMinutes: number;
+	/** Only the numbers the sport keeps. */
+	values: Partial<Record<StatKey, number>>;
 	existingStatId?: string;
 }
 
 /** Snapshot used to work out which rows actually need a request on save. */
-const signature = (s: PlayerStatForm) => `${s.played}|${s.goals}|${s.assists}|${s.penaltyMinutes}`;
+const signature = (s: PlayerStatForm) => `${s.played}|${JSON.stringify(s.values)}`;
+
+/** Penalty minutes come in twos on the ice; everything else steps by one. */
+const STEP: Partial<Record<StatKey, number>> = { penaltyMinutes: 2 };
 
 export default function GameStatsPage() {
 	const { id: teamId, gameId } = useParams<{ id: string; gameId: string }>();
@@ -39,6 +42,8 @@ export default function GameStatsPage() {
 	const [isHomeTeam, setIsHomeTeam] = useState(false);
 
 	const color = teamColor || '#003E7E';
+	const profile = profileFor(game?.season?.league?.sportType);
+	const fields = profile.stats;
 
 	useEffect(() => {
 		if (!gameId || !teamId) return;
@@ -65,9 +70,10 @@ export default function GameStatsPage() {
 				setIsHomeTeam(gameData.homeTeamId === teamId);
 				setTeamColor(teamResp.data.primaryColor ?? null);
 
-				const statsMap = new Map<string, HockeyGameStatistic>();
+				const statsMap = new Map<string, PlayerGameStatistic>();
 				existingStatsResp.data.forEach((stat) => statsMap.set(stat.playerId, stat));
 
+				const keys = profileFor(gameData.season?.league?.sportType).stats;
 				const playersResp = await playerApi.getByTeam(teamId);
 				const stats: PlayerStatForm[] = playersResp.data.map((player: Player) => {
 					const existingStat = statsMap.get(player.id);
@@ -76,9 +82,7 @@ export default function GameStatsPage() {
 						playerName: player.name,
 						playerNumber: player.number ?? null,
 						played: !!existingStat,
-						goals: existingStat?.goals ?? 0,
-						assists: existingStat?.assists ?? 0,
-						penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
+						values: Object.fromEntries(keys.map((key) => [key, existingStat?.[key] ?? 0])),
 						existingStatId: existingStat?.id,
 					};
 				});
@@ -103,29 +107,25 @@ export default function GameStatsPage() {
 		const active = teamStats.filter((s) => s.played);
 		return {
 			lineup: active.length,
-			goals: active.reduce((sum, s) => sum + s.goals, 0),
-			assists: active.reduce((sum, s) => sum + s.assists, 0),
-			penaltyMinutes: active.reduce((sum, s) => sum + s.penaltyMinutes, 0),
+			byField: fields.map((key) => ({ key, sum: active.reduce((sum, s) => sum + (s.values[key] ?? 0), 0) })),
 		};
-	}, [teamStats]);
+	}, [teamStats, fields]);
 
 	const patch = (playerId: string, changes: Partial<PlayerStatForm>) => {
 		setTeamStats((prev) => prev.map((stat) => {
 			if (stat.playerId !== playerId) return stat;
 			const next = { ...stat, ...changes };
 			// Unticking a player clears their numbers so the row reads honestly.
-			if (changes.played === false) return { ...next, goals: 0, assists: 0, penaltyMinutes: 0 };
+			if (changes.played === false) return { ...next, values: Object.fromEntries(fields.map((key) => [key, 0])) };
 			return next;
 		}));
 	};
 
-	type CounterField = 'goals' | 'assists' | 'penaltyMinutes';
+	const setValue = (stat: PlayerStatForm, field: StatKey, value: number) =>
+		patch(stat.playerId, { values: { ...stat.values, [field]: Math.max(0, value) }, played: true });
 
-	const step = (stat: PlayerStatForm, field: CounterField, delta: number) => {
-		// Penalty minutes come in twos on the ice; the rest step by one.
-		const value = Math.max(0, stat[field] + delta * (field === 'penaltyMinutes' ? 2 : 1));
-		patch(stat.playerId, { [field]: value, played: true } as Partial<PlayerStatForm>);
-	};
+	const step = (stat: PlayerStatForm, field: StatKey, delta: number) =>
+		setValue(stat, field, (stat.values[field] ?? 0) + delta * (STEP[field] ?? 1));
 
 	const handleSubmit = async () => {
 		if (!gameId || !dirty.length) return;
@@ -135,18 +135,9 @@ export default function GameStatsPage() {
 			for (const stat of dirty) {
 				if (stat.played) {
 					if (stat.existingStatId) {
-						await gameStatisticApi.update(stat.existingStatId, {
-							goals: stat.goals,
-							assists: stat.assists,
-							penaltyMinutes: stat.penaltyMinutes,
-						});
+						await gameStatisticApi.update(stat.existingStatId, stat.values);
 					} else {
-						await gameStatisticApi.create(gameId, {
-							playerId: stat.playerId,
-							goals: stat.goals,
-							assists: stat.assists,
-							penaltyMinutes: stat.penaltyMinutes,
-						});
+						await gameStatisticApi.create(gameId, { playerId: stat.playerId, ...stat.values });
 					}
 				} else if (stat.existingStatId) {
 					await gameStatisticApi.delete(stat.existingStatId);
@@ -156,7 +147,7 @@ export default function GameStatsPage() {
 			toast.success(t('teamManagement.gameStats.saveSuccess'));
 
 			const existingStatsResp = await gameStatisticApi.getByGame(gameId);
-			const statsMap = new Map<string, HockeyGameStatistic>();
+			const statsMap = new Map<string, PlayerGameStatistic>();
 			existingStatsResp.data.forEach((stat) => statsMap.set(stat.playerId, stat));
 
 			setTeamStats((prev) => {
@@ -196,14 +187,15 @@ export default function GameStatsPage() {
 	const opponentScore = isHomeTeam ? game.awayScore : game.homeScore;
 	const hasScore = game.status === GameStatus.COMPLETED && myScore != null && opponentScore != null;
 
-	const periods = [
-		[isHomeTeam ? game.period1HomeScore : game.period1AwayScore, isHomeTeam ? game.period1AwayScore : game.period1HomeScore],
-		[isHomeTeam ? game.period2HomeScore : game.period2AwayScore, isHomeTeam ? game.period2AwayScore : game.period2HomeScore],
-		[isHomeTeam ? game.period3HomeScore : game.period3AwayScore, isHomeTeam ? game.period3AwayScore : game.period3HomeScore],
-	].filter(([mine]) => mine != null);
+	// Parts read from this team's side: its own score first.
+	const parts = formatParts(
+		game.periodScores?.map((part) => (isHomeTeam ? part : { home: part.away, away: part.home })),
+		profile,
+	);
 
-	const Stepper = ({ stat, field }: { stat: PlayerStatForm; field: CounterField }) => {
-		const label = t(`teamManagement.gameStats.${field}`);
+	const Stepper = ({ stat, field }: { stat: PlayerStatForm; field: StatKey }) => {
+		const label = t(`stats.short.${field}`);
+		const value = stat.values[field] ?? 0;
 		return (
 			<div className="tm-stat-stepper">
 				<span className="tm-stat-label">{label}</span>
@@ -211,14 +203,25 @@ export default function GameStatsPage() {
 					<button
 						type="button"
 						aria-label={`${label} −`}
-						disabled={stat[field] === 0}
+						disabled={value === 0}
 						onClick={() => step(stat, field, -1)}
 					>
 						<Minus className="size-3.5" />
 					</button>
-					<output className={stat.played ? undefined : 'text-muted-foreground'}>
-						{stat[field]}
-					</output>
+					{field === 'points' ? (
+						// Basketball points are typed: tapping to 24 one at a time is no way to keep score.
+						<input
+							type="number"
+							min={0}
+							inputMode="numeric"
+							aria-label={label}
+							value={value}
+							onChange={(e) => setValue(stat, field, Number(e.target.value) || 0)}
+							className={`w-10 bg-transparent text-center tabular-nums ${stat.played ? '' : 'text-muted-foreground'}`}
+						/>
+					) : (
+						<output className={stat.played ? undefined : 'text-muted-foreground'}>{value}</output>
+					)}
 					<button
 						type="button"
 						aria-label={`${label} +`}
@@ -266,11 +269,7 @@ export default function GameStatsPage() {
 						<span className="text-2xl font-bold tabular-nums leading-none">
 							{myScore}:{opponentScore}
 						</span>
-						{periods.length > 0 && (
-							<span className="text-xs text-white/85">
-								{periods.map(([mine, theirs], i) => `P${i + 1} ${mine}:${theirs}`).join('  ')}
-							</span>
-						)}
+						{parts && <span className="text-xs text-white/85">{parts}</span>}
 					</div>
 				)}
 			</div>
@@ -281,18 +280,12 @@ export default function GameStatsPage() {
 					{t('teamManagement.gameStats.lineup')}{' '}
 					<b className="font-semibold text-foreground">{totals.lineup}</b>
 				</span>
-				<span>
-					{t('teamManagement.gameStats.goals')}{' '}
-					<b className="font-semibold text-foreground">{totals.goals}</b>
-				</span>
-				<span>
-					{t('teamManagement.gameStats.assists')}{' '}
-					<b className="font-semibold text-foreground">{totals.assists}</b>
-				</span>
-				<span>
-					{t('teamManagement.gameStats.penaltyMinutesShort')}{' '}
-					<b className="font-semibold text-foreground">{totals.penaltyMinutes}</b>
-				</span>
+				{totals.byField.map(({ key, sum }) => (
+					<span key={key}>
+						{t(`stats.short.${key}`)}{' '}
+						<b className="font-semibold text-foreground">{sum}</b>
+					</span>
+				))}
 			</div>
 
 			{/* Rows */}
@@ -331,11 +324,11 @@ export default function GameStatsPage() {
 									)}
 								</span>
 							</div>
-							<div className="tm-stat-counters">
-								<Stepper stat={stat} field="goals" />
-								<Stepper stat={stat} field="assists" />
-								<Stepper stat={stat} field="penaltyMinutes" />
-							</div>
+							{fields.length > 0 && (
+								<div className="tm-stat-counters">
+									{fields.map((field) => <Stepper key={field} stat={stat} field={field} />)}
+								</div>
+							)}
 						</div>
 					))
 				)}

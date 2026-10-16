@@ -171,7 +171,7 @@ export const canView = async (kind: VisibleKind, user: Viewer, id: string): Prom
     case 'game':
       return (await prisma.game.count({ where: { AND: [{ id }, viewableGameWhere(user)] } })) > 0;
     case 'gameStatistic':
-      return (await prisma.hockeyGameStatistic.count({ where: { id, game: viewableGameWhere(user) } })) > 0;
+      return (await prisma.playerGameStatistic.count({ where: { id, game: viewableGameWhere(user) } })) > 0;
     case 'series':
       return (await prisma.tournamentSeries.count({ where: { AND: [{ id }, viewableSeriesWhere(user)] } })) > 0;
     case 'tournament':

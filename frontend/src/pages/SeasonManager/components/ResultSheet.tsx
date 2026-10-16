@@ -3,12 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { ClipboardList, Lock, Minus, Plus, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
-import { GameStatus, type Game } from '@types';
+import { GameStatus, type Game, type SportType } from '@types';
 import { SEASON_ACCENT } from './util';
+import PartScoresEditor, { initialParts, toPartScores } from '@/components/PartScoresEditor';
+import { partsWon, profileFor } from '@/utils/sportProfiles';
 import { APP_TIME_ZONE } from '@/utils/date';
 
 interface ResultSheetProps {
 	game: Game;
+	/** Decides the parts (halves, quarters, sets) and whether the score follows from them. */
+	sport?: SportType;
 	onClose: () => void;
 	onSaved: (game: Game) => void;
 	onOpenReport: () => void;
@@ -21,7 +25,7 @@ const STATUSES = [
 	GameStatus.CANCELLED,
 ];
 
-export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: ResultSheetProps) {
+export default function ResultSheet({ game, sport, onClose, onSaved, onOpenReport }: ResultSheetProps) {
 	const { t, i18n } = useTranslation();
 
 	// A game with a match report has its score computed from that report. Editing
@@ -32,13 +36,12 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 	// reopened from the match report.
 	const confirmed = game.confirmedAt != null;
 
+	const profile = profileFor(sport);
 	const [homeScore, setHomeScore] = useState(game.homeScore ?? 0);
 	const [awayScore, setAwayScore] = useState(game.awayScore ?? 0);
-	const [periods, setPeriods] = useState<[number | null, number | null][]>([
-		[game.period1HomeScore ?? null, game.period1AwayScore ?? null],
-		[game.period2HomeScore ?? null, game.period2AwayScore ?? null],
-		[game.period3HomeScore ?? null, game.period3AwayScore ?? null],
-	]);
+	const [parts, setParts] = useState(() => initialParts(game.periodScores, profile));
+	// Volleyball: the result is the sets won, so it is shown, not typed.
+	const setsWon = profile.scoreIsPartsWon ? partsWon(toPartScores(parts) ?? []) : null;
 	const [status, setStatus] = useState<GameStatus>(
 		game.status === GameStatus.SCHEDULED ? GameStatus.COMPLETED : game.status
 	);
@@ -61,17 +64,6 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 		.filter(Boolean)
 		.join(' · ');
 
-	const setPeriod = (index: number, side: 0 | 1, raw: string) => {
-		const value = raw === '' ? null : Math.max(0, Number(raw));
-		setPeriods((prev) => {
-			const next = [...prev] as [number | null, number | null][];
-			const pair = [...next[index]] as [number | null, number | null];
-			pair[side] = Number.isNaN(value) ? null : value;
-			next[index] = pair;
-			return next;
-		});
-	};
-
 	// A finished game saved from here is the league's final word on it, so it is
 	// confirmed in the same save rather than left waiting in the match report.
 	const confirmsOnSave = status === GameStatus.COMPLETED;
@@ -85,14 +77,9 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 				derived
 					? { status, confirm: confirmsOnSave }
 					: {
-							homeScore,
-							awayScore,
-							period1HomeScore: periods[0][0],
-							period1AwayScore: periods[0][1],
-							period2HomeScore: periods[1][0],
-							period2AwayScore: periods[1][1],
-							period3HomeScore: periods[2][0],
-							period3AwayScore: periods[2][1],
+							homeScore: setsWon?.home ?? homeScore,
+							awayScore: setsWon?.away ?? awayScore,
+							periodScores: toPartScores(parts),
 							status,
 							confirm: confirmsOnSave,
 						}
@@ -129,7 +116,7 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 				<span className="text-[11px] uppercase tracking-wide text-muted-foreground">{side}</span>
 			</span>
 			<span className="flex shrink-0 items-center gap-1.5">
-				{!derived && (
+				{!derived && !setsWon && (
 					<button
 						onClick={() => onChange(Math.max(0, value - 1))}
 						className="flex size-11 items-center justify-center rounded-[11px] border border-border"
@@ -139,7 +126,7 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 					</button>
 				)}
 				<span className="w-9 text-center text-2xl font-bold tabular-nums">{value}</span>
-				{!derived && (
+				{!derived && !setsWon && (
 					<button
 						onClick={() => onChange(value + 1)}
 						className="flex size-11 items-center justify-center rounded-[11px] border border-border"
@@ -181,14 +168,14 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 						</p>
 					</div>
 				)}
-				<button
+				{profile.events.length > 0 && <button
 					onClick={onOpenReport}
 					className="flex h-11 items-center justify-center gap-2 rounded-[10px] border text-[14.5px] font-semibold"
 					style={{ borderColor: SEASON_ACCENT, color: SEASON_ACCENT }}
 				>
 					<ClipboardList className="size-4" aria-hidden />
 					{t('seasonManagement.result.openReport')}
-				</button>
+				</button>}
 
 				{/* Final score */}
 				<div className="flex flex-col gap-3.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">
@@ -197,14 +184,14 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 						name={game.homeTeam?.name}
 						color={game.homeTeam?.primaryColor}
 						side={t('seasonManagement.result.home')}
-						value={homeScore}
+						value={setsWon?.home ?? homeScore}
 						onChange={setHomeScore}
 					/>
 					<ScoreRow
 						name={game.awayTeam?.name}
 						color={game.awayTeam?.primaryColor}
 						side={t('seasonManagement.result.away')}
-						value={awayScore}
+						value={setsWon?.away ?? awayScore}
 						onChange={setAwayScore}
 					/>
 				</div>
@@ -212,44 +199,22 @@ export default function ResultSheet({ game, onClose, onSaved, onOpenReport }: Re
 				{/* Periods */}
 				<div className="flex flex-col gap-2">
 					<div className="flex items-baseline justify-between">
-						<span className="tm-section-label">{t('seasonManagement.result.periods')}</span>
+						<span className="tm-section-label">{t(`sports.partsTitle.${profile.parts.kind}`)}</span>
 						<span className="text-[12.5px] text-muted-foreground">
 							{derived
 								? t('seasonManagement.result.fromReport')
-								: t('seasonManagement.result.optional')}
+								: setsWon
+									? t('sports.parts.setsDecide')
+									: t('seasonManagement.result.optional')}
 						</span>
 					</div>
-					<div className="tm-rows-card">
-						{periods.map((pair, index) => (
-							<div key={index} className="flex h-[60px] items-center gap-3 px-3.5">
-								<span className="w-7 shrink-0 text-[13px] font-semibold text-muted-foreground">
-									{t('seasonManagement.result.period', { n: index + 1 })}
-								</span>
-								<span className="flex-1" />
-								<span className="flex items-center gap-2">
-									<input
-										type="number"
-										min={0}
-										inputMode="numeric"
-										value={pair[0] ?? ''}
-										readOnly={derived}
-										onChange={(e) => setPeriod(index, 0, e.target.value)}
-										className="sm-score-input h-11 w-14 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
-									/>
-									<span className="text-sm text-muted-foreground">:</span>
-									<input
-										type="number"
-										min={0}
-										inputMode="numeric"
-										value={pair[1] ?? ''}
-										readOnly={derived}
-										onChange={(e) => setPeriod(index, 1, e.target.value)}
-										className="sm-score-input h-11 w-14 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
-									/>
-								</span>
-							</div>
-						))}
-					</div>
+					<PartScoresEditor
+						profile={profile}
+						rows={parts}
+						onChange={setParts}
+						readOnly={derived}
+						inputClassName="sm-score-input h-11 w-14 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
+					/>
 				</div>
 
 				{/* Status */}

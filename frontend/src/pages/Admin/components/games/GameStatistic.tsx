@@ -7,19 +7,15 @@ import { useAuth } from '@/context/AuthContext.tsx';
 import { gameApi, playerApi, gameStatisticApi } from '@/services/api';
 
 import { Button } from "@components/base/button.tsx";
-import { GameStatus, Game, Player, HockeyGameStatistic } from "@types";
+import { GameStatus, Game, Player, PlayerGameStatistic, type StatKey } from "@types";
 import { ADMIN_GOLD, ADMIN_INK } from '../util';
 import { APP_TIME_ZONE } from '@/utils/date';
+import PartScoresEditor, { initialParts, toPartScores, type PartDraft } from '@/components/PartScoresEditor';
+import { partsWon, profileFor } from '@/utils/sportProfiles';
 
-interface PeriodScores {
+interface Total {
 	homeScore: number | null;
 	awayScore: number | null;
-	period1HomeScore: number | null;
-	period1AwayScore: number | null;
-	period2HomeScore: number | null;
-	period2AwayScore: number | null;
-	period3HomeScore: number | null;
-	period3AwayScore: number | null;
 }
 
 interface PlayerStatForm {
@@ -27,35 +23,17 @@ interface PlayerStatForm {
 	playerName: string;
 	playerNumber: number | null;
 	played: boolean;
-	goals: number;
-	assists: number;
-	penaltyMinutes: number;
+	/** Only the numbers the sport keeps. */
+	values: Partial<Record<StatKey, number>>;
 	existingStatId?: string;
 }
 
-type CounterField = 'goals' | 'assists' | 'penaltyMinutes';
-
-const EMPTY_SCORES: PeriodScores = {
-	homeScore: null,
-	awayScore: null,
-	period1HomeScore: null,
-	period1AwayScore: null,
-	period2HomeScore: null,
-	period2AwayScore: null,
-	period3HomeScore: null,
-	period3AwayScore: null,
-};
-
 /** Snapshot used to work out which rows actually need a request on save. */
-const signature = (s: PlayerStatForm) => `${s.played}|${s.goals}|${s.assists}|${s.penaltyMinutes}`;
+const signature = (s: PlayerStatForm) => `${s.played}|${JSON.stringify(s.values)}`;
+const scoreSignature = (total: Total, parts: PartDraft[]) => JSON.stringify([total, toPartScores(parts)]);
 
-/** The four editable score lines, as [label key, home field, away field]. */
-const SCORE_LINES: [string, keyof PeriodScores, keyof PeriodScores][] = [
-	['gameStatistic.total', 'homeScore', 'awayScore'],
-	['gameStatistic.period1', 'period1HomeScore', 'period1AwayScore'],
-	['gameStatistic.period2', 'period2HomeScore', 'period2AwayScore'],
-	['gameStatistic.period3', 'period3HomeScore', 'period3AwayScore'],
-];
+/** Penalty minutes come in twos on the ice; everything else steps by one. */
+const STEP: Partial<Record<StatKey, number>> = { penaltyMinutes: 2 };
 
 function Stepper({
 	label,
@@ -96,7 +74,7 @@ function Stepper({
 	);
 }
 
-export default function HockeyGameStatisticPage(): React.JSX.Element {
+export default function PlayerGameStatisticPage(): React.JSX.Element {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { t, i18n } = useTranslation();
@@ -104,8 +82,9 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [game, setGame] = useState<Game | null>(null);
-	const [periodScores, setPeriodScores] = useState<PeriodScores>(EMPTY_SCORES);
-	const [scoreBaseline, setScoreBaseline] = useState<PeriodScores>(EMPTY_SCORES);
+	const [total, setTotal] = useState<Total>({ homeScore: null, awayScore: null });
+	const [parts, setParts] = useState<PartDraft[]>([]);
+	const [scoreBaseline, setScoreBaseline] = useState('');
 	const [homeTeamStats, setHomeTeamStats] = useState<PlayerStatForm[]>([]);
 	const [awayTeamStats, setAwayTeamStats] = useState<PlayerStatForm[]>([]);
 	const [baseline, setBaseline] = useState<Record<string, string>>({});
@@ -123,21 +102,16 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 
 				const gameData = gameResp.data;
 				setGame(gameData);
-				const scores: PeriodScores = {
-					homeScore: gameData.homeScore ?? null,
-					awayScore: gameData.awayScore ?? null,
-					period1HomeScore: gameData.period1HomeScore ?? null,
-					period1AwayScore: gameData.period1AwayScore ?? null,
-					period2HomeScore: gameData.period2HomeScore ?? null,
-					period2AwayScore: gameData.period2AwayScore ?? null,
-					period3HomeScore: gameData.period3HomeScore ?? null,
-					period3AwayScore: gameData.period3AwayScore ?? null,
-				};
-				setPeriodScores(scores);
-				setScoreBaseline(scores);
+				const sportProfile = profileFor(gameData.season?.league?.sportType);
+				const loadedTotal = { homeScore: gameData.homeScore ?? null, awayScore: gameData.awayScore ?? null };
+				const loadedParts = initialParts(gameData.periodScores, sportProfile);
+				setTotal(loadedTotal);
+				setParts(loadedParts);
+				setScoreBaseline(scoreSignature(loadedTotal, loadedParts));
+				const keys = sportProfile.stats;
 
 				const existingStats = existingStatsResp.data;
-				const statsMap = new Map<string, HockeyGameStatistic>();
+				const statsMap = new Map<string, PlayerGameStatistic>();
 				existingStats.forEach(stat => statsMap.set(stat.playerId, stat));
 
 				// Fetch players for both teams
@@ -153,9 +127,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 						playerName: player.name,
 						playerNumber: player.number ?? null,
 						played: !!existingStat,
-						goals: existingStat?.goals ?? 0,
-						assists: existingStat?.assists ?? 0,
-						penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
+						values: Object.fromEntries(keys.map((key) => [key, existingStat?.[key] ?? 0])),
 						existingStatId: existingStat?.id
 					};
 				};
@@ -181,16 +153,21 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 			if (stat.playerId !== playerId) return stat;
 			const next = { ...stat, ...changes };
 			// Unticking a player clears their numbers so the row reads honestly.
-			if (changes.played === false) return { ...next, goals: 0, assists: 0, penaltyMinutes: 0 };
+			if (changes.played === false) return { ...next, values: Object.fromEntries(fields.map((key) => [key, 0])) };
 			return next;
 		}));
 	};
 
-	const step = (team: 'home' | 'away', stat: PlayerStatForm, field: CounterField, delta: number) => {
-		// Penalty minutes come in twos on the ice; the rest step by one.
-		const value = Math.max(0, stat[field] + delta * (field === 'penaltyMinutes' ? 2 : 1));
-		patch(team, stat.playerId, { [field]: value, played: true } as Partial<PlayerStatForm>);
+	const step = (team: 'home' | 'away', stat: PlayerStatForm, field: StatKey, delta: number) => {
+		const value = Math.max(0, (stat.values[field] ?? 0) + delta * (STEP[field] ?? 1));
+		patch(team, stat.playerId, { values: { ...stat.values, [field]: value }, played: true });
 	};
+
+	const profile = profileFor(game?.season?.league?.sportType);
+	const fields = profile.stats;
+	// Volleyball: the result is the sets won, so it follows from the sets typed below.
+	const setsWon = profile.scoreIsPartsWon ? partsWon(toPartScores(parts) ?? []) : null;
+	const shownTotal: Total = setsWon ? { homeScore: setsWon.home, awayScore: setsWon.away } : total;
 
 	const canEditFull = isAdmin() || isSeasonManager();
 	// A confirmed game refuses every edit until it is reopened from the match
@@ -208,26 +185,22 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 		return rows.filter(s => baseline[s.playerId] !== signature(s));
 	}, [homeTeamStats, awayTeamStats, baseline, canEditHome, canEditAway]);
 
-	const scoreDirty = useMemo(
-		() => canEditFull && SCORE_LINES.some(([, h, a]) =>
-			periodScores[h] !== scoreBaseline[h] || periodScores[a] !== scoreBaseline[a]),
-		[canEditFull, periodScores, scoreBaseline],
-	);
+	const scoreDirty = canEditFull && scoreSignature(total, parts) !== scoreBaseline;
 
 	const dirtyCount = dirtyStats.length + (scoreDirty ? 1 : 0);
 
 	// A scheduled game that gets a full score is saved as played (see handleSubmit).
 	const endsCompleted = game?.status === GameStatus.COMPLETED || (
 		game?.status === GameStatus.SCHEDULED && scoreDirty
-		&& periodScores.homeScore != null && periodScores.awayScore != null
+		&& shownTotal.homeScore != null && shownTotal.awayScore != null
 	);
 	// The league side entering the result is the confirmation itself, so the
 	// report doesn't wait for a second visit to the match report.
 	const confirmsOnSave = canEditFull && !confirmed && endsCompleted;
 
-	const setScore = (field: keyof PeriodScores, raw: string) => {
+	const setScore = (field: keyof Total, raw: string) => {
 		const parsed = raw === '' ? null : Math.max(0, parseInt(raw));
-		setPeriodScores(prev => ({ ...prev, [field]: Number.isNaN(parsed as number) ? null : parsed }));
+		setTotal(prev => ({ ...prev, [field]: Number.isNaN(parsed as number) ? null : parsed }));
 	};
 
 	const handleSubmit = async () => {
@@ -239,31 +212,23 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 			if (scoreDirty) {
 				// A game still marked SCHEDULED but carrying a score has been played;
 				// the season manager's result sheet flips it the same way.
-				const played = game?.status === GameStatus.SCHEDULED && periodScores.homeScore != null && periodScores.awayScore != null;
-				const updated = await gameApi.update(id, played ? { ...periodScores, status: GameStatus.COMPLETED } : periodScores);
+				const played = game?.status === GameStatus.SCHEDULED && shownTotal.homeScore != null && shownTotal.awayScore != null;
+				const scores = { ...shownTotal, periodScores: toPartScores(parts) };
+				const updated = await gameApi.update(id, played ? { ...scores, status: GameStatus.COMPLETED } : scores);
 				// Only the status is taken back: the rest of the loaded game (colours,
 				// managers, season) is richer than what the update endpoint returns.
 				status = updated.data.status;
 				setGame(prev => (prev ? { ...prev, status: updated.data.status } : prev));
-				setScoreBaseline(periodScores);
+				setScoreBaseline(scoreSignature(total, parts));
 			}
 
 			for (const stat of dirtyStats) {
 				if (stat.played) {
 					// Player participated - create or update
 					if (stat.existingStatId) {
-						await gameStatisticApi.update(stat.existingStatId, {
-							goals: stat.goals,
-							assists: stat.assists,
-							penaltyMinutes: stat.penaltyMinutes
-						});
+						await gameStatisticApi.update(stat.existingStatId, stat.values);
 					} else {
-						await gameStatisticApi.create(id, {
-							playerId: stat.playerId,
-							goals: stat.goals,
-							assists: stat.assists,
-							penaltyMinutes: stat.penaltyMinutes
-						});
+						await gameStatisticApi.create(id, { playerId: stat.playerId, ...stat.values });
 					}
 				} else if (stat.existingStatId) {
 					// Player didn't participate but has existing stat - delete it
@@ -281,7 +246,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 
 			// Refresh data to get updated IDs
 			const existingStatsResp = await gameStatisticApi.getByGame(id);
-			const statsMap = new Map<string, HockeyGameStatistic>();
+			const statsMap = new Map<string, PlayerGameStatistic>();
 			existingStatsResp.data.forEach(stat => statsMap.set(stat.playerId, stat));
 
 			const relabel = (prev: PlayerStatForm[]) => prev.map(stat => ({
@@ -348,9 +313,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 		const active = stats.filter(s => s.played);
 		const totals = {
 			lineup: active.length,
-			goals: active.reduce((sum, s) => sum + s.goals, 0),
-			assists: active.reduce((sum, s) => sum + s.assists, 0),
-			penaltyMinutes: active.reduce((sum, s) => sum + s.penaltyMinutes, 0),
+			byField: fields.map((key) => ({ key, sum: active.reduce((sum, s) => sum + (s.values[key] ?? 0), 0) })),
 		};
 
 		return (
@@ -375,15 +338,11 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 					<span>
 						{t('gameStatistic.lineup')} <b className="font-semibold text-foreground">{totals.lineup}</b>
 					</span>
-					<span>
-						{t('gameStatistic.goals')} <b className="font-semibold text-foreground">{totals.goals}</b>
-					</span>
-					<span>
-						{t('gameStatistic.assists')} <b className="font-semibold text-foreground">{totals.assists}</b>
-					</span>
-					<span>
-						{t('gameStatistic.penaltyMinutes')} <b className="font-semibold text-foreground">{totals.penaltyMinutes}</b>
-					</span>
+					{totals.byField.map(({ key, sum }) => (
+						<span key={key}>
+							{t(`stats.short.${key}`)} <b className="font-semibold text-foreground">{sum}</b>
+						</span>
+					))}
 				</div>
 
 				{stats.length === 0 ? (
@@ -422,29 +381,20 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 										)}
 									</span>
 								</div>
-								<div className="tm-stat-counters">
-									<Stepper
-										label={t('gameStatistic.goals')}
-										value={stat.goals}
-										dimmed={!stat.played}
-										disabled={!canEditTeam}
-										onStep={(delta) => step(side, stat, 'goals', delta)}
-									/>
-									<Stepper
-										label={t('gameStatistic.assists')}
-										value={stat.assists}
-										dimmed={!stat.played}
-										disabled={!canEditTeam}
-										onStep={(delta) => step(side, stat, 'assists', delta)}
-									/>
-									<Stepper
-										label={t('gameStatistic.penaltyMinutes')}
-										value={stat.penaltyMinutes}
-										dimmed={!stat.played}
-										disabled={!canEditTeam}
-										onStep={(delta) => step(side, stat, 'penaltyMinutes', delta)}
-									/>
-								</div>
+								{fields.length > 0 && (
+									<div className="tm-stat-counters">
+										{fields.map((field) => (
+											<Stepper
+												key={field}
+												label={t(`stats.short.${field}`)}
+												value={stat.values[field] ?? 0}
+												dimmed={!stat.played}
+												disabled={!canEditTeam}
+												onStep={(delta) => step(side, stat, field, delta)}
+											/>
+										))}
+									</div>
+								)}
 							</div>
 						))}
 					</div>
@@ -477,7 +427,7 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 						{subtitle && <p className="truncate text-xs opacity-75">{subtitle}</p>}
 					</div>
 					<span className="shrink-0 text-2xl font-bold tabular-nums">
-						{periodScores.homeScore ?? '-'}:{periodScores.awayScore ?? '-'}
+						{shownTotal.homeScore ?? '-'}:{shownTotal.awayScore ?? '-'}
 					</span>
 				</div>
 			</div>
@@ -519,44 +469,45 @@ export default function HockeyGameStatisticPage(): React.JSX.Element {
 								))}
 							</span>
 						</div>
-						{SCORE_LINES.map(([labelKey, homeField, awayField]) => (
-							<div key={labelKey} className="flex min-h-[56px] items-center gap-3 px-3.5">
-								<span className="w-12 shrink-0 text-[13px] font-semibold text-muted-foreground">
-									{t(labelKey)}
+						<div className="flex min-h-[56px] items-center gap-3 px-3.5">
+							<span className="w-12 shrink-0 text-[13px] font-semibold text-muted-foreground">
+								{t('gameStatistic.total')}
+							</span>
+							<span className="flex-1" />
+							{canEditFull && !setsWon ? (
+								<span className="flex shrink-0 items-center gap-2">
+									{(['homeScore', 'awayScore'] as const).map((field, index) => (
+										<React.Fragment key={field}>
+											{index === 1 && <span className="w-2 text-center text-sm text-muted-foreground">:</span>}
+											<input
+												type="number"
+												min={0}
+												inputMode="numeric"
+												aria-label={`${t('gameStatistic.total')} ${t(field === 'homeScore' ? 'gameStatistic.home' : 'gameStatistic.away')}`}
+												value={total[field] ?? ''}
+												onChange={(e) => setScore(field, e.target.value)}
+												className="sm-score-input h-11 w-20 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
+											/>
+										</React.Fragment>
+									))}
 								</span>
-								<span className="flex-1" />
-								{canEditFull ? (
-									<span className="flex shrink-0 items-center gap-2">
-										<input
-											type="number"
-											min={0}
-											inputMode="numeric"
-											aria-label={`${t(labelKey)} ${t('gameStatistic.home')}`}
-											value={periodScores[homeField] ?? ''}
-											onChange={(e) => setScore(homeField, e.target.value)}
-											className="sm-score-input h-11 w-20 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
-										/>
-										<span className="w-2 text-center text-sm text-muted-foreground">:</span>
-										<input
-											type="number"
-											min={0}
-											inputMode="numeric"
-											aria-label={`${t(labelKey)} ${t('gameStatistic.away')}`}
-											value={periodScores[awayField] ?? ''}
-											onChange={(e) => setScore(awayField, e.target.value)}
-											className="sm-score-input h-11 w-20 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
-										/>
-									</span>
-								) : (
-									<span className="flex shrink-0 items-center gap-2 text-base font-semibold tabular-nums">
-										<span className="w-20 text-center">{periodScores[homeField] ?? '-'}</span>
-										<span className="w-2 text-center text-sm text-muted-foreground">:</span>
-										<span className="w-20 text-center">{periodScores[awayField] ?? '-'}</span>
-									</span>
-								)}
-							</div>
-						))}
+							) : (
+								<span className="flex shrink-0 items-center gap-2 text-base font-semibold tabular-nums">
+									<span className="w-20 text-center">{shownTotal.homeScore ?? '-'}</span>
+									<span className="w-2 text-center text-sm text-muted-foreground">:</span>
+									<span className="w-20 text-center">{shownTotal.awayScore ?? '-'}</span>
+								</span>
+							)}
+						</div>
 					</div>
+					<span className="tm-section-label pt-2">{t(`sports.partsTitle.${profile.parts.kind}`)}</span>
+					<PartScoresEditor
+						profile={profile}
+						rows={parts}
+						onChange={setParts}
+						readOnly={!canEditFull}
+						inputClassName="sm-score-input h-11 w-20 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
+					/>
 				</section>
 
 				{/* Line-ups */}

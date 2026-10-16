@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { MatchEventType, Prisma } from '@prisma/client';
+import { CardColor, MatchEventType, Prisma, SportType } from '@prisma/client';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { recomputeGameFromEvents } from '../services/matchEvents/derive.js';
 import { recordAudit } from '../services/audit/record.js';
+import { profileFor } from '../services/sports/profile.js';
 
 const EVENT_TYPES = Object.values(MatchEventType);
 
@@ -18,6 +19,7 @@ interface EventBody {
   secondaryAssistPlayerId?: string | null;
   penaltyMinutes?: number | null;
   penaltyType?: string | null;
+  cardColor?: string | null;
   note?: string | null;
 }
 
@@ -32,10 +34,19 @@ const isInt = (value: unknown): value is number => Number.isInteger(value);
  */
 const validate = async (
   body: EventBody,
-  game: { id: string; homeTeamId: string; awayTeamId: string }
+  game: { id: string; homeTeamId: string; awayTeamId: string; season: { league: { sportType: SportType } } }
 ): Promise<ValidationError | null> => {
+  // Each sport's report has its own events: cards in football, penalties in
+  // hockey. Basketball and volleyball have no event log yet.
+  const allowed = profileFor(game.season.league.sportType).events;
+  if (allowed.length === 0) {
+    return { status: 409, error: 'This sport has no match report. Enter the result and player statistics directly.' };
+  }
   if (!body.type || !EVENT_TYPES.includes(body.type as MatchEventType)) {
-    return { status: 400, error: `type must be one of ${EVENT_TYPES.join(', ')}` };
+    return { status: 400, error: `type must be one of ${allowed.join(', ')}` };
+  }
+  if (!allowed.includes(body.type as MatchEventType)) {
+    return { status: 400, error: `${body.type} is not part of this sport's match report` };
   }
   if (!body.teamId) return { status: 400, error: 'teamId is required' };
   if (body.teamId !== game.homeTeamId && body.teamId !== game.awayTeamId) {
@@ -90,6 +101,14 @@ const validate = async (
     return { status: 400, error: `${body.type} events carry no assists or penalty minutes` };
   }
 
+  if (body.type === 'CARD') {
+    if (!body.cardColor || !Object.values(CardColor).includes(body.cardColor as CardColor)) {
+      return { status: 400, error: 'A CARD event needs cardColor YELLOW or RED' };
+    }
+  } else if (body.cardColor) {
+    return { status: 400, error: 'cardColor belongs on a CARD event' };
+  }
+
   return null;
 };
 
@@ -103,6 +122,7 @@ const toData = (body: EventBody) => ({
   secondaryAssistPlayerId: body.secondaryAssistPlayerId || null,
   penaltyMinutes: body.penaltyMinutes ?? null,
   penaltyType: body.penaltyType || null,
+  cardColor: (body.cardColor as CardColor | null | undefined) || null,
   note: body.note || null,
 });
 
@@ -168,6 +188,7 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
       select: {
         id: true, homeTeamId: true, awayTeamId: true,
         eventsAuthoritative: true, confirmedAt: true,
+        season: { select: { league: { select: { sportType: true } } } },
       },
     });
     if (!game) {
@@ -190,7 +211,7 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
     // which would silently overwrite anything entered by hand. Refuse instead,
     // so whoever entered those totals decides to give them up.
     if (!game.eventsAuthoritative) {
-      const existingStats = await prisma.hockeyGameStatistic.count({ where: { gameId } });
+      const existingStats = await prisma.playerGameStatistic.count({ where: { gameId } });
       if (existingStats > 0) {
         res.status(409).json({
           error:
@@ -244,7 +265,10 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
 
     const game = await prisma.game.findUnique({
       where: { id: existing.gameId },
-      select: { id: true, homeTeamId: true, awayTeamId: true, confirmedAt: true },
+      select: {
+        id: true, homeTeamId: true, awayTeamId: true, confirmedAt: true,
+        season: { select: { league: { select: { sportType: true } } } },
+      },
     });
     if (!game) {
       res.status(404).json({ error: 'Game not found' });
@@ -263,6 +287,8 @@ export const updateEvent = async (req: AuthRequest, res: Response): Promise<void
       type: body.type ?? existing.type,
       teamId: body.teamId ?? existing.teamId,
     };
+    // A card keeps its colour unless the edit changes it.
+    if (merged.type === 'CARD' && merged.cardColor === undefined) merged.cardColor = existing.cardColor;
     const invalid = await validate(merged, game);
     if (invalid) {
       res.status(invalid.status).json({ error: invalid.error });

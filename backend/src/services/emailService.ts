@@ -425,7 +425,7 @@ class EmailService {
         confirmed: boolean;
       }[];
       standings: { rank: number; team: string; played: number; points: number }[];
-      topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
+      topScorers: { name: string; team: string; goals: number; assists: number; points: number; detail: string | null }[];
     },
     locale?: string
   ): Promise<boolean> {
@@ -523,7 +523,7 @@ class EmailService {
         (scorer) =>
           `<tr>${cell(escapeHtml(scorer.name))}` +
           `${cell(escapeHtml(scorer.team), { muted: true })}` +
-          `${cell(`${scorer.goals}+${scorer.assists}`, { align: 'center', muted: true })}` +
+          `${cell(scorer.detail ?? '', { align: 'center', muted: true })}` +
           `${cell(String(scorer.points), { align: 'right', bold: true })}</tr>`
       )
       .join('');

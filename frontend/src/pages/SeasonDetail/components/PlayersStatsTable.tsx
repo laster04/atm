@@ -1,13 +1,22 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TopScorer } from '@types';
+import { TopScorer, type SportType } from '@types';
+import { profileFor, rankColumn } from '@/utils/sportProfiles';
 import { EmptyState, Panel, TeamCrest, Th, Td, TableShell, HeadRow, TeamRow } from '@/components/public';
 
 /** Gold, silver, bronze for the first three; the rest take the quiet chip. */
 const MEDALS = ['bg-brand text-brand-ink', 'bg-border text-subtle-foreground', 'bg-warning-soft text-warning-strong'];
 
-export default function PlayersStatsTable({ topScorers }: { topScorers: TopScorer[] }) {
+export default function PlayersStatsTable({ topScorers, sport }: { topScorers: TopScorer[]; sport?: SportType }) {
 	const { t } = useTranslation();
+	const profile = profileFor(sport);
+	const rank = rankColumn(profile);
+	// The ranked number is bold; hockey adds a points column of its own for it.
+	const columns = rank.key === 'rankTotal' ? [...profile.stats, 'rankTotal' as const] : profile.stats;
+
+	if (profile.stats.length === 0) {
+		return <EmptyState title={t('stats.none')} />;
+	}
 
 	if (topScorers.length === 0) {
 		return <EmptyState title={t('seasonDetail.playersStats.noStats')} />;
@@ -22,10 +31,11 @@ export default function PlayersStatsTable({ topScorers }: { topScorers: TopScore
 						<Th className="text-left">{t('seasonDetail.playersStats.player')}</Th>
 						<Th className="text-left">{t('seasonDetail.playersStats.team')}</Th>
 						<Th className="text-center">{t('seasonDetail.playersStats.gamesPlayed')}</Th>
-						<Th className="text-center">{t('seasonDetail.playersStats.goals')}</Th>
-						<Th className="text-center">{t('seasonDetail.playersStats.assists')}</Th>
-						<Th className="text-center">{t('seasonDetail.playersStats.penaltyMinutes')}</Th>
-						<Th className="text-center text-foreground">{t('seasonDetail.playersStats.points')}</Th>
+						{columns.map((key) => (
+							<Th key={key} className={`text-center ${key === rank.key ? 'text-foreground' : ''}`}>
+								{t(`stats.short.${key}`)}
+							</Th>
+						))}
 					</HeadRow>
 				</thead>
 				<tbody>
@@ -60,10 +70,11 @@ export default function PlayersStatsTable({ topScorers }: { topScorers: TopScore
 								)}
 							</Td>
 							<Td className="text-center">{scorer.gamesPlayed}</Td>
-							<Td className="text-center">{scorer.goals}</Td>
-							<Td className="text-center">{scorer.assists}</Td>
-							<Td className="text-center">{scorer.penaltyMinutes ?? 0}</Td>
-							<Td className="text-center text-[15px] font-extrabold">{scorer.points}</Td>
+							{columns.map((key) => (
+								<Td key={key} className={`text-center ${key === rank.key ? 'text-[15px] font-extrabold' : ''}`}>
+									{scorer[key] ?? 0}
+								</Td>
+							))}
 						</TeamRow>
 					))}
 				</tbody>

@@ -469,12 +469,8 @@ export interface UpdateGameRequest {
   location?: string;
   homeScore?: number | null;
   awayScore?: number | null;
-  period1HomeScore?: number | null;
-  period1AwayScore?: number | null;
-  period2HomeScore?: number | null;
-  period2AwayScore?: number | null;
-  period3HomeScore?: number | null;
-  period3AwayScore?: number | null;
+  /** Score of each period, half, quarter or set, in order; null clears them. */
+  periodScores?: { home: number; away: number }[] | null;
   status?: GameStatus;
   round?: string | number | null;
   /**
@@ -540,21 +536,21 @@ export interface GenerateScheduleResponse {
 // ============================================================================
 
 // Request bodies
-export interface CreateHockeyGameStatisticRequest {
+export interface CreatePlayerGameStatisticRequest {
   playerId: string;
   goals?: number | null;
   assists?: number | null;
   penaltyMinutes?: number | null;
 }
 
-export interface UpdateHockeyGameStatisticRequest {
+export interface UpdatePlayerGameStatisticRequest {
   goals?: number | null;
   assists?: number | null;
   penaltyMinutes?: number | null;
 }
 
 // Response types
-export interface HockeyGameStatisticResponse {
+export interface PlayerGameStatisticResponse {
   id: string;
   playerId: string;
   gameId: string;

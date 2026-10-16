@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import type { Game } from '@types';
+import type { Game, SportType } from '@types';
 import { EmptyState, FilterTabs, Panel, type FilterTab } from '@/components/public';
 import { TabSeasonDetailType } from '../Screen';
 import { FilterTimeEnum, GameSchedule } from './GameSchedule';
 
-export default function ScheduleList({ games }: { games: Game[] }) {
+export default function ScheduleList({ games, sport }: { games: Game[]; sport?: SportType }) {
 	const { t } = useTranslation();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const active = (searchParams.get('scheduleType') as FilterTimeEnum) || FilterTimeEnum.UPCOMING;
@@ -40,7 +40,7 @@ export default function ScheduleList({ games }: { games: Game[] }) {
 		<div className="flex flex-col gap-5">
 			<FilterTabs tabs={tabs} value={active} onChange={setActive} className="self-start" />
 			<Panel flush title={titles[active]} description={descriptions[active]}>
-				<GameSchedule filter={active} games={games} />
+				<GameSchedule filter={active} games={games} sport={sport} />
 			</Panel>
 		</div>
 	);

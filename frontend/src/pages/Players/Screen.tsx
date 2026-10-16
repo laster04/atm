@@ -164,7 +164,7 @@ export default function PlayersScreen() {
 												<Td className="text-center">{player.stats.goals}</Td>
 												<Td className="text-center">{player.stats.assists}</Td>
 												<Td className="text-center">{player.stats.penaltyMinutes}</Td>
-												<Td className="text-center text-[15px] font-extrabold">{player.stats.points}</Td>
+												<Td className="text-center text-[15px] font-extrabold">{player.stats.rankTotal}</Td>
 											</tr>
 										))}
 									</tbody>

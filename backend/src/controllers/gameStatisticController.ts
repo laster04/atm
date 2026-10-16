@@ -1,11 +1,8 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
-import {
-	AuthRequest,
-	CreateHockeyGameStatisticRequest,
-	UpdateHockeyGameStatisticRequest,
-} from '../types/index.js';
-import { Prisma } from '@prisma/client';
+import { AuthRequest } from '../types/index.js';
+import { Prisma, SportType } from '@prisma/client';
+import { STAT_KEYS, type StatKey, checkStats, profileFor } from '../services/sports/profile.js';
 import { toId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
 import { listedGameWhere } from '../services/visibility.js';
@@ -27,7 +24,7 @@ const mayRecord = (
 export const getStatisticsByGameId = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
-		const statistics = await prisma.hockeyGameStatistic.findMany({
+		const statistics = await prisma.playerGameStatistic.findMany({
 			where: { gameId: gameId },
 			include: {
 				player: {
@@ -49,7 +46,7 @@ export const getStatisticsByGameId = async (req: Request, res: Response): Promis
 export const getStatisticsByPlayerId = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { playerId } = req.params;
-		const statistics = await prisma.hockeyGameStatistic.findMany({
+		const statistics = await prisma.playerGameStatistic.findMany({
 			where: { playerId: playerId, game: listedGameWhere(req.user) },
 			include: {
 				game: {
@@ -71,7 +68,7 @@ export const getStatisticsByPlayerId = async (req: AuthRequest, res: Response): 
 export const getStatisticById = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { id } = req.params;
-		const statistic = await prisma.hockeyGameStatistic.findUnique({
+		const statistic = await prisma.playerGameStatistic.findUnique({
 			where: { id: id },
 			include: {
 				player: {
@@ -102,7 +99,6 @@ export const getStatisticById = async (req: Request, res: Response): Promise<voi
 export const createStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { gameId } = req.params;
-		const { goals, assists, penaltyMinutes } = req.body as CreateHockeyGameStatisticRequest;
 		const playerId = toId(req.body.playerId);
 
 		if (!playerId) {
@@ -112,10 +108,17 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 
 		const game = await prisma.game.findUnique({
 			where: { id: gameId },
-			include: { season: { include: { league: { select: { managerId: true } } } } }
+			include: { season: { include: { league: { select: { managerId: true, sportType: true } } } } }
 		});
 		if (!game) {
 			res.status(404).json({ error: 'Game not found' });
+			return;
+		}
+
+		// Only the numbers this sport keeps: no cards on a hockey line, no fouls in football.
+		const stats = checkStats(req.body, profileFor(game.season.league.sportType));
+		if (!stats.ok) {
+			res.status(400).json({ error: stats.error });
 			return;
 		}
 
@@ -173,7 +176,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 		}
 
 		// Check if statistic already exists for this player in this game
-		const existingStatistic = await prisma.hockeyGameStatistic.findFirst({
+		const existingStatistic = await prisma.playerGameStatistic.findFirst({
 			where: {
 				gameId: gameId,
 				playerId: String(playerId)
@@ -184,13 +187,11 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		const statistic = await prisma.hockeyGameStatistic.create({
+		const statistic = await prisma.playerGameStatistic.create({
 			data: {
 				gameId: gameId,
 				playerId: String(playerId),
-				goals: goals ?? null,
-				assists: assists ?? null,
-				penaltyMinutes: penaltyMinutes ?? null
+				...stats.value
 			},
 			include: {
 				player: {
@@ -209,12 +210,11 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 export const updateStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
 		const { id } = req.params;
-		const { goals, assists, penaltyMinutes } = req.body as UpdateHockeyGameStatisticRequest;
 
-		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
+		const existingStatistic = await prisma.playerGameStatistic.findUnique({
 			where: { id: id },
 			include: {
-				game: { include: { season: { include: { league: { select: { managerId: true } } } } } },
+				game: { include: { season: { include: { league: { select: { managerId: true, sportType: true } } } } } },
 				player: { include: { team: { select: { managerId: true } } } }
 			}
 		});
@@ -245,13 +245,15 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		const statistic = await prisma.hockeyGameStatistic.update({
+		const stats = checkStats(req.body, profileFor(existingStatistic.game.season.league.sportType));
+		if (!stats.ok) {
+			res.status(400).json({ error: stats.error });
+			return;
+		}
+
+		const statistic = await prisma.playerGameStatistic.update({
 			where: { id: id },
-			data: {
-				...(goals !== undefined && { goals }),
-				...(assists !== undefined && { assists }),
-				...(penaltyMinutes !== undefined && { penaltyMinutes })
-			},
+			data: stats.value,
 			include: {
 				player: {
 					include: { team: true }
@@ -274,7 +276,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 	try {
 		const { id } = req.params;
 
-		const existingStatistic = await prisma.hockeyGameStatistic.findUnique({
+		const existingStatistic = await prisma.playerGameStatistic.findUnique({
 			where: { id: id },
 			include: {
 				game: { include: { season: { include: { league: { select: { managerId: true } } } } } },
@@ -308,7 +310,7 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 			return;
 		}
 
-		await prisma.hockeyGameStatistic.delete({ where: { id: id } });
+		await prisma.playerGameStatistic.delete({ where: { id: id } });
 		res.json({ message: 'Statistic deleted successfully' });
 	} catch (error) {
 		if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {
@@ -320,19 +322,31 @@ export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<
 	}
 };
 
+type StatTotals = Record<StatKey, number>;
+const emptyTotals = (): StatTotals =>
+	Object.fromEntries(STAT_KEYS.map(key => [key, 0])) as StatTotals;
+
+/**
+ * Each player's totals over the games the filter picks, ranked the way the
+ * sport ranks players: goals plus assists in hockey, goals in football, points
+ * scored in basketball. `rankTotal` is that number; when the games span several
+ * sports the hockey ranking is used, which is why the statistics page asks for one sport.
+ */
 async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?: { limit?: number; teamId?: string }) {
 	const games = await prisma.game.findMany({
 		where: gameFilter,
-		select: { id: true }
+		select: { id: true, season: { select: { league: { select: { sportType: true } } } } }
 	});
 	const gameIds = games.map(g => g.id);
+	const sports = new Set<SportType>(games.map(g => g.season.league.sportType));
+	const profile = profileFor(sports.size === 1 ? [...sports][0] : 'HOCKEY');
 
-	const statisticFilter: Prisma.HockeyGameStatisticWhereInput = { gameId: { in: gameIds } };
+	const statisticFilter: Prisma.PlayerGameStatisticWhereInput = { gameId: { in: gameIds } };
 	if (options?.teamId) {
 		statisticFilter.player = { teamId: options.teamId };
 	}
 
-	const statistics = await prisma.hockeyGameStatistic.findMany({
+	const statistics = await prisma.playerGameStatistic.findMany({
 		where: statisticFilter,
 		include: {
 			player: {
@@ -343,33 +357,28 @@ async function aggregatePlayerStats(gameFilter: Prisma.GameWhereInput, options?:
 
 	const playerStats = new Map<string, {
 		player: typeof statistics[0]['player'];
-		goals: number;
-		assists: number;
-		penaltyMinutes: number;
+		totals: StatTotals;
 		gamesPlayed: number;
 	}>();
 
 	for (const stat of statistics) {
-		const existing = playerStats.get(stat.playerId);
-		if (existing) {
-			existing.goals += stat.goals || 0;
-			existing.assists += stat.assists || 0;
-			existing.penaltyMinutes += stat.penaltyMinutes || 0;
-			existing.gamesPlayed += 1;
-		} else {
-			playerStats.set(stat.playerId, {
-				player: stat.player,
-				goals: stat.goals || 0,
-				assists: stat.assists || 0,
-				penaltyMinutes: stat.penaltyMinutes || 0,
-				gamesPlayed: 1
-			});
-		}
+		const entry = playerStats.get(stat.playerId) ?? { player: stat.player, totals: emptyTotals(), gamesPlayed: 0 };
+		for (const key of STAT_KEYS) entry.totals[key] += stat[key] ?? 0;
+		entry.gamesPlayed += 1;
+		playerStats.set(stat.playerId, entry);
 	}
 
+	const rankTotal = (totals: StatTotals) => profile.rankBy.reduce((sum, key) => sum + totals[key], 0);
 	const sorted = Array.from(playerStats.values())
-		.map(ps => ({ ...ps, points: ps.goals + ps.assists }))
-		.sort((a, b) => b.points - a.points || b.goals - a.goals);
+		.map(ps => ({
+			player: ps.player,
+			...ps.totals,
+			gamesPlayed: ps.gamesPlayed,
+			rankTotal: rankTotal(ps.totals),
+		}))
+		.sort((a, b) =>
+			b.rankTotal - a.rankTotal
+			|| profile.rankBy.reduce((decided, key) => decided || b[key] - a[key], 0));
 
 	return options?.limit ? sorted.slice(0, options.limit) : sorted;
 }
@@ -420,6 +429,11 @@ export const getArchivedPlayerStats = async (req: Request, res: Response): Promi
 			},
 			orderBy: [{ goals: 'desc' }, { assists: 'desc' }]
 		});
+		const season = await prisma.season.findUnique({
+			where: { id: seasonId },
+			select: { league: { select: { sportType: true } } }
+		});
+		const profile = profileFor(season?.league.sportType);
 
 		const result = rows.map(row => ({
 			player: {
@@ -431,9 +445,13 @@ export const getArchivedPlayerStats = async (req: Request, res: Response): Promi
 			goals: row.goals,
 			assists: row.assists,
 			penaltyMinutes: row.penaltyMinutes,
+			yellowCards: row.yellowCards,
+			redCards: row.redCards,
+			points: row.points,
+			fouls: row.fouls,
 			gamesPlayed: row.gamesPlayed,
-			points: row.goals + row.assists
-		}));
+			rankTotal: profile.rankBy.reduce((sum, key) => sum + row[key], 0)
+		})).sort((a, b) => b.rankTotal - a.rankTotal);
 
 		res.json(result);
 	} catch (error) {

@@ -5,7 +5,8 @@ import {
   CreatePlayerRequest,
   UpdatePlayerRequest,
 } from '../types/index.js';
-import { Prisma } from '@prisma/client';
+import { Prisma, SportType } from '@prisma/client';
+import { type StatKey, profileFor } from '../services/sports/profile.js';
 import { toId } from '../utils/ids.js';
 import { canManageTeam } from '../services/access.js';
 import { normalizeEmail } from '../utils/email.js';
@@ -492,36 +493,54 @@ export const getPublicPlayers = async (req: AuthRequest, res: Response): Promise
       : listedGameWhere(req.user);
     const gameIds = (await prisma.game.findMany({ where: gameFilter, select: { id: true } })).map(g => g.id);
 
-    const totals = await prisma.hockeyGameStatistic.groupBy({
+    const totals = await prisma.playerGameStatistic.groupBy({
       by: ['playerId'],
       where: {
         playerId: { in: players.map(p => p.id) },
         gameId: { in: gameIds }
       },
-      _sum: { goals: true, assists: true, penaltyMinutes: true },
+      _sum: { goals: true, assists: true, penaltyMinutes: true, yellowCards: true, redCards: true, points: true, fouls: true },
       _count: { _all: true }
     });
     const byPlayer = new Map(totals.map(t => [t.playerId, t]));
 
+    // A player is ranked the way their team's sport ranks players: goals plus
+    // assists in hockey, goals in football, points in basketball.
+    const teamLeagues = await prisma.seasonTeam.findMany({
+      where: { teamId: { in: [...new Set(players.map(p => p.teamId))] } },
+      select: { teamId: true, season: { select: { startDate: true, league: { select: { sportType: true } } } } },
+      orderBy: { season: { startDate: 'desc' } },
+    });
+    const sportByTeam = new Map<string, SportType>();
+    for (const entry of teamLeagues) {
+      if (!sportByTeam.has(entry.teamId)) sportByTeam.set(entry.teamId, entry.season.league.sportType);
+    }
+
     let items = players.map(player => {
       const t = byPlayer.get(player.id);
-      const goals = t?._sum.goals ?? 0;
-      const assists = t?._sum.assists ?? 0;
+      const sums: Record<StatKey, number> = {
+        goals: t?._sum.goals ?? 0,
+        assists: t?._sum.assists ?? 0,
+        penaltyMinutes: t?._sum.penaltyMinutes ?? 0,
+        yellowCards: t?._sum.yellowCards ?? 0,
+        redCards: t?._sum.redCards ?? 0,
+        points: t?._sum.points ?? 0,
+        fouls: t?._sum.fouls ?? 0,
+      };
+      const profile = profileFor(sportByTeam.get(player.teamId));
       return {
         ...player,
         stats: {
           gamesPlayed: t?._count._all ?? 0,
-          goals,
-          assists,
-          points: goals + assists,
-          penaltyMinutes: t?._sum.penaltyMinutes ?? 0
+          ...sums,
+          rankTotal: profile.rankBy.reduce((sum, key) => sum + sums[key], 0),
         }
       };
     });
 
     if (byPoints) {
       items = items
-        .sort((a, b) => b.stats.points - a.stats.points || b.stats.goals - a.stats.goals)
+        .sort((a, b) => b.stats.rankTotal - a.stats.rankTotal || b.stats.goals - a.stats.goals)
         .slice(skip, skip + take);
     }
 

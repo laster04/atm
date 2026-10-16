@@ -20,8 +20,8 @@ export default function RosterTable({ topScorers, players, team }: RosterTablePr
 
 	const statsByPlayer = new Map(topScorers.map((scorer) => [scorer.player.id, scorer]));
 	const roster = [...players].sort((a, b) => {
-		const pointsA = statsByPlayer.get(a.id)?.points ?? -1;
-		const pointsB = statsByPlayer.get(b.id)?.points ?? -1;
+		const pointsA = statsByPlayer.get(a.id)?.rankTotal ?? -1;
+		const pointsB = statsByPlayer.get(b.id)?.rankTotal ?? -1;
 		return pointsB - pointsA || (a.number ?? 999) - (b.number ?? 999);
 	});
 
@@ -57,7 +57,7 @@ export default function RosterTable({ topScorers, players, team }: RosterTablePr
 								</span>
 							</div>
 							<div className="ml-auto flex flex-col items-end">
-								<span className="text-[15px] font-extrabold">{stats?.points ?? 0}</span>
+								<span className="text-[15px] font-extrabold">{stats?.rankTotal ?? 0}</span>
 								<span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
 									{t('seasonDetail.overview.pointsShort')}
 								</span>

@@ -125,7 +125,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await prisma.seasonArchivePlayerStat.deleteMany({ where: { seasonId } }).catch(() => {});
   await prisma.seasonArchiveStanding.deleteMany({ where: { seasonId } }).catch(() => {});
-  await prisma.hockeyGameStatistic.deleteMany({ where: { gameId } }).catch(() => {});
+  await prisma.playerGameStatistic.deleteMany({ where: { gameId } }).catch(() => {});
   await prisma.game.deleteMany({ where: { seasonId } }).catch(() => {});
   await prisma.seasonTeam.deleteMany({ where: { seasonId } }).catch(() => {});
   if (playerId) await prisma.player.delete({ where: { id: playerId } }).catch(() => {});
@@ -169,7 +169,7 @@ describe('Season Archive', () => {
   it('should delete live season-scoped rows', async () => {
     const games = await prisma.game.findMany({ where: { seasonId } });
     const seasonTeams = await prisma.seasonTeam.findMany({ where: { seasonId } });
-    const stats = await prisma.hockeyGameStatistic.findMany({ where: { gameId } });
+    const stats = await prisma.playerGameStatistic.findMany({ where: { gameId } });
 
     expect(games.length).toBe(0);
     expect(seasonTeams.length).toBe(0);

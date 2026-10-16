@@ -883,6 +883,12 @@
         "CONFIRM": "Report confirmed",
         "REOPEN": "Report reopened",
         "unknownActor": "Removed account"
+      },
+      "newCard": "New card",
+      "addCard": "Card",
+      "card": {
+        "YELLOW": "Yellow card",
+        "RED": "Red card"
       }
     },
     "scoring": {
@@ -909,6 +915,14 @@
         "HEAD_TO_HEAD": "Head to head",
         "WINS": "Wins",
         "PLAYED": "Fewer games played"
+      },
+      "sets": {
+        "toggle": "Points by set result",
+        "hint": "A 3:2 win and a 2:3 loss score differently",
+        "win": "Win 3:0 or 3:1",
+        "closeWin": "Win 3:2",
+        "closeLoss": "Loss 2:3",
+        "loss": "Loss 0:3 or 1:3"
       }
     },
     "resultsEmail": {
@@ -1336,7 +1350,28 @@
     "TENNIS": "Tennis",
     "HANDBALL": "Handball",
     "FLOORBALL": "Floorball",
-    "OTHER": "Other"
+    "OTHER": "Other",
+    "parts": {
+      "PERIOD": "Period {{n}}",
+      "HALF": "Half {{n}}",
+      "QUARTER": "Quarter {{n}}",
+      "SET": "Set {{n}}",
+      "overtime": "Overtime {{n}}",
+      "addOvertime": "Add overtime",
+      "addSet": "Add a set",
+      "remove": "Remove",
+      "setsDecide": "The result follows from the sets"
+    },
+    "partsTitle": {
+      "PERIOD": "Periods",
+      "HALF": "Halves",
+      "QUARTER": "Quarters",
+      "SET": "Sets"
+    },
+    "side": {
+      "home": "home",
+      "away": "away"
+    }
   },
   "playerPositions": {
     "none": "No position",
@@ -1937,7 +1972,8 @@
       "scope": "Top 50 by points",
       "tableTitle": "Scoring leaders",
       "empty": "No statistics yet",
-      "emptyHint": "Numbers appear once the first games have been played."
+      "emptyHint": "Numbers appear once the first games have been played.",
+      "sportFilter": "Sport"
     },
     "about": {
       "title": "About the project",
@@ -2302,5 +2338,28 @@
     "champion": "Season champion",
     "seedsPending": "Teams fill in from the table once every regular-season game is confirmed.",
     "gameLabel": "Play-off · {{round}}"
+  },
+  "stats": {
+    "short": {
+      "goals": "G",
+      "assists": "A",
+      "penaltyMinutes": "PIM",
+      "yellowCards": "YC",
+      "redCards": "RC",
+      "points": "PTS",
+      "fouls": "F",
+      "rankTotal": "PTS"
+    },
+    "long": {
+      "goals": "Goals",
+      "assists": "Assists",
+      "penaltyMinutes": "Penalty minutes",
+      "yellowCards": "Yellow cards",
+      "redCards": "Red cards",
+      "points": "Points",
+      "fouls": "Fouls",
+      "rankTotal": "Points (G+A)"
+    },
+    "none": "This sport keeps no player statistics"
   }
 }

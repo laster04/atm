@@ -286,7 +286,7 @@ model Player {
 
   teamId    String                @map("team_id")
   team      Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  statistic HockeyGameStatistic[] @relation("PlayerStatistic")
+  statistic PlayerGameStatistic[] @relation("PlayerStatistic")
 
   // A roster row exists whether or not the person behind it has an account.
   // Claiming links the two so the player can sign in and see their own team;
@@ -314,12 +314,11 @@ model Game {
   location         String?
   homeScore        Int?       @map("home_score")
   awayScore        Int?       @map("away_score")
-  period1HomeScore Int?       @map("period1_home_score")
-  period1AwayScore Int?       @map("period1_away_score")
-  period2HomeScore Int?       @map("period2_home_score")
-  period2AwayScore Int?       @map("period2_away_score")
-  period3HomeScore Int?       @map("period3_home_score")
-  period3AwayScore Int?       @map("period3_away_score")
+  // The score of each part of the game, in order: periods, halves, quarters or
+  // sets, as the sport has them (services/sports/profile.ts), with overtime as
+  // an extra entry. A list of { home, away }; null until anything is entered.
+  // For volleyball homeScore/awayScore are the sets won, worked out from these.
+  periodScores     Json?      @map("period_scores")
   status           GameStatus @default(SCHEDULED)
   round            Int?
   // True once this game has an event log. Its scores and player statistics are
@@ -342,7 +341,7 @@ model Game {
 
   awayTeamId String                @map("away_team_id")
   awayTeam   Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
-  statistic  HockeyGameStatistic[] @relation("GameStatistic")
+  statistic  PlayerGameStatistic[] @relation("GameStatistic")
   events     MatchEvent[]
   teamEvents TeamEvent[]
 
@@ -530,10 +529,17 @@ enum MatchEventType {
   GOAL
   PENALTY
   GOALIE_CHANGE
+  // Football: a yellow or red card (cardColor).
+  CARD
   TIMEOUT
   PERIOD_START
   PERIOD_END
   SHOOTOUT_ATTEMPT
+}
+
+enum CardColor {
+  YELLOW
+  RED
 }
 
 model MatchEvent {
@@ -570,6 +576,9 @@ model MatchEvent {
   penaltyMinutes Int?    @map("penalty_minutes")
   penaltyType    String? @map("penalty_type")
 
+  // CARD only.
+  cardColor CardColor? @map("card_color")
+
   note String?
 
   // Who recorded it. Kept when the account goes so the trail does not vanish
@@ -584,7 +593,9 @@ model MatchEvent {
   @@map("match_events")
 }
 
-model HockeyGameStatistic {
+/// One player's line in one game. Which of the numbers a sport keeps comes from
+/// its profile (services/sports/profile.ts); the others stay null.
+model PlayerGameStatistic {
   id             String @id @default(uuid())
   playerId       String @map("player_id")
   player         Player @relation("PlayerStatistic", fields: [playerId], references: [id], onDelete: Cascade)
@@ -593,9 +604,13 @@ model HockeyGameStatistic {
   goals          Int?
   assists        Int?
   penaltyMinutes Int?   @map("penalty_minutes")
+  yellowCards    Int?   @map("yellow_cards")
+  redCards       Int?   @map("red_cards")
+  points         Int?
+  fouls          Int?
 
   @@unique([playerId, gameId])
-  @@map("hockey_game_statistics")
+  @@map("player_game_statistics")
 }
 
 model SeasonArchiveStanding {
@@ -641,6 +656,10 @@ model SeasonArchivePlayerStat {
   goals          Int
   assists        Int
   penaltyMinutes Int      @default(0) @map("penalty_minutes")
+  yellowCards    Int      @default(0) @map("yellow_cards")
+  redCards       Int      @default(0) @map("red_cards")
+  points         Int      @default(0)
+  fouls          Int      @default(0)
   createdAt      DateTime @default(now()) @map("created_at")
 
   @@unique([seasonId, playerId])

@@ -1,4 +1,5 @@
 import { ScoringPolicy, Tiebreaker } from '../scoring/policy.js';
+import { type PartScore, decidedAfterRegulation, profileFor } from '../sports/profile.js';
 
 /**
  * One decided fixture, reduced to what a table needs. Both league games and
@@ -10,8 +11,10 @@ export interface StandingResult {
   awayTeamId: string | null;
   homeScore: number | null;
   awayScore: number | null;
-  /** Reserved for overtime/shootout, which games do not carry yet. */
+  /** Set by a caller that knows; otherwise worked out from periodScores where the sport allows. */
   decidedAfterRegulation?: boolean;
+  /** League games carry their part scores; a volleyball fifth set is read from them. */
+  periodScores?: unknown;
 }
 
 export interface StandingRow<TTeam> {
@@ -45,6 +48,17 @@ const isCounted = (
   result.awayTeamId != null &&
   result.homeScore != null &&
   result.awayScore != null;
+
+/**
+ * Only sports scored in parts read this from the part scores: a volleyball
+ * match decided in the fifth set. Hockey overtime is not counted this way yet,
+ * because it would change the points of tables already played.
+ */
+const playedPastRegulation = (result: StandingResult, policy: ScoringPolicy): boolean => {
+  if (!policy.sport || !Array.isArray(result.periodScores)) return false;
+  const profile = profileFor(policy.sport);
+  return profile.scoreIsPartsWon && decidedAfterRegulation(result.periodScores as PartScore[], profile);
+};
 
 export function buildTable<TTeam extends TeamRef>(
   teams: TTeam[],
@@ -83,7 +97,7 @@ export function buildTable<TTeam extends TeamRef>(
     away.goalsFor += result.awayScore;
     away.goalsAgainst += result.homeScore;
 
-    const overtime = result.decidedAfterRegulation === true;
+    const overtime = result.decidedAfterRegulation ?? playedPastRegulation(result, policy);
     const winPoints = overtime ? policy.otWinPoints : policy.winPoints;
     const losePoints = overtime ? policy.otLossPoints : policy.lossPoints;
 

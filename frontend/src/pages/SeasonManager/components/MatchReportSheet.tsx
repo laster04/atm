@@ -11,12 +11,16 @@ import {
 	type MatchEvent,
 	type MatchEventInput,
 	type Player,
+	type SportType,
 } from '@types';
 import { SEASON_ACCENT } from './util';
+import { partLabel, profileFor } from '@/utils/sportProfiles';
 import { APP_TIME_ZONE } from '@/utils/date';
 
 interface MatchReportSheetProps {
 	game: Game;
+	/** Decides which events can be recorded (cards in football) and how parts are named. */
+	sport?: SportType;
 	onClose: () => void;
 	/** The sheet derives the score, so the caller re-reads the game on close. */
 	onChanged: () => void;
@@ -24,15 +28,22 @@ interface MatchReportSheetProps {
 }
 
 /**
- * The two event types that carry statistics. The API accepts the rest of the
- * scoresheet vocabulary (timeouts, goalie changes, period markers); nothing is
- * derived from them yet, so they are not worth a button here.
+ * The event types that carry statistics, where the sport has them: goals
+ * everywhere, penalties in hockey, cards in football. The API accepts the rest
+ * of the scoresheet vocabulary (timeouts, goalie changes, period markers);
+ * nothing is derived from them yet, so they are not worth a button here.
  */
-const RECORDABLE = [MatchEventType.GOAL, MatchEventType.PENALTY] as const;
+const RECORDABLE = [MatchEventType.GOAL, MatchEventType.PENALTY, MatchEventType.CARD] as const;
 type Recordable = (typeof RECORDABLE)[number];
 
 const PENALTY_MINUTES = [2, 4, 5, 10];
-const PERIODS = [1, 2, 3, 4];
+const CARD_COLORS = ['YELLOW', 'RED'] as const;
+const CARD_TONE = { YELLOW: '#eab308', RED: '#dc2626' } as const;
+const BUTTON_TONE: Record<Recordable, string> = {
+	GOAL: SEASON_ACCENT,
+	PENALTY: '#7c2d12',
+	CARD: '#a16207',
+};
 
 const emptyDraft = (teamId: string): MatchEventInput => ({
 	type: MatchEventType.GOAL,
@@ -47,11 +58,15 @@ const emptyDraft = (teamId: string): MatchEventInput => ({
 
 export default function MatchReportSheet({
 	game,
+	sport,
 	onClose,
 	onChanged,
 	onGameChanged,
 }: MatchReportSheetProps) {
 	const { t, i18n } = useTranslation();
+	const profile = profileFor(sport);
+	const recordable = RECORDABLE.filter((type) => profile.events.includes(type));
+	const periods = Array.from({ length: profile.parts.max }, (_, i) => i + 1);
 
 	// A confirmed report is a closed record. The sheet still shows it, but every
 	// way of changing it is withdrawn until it is reopened with a reason.
@@ -137,6 +152,7 @@ export default function MatchReportSheet({
 				secondaryAssistPlayerId:
 					draft.type === MatchEventType.GOAL ? draft.secondaryAssistPlayerId || null : null,
 				penaltyMinutes: draft.type === MatchEventType.PENALTY ? draft.penaltyMinutes ?? 2 : null,
+				cardColor: draft.type === MatchEventType.CARD ? draft.cardColor ?? 'YELLOW' : null,
 			});
 			const res = await matchEventApi.getByGame(game.id);
 			setEvents(res.data);
@@ -210,7 +226,12 @@ export default function MatchReportSheet({
 
 	const startDraft = (type: Recordable) => {
 		setError('');
-		setDraft({ ...emptyDraft(homeTeamId), type, penaltyMinutes: type === MatchEventType.PENALTY ? 2 : null });
+		setDraft({
+			...emptyDraft(homeTeamId),
+			type,
+			penaltyMinutes: type === MatchEventType.PENALTY ? 2 : null,
+			cardColor: type === MatchEventType.CARD ? 'YELLOW' : null,
+		});
 	};
 
 	const patchDraft = (patch: Partial<MatchEventInput>) =>
@@ -218,9 +239,11 @@ export default function MatchReportSheet({
 
 	const draftRoster = draft ? rosters[draft.teamId] ?? [] : [];
 
-	const eventIcon = (type: MatchEventType) =>
-		type === MatchEventType.GOAL ? (
+	const eventIcon = (event: MatchEvent) =>
+		event.type === MatchEventType.GOAL ? (
 			<Target className="size-4" aria-hidden />
+		) : event.type === MatchEventType.CARD ? (
+			<span className="h-4 w-3 rounded-[2px]" style={{ backgroundColor: CARD_TONE[event.cardColor ?? 'YELLOW'] }} aria-hidden />
 		) : (
 			<ShieldAlert className="size-4" aria-hidden />
 		);
@@ -234,6 +257,9 @@ export default function MatchReportSheet({
 			return assists ? `${scorer} (${assists})` : scorer;
 		}
 		const who = playerLabel(event.player) ?? t('seasonManagement.report.unattributed');
+		if (event.type === MatchEventType.CARD) {
+			return `${who} · ${t(`seasonManagement.report.card.${event.cardColor ?? 'YELLOW'}`)}`;
+		}
 		return `${who} · ${t('seasonManagement.report.minutes', { n: event.penaltyMinutes ?? 0 })}`;
 	};
 
@@ -289,7 +315,7 @@ export default function MatchReportSheet({
 					byPeriod.map(([period, periodEvents]) => (
 						<div key={period} className="flex flex-col gap-2">
 							<span className="tm-section-label">
-								{t('seasonManagement.report.period', { n: period })}
+								{t(partLabel(profile, Number(period) - 1).key, { n: partLabel(profile, Number(period) - 1).n })}
 							</span>
 							<div className="tm-rows-card">
 								{periodEvents.map((event) => (
@@ -298,7 +324,7 @@ export default function MatchReportSheet({
 											className="flex size-8 shrink-0 items-center justify-center rounded-full text-white"
 											style={{ backgroundColor: teamColor(event.teamId) }}
 										>
-											{eventIcon(event.type)}
+											{eventIcon(event)}
 										</span>
 										<span className="flex min-w-0 flex-1 flex-col gap-px">
 											<span className="truncate text-[14.5px] font-semibold">{describe(event)}</span>
@@ -328,7 +354,9 @@ export default function MatchReportSheet({
 						<span className="tm-section-label">
 							{draft.type === MatchEventType.GOAL
 								? t('seasonManagement.report.newGoal')
-								: t('seasonManagement.report.newPenalty')}
+								: draft.type === MatchEventType.CARD
+									? t('seasonManagement.report.newCard')
+									: t('seasonManagement.report.newPenalty')}
 						</span>
 
 						<div className="grid grid-cols-2 gap-2">
@@ -414,6 +442,26 @@ export default function MatchReportSheet({
 							</div>
 						)}
 
+						{draft.type === MatchEventType.CARD && (
+							<div className="grid grid-cols-2 gap-2">
+								{CARD_COLORS.map((color) => (
+									<button
+										key={color}
+										onClick={() => patchDraft({ cardColor: color })}
+										className="flex h-11 items-center justify-center gap-2 rounded-[10px] border text-[13.5px] font-semibold"
+										style={
+											draft.cardColor === color
+												? { backgroundColor: SEASON_ACCENT, borderColor: SEASON_ACCENT, color: '#ffffff' }
+												: undefined
+										}
+									>
+										<span className="h-4 w-3 rounded-[2px]" style={{ backgroundColor: CARD_TONE[color] }} aria-hidden />
+										{t(`seasonManagement.report.card.${color}`)}
+									</button>
+								))}
+							</div>
+						)}
+
 						{draft.type === MatchEventType.PENALTY && (
 							<div className="flex flex-col gap-1.5">
 								<span className="text-[12.5px] font-medium text-muted-foreground">
@@ -443,8 +491,8 @@ export default function MatchReportSheet({
 								<span className="text-[12.5px] font-medium text-muted-foreground">
 									{t('seasonManagement.report.periodLabel')}
 								</span>
-								<div className="grid grid-cols-4 gap-1.5">
-									{PERIODS.map((period) => (
+								<div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.min(periods.length, 5)}, minmax(0, 1fr))` }}>
+									{periods.map((period) => (
 										<button
 											key={period}
 											onClick={() => patchDraft({ period })}
@@ -603,17 +651,19 @@ export default function MatchReportSheet({
 
 			{!confirmed && !draft && (
 				<div className="tm-save-bar shrink-0">
-					{RECORDABLE.map((type) => (
+					{recordable.map((type) => (
 						<button
 							key={type}
 							onClick={() => startDraft(type)}
 							className="flex h-11 flex-1 items-center justify-center gap-2 rounded-[10px] text-[14.5px] font-semibold text-white disabled:opacity-60"
-							style={{ backgroundColor: type === MatchEventType.GOAL ? SEASON_ACCENT : '#7c2d12' }}
+							style={{ backgroundColor: BUTTON_TONE[type] }}
 						>
 							<Plus className="size-4" aria-hidden />
 							{type === MatchEventType.GOAL
 								? t('seasonManagement.report.addGoal')
-								: t('seasonManagement.report.addPenalty')}
+								: type === MatchEventType.CARD
+									? t('seasonManagement.report.addCard')
+									: t('seasonManagement.report.addPenalty')}
 						</button>
 					))}
 				</div>

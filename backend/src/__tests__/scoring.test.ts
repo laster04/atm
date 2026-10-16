@@ -22,8 +22,8 @@ const game = (
 
 describe('resolvePolicy', () => {
   it('falls back to the sport default when there is no override', () => {
-    expect(resolvePolicy(null, 'HOCKEY', 'TOURNAMENT')).toEqual(SPORT_DEFAULTS.HOCKEY);
-    expect(resolvePolicy(undefined, 'TENNIS', 'TOURNAMENT')).toEqual(SPORT_DEFAULTS.TENNIS);
+    expect(resolvePolicy(null, 'HOCKEY', 'TOURNAMENT')).toEqual({ ...SPORT_DEFAULTS.HOCKEY, sport: 'HOCKEY' });
+    expect(resolvePolicy(undefined, 'TENNIS', 'TOURNAMENT')).toEqual({ ...SPORT_DEFAULTS.TENNIS, sport: 'TENNIS' });
   });
 
   it('falls back to OTHER for an unknown or missing sport', () => {
@@ -33,8 +33,8 @@ describe('resolvePolicy', () => {
   // Guards the promise the migration makes: a season created after this refactor
   // must score exactly as every season did before it.
   it('defaults a league to two points for a win in every sport', () => {
-    expect(resolvePolicy(null, 'HOCKEY', 'LEAGUE')).toEqual(LEAGUE_DEFAULT);
-    expect(resolvePolicy(null, 'TENNIS', 'LEAGUE')).toEqual(LEAGUE_DEFAULT);
+    expect(resolvePolicy(null, 'HOCKEY', 'LEAGUE')).toEqual({ ...LEAGUE_DEFAULT, sport: 'HOCKEY' });
+    expect(resolvePolicy(null, 'TENNIS', 'LEAGUE')).toEqual({ ...LEAGUE_DEFAULT, sport: 'TENNIS' });
     expect(LEAGUE_DEFAULT.winPoints).toBe(2);
     expect(LEAGUE_DEFAULT.drawPoints).toBe(1);
   });
@@ -53,8 +53,8 @@ describe('resolvePolicy', () => {
   });
 
   it('ignores a non-object override', () => {
-    expect(resolvePolicy('garbage', 'HOCKEY', 'TOURNAMENT')).toEqual(SPORT_DEFAULTS.HOCKEY);
-    expect(resolvePolicy([1, 2], 'HOCKEY', 'TOURNAMENT')).toEqual(SPORT_DEFAULTS.HOCKEY);
+    expect(resolvePolicy('garbage', 'HOCKEY', 'TOURNAMENT')).toEqual({ ...SPORT_DEFAULTS.HOCKEY, sport: 'HOCKEY' });
+    expect(resolvePolicy([1, 2], 'HOCKEY', 'TOURNAMENT')).toEqual({ ...SPORT_DEFAULTS.HOCKEY, sport: 'HOCKEY' });
   });
 });
 

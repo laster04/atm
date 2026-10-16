@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, RotateCcw, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { seasonApi } from '@/services/api';
-import type { ScoringPolicy, Season, Tiebreaker } from '@types';
+import { SportType, type ScoringPolicy, type Season, type Tiebreaker } from '@types';
 import { SEASON_ACCENT } from './util';
 
 interface ScoringSheetProps {
@@ -44,11 +44,32 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 		setCustom(true);
 	};
 
-	const points: { key: keyof ScoringPolicy; label: string }[] = [
-		{ key: 'winPoints', label: t('seasonManagement.scoring.win') },
-		{ key: 'drawPoints', label: t('seasonManagement.scoring.draw') },
-		{ key: 'lossPoints', label: t('seasonManagement.scoring.loss') },
-	];
+	// Volleyball can score by set result: a 3:2 win and a 2:3 loss earn their own
+	// points, stored as the after-regulation points the table already knows.
+	const volleyball = season.league?.sportType === SportType.VOLLEYBALL;
+	const bySets = volleyball && (policy.otWinPoints !== policy.winPoints || policy.otLossPoints !== policy.lossPoints);
+	const setBySets = (on: boolean) =>
+		patch(on
+			? { winPoints: 3, otWinPoints: 2, otLossPoints: 1, lossPoints: 0, allowDraws: false }
+			: { otWinPoints: policy.winPoints, otLossPoints: policy.lossPoints });
+
+	const points: { key: keyof ScoringPolicy; label: string }[] = bySets
+		? [
+				{ key: 'winPoints', label: t('seasonManagement.scoring.sets.win') },
+				{ key: 'otWinPoints', label: t('seasonManagement.scoring.sets.closeWin') },
+				{ key: 'otLossPoints', label: t('seasonManagement.scoring.sets.closeLoss') },
+				{ key: 'lossPoints', label: t('seasonManagement.scoring.sets.loss') },
+			]
+		: [
+				{ key: 'winPoints', label: t('seasonManagement.scoring.win') },
+				...(volleyball ? [] : [{ key: 'drawPoints' as const, label: t('seasonManagement.scoring.draw') }]),
+				{ key: 'lossPoints', label: t('seasonManagement.scoring.loss') },
+			];
+	// Without the set-based rule a volleyball win is one number, wherever the match ends.
+	const patchPoints = (key: keyof ScoringPolicy, value: number) =>
+		patch(volleyball && !bySets && (key === 'winPoints' || key === 'lossPoints')
+			? { [key]: value, [key === 'winPoints' ? 'otWinPoints' : 'otLossPoints']: value }
+			: { [key]: value });
 
 	const toggleTiebreaker = (tiebreaker: Tiebreaker) => {
 		const active = policy.tiebreakers.includes(tiebreaker);
@@ -120,12 +141,33 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 									min={0}
 									inputMode="numeric"
 									value={policy[row.key] as number}
-									onChange={(e) => patch({ [row.key]: Math.max(0, Number(e.target.value) || 0) })}
+									onChange={(e) => patchPoints(row.key, Math.max(0, Number(e.target.value) || 0))}
 									className="sm-score-input h-11 w-16 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
 								/>
 							</div>
 						))}
-						<div className="flex h-[60px] items-center gap-3 px-3.5">
+						{volleyball && (
+							<div className="flex h-[60px] items-center gap-3 px-3.5">
+								<span className="flex min-w-0 flex-1 flex-col gap-px">
+									<span className="truncate text-[14.5px] font-medium">{t('seasonManagement.scoring.sets.toggle')}</span>
+									<span className="truncate text-[11.5px] text-muted-foreground">{t('seasonManagement.scoring.sets.hint')}</span>
+								</span>
+								<button
+									role="switch"
+									aria-checked={bySets}
+									aria-label={t('seasonManagement.scoring.sets.toggle')}
+									onClick={() => setBySets(!bySets)}
+									className="h-7 w-12 shrink-0 rounded-full border border-border p-0.5"
+									style={bySets ? { backgroundColor: SEASON_ACCENT, borderColor: SEASON_ACCENT } : undefined}
+								>
+									<span
+										className="block size-6 rounded-full bg-white shadow-sm transition-transform"
+										style={bySets ? { transform: 'translateX(20px)' } : undefined}
+									/>
+								</button>
+							</div>
+						)}
+						{!volleyball && <div className="flex h-[60px] items-center gap-3 px-3.5">
 							<span className="flex min-w-0 flex-1 flex-col gap-px">
 								<span className="truncate text-[14.5px] font-medium">
 									{t('seasonManagement.scoring.allowDraws')}
@@ -146,7 +188,7 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 									style={policy.allowDraws ? { transform: 'translateX(20px)' } : undefined}
 								/>
 							</button>
-						</div>
+						</div>}
 					</div>
 				</div>
 
