@@ -258,6 +258,10 @@ export interface Game {
   period3AwayScore?: number | null;
   status: GameStatus;
   round?: number | null;
+  /** Set on a play-off game: the series it belongs to. Such games never count in the table. */
+  playoffSeriesId?: string | null;
+  /** The stage of a play-off game; from GET /games/season/:id. */
+  playoffSeries?: { round: PlayoffRound } | null;
   // True when this game's scores come from its match report. They are then
   // read-only: the API refuses a direct edit.
   eventsAuthoritative?: boolean;
@@ -581,6 +585,44 @@ export interface ArchivedPlayerStat {
 // ============================================================
 
 export type TournamentStatus = 'DRAFT' | 'REGISTRATION' | 'GROUP_STAGE' | 'PLAYOFF' | 'COMPLETED';
+export type PlayoffRound = 'ROUND_OF_16' | 'QUARTER_FINAL' | 'SEMI_FINAL' | 'FINAL' | 'BRONZE';
+
+/** One pairing of a season's play-off, played as a best-of series. */
+export interface PlayoffSeries {
+  id: string;
+  round: PlayoffRound;
+  slot: number;
+  bestOf: number;
+  /** Seeds stand in for the teams until the regular season is settled. */
+  homeSeed: number | null;
+  awaySeed: number | null;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
+  winnerTeamId: string | null;
+  homeTeam: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'> | null;
+  awayTeam: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'> | null;
+  winnerTeam: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'> | null;
+  homeWins: number;
+  awayWins: number;
+  games: (Pick<Game, 'id' | 'date' | 'location' | 'status' | 'homeTeamId' | 'awayTeamId' | 'homeScore' | 'awayScore'>
+    & { confirmedAt: string | null })[];
+}
+
+export interface SeasonPlayoff {
+  qualifiers: number;
+  bracketSize: number;
+  /** First round through the final; BRONZE is not listed. */
+  rounds: Exclude<PlayoffRound, 'BRONZE'>[];
+  seedsResolved: boolean;
+  series: PlayoffSeries[];
+}
+
+export interface CreatePlayoffInput {
+  qualifiers: number;
+  bestOf: Partial<Record<PlayoffRound, number>>;
+  bronze: boolean;
+}
+
 export type TournamentGamePhase = 'GROUP' | 'ROUND_OF_16' | 'QUARTER_FINAL' | 'SEMI_FINAL' | 'BRONZE' | 'FINAL';
 
 export interface TournamentSeries {

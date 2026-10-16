@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ExternalLink, LayoutGrid, ListOrdered, Mail } from 'lucide-react';
+import { CalendarPlus, ExternalLink, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi, seasonApi } from '@/services/api';
 import type { Game, Season, Team } from '@types';
@@ -9,6 +9,7 @@ import GenerateScheduleModal, { type GenerateScheduleData } from '@/pages/Admin/
 import ScoringSheet from './ScoringSheet';
 import ResultsEmailSheet from './ResultsEmailSheet';
 import DivisionsSheet from './DivisionsSheet';
+import PlayoffSheet from './PlayoffSheet';
 import { SEASON_ACCENT } from './util';
 
 interface MoreTabProps {
@@ -27,6 +28,7 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 	const [showScoring, setShowScoring] = useState(false);
 	const [showSummary, setShowSummary] = useState(false);
 	const [showDivisions, setShowDivisions] = useState(false);
+	const [showPlayoff, setShowPlayoff] = useState(false);
 	const [groupCount, setGroupCount] = useState(0);
 
 	// Only used to decide whether the schedule generator offers to keep fixtures
@@ -112,6 +114,18 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 				</button>
 
 				<button
+					onClick={() => setShowPlayoff(true)}
+					disabled={teamCount < 2}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left disabled:opacity-50"
+				>
+					<Trophy className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-sm font-semibold">{t('playoff.title')}</span>
+						<span className="text-xs text-muted-foreground">{t('seasonManagement.more.playoffHint')}</span>
+					</span>
+				</button>
+
+				<button
 					onClick={() => setShowScoring(true)}
 					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left"
 				>
@@ -160,6 +174,20 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 					// A new division changes the table, which the caller re-reads by
 					// refreshing the fixtures it is derived from.
 					onChanged={() => onGamesChange([...games])}
+				/>
+			)}
+
+			{showPlayoff && (
+				<PlayoffSheet
+					season={season}
+					teamCount={teamCount}
+					onClose={() => setShowPlayoff(false)}
+					// The bracket adds and removes play-off games; re-read the season's games.
+					onChanged={() => {
+						gameApi.getBySeason(season.id)
+							.then((res) => onGamesChange(res.data))
+							.catch(() => onGamesChange([...games]));
+					}}
 				/>
 			)}
 

@@ -3,16 +3,17 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { seasonApi, gameApi, gameStatisticApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import type { Season, Game, GroupTable, TopScorer } from '@/types';
+import type { Season, Game, GroupTable, SeasonPlayoff, TopScorer } from '@/types';
 import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 import { LIVE_REFRESH_MS, hasLiveGames } from '@/utils/liveTable';
 
 import StandingsTable from './components/StandingsTable';
 import ScheduleList from './components/ScheduleList';
 import TeamsGrid from './components/TeamsGrid';
-import { BarChart3, CalendarDays, Trophy, Users, LayoutGrid } from 'lucide-react';
+import { BarChart3, CalendarDays, Trophy, Users, LayoutGrid, Swords } from 'lucide-react';
 import { formatSeasonDate } from '@/utils/date';
-import { PublicHero, SectionTabs, SeasonStatusBadge, VisibilityBadge, type SectionTab } from '@/components/public';
+import { Panel, PublicHero, SectionTabs, SeasonStatusBadge, VisibilityBadge, type SectionTab } from '@/components/public';
+import SeasonPlayoffBracket from '@/components/playoff/SeasonPlayoffBracket';
 import { strictest } from '@/utils/visibility';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
@@ -21,6 +22,7 @@ import PlayersStatsTable from "@/pages/SeasonDetail/components/PlayersStatsTable
 export enum TabSeasonDetailType {
   OVERVIEW = 'overview',
   STANDINGS = 'standings',
+  PLAYOFF = 'playoff',
   SCHEDULE = 'schedule',
   TEAMS = 'teams',
   PLAYERS = 'players'
@@ -39,6 +41,7 @@ export default function SeasonDetailScreen() {
   const [tables, setTables] = useState<GroupTable[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
+  const [playoff, setPlayoff] = useState<SeasonPlayoff | null>(null);
   const [loading, setLoading] = useState(true);
 
   useDocumentTitle([season?.league?.name, season?.name]);
@@ -81,14 +84,16 @@ export default function SeasonDetailScreen() {
           }]);
           setTopScorers(playerStatsRes.data.slice(0, 20).map(mapArchivedPlayerStat));
         } else {
-          const [gamesRes, standingsRes, topScorersRes] = await Promise.all([
+          const [gamesRes, standingsRes, topScorersRes, playoffRes] = await Promise.all([
             gameApi.getBySeason(id),
             seasonApi.getStandingsByGroup(id),
-            gameStatisticApi.getTopScorersBySeason(id, 20)
+            gameStatisticApi.getTopScorersBySeason(id, 20),
+            seasonApi.getPlayoff(id)
           ]);
           setGames(gamesRes.data);
           setTables(standingsRes.data);
           setTopScorers(topScorersRes.data);
+          setPlayoff(playoffRes.data);
         }
       } catch (error) {
         console.error('Failed to fetch season data:', error);
@@ -121,6 +126,8 @@ export default function SeasonDetailScreen() {
   const tabs: { id: TabSeasonDetailType; label: string; icon: JSX.Element; content: JSX.Element }[] = [
     { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} /> },
     { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable tables={tables} games={games} /> },
+    // Only a season that has drawn its play-off gets the tab.
+    ...(playoff ? [{ id: TabSeasonDetailType.PLAYOFF, label: t('playoff.title'), icon: <Swords className="size-4" />, content: <Panel flush title={t('playoff.title')}><SeasonPlayoffBracket playoff={playoff} /></Panel> }] : []),
     ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <CalendarDays className="size-4" />, content: <ScheduleList games={games} /> }]),
     { id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <LayoutGrid className="size-4" />, content: <TeamsGrid teams={season.teams || []} /> },
     { id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} /> },

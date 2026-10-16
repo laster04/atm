@@ -1,9 +1,13 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, Radio } from 'lucide-react';
-import type { GroupTable } from '@types';
+import type { GroupTable, SeasonPlayoff } from '@types';
 import { hasLiveGames, liveTone } from '@/utils/liveTable';
+import { seasonApi } from '@/services/api';
+import SeasonPlayoffBracket from '@/components/playoff/SeasonPlayoffBracket';
 
 interface StandingsTabProps {
+	seasonId: string;
 	/** One entry per division; a season with none arrives as a single table. */
 	tables: GroupTable[];
 }
@@ -13,8 +17,16 @@ interface StandingsTabProps {
  * count ride under the team name, which is what keeps the row readable at
  * 390px without a horizontal scroller.
  */
-export default function StandingsTab({ tables }: StandingsTabProps) {
+export default function StandingsTab({ seasonId, tables }: StandingsTabProps) {
 	const { t } = useTranslation();
+	const [playoff, setPlayoff] = useState<SeasonPlayoff | null>(null);
+
+	// The tables are re-read whenever a result changes; the bracket follows them.
+	useEffect(() => {
+		seasonApi.getPlayoff(seasonId)
+			.then((res) => setPlayoff(res.data))
+			.catch(() => setPlayoff(null));
+	}, [seasonId, tables]);
 	const standings = tables.flatMap((table) => table.standings);
 	const nothingPlayed = standings.every((row) => row.played === 0);
 	const live = hasLiveGames(standings);
@@ -129,6 +141,13 @@ export default function StandingsTab({ tables }: StandingsTabProps) {
 				<p className="bg-card p-4 text-xs leading-relaxed text-muted-foreground">
 					{t('seasonManagement.table.empty')}
 				</p>
+			)}
+
+			{playoff && (
+				<div className="flex flex-col border-t border-border bg-card">
+					<span className="tm-section-label px-4 pt-4">{t('playoff.title')}</span>
+					<SeasonPlayoffBracket playoff={playoff} />
+				</div>
 			)}
 		</div>
 	);

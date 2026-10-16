@@ -7,6 +7,9 @@ import { Prisma } from '@prisma/client';
  * a published table, which is the whole point of confirming a match report: the
  * standings stop shifting under everyone once the round is closed.
  *
+ * Play-off games never count: the table is the regular season, and the
+ * play-off is seeded from it.
+ *
  * Kept here rather than written out at each call site because the table, the
  * archive and the round summary all have to agree on it, and they drifted apart
  * the last time one of them was changed.
@@ -14,6 +17,7 @@ import { Prisma } from '@prisma/client';
 export const COUNTS_TOWARD_TABLE: Prisma.GameWhereInput = {
   status: 'COMPLETED',
   confirmedAt: { not: null },
+  playoffSeriesId: null,
 };
 
 /**
@@ -36,6 +40,7 @@ export const BEING_PLAYED: Prisma.GameWhereInput = {
  * settled: the games still running and the ones waiting to be confirmed.
  */
 export const PENDING_RESULTS: Prisma.GameWhereInput = {
+  playoffSeriesId: null,
   OR: [AWAITING_CONFIRMATION, BEING_PLAYED],
 };
 
@@ -43,4 +48,5 @@ export const PENDING_RESULTS: Prisma.GameWhereInput = {
 export const countsTowardTable = (game: {
   status: string;
   confirmedAt: Date | null;
-}): boolean => game.status === 'COMPLETED' && game.confirmedAt !== null;
+  playoffSeriesId: string | null;
+}): boolean => game.status === 'COMPLETED' && game.confirmedAt !== null && game.playoffSeriesId === null;

@@ -15,7 +15,8 @@ export default function StandingsTable({ tables, games }: StandingsTableProps) {
 	const { t } = useTranslation();
 	const standings = tables.flatMap((table) => table.standings);
 	const live = hasLiveGames(standings);
-	const played = games.filter((game) => game.status === GameStatus.COMPLETED).length;
+	// The table is the regular season; play-off games are counted on the bracket.
+	const played = games.filter((game) => game.status === GameStatus.COMPLETED && !game.playoffSeriesId).length;
 	// A single unnamed table is an undivided season and needs no heading.
 	const divided = tables.length > 1 || tables.some((table) => table.group !== null);
 

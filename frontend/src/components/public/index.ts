@@ -18,3 +18,5 @@ export type { SectionTab } from './SectionTabs';
 export type { FilterTab } from './FilterTabs';
 export { default as TeamHeroBand } from './TeamHeroBand';
 export { default as PlayerHeroBand } from './PlayerHeroBand';
+export { default as KnockoutBracket } from './KnockoutBracket';
+export type { KnockoutCard, KnockoutRound, KnockoutSide } from './KnockoutBracket';
