@@ -3,6 +3,7 @@ import type {
   User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
+  SeasonPlayoff, CreatePlayoffInput,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
@@ -112,6 +113,10 @@ export const seasonApi = {
     api.put(`/seasons/${id}/teams/${teamId}/group`, { groupId }),
   getTeamStanding: (id: string | number, teamId: string | number) => api.get<Standing>(`/seasons/${id}/standings/${teamId}`),
   getArchivedStandings: (id: string | number) => api.get<ArchivedStanding[]>(`/seasons/${id}/archived-standings`),
+  // Null while the season has no play-off.
+  getPlayoff: (id: string | number) => api.get<SeasonPlayoff | null>(`/seasons/${id}/playoff`),
+  createPlayoff: (id: string | number, data: CreatePlayoffInput) => api.post<SeasonPlayoff>(`/seasons/${id}/playoff`, data),
+  deletePlayoff: (id: string | number) => api.delete(`/seasons/${id}/playoff`),
   getCopyableTeams: (id: string | number) => api.get<Team[]>(`/seasons/${id}/copyable-teams`),
   copyTeams: (id: string | number, teamIds: string[]) =>
     api.post<{ message: string; teams: Team[] }>(`/seasons/${id}/copy-teams`, { teamIds }),

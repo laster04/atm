@@ -163,6 +163,7 @@ model Season {
   archivedPlayerStats SeasonArchivePlayerStat[]
   digests             SeasonDigest[]
   groups              SeasonGroup[]
+  playoffSeries       PlayoffSeries[]
 
   @@map("seasons")
 }
@@ -233,6 +234,9 @@ model Team {
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
   managerInvites      ManagerInvite[]
+  playoffHome         PlayoffSeries[] @relation("PlayoffSeriesHome")
+  playoffAway         PlayoffSeries[] @relation("PlayoffSeriesAway")
+  playoffWins         PlayoffSeries[] @relation("PlayoffSeriesWinner")
 
   @@map("teams")
 }
@@ -342,13 +346,59 @@ model Game {
   events     MatchEvent[]
   teamEvents TeamEvent[]
 
+  // Set on a play-off game: the series it belongs to. Play-off games never
+  // count in the table (services/standings/filters.ts) and are created and
+  // removed by the bracket (services/playoff/sync.ts), not by hand.
+  playoffSeriesId String?        @map("playoff_series_id")
+  playoffSeries   PlayoffSeries? @relation(fields: [playoffSeriesId], references: [id], onDelete: Cascade)
+
   // The results email this game went out in. Null while it has not been mailed,
   // which is what the results email screen offers to send.
   digestId String?       @map("digest_id")
   digest   SeasonDigest? @relation(fields: [digestId], references: [id], onDelete: SetNull)
 
   @@index([seasonId, digestId])
+  @@index([playoffSeriesId])
   @@map("games")
+}
+
+enum PlayoffRound {
+  ROUND_OF_16
+  QUARTER_FINAL
+  SEMI_FINAL
+  FINAL
+  BRONZE
+}
+
+/// One pairing of a season's play-off bracket, played as a best-of series.
+/// Its games are ordinary games, created once both teams are known. Seeds
+/// stand in for the teams until the regular season is settled; a team with a
+/// bye starts in the second round with its seed already placed.
+model PlayoffSeries {
+  id       String       @id @default(uuid())
+  round    PlayoffRound
+  slot     Int
+  bestOf   Int          @map("best_of")
+  homeSeed Int?         @map("home_seed")
+  awaySeed Int?         @map("away_seed")
+
+  homeTeamId   String? @map("home_team_id")
+  homeTeam     Team?   @relation("PlayoffSeriesHome", fields: [homeTeamId], references: [id], onDelete: SetNull)
+  awayTeamId   String? @map("away_team_id")
+  awayTeam     Team?   @relation("PlayoffSeriesAway", fields: [awayTeamId], references: [id], onDelete: SetNull)
+  winnerTeamId String? @map("winner_team_id")
+  winnerTeam   Team?   @relation("PlayoffSeriesWinner", fields: [winnerTeamId], references: [id], onDelete: SetNull)
+
+  seasonId String @map("season_id")
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  games Game[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([seasonId, round, slot])
+  @@map("playoff_series")
 }
 
 // A results email that has gone out, so the same games are not mailed twice by

@@ -2,25 +2,15 @@ import { Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest, GenerateTournamentPlayoffsRequest, TournamentGamePhase } from '../types/index.js';
 import { computeGroupStandings } from '../utils/tournamentStandings.js';
+import {
+  MAX_QUALIFIERS,
+  MIN_QUALIFIERS,
+  advanceTarget,
+  buildBracket,
+  roundsFor,
+  seedsFromTables,
+} from '../services/playoff/bracket.js';
 import { zonedDateTime, zonedParts } from '../utils/time.js';
-
-// Bracket rounds in play order; BRONZE branches off SEMI_FINAL but never
-// feeds forward, so it's handled separately from this advancement chain.
-const ADVANCE_SEQUENCE: TournamentGamePhase[] = ['ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL'];
-
-// Standard single-elimination bracket seeding (1v8, 4v5, 2v7, 3v6 for 8 teams,
-// etc.) so top seeds are kept apart until later rounds instead of meeting a
-// naive 1v2 pairing immediately.
-function seedOrder(n: number): number[] {
-  if (n === 1) return [1];
-  const prev = seedOrder(n / 2);
-  const result: number[] = [];
-  for (const s of prev) {
-    result.push(s);
-    result.push(n + 1 - s);
-  }
-  return result;
-}
 
 export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -95,68 +85,28 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
 
     // Seed order: all group winners first (ranked amongst themselves), then
     // all runners-up, etc. — mirrors how real tournaments seed a bracket
-    // built from multiple groups.
-    const seeds: string[] = [];
-    for (let rank = 0; rank < qualifiersPerGroup; rank++) {
-      const rankTeams = standingsByGroup
-        .map(s => s[rank])
-        .sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.goalsFor - a.goalsFor);
-      for (const t of rankTeams) seeds.push(t.teamId);
-    }
-
-    const totalQualifiers = seeds.length;
-    const isPowerOfTwo = totalQualifiers >= 2 && (totalQualifiers & (totalQualifiers - 1)) === 0;
-    if (!isPowerOfTwo) {
-      res.status(400).json({ error: `Total qualifiers (${totalQualifiers}) must be a power of two (2, 4, 8 or 16)` });
+    // built from multiple groups. Same generator as a season's play-off.
+    const totalQualifiers = qualifiersPerGroup * groups.length;
+    if (totalQualifiers < MIN_QUALIFIERS || totalQualifiers > MAX_QUALIFIERS) {
+      res.status(400).json({ error: `Total qualifiers (${totalQualifiers}) must be between ${MIN_QUALIFIERS} and ${MAX_QUALIFIERS}` });
       return;
     }
-    if (totalQualifiers > 16) {
-      res.status(400).json({ error: 'Playoff brackets larger than 16 teams are not supported' });
-      return;
-    }
+    const seeds = seedsFromTables(standingsByGroup, qualifiersPerGroup);
+    const teamFor = (seed: number | null) => (seed !== null && groupStageComplete ? seeds[seed - 1] : null);
 
-    const order = seedOrder(totalQualifiers);
-    const seededTeams = order.map(seed => seeds[seed - 1]);
-
-    const totalRounds = Math.log2(totalQualifiers);
-    const phases = ADVANCE_SEQUENCE.slice(ADVANCE_SEQUENCE.length - totalRounds);
-
-    interface PendingGame {
-      phase: TournamentGamePhase; bracketSlot: number;
-      homeTeamId: string | null; awayTeamId: string | null;
-      homeSeed: number | null; awaySeed: number | null;
-    }
-    const rounds: PendingGame[][] = [];
-
-    for (let r = 0; r < totalRounds; r++) {
-      const phase = phases[r];
-      const gamesInRound = totalQualifiers / 2 ** (r + 1);
-      const isFinalRound = r === totalRounds - 1;
-      const round: PendingGame[] = [];
-
-      // Bronze-medal match shares the final's day and mirrors its single
-      // slot, since both semifinal games feed into bracketSlot 0.
-      if (isFinalRound && totalRounds >= 2) {
-        round.push({ phase: 'BRONZE', bracketSlot: 0, homeTeamId: null, awayTeamId: null, homeSeed: null, awaySeed: null });
-      }
-      for (let slot = 0; slot < gamesInRound; slot++) {
-        const homeSeed = r === 0 ? order[slot * 2] : null;
-        const awaySeed = r === 0 ? order[slot * 2 + 1] : null;
-        round.push({
-          phase,
-          bracketSlot: slot,
-          homeTeamId: r === 0 && groupStageComplete ? seededTeams[slot * 2] : null,
-          awayTeamId: r === 0 && groupStageComplete ? seededTeams[slot * 2 + 1] : null,
-          homeSeed,
-          awaySeed,
-        });
-      }
-      rounds.push(round);
-    }
+    // One round per day after the group stage; the bronze game shares the
+    // final's day and goes first. A count that is not a power of two gives the
+    // top seeds a bye: they start in the second round.
+    const rounds = roundsFor(totalQualifiers);
+    const slots = buildBracket(totalQualifiers, { bronze: true });
+    const days = rounds.map(round => [
+      ...(round === 'FINAL' ? slots.filter(s => s.round === 'BRONZE') : []),
+      ...slots.filter(s => s.round === round),
+    ]);
 
     const created = await prisma.$transaction(
-      rounds.flatMap((round, dayIndex) =>
-        round.map((g, i) => {
+      days.flatMap((day, dayIndex) =>
+        day.map((g, i) => {
           const gameDate = zonedDateTime(
             lastGroupDay.year,
             lastGroupDay.month,
@@ -167,13 +117,13 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
 
           return prisma.tournamentGame.create({
             data: {
-              phase: g.phase,
+              phase: g.round,
               tournamentId: tid,
-              homeTeamId: g.homeTeamId,
-              awayTeamId: g.awayTeamId,
+              homeTeamId: teamFor(g.homeSeed),
+              awayTeamId: teamFor(g.awaySeed),
               homeSeed: g.homeSeed,
               awaySeed: g.awaySeed,
-              bracketSlot: g.bracketSlot,
+              bracketSlot: g.slot,
               status: 'SCHEDULED',
               date: gameDate,
               location: venue,
@@ -186,7 +136,7 @@ export const generateTournamentPlayoffs = async (req: AuthRequest, res: Response
     const note = groupStageComplete
       ? undefined
       : ' Group stage not finished yet — first-round matchups are shown by seed and will fill in with real teams once it completes.';
-    res.status(201).json({ message: `Generated ${created.length} playoff game(s) across ${rounds.length} round(s).${note ?? ''}` });
+    res.status(201).json({ message: `Generated ${created.length} playoff game(s) across ${days.length} round(s).${note ?? ''}` });
   } catch (error) {
     console.error('Generate tournament playoffs error:', error);
     res.status(500).json({ error: 'Failed to generate playoffs' });
@@ -217,12 +167,15 @@ export const deleteTournamentPlayoffs = async (req: AuthRequest, res: Response):
 };
 
 // Called after a group game completes: if that was the last one, resolves
-// any seed-only first-round playoff games (generated before the group stage
-// finished) into real team assignments.
+// any seed-only playoff sides (generated before the group stage finished)
+// into real teams. A bye puts a seed in the second round, so every round is
+// looked at, not only the first.
 export async function resolvePlayoffSeeds(tournamentId: string): Promise<void> {
-  const unresolved = await prisma.tournamentGame.findMany({
-    where: { tournamentId, phase: { not: 'GROUP' }, homeTeamId: null, homeSeed: { not: null } },
+  const playoffGames = await prisma.tournamentGame.findMany({
+    where: { tournamentId, phase: { not: 'GROUP' } },
   });
+  const unresolved = playoffGames.filter(g =>
+    (g.homeSeed != null && g.homeTeamId == null) || (g.awaySeed != null && g.awayTeamId == null));
   if (unresolved.length === 0) return;
 
   const incompleteGroupGames = await prisma.tournamentGame.count({
@@ -233,27 +186,23 @@ export async function resolvePlayoffSeeds(tournamentId: string): Promise<void> {
   const groups = await prisma.tournamentGroup.findMany({ where: { tournamentId } });
   if (groups.length === 0) return;
 
-  const totalQualifiers = unresolved.length * 2;
+  // The lowest seed always plays in the first round, so the highest seed
+  // number on the bracket is the number of qualifiers.
+  const totalQualifiers = Math.max(...playoffGames.flatMap(g => [g.homeSeed ?? 0, g.awaySeed ?? 0]));
   const qualifiersPerGroup = totalQualifiers / groups.length;
   if (!Number.isInteger(qualifiersPerGroup)) return; // groups changed since generation, bail rather than guess
 
   const standingsByGroup = await Promise.all(groups.map(g => computeGroupStandings(tournamentId, g.id)));
   if (standingsByGroup.some(s => s.length < qualifiersPerGroup)) return;
 
-  const seeds: string[] = [];
-  for (let rank = 0; rank < qualifiersPerGroup; rank++) {
-    const rankTeams = standingsByGroup
-      .map(s => s[rank])
-      .sort((a, b) => b.points - a.points || b.goalDiff - a.goalDiff || b.goalsFor - a.goalsFor);
-    for (const t of rankTeams) seeds.push(t.teamId);
-  }
+  const seeds = seedsFromTables(standingsByGroup, qualifiersPerGroup);
 
   await prisma.$transaction(
     unresolved.map(g => prisma.tournamentGame.update({
       where: { id: g.id },
       data: {
-        homeTeamId: g.homeSeed != null ? seeds[g.homeSeed - 1] : null,
-        awayTeamId: g.awaySeed != null ? seeds[g.awaySeed - 1] : null,
+        ...(g.homeSeed != null && g.homeTeamId == null && { homeTeamId: seeds[g.homeSeed - 1] }),
+        ...(g.awaySeed != null && g.awayTeamId == null && { awayTeamId: seeds[g.awaySeed - 1] }),
       },
     }))
   );
@@ -281,30 +230,16 @@ export async function advancePlayoffBracket(game: CompletableGame): Promise<void
   const winnerId = game.homeScore > game.awayScore ? game.homeTeamId : game.awayTeamId;
   const loserId = game.homeScore > game.awayScore ? game.awayTeamId : game.homeTeamId;
 
-  const currentIdx = ADVANCE_SEQUENCE.indexOf(game.phase);
-  if (currentIdx === -1 || currentIdx === ADVANCE_SEQUENCE.length - 1) return;
-  const nextPhase = ADVANCE_SEQUENCE[currentIdx + 1];
-  const nextSlot = Math.floor(game.bracketSlot / 2);
-  const role = game.bracketSlot % 2 === 0 ? 'home' : 'away';
-
-  const nextGame = await prisma.tournamentGame.findFirst({
-    where: { tournamentId: game.tournamentId, phase: nextPhase, bracketSlot: nextSlot },
-  });
-  if (nextGame) {
-    await prisma.tournamentGame.update({
-      where: { id: nextGame.id },
-      data: role === 'home' ? { homeTeamId: winnerId } : { awayTeamId: winnerId },
+  const { winner, loser } = advanceTarget(game.phase, game.bracketSlot);
+  for (const [target, teamId] of [[winner, winnerId], [loser, loserId]] as const) {
+    if (!target) continue;
+    const nextGame = await prisma.tournamentGame.findFirst({
+      where: { tournamentId: game.tournamentId, phase: target.round, bracketSlot: target.slot },
     });
-  }
-
-  if (game.phase === 'SEMI_FINAL') {
-    const bronzeGame = await prisma.tournamentGame.findFirst({
-      where: { tournamentId: game.tournamentId, phase: 'BRONZE', bracketSlot: nextSlot },
-    });
-    if (bronzeGame) {
+    if (nextGame) {
       await prisma.tournamentGame.update({
-        where: { id: bronzeGame.id },
-        data: role === 'home' ? { homeTeamId: loserId } : { awayTeamId: loserId },
+        where: { id: nextGame.id },
+        data: target.side === 'home' ? { homeTeamId: teamId } : { awayTeamId: teamId },
       });
     }
   }

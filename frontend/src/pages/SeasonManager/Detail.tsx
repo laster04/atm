@@ -260,7 +260,7 @@ export default function Detail() {
 							onInvitesChange={setInvites}
 						/>
 					)}
-					{activeTab === 'table' && <StandingsTab tables={tables} />}
+					{activeTab === 'table' && <StandingsTab seasonId={season.id} tables={tables} />}
 					{activeTab === 'more' && (
 						<MoreTab
 							season={season}

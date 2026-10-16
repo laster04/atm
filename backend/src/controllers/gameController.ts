@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import { auditSnapshot, recordAudit } from '../services/audit/record.js';
 import { syncFixtureEvents } from '../services/teamEvents/mirror.js';
+import { playoffResultLock, syncPlayoff } from '../services/playoff/sync.js';
 import {
   AuthRequest,
   CreateGameRequest,
@@ -13,6 +14,9 @@ import { toId } from '../utils/ids.js';
 import { listedGameWhere } from '../services/visibility.js';
 import { isAdmin } from '../services/access.js';
 
+/** A play-off game must produce a winner; overtime and shootout goals go into the final score. */
+const PLAYOFF_NEEDS_WINNER = 'A play-off game needs a winner (count overtime or shootout goals in the score)';
+
 export const getGamesBySeasonId = async (req: Request, res: Response): Promise<void> => {
   try {
     const { seasonId } = req.params;
@@ -20,7 +24,9 @@ export const getGamesBySeasonId = async (req: Request, res: Response): Promise<v
       where: { seasonId: seasonId },
       include: {
         homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
-        awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true } }
+        awayTeam: { select: { id: true, name: true, logo: true, primaryColor: true } },
+        // A play-off game has no round; its series says which stage it is.
+        playoffSeries: { select: { round: true } }
       },
       // id breaks ties so undated generated games keep the order they were scheduled in
       orderBy: [{ round: 'asc' }, { date: 'asc' }, { createdAt: 'asc' }]
@@ -189,6 +195,25 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     // A confirmed result that is no longer a played game has nothing left to confirm.
     const unconfirms = correctsConfirmed && (status ?? existingGame.status) !== 'COMPLETED';
 
+    if (existingGame.playoffSeriesId) {
+      // The bracket decides who plays a play-off game.
+      if ((homeTeamId && homeTeamId !== existingGame.homeTeamId) || (awayTeamId && awayTeamId !== existingGame.awayTeamId)) {
+        res.status(400).json({ error: 'The teams of a play-off game come from the bracket' });
+        return;
+      }
+      const finalHome = homeScore !== undefined ? homeScore : existingGame.homeScore;
+      const finalAway = awayScore !== undefined ? awayScore : existingGame.awayScore;
+      if ((confirms || (correctsConfirmed && !unconfirms)) && (finalHome == null || finalHome === finalAway)) {
+        res.status(400).json({ error: PLAYOFF_NEEDS_WINNER });
+        return;
+      }
+      const lock = correctsConfirmed ? await playoffResultLock(id) : null;
+      if (lock) {
+        res.status(409).json({ error: lock });
+        return;
+      }
+    }
+
     const game = await prisma.game.update({
       where: { id: id },
       data: {
@@ -230,6 +255,9 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     // Rescheduling, postponing or calling a game off all change whether - and
     // when - the two teams are expected somewhere.
     await syncFixtureEvents(game.id);
+    // A confirmed result can settle the regular season (and so the seeds) or
+    // decide a play-off series.
+    await syncPlayoff(existingGame.seasonId);
 
     res.json(game);
   } catch (error) {
@@ -257,11 +285,18 @@ export const deleteGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    if (game.playoffSeriesId) {
+      res.status(409).json({ error: 'Play-off games are added and removed by the bracket' });
+      return;
+    }
+
     // The mirrored calendar entries go with it. They only ever existed because
     // the fixture did, so leaving them behind would leave both teams expected
     // at a game that is no longer in the season.
     await prisma.teamEvent.deleteMany({ where: { gameId: id } });
     await prisma.game.delete({ where: { id: id } });
+    // The last open regular-season game going away can settle the seeds.
+    await syncPlayoff(game.seasonId);
     res.json({ message: 'Game deleted successfully' });
   } catch (error) {
     console.error('Delete game error:', error);
@@ -296,6 +331,12 @@ export const generateSchedule = async (req: AuthRequest, res: Response): Promise
 
     if (season.status != 'DRAFT') {
       res.status(400).json({ error: 'You can\'t reschedule ACTIVE or COMPLETED season'});
+      return;
+    }
+
+    // A new schedule replaces every game of the season, play-off games included.
+    if (await prisma.playoffSeries.count({ where: { seasonId } }) > 0) {
+      res.status(409).json({ error: 'Delete the play-off before generating a new schedule' });
       return;
     }
 
@@ -545,6 +586,10 @@ export const confirmGame = async (req: AuthRequest, res: Response): Promise<void
       res.status(400).json({ error: 'Only a completed game can be confirmed' });
       return;
     }
+    if (game.playoffSeriesId && (game.homeScore == null || game.homeScore === game.awayScore)) {
+      res.status(400).json({ error: PLAYOFF_NEEDS_WINNER });
+      return;
+    }
 
     const confirmed = await prisma.$transaction(async tx => {
       const updated = await tx.game.update({
@@ -564,6 +609,7 @@ export const confirmGame = async (req: AuthRequest, res: Response): Promise<void
       );
       return updated;
     });
+    await syncPlayoff(game.seasonId);
 
     res.json(confirmed);
   } catch (error) {
@@ -603,6 +649,11 @@ export const reopenGame = async (req: AuthRequest, res: Response): Promise<void>
       res.status(409).json({ error: 'This game is not confirmed' });
       return;
     }
+    const lock = await playoffResultLock(id);
+    if (lock) {
+      res.status(409).json({ error: lock });
+      return;
+    }
 
     const reopened = await prisma.$transaction(async tx => {
       const updated = await tx.game.update({
@@ -623,6 +674,7 @@ export const reopenGame = async (req: AuthRequest, res: Response): Promise<void>
       );
       return updated;
     });
+    await syncPlayoff(game.seasonId);
 
     res.json(reopened);
   } catch (error) {

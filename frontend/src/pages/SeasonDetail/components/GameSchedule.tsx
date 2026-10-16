@@ -94,6 +94,11 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 						</div>
 
 						<div className="flex items-center gap-3 sm:w-44 sm:shrink-0 sm:justify-end">
+							{game.playoffSeries && (
+								<span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-subtle-foreground">
+									{t('playoff.gameLabel', { round: t(`playoff.rounds.${game.playoffSeries.round}`) })}
+								</span>
+							)}
 							{game.round != null && (
 								<span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-subtle-foreground">
 									{t('seasonDetail.schedule.round', { round: game.round })}

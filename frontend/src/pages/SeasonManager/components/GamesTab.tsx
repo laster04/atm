@@ -16,7 +16,8 @@ interface GamesTabProps {
 export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabProps) {
 	const { t, i18n } = useTranslation();
 	const [filter, setFilter] = useState<Filter>('noDate');
-	const [round, setRound] = useState<number | null>(null);
+	// A round number, every play-off game, or everything.
+	const [round, setRound] = useState<number | 'playoff' | null>(null);
 
 	const buckets = useMemo(() => ({
 		noDate: games.filter(needsDate),
@@ -25,9 +26,11 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 	}), [games]);
 
 	const rounds = useMemo(() => roundsOf(games), [games]);
+	const hasPlayoff = useMemo(() => games.some((g) => g.playoffSeriesId), [games]);
 
 	const visible = useMemo(() => {
 		const list = buckets[filter];
+		if (round === 'playoff') return list.filter((g) => g.playoffSeriesId);
 		return round === null ? list : list.filter((g) => g.round === round);
 	}, [buckets, filter, round]);
 
@@ -59,7 +62,7 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 			</div>
 
 			{/* Round filter */}
-			{rounds.length > 1 && (
+			{(rounds.length > 1 || hasPlayoff) && (
 				<div className="tm-pill-strip">
 					<button
 						className="tm-sort-pill"
@@ -80,6 +83,16 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 							{t('seasonManagement.games.roundShort', { n: r })}
 						</button>
 					))}
+					{hasPlayoff && (
+						<button
+							className="tm-sort-pill"
+							aria-pressed={round === 'playoff'}
+							style={round === 'playoff' ? { backgroundColor: SEASON_ACCENT } : undefined}
+							onClick={() => setRound('playoff')}
+						>
+							{t('playoff.title')}
+						</button>
+					)}
 				</div>
 			)}
 
@@ -104,9 +117,11 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 									{t(`tm.status.${game.status}`)}
 								</span>
 								<span className="text-xs text-muted-foreground">
-									{typeof game.round === 'number'
-										? t('seasonManagement.games.round', { n: game.round })
-										: t('seasonManagement.games.noRound')}
+									{game.playoffSeries
+										? t('playoff.gameLabel', { round: t(`playoff.rounds.${game.playoffSeries.round}`) })
+										: typeof game.round === 'number'
+											? t('seasonManagement.games.round', { n: game.round })
+											: t('seasonManagement.games.noRound')}
 								</span>
 							</div>
 

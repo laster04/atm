@@ -845,7 +845,8 @@
       "resultsEmail": "Rozeslat výsledky",
       "resultsEmailHint": "Vyberte odehrané zápasy a pošlete výsledky a tabulku všem v sezóně",
       "divisions": "Skupiny",
-      "divisionsHint": "Rozdělí sezónu do skupin, každá s vlastní tabulkou"
+      "divisionsHint": "Rozdělí sezónu do skupin, každá s vlastní tabulkou",
+      "playoffHint": "Pavouk pro nejlepší týmy tabulky"
     },
     "report": {
       "title": "Zápis o utkání",
@@ -992,6 +993,22 @@
       "leagueUNLISTED": "Liga je neveřejná, takže ani tato sezóna není v seznamech, ať je nastavená jakkoli.",
       "leaguePRIVATE": "Liga je skrytá, takže tuto sezónu nikdo jiný neuvidí, ať je nastavená jakkoli.",
       "error": "Nepodařilo se změnit, kdo sezónu uvidí"
+    },
+    "playoff": {
+      "intro": "Postoupí nejlepší týmy celkové tabulky. Každé kolo se hraje jako série; při lichém počtu mají nejlepší týmy volný postup. Zápasy play-off se do tabulky nepočítají.",
+      "qualifiers": "Počet postupujících týmů",
+      "format": "Série v jednotlivých kolech",
+      "singleGame": "Jeden zápas",
+      "bronze": "Hrát o 3. místo",
+      "preview": "První kolo podle aktuální tabulky",
+      "byeFor": "{{seed}}. {{name}} – volný postup do dalšího kola",
+      "create": "Založit play-off",
+      "delete": "Smazat play-off",
+      "deleteHint": "Play-off jde smazat jen do chvíle, než má některý jeho zápas výsledek.",
+      "howToPlay": "Zápasy play-off nastavíte a zapíšete v Zápasech jako ostatní. Zápas musí mít vítěze, proto do skóre započítejte góly z prodloužení i nájezdů; po potvrzení zápasu pavouk posune vítěze dál.",
+      "loadError": "Play-off se nepodařilo načíst",
+      "createError": "Play-off se nepodařilo založit",
+      "deleteError": "Play-off se nepodařilo smazat"
     }
   },
   "admin": {
@@ -2299,5 +2316,24 @@
         "skip": "Společně netrénujeme"
       }
     }
+  },
+  "playoff": {
+    "title": "Play-off",
+    "bye": "Volný postup",
+    "seed": "{{n}}. v tabulce",
+    "tbd": "Zatím neurčeno",
+    "bestOf_one": "Na {{count}} výhru",
+    "bestOf_few": "Na {{count}} výhry",
+    "bestOf_other": "Na {{count}} výher",
+    "rounds": {
+      "ROUND_OF_16": "Osmifinále",
+      "QUARTER_FINAL": "Čtvrtfinále",
+      "SEMI_FINAL": "Semifinále",
+      "FINAL": "Finále",
+      "BRONZE": "O 3. místo"
+    },
+    "champion": "Vítěz sezóny",
+    "seedsPending": "Týmy se doplní podle tabulky, až budou potvrzené všechny zápasy základní části.",
+    "gameLabel": "Play-off · {{round}}"
   }
 }

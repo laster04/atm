@@ -836,7 +836,8 @@
       "resultsEmail": "Email results",
       "resultsEmailHint": "Pick finished games and email results and the table to everyone in the season",
       "divisions": "Divisions",
-      "divisionsHint": "Split the season into groups with a table each"
+      "divisionsHint": "Split the season into groups with a table each",
+      "playoffHint": "A bracket for the top teams of the table"
     },
     "report": {
       "title": "Match report",
@@ -980,6 +981,22 @@
       "leagueUNLISTED": "The league is unlisted, so this season is not listed either, whatever it is set to.",
       "leaguePRIVATE": "The league is private, so nobody else can see this season, whatever it is set to.",
       "error": "Failed to change who can see the season"
+    },
+    "playoff": {
+      "intro": "The top teams of the overall table go through. Each round is a series; with an odd number the best teams get a bye. Play-off games do not count in the table.",
+      "qualifiers": "Teams going through",
+      "format": "Series per round",
+      "singleGame": "Single game",
+      "bronze": "Play for third place",
+      "preview": "First round from the current table",
+      "byeFor": "{{seed}}. {{name}} – bye to the next round",
+      "create": "Create play-off",
+      "delete": "Delete play-off",
+      "deleteHint": "The play-off can be deleted only until one of its games has a result.",
+      "howToPlay": "Date and enter play-off games in Games like any other. A game needs a winner, so count overtime and shootout goals in the score; the bracket moves the winner on once the game is confirmed.",
+      "loadError": "Couldn't load the play-off",
+      "createError": "Couldn't create the play-off",
+      "deleteError": "Couldn't delete the play-off"
     }
   },
   "admin": {
@@ -2267,5 +2284,23 @@
         "skip": "We don't train together"
       }
     }
+  },
+  "playoff": {
+    "title": "Play-off",
+    "bye": "Bye",
+    "seed": "#{{n}} in the table",
+    "tbd": "To be decided",
+    "bestOf_one": "First to {{count}} win",
+    "bestOf_other": "First to {{count}} wins",
+    "rounds": {
+      "ROUND_OF_16": "Round of 16",
+      "QUARTER_FINAL": "Quarter-final",
+      "SEMI_FINAL": "Semi-final",
+      "FINAL": "Final",
+      "BRONZE": "Third place"
+    },
+    "champion": "Season champion",
+    "seedsPending": "Teams fill in from the table once every regular-season game is confirmed.",
+    "gameLabel": "Play-off · {{round}}"
   }
 }

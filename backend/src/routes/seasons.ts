@@ -34,6 +34,7 @@ import {
 } from '../controllers/seasonGroupController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { requireSeasonAccess, requireVisible } from '../middleware/access.js';
+import { createSeasonPlayoff, deleteSeasonPlayoff, getSeasonPlayoff } from '../controllers/seasonPlayoffController.js';
 
 const router = Router();
 
@@ -46,6 +47,7 @@ router.get('/:id/standings', optionalAuth, requireVisible('season'), getSeasonSt
 router.get('/:id/standings/by-group', optionalAuth, requireVisible('season'), getStandingsByGroup);
 router.get('/:id/standings/:teamId', optionalAuth, requireVisible('season'), getTeamStanding);
 router.get('/:id/archived-standings', optionalAuth, requireVisible('season'), getArchivedStandings);
+router.get('/:id/playoff', optionalAuth, requireVisible('season'), getSeasonPlayoff);
 router.get('/:id/copyable-teams', authenticate, getCopyableTeams);
 
 // createSeason checks access against the target league from the request body.
@@ -53,6 +55,8 @@ router.post('/', authenticate, createSeason);
 router.post('/:id/archive', authenticate, requireSeasonAccess(), archiveSeason);
 router.post('/:id/copy-teams', authenticate, requireSeasonAccess(), copyTeamsToSeason);
 router.put('/:id', authenticate, requireSeasonAccess(), updateSeason);
+router.post('/:id/playoff', authenticate, requireSeasonAccess(), createSeasonPlayoff);
+router.delete('/:id/playoff', authenticate, requireSeasonAccess(), deleteSeasonPlayoff);
 router.delete('/:id', authenticate, requireSeasonAccess(), deleteSeason);
 
 // Divisions and groups inside a season.
