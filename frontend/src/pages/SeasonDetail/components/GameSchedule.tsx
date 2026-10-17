@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Clock } from 'lucide-react';
 import { formatDateShort, formatGameTime, isToday, isBeforeToday, isAfterToday } from '@/utils/date';
-import { GameStatus, type Game } from '@types';
+import { GameStatus, type Game, type SportType } from '@types';
+import { formatParts, profileFor } from '@/utils/sportProfiles';
 import { GameStatusBadge, TeamCrest } from '@/components/public';
 
 export enum FilterTimeEnum {
@@ -13,6 +14,8 @@ export enum FilterTimeEnum {
 interface GameScheduleProps {
 	filter?: FilterTimeEnum;
 	games: Game[];
+	/** How the part scores read: periods in brackets, or volleyball sets. */
+	sport?: SportType;
 }
 
 /**
@@ -20,7 +23,8 @@ interface GameScheduleProps {
  * the pairing in the middle, status on the right — the same anatomy the public
  * match list uses, so a schedule reads the same wherever it appears.
  */
-export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameScheduleProps) {
+export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport }: GameScheduleProps) {
+	const profile = profileFor(sport);
 	const { t, i18n } = useTranslation();
 
 	const filtered =
@@ -40,11 +44,7 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 		<div className="flex flex-col">
 			{filtered.map((game) => {
 				const scored = game.status !== GameStatus.SCHEDULED;
-				const periods = [
-					[game.period1HomeScore, game.period1AwayScore],
-					[game.period2HomeScore, game.period2AwayScore],
-					[game.period3HomeScore, game.period3AwayScore],
-				].filter(([home]) => home != null);
+				const parts = formatParts(game.periodScores, profile);
 
 				return (
 					<div
@@ -76,10 +76,8 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games }: GameSche
 										<span className="text-[17px] font-extrabold tabular-nums">
 											{game.homeScore ?? 0} : {game.awayScore ?? 0}
 										</span>
-										{periods.length > 0 && (
-											<span className="text-[10px] text-muted-foreground">
-												{periods.map(([home, away]) => `${home}:${away}`).join(' · ')}
-											</span>
+										{parts && (
+											<span className="text-center text-[10px] text-muted-foreground">{parts}</span>
 										)}
 									</>
 								) : (

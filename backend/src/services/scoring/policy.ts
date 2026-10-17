@@ -22,6 +22,12 @@ export interface ScoringPolicy {
   /** Sports where a level score is impossible (tennis) rank draws out entirely. */
   allowDraws: boolean;
   tiebreakers: Tiebreaker[];
+  /**
+   * The sport the policy was resolved for. Not stored; it lets the table tell
+   * a volleyball match that went to a fifth set (scored with otWin/otLoss) from
+   * a regular win.
+   */
+  sport?: SportType;
 }
 
 export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED';
@@ -106,6 +112,47 @@ const parseTiebreakers = (value: unknown, fallback: Tiebreaker[]): Tiebreaker[] 
   return parsed.length > 0 ? parsed : fallback;
 };
 
+export type OverrideCheck =
+  | { ok: true; value: Record<string, unknown> | null | undefined }
+  | { ok: false; error: string };
+
+const POINT_FIELDS = ['winPoints', 'drawPoints', 'lossPoints', 'otWinPoints', 'otLossPoints'] as const;
+
+/**
+ * Validates a scoring override sent by an organiser. Undefined leaves the stored
+ * one alone, null drops it so the competition inherits again. Only the known
+ * fields are kept, so the stored JSON never carries anything resolvePolicy
+ * would have to ignore.
+ */
+export const checkScoringOverride = (value: unknown): OverrideCheck => {
+  if (value === undefined) return { ok: true, value: undefined };
+  if (value === null) return { ok: true, value: null };
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    return { ok: false, error: 'scoring must be an object or null' };
+  }
+  const raw = value as Record<string, unknown>;
+  const kept: Record<string, unknown> = {};
+  for (const field of POINT_FIELDS) {
+    if (raw[field] === undefined) continue;
+    if (!Number.isInteger(raw[field]) || (raw[field] as number) < 0 || (raw[field] as number) > 10) {
+      return { ok: false, error: `${field} must be a whole number from 0 to 10` };
+    }
+    kept[field] = raw[field];
+  }
+  if (raw.allowDraws !== undefined) {
+    if (typeof raw.allowDraws !== 'boolean') return { ok: false, error: 'allowDraws must be true or false' };
+    kept.allowDraws = raw.allowDraws;
+  }
+  if (raw.tiebreakers !== undefined) {
+    const parsed = parseTiebreakers(raw.tiebreakers, []);
+    if (!Array.isArray(raw.tiebreakers) || parsed.length !== raw.tiebreakers.length) {
+      return { ok: false, error: `tiebreakers must be a list of ${TIEBREAKERS.join(', ')}` };
+    }
+    kept.tiebreakers = parsed;
+  }
+  return { ok: true, value: kept };
+};
+
 /**
  * Resolves the policy a competition runs on: its own stored override where it
  * has one, otherwise the default for its sport. The override is persisted as
@@ -118,7 +165,9 @@ export const resolvePolicy = (
   kind: CompetitionKind
 ): ScoringPolicy => {
   const base = defaultPolicy(sportType, kind);
-  if (!override || typeof override !== 'object' || Array.isArray(override)) return base;
+  if (!override || typeof override !== 'object' || Array.isArray(override)) {
+    return sportType ? { ...base, sport: sportType } : base;
+  }
 
   const raw = override as Record<string, unknown>;
   return {
@@ -129,5 +178,6 @@ export const resolvePolicy = (
     otLossPoints: isNumber(raw.otLossPoints) ? raw.otLossPoints : base.otLossPoints,
     allowDraws: typeof raw.allowDraws === 'boolean' ? raw.allowDraws : base.allowDraws,
     tiebreakers: parseTiebreakers(raw.tiebreakers, base.tiebreakers),
+    ...(sportType && { sport: sportType }),
   };
 };

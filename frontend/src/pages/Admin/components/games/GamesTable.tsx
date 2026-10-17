@@ -219,6 +219,7 @@ export default function GamesTable({
 							<GameFormModal
 								game={editingGame}
 								teams={teams}
+								sport={seasons.find((season) => season.id === selectedSeasonId)?.league?.sportType}
 								onSubmit={handleSubmit}
 								onClose={handleClose}
 							/>

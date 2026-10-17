@@ -6,7 +6,10 @@ import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
 import { toZonedInput } from '@/utils/date';
-import { Game, GameStatus, Team } from '@types';
+import { useState } from 'react';
+import { Game, GameStatus, Team, type PartScore, type SportType } from '@types';
+import PartScoresEditor, { initialParts, toPartScores } from '@/components/PartScoresEditor';
+import { partsWon, profileFor } from '@/utils/sportProfiles';
 
 interface GameFormData {
 	date: string;
@@ -14,12 +17,7 @@ interface GameFormData {
 	awayTeamId: string;
 	homeScore?: number | null;
 	awayScore?: number | null;
-	period1HomeScore?: number | null;
-	period1AwayScore?: number | null;
-	period2HomeScore?: number | null;
-	period2AwayScore?: number | null;
-	period3HomeScore?: number | null;
-	period3AwayScore?: number | null;
+	periodScores?: PartScore[] | null;
 	location?: string;
 	status: GameStatus;
 	round?: number | null;
@@ -30,11 +28,15 @@ interface GameFormModalProps {
 	teams: Team[];
 	onSubmit: (data: GameFormData) => void;
 	onClose: () => void;
+	/** The season's sport: decides the parts (periods, halves, quarters, sets). */
+	sport?: SportType;
 }
 
-export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFormModalProps) {
+export default function GameFormModal({ game, teams, onSubmit, onClose, sport }: GameFormModalProps) {
 	const { t } = useTranslation();
 	const isEditing = !!game;
+	const profile = profileFor(sport);
+	const [parts, setParts] = useState(() => initialParts(game?.periodScores, profile));
 
 	const initValues: GameFormData = {
 		date: toZonedInput(game?.date) || '',
@@ -42,12 +44,6 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 		awayTeamId: game?.awayTeamId || '',
 		homeScore: game?.homeScore ?? null,
 		awayScore: game?.awayScore ?? null,
-		period1HomeScore: game?.period1HomeScore ?? null,
-		period1AwayScore: game?.period1AwayScore ?? null,
-		period2HomeScore: game?.period2HomeScore ?? null,
-		period2AwayScore: game?.period2AwayScore ?? null,
-		period3HomeScore: game?.period3HomeScore ?? null,
-		period3AwayScore: game?.period3AwayScore ?? null,
 		location: game?.location || '',
 		status: game?.status || GameStatus.SCHEDULED,
 		round: game?.round ?? null,
@@ -65,18 +61,16 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 		v !== null && v !== undefined && !isNaN(Number(v)) ? Number(v) : null;
 
 	const handleFormSubmit = (data: GameFormData) => {
+		const periodScores = isEditing ? toPartScores(parts) : undefined;
+		// Volleyball: the result is the sets won.
+		const won = profile.scoreIsPartsWon && periodScores ? partsWon(periodScores) : null;
 		onSubmit({
 			...data,
 			homeTeamId: data.homeTeamId,
 			awayTeamId: data.awayTeamId,
-			homeScore: toIntOrNull(data.homeScore),
-			awayScore: toIntOrNull(data.awayScore),
-			period1HomeScore: toIntOrNull(data.period1HomeScore),
-			period1AwayScore: toIntOrNull(data.period1AwayScore),
-			period2HomeScore: toIntOrNull(data.period2HomeScore),
-			period2AwayScore: toIntOrNull(data.period2AwayScore),
-			period3HomeScore: toIntOrNull(data.period3HomeScore),
-			period3AwayScore: toIntOrNull(data.period3AwayScore),
+			homeScore: won?.home ?? toIntOrNull(data.homeScore),
+			awayScore: won?.away ?? toIntOrNull(data.awayScore),
+			...(periodScores !== undefined && { periodScores }),
 			round: data.round ? Number(data.round) : null,
 		});
 	};
@@ -216,48 +210,9 @@ export default function GameFormModal({ game, teams, onSubmit, onClose }: GameFo
 										min={0}
 									/>
 
-									<Label className="text-sm whitespace-nowrap">{t('admin.modal.period1', 'Period 1')}</Label>
-									<Input
-										type="number"
-										{...form.register('period1HomeScore', { valueAsNumber: true })}
-										className="w-full px-3 py-2 border rounded text-center"
-										min={0}
-									/>
-									<Input
-										type="number"
-										{...form.register('period1AwayScore', { valueAsNumber: true })}
-										className="w-full px-3 py-2 border rounded text-center"
-										min={0}
-									/>
-
-									<Label className="text-sm whitespace-nowrap">{t('admin.modal.period2', 'Period 2')}</Label>
-									<Input
-										type="number"
-										{...form.register('period2HomeScore', { valueAsNumber: true })}
-										className="w-full px-3 py-2 border rounded text-center"
-										min={0}
-									/>
-									<Input
-										type="number"
-										{...form.register('period2AwayScore', { valueAsNumber: true })}
-										className="w-full px-3 py-2 border rounded text-center"
-										min={0}
-									/>
-
-									<Label className="text-sm whitespace-nowrap">{t('admin.modal.period3', 'Period 3')}</Label>
-									<Input
-										type="number"
-										{...form.register('period3HomeScore', { valueAsNumber: true })}
-										className="w-full px-3 py-2 border rounded text-center"
-										min={0}
-									/>
-									<Input
-										type="number"
-										{...form.register('period3AwayScore', { valueAsNumber: true })}
-										className="w-full px-3 py-2 border rounded text-center"
-										min={0}
-									/>
 								</div>
+								<Label className="text-xs text-muted-foreground">{t(`sports.partsTitle.${profile.parts.kind}`)}</Label>
+								<PartScoresEditor profile={profile} rows={parts} onChange={setParts} />
 							</div>
 						)}
 					</div>

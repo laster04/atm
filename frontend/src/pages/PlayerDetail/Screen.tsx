@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { playerApi, gameStatisticApi } from '@/services/api';
-import type { Player, HockeyGameStatistic } from '@types';
+import type { Player, PlayerGameStatistic } from '@types';
 import { PlayerHeroBand } from '@/components/public';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatistics from './components/PlayerStatistics';
@@ -14,7 +14,7 @@ export default function PlayerDetailScreen() {
   const { t } = useTranslation();
 
   const [player, setPlayer] = useState<Player | null>(null);
-  const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
+  const [statistics, setStatistics] = useState<PlayerGameStatistic[]>([]);
   const [loading, setLoading] = useState(false);
 
   useDocumentTitle([player?.name, player?.team?.name]);
@@ -47,15 +47,6 @@ export default function PlayerDetailScreen() {
     );
   }
 
-  const totals = statistics.reduce(
-    (sum, stat) => ({
-      goals: sum.goals + (stat.goals || 0),
-      assists: sum.assists + (stat.assists || 0),
-      penaltyMinutes: sum.penaltyMinutes + (stat.penaltyMinutes || 0),
-    }),
-    { goals: 0, assists: 0, penaltyMinutes: 0 }
-  );
-
   return (
     <>
       <PlayerHeroBand
@@ -69,13 +60,7 @@ export default function PlayerDetailScreen() {
       />
 
       <div className="mx-auto grid max-w-[1600px] gap-5 px-4 py-7 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <PlayerStatistics
-          statistics={statistics}
-          totalGoals={totals.goals}
-          totalAssists={totals.assists}
-          totalPenaltyMinutes={totals.penaltyMinutes}
-          gamesPlayed={statistics.length}
-        />
+        <PlayerStatistics statistics={statistics} sport={player.team?.sportTypes?.[0]} />
 
         <div className="flex flex-col gap-5">
           <PlayerTeam player={player} />

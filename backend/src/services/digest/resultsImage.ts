@@ -223,7 +223,7 @@ export const renderResultsImage = async (
       },
       h({ flex: 1, fontWeight: 600, color: TEXT, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }, scorer.name),
       h({ color: MUTED, marginLeft: 16, overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: 360 }, scorer.team),
-      h({ width: 120, justifyContent: 'flex-end', color: MUTED }, `${scorer.goals}+${scorer.assists}`),
+      h({ width: 120, justifyContent: 'flex-end', color: MUTED }, scorer.detail ?? ''),
       h({ width: 90, justifyContent: 'flex-end', fontWeight: 800, color: TEXT }, String(scorer.points))
     );
 

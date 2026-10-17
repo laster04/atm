@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type {
-  User, League, Season, Team, Player, Game, Standing, HockeyGameStatistic, TopScorer,
+  User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   SeasonPlayoff, CreatePlayoffInput,
@@ -231,9 +231,9 @@ export const gameApi = {
 };
 
 export const gameStatisticApi = {
-  getByGame: (gameId: string | number) => api.get<HockeyGameStatistic[]>(`/game-statistics/game/${gameId}`),
-  getByPlayer: (playerId: string | number) => api.get<HockeyGameStatistic[]>(`/game-statistics/player/${playerId}`),
-  getById: (id: string | number) => api.get<HockeyGameStatistic>(`/game-statistics/${id}`),
+  getByGame: (gameId: string | number) => api.get<PlayerGameStatistic[]>(`/game-statistics/game/${gameId}`),
+  getByPlayer: (playerId: string | number) => api.get<PlayerGameStatistic[]>(`/game-statistics/player/${playerId}`),
+  getById: (id: string | number) => api.get<PlayerGameStatistic>(`/game-statistics/${id}`),
   // App-wide leaders, optionally narrowed to a league, season or sport.
   getTopScorers: (params?: TopScorerQuery) =>
     api.get<TopScorer[]>('/game-statistics/top', { params }),
@@ -244,9 +244,9 @@ export const gameStatisticApi = {
   getArchivedPlayerStats: (seasonId: string | number, teamId?: string | number) =>
       api.get<ArchivedPlayerStat[]>(`/game-statistics/season/${seasonId}/archived`, { params: { teamId } }),
   create: (gameId: string | number, data: { playerId: string; goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
-    api.post<HockeyGameStatistic>(`/game-statistics/game/${gameId}`, data),
+    api.post<PlayerGameStatistic>(`/game-statistics/game/${gameId}`, data),
   update: (id: string | number, data: { goals?: number | null; assists?: number | null; penaltyMinutes?: number | null }) =>
-    api.put<HockeyGameStatistic>(`/game-statistics/${id}`, data),
+    api.put<PlayerGameStatistic>(`/game-statistics/${id}`, data),
   delete: (id: string | number) => api.delete(`/game-statistics/${id}`)
 };
 

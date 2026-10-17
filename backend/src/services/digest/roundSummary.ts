@@ -1,3 +1,4 @@
+import { profileFor } from '../sports/profile.js';
 import prisma from '../../config/database.js';
 import { computeTable } from '../standings/compute.js';
 import { policyFromRows } from '../scoring/resolve.js';
@@ -38,7 +39,10 @@ export interface SummaryScorer {
   team: string;
   goals: number;
   assists: number;
+  /** What the sport ranks by: goals + assists in hockey, goals in football, points in basketball. */
   points: number;
+  /** "3+2" where the ranking adds two numbers up; null where it is one number. */
+  detail: string | null;
 }
 
 export interface RoundSummary {
@@ -121,11 +125,13 @@ const buildSummary = async (
 
   // Scoring is read from the aggregate rows, which are kept in step with the
   // event log, so this counts the same whether a game was reported either way.
-  const stats = await prisma.hockeyGameStatistic.groupBy({
+  const stats = await prisma.playerGameStatistic.groupBy({
     by: ['playerId'],
     where: { game: { seasonId, ...COUNTS_TOWARD_TABLE } },
-    _sum: { goals: true, assists: true },
+    _sum: { goals: true, assists: true, points: true },
   });
+  // Volleyball keeps no player lines, so its summary has no scorers at all.
+  const profile = profileFor(season.league.sportType);
   const players = await prisma.player.findMany({
     where: { id: { in: stats.map(entry => entry.playerId) } },
     select: { id: true, name: true, team: { select: { name: true } } },
@@ -135,14 +141,15 @@ const buildSummary = async (
   const topScorers = stats
     .map(entry => {
       const player = playerById.get(entry.playerId);
-      const goals = entry._sum.goals ?? 0;
-      const assists = entry._sum.assists ?? 0;
+      const sums = { goals: entry._sum.goals ?? 0, assists: entry._sum.assists ?? 0, points: entry._sum.points ?? 0 };
+      const ranked = profile.rankBy.filter((key): key is keyof typeof sums => key in sums);
       return {
         name: player?.name ?? '',
         team: player?.team.name ?? '',
-        goals,
-        assists,
-        points: goals + assists,
+        goals: sums.goals,
+        assists: sums.assists,
+        points: ranked.reduce((sum, key) => sum + sums[key], 0),
+        detail: ranked.length > 1 ? ranked.map(key => sums[key]).join('+') : null,
       };
     })
     .filter(scorer => scorer.name && scorer.points > 0)

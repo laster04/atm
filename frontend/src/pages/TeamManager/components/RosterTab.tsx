@@ -42,7 +42,7 @@ export default function RosterTab({
 				const next: Record<string, { points: number; penaltyMinutes: number }> = {};
 				res.data.forEach((scorer) => {
 					next[scorer.player.id] = {
-						points: scorer.points,
+						points: scorer.rankTotal,
 						penaltyMinutes: scorer.penaltyMinutes ?? 0,
 					};
 				});

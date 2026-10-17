@@ -140,9 +140,12 @@ describe('derivation from the event log', () => {
     expect(game.body.eventsAuthoritative).toBe(true);
     expect(game.body.homeScore).toBe(2);
     expect(game.body.awayScore).toBe(1);
-    expect(game.body.period1HomeScore).toBe(1);
-    expect(game.body.period2HomeScore).toBe(1);
-    expect(game.body.period3AwayScore).toBe(1);
+    // Hockey: three periods, scoreless parts included.
+    expect(game.body.periodScores).toEqual([
+      { home: 1, away: 0 },
+      { home: 1, away: 0 },
+      { home: 0, away: 1 },
+    ]);
 
     const stats = await request(app).get(`/api/game-statistics/game/${gameId}`);
     const scorer = stats.body.find((s: { playerId: string }) => s.playerId === homePlayerId);

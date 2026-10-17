@@ -13,10 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@components/ba
 import { Input } from "@components/base/input.tsx";
 import { Label } from "@components/base/label.tsx";
 import { Textarea } from "@components/base/textarea.tsx";
-import type { Player, PlayerPosition, Team, HockeyGameStatistic } from "@types";
+import type { Player, PlayerPosition, Team, PlayerGameStatistic, SportType } from "@types";
 import { APP_TIME_ZONE } from '@/utils/date';
 import PositionSelect from '@components/PositionSelect';
 import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPositions';
+import { profileFor, rankColumn } from '@/utils/sportProfiles';
 
 export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
@@ -32,7 +33,7 @@ export default function PlayerDetailPage() {
 	const [saving, setSaving] = useState(false);
 	const [team, setTeam] = useState<Team | null>(null);
 	const [player, setPlayer] = useState<Player | null>(null);
-	const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
+	const [statistics, setStatistics] = useState<PlayerGameStatistic[]>([]);
 	const [showEditModal, setShowEditModal] = useState(isNew);
 	const [formData, setFormData] = useState({
 		name: '',
@@ -121,12 +122,16 @@ export default function PlayerDetailPage() {
 
 	const positions = positionsForSports(teamSports(team));
 
-	// Calculate totals
-	const totalGoals = statistics.reduce((sum, s) => sum + (s.goals || 0), 0);
-	const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
+	// Totals of the numbers the team's sport keeps, plus hockey's points column.
+	const profile = profileFor(teamSports(team)[0] as SportType | undefined);
+	const rank = rankColumn(profile);
 	const gamesPlayed = statistics.length;
-	const totalPoints = totalGoals + totalAssists;
-	const totalPenaltyMinutes = statistics.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
+	const statTiles = [
+		...profile.stats.map((key) => ({ key, value: statistics.reduce((sum, s) => sum + (s[key] || 0), 0) })),
+		...(rank.key === 'rankTotal'
+			? [{ key: 'rankTotal' as const, value: statistics.reduce((sum, s) => sum + profile.rankBy.reduce((line, k) => line + (s[k] || 0), 0), 0) }]
+			: []),
+	];
 
 	if (loading) {
 		return (
@@ -294,13 +299,14 @@ export default function PlayerDetailPage() {
 			</div>
 
 			{/* Stats Summary */}
-			<div className="grid grid-cols-5 gap-1.5">
+			<div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${statTiles.length + 1}, minmax(0, 1fr))` }}>
 				{[
-					{ value: gamesPlayed, label: t('teamManagement.playerDetail.gamesPlayed'), color: undefined },
-					{ value: totalGoals, label: t('teamManagement.playerDetail.goals'), color: '#166534' },
-					{ value: totalAssists, label: t('teamManagement.playerDetail.assists'), color: undefined },
-					{ value: totalPoints, label: t('teamManagement.pwa.points'), color: team?.primaryColor || '#003E7E' },
-					{ value: totalPenaltyMinutes, label: t('teamManagement.gameStats.penaltyMinutesShort'), color: '#92400e' },
+					{ value: gamesPlayed, label: t('teamManagement.playerDetail.gamesPlayed'), color: undefined as string | undefined },
+					...statTiles.map((tile) => ({
+						value: tile.value,
+						label: t(`stats.short.${tile.key}`),
+						color: tile.key === rank.key ? team?.primaryColor || '#003E7E' : undefined,
+					})),
 				].map((tile) => (
 					<div
 						key={tile.label}
@@ -353,11 +359,10 @@ export default function PlayerDetailPage() {
 							const tone = result === 'win' ? { bg: '#dcfce7', fg: '#166534' }
 								: result === 'draw' ? { bg: '#fef3c7', fg: '#92400e' }
 								: { bg: '#fee2e2', fg: '#991b1b' };
-							const points = [
-								stat.goals ? t('teamManagement.playerDetail.goalsShort', { count: stat.goals }) : null,
-								stat.assists ? t('teamManagement.playerDetail.assistsShort', { count: stat.assists }) : null,
-								stat.penaltyMinutes ? `${stat.penaltyMinutes} ${t('teamManagement.gameStats.penaltyMinutesShort')}` : null,
-							].filter(Boolean).join(' · ');
+							const points = profile.stats
+								.filter((key) => stat[key])
+								.map((key) => `${stat[key]} ${t(`stats.short.${key}`)}`)
+								.join(' · ');
 
 							return (
 								<div key={stat.id} className="tm-compact-row py-2">

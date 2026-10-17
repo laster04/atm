@@ -71,12 +71,13 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 									defaultValue={initValues.sportType}
 								>
 									<MenuItem value={SportType.HOCKEY}>{t('sports.HOCKEY')}</MenuItem>
-									{/*<MenuItem value={SportType.FOOTBALL}>{t('sports.FOOTBALL')}</MenuItem>*/}
-									{/*<MenuItem value={SportType.BASKETBALL}>{t('sports.BASKETBALL')}</MenuItem>*/}
-									{/*<MenuItem value={SportType.VOLLEYBALL}>{t('sports.VOLLEYBALL')}</MenuItem>*/}
+									<MenuItem value={SportType.FLOORBALL}>{t('sports.FLOORBALL')}</MenuItem>
+									<MenuItem value={SportType.FOOTBALL}>{t('sports.FOOTBALL')}</MenuItem>
+									<MenuItem value={SportType.BASKETBALL}>{t('sports.BASKETBALL')}</MenuItem>
+									<MenuItem value={SportType.VOLLEYBALL}>{t('sports.VOLLEYBALL')}</MenuItem>
 									<MenuItem value={SportType.TENNIS}>{t('sports.TENNIS')}</MenuItem>
+									{/* Handball keeps the hockey shape until it gets statistics of its own. */}
 									{/*<MenuItem value={SportType.HANDBALL}>{t('sports.HANDBALL')}</MenuItem>*/}
-									{/*<MenuItem value={SportType.FLOORBALL}>{t('sports.FLOORBALL')}</MenuItem>*/}
 									<MenuItem value={SportType.OTHER}>{t('sports.OTHER')}</MenuItem>
 								</Select>
 							</FormControl>

@@ -3,6 +3,7 @@ import prisma from '../config/database.js';
 import { auditSnapshot, recordAudit } from '../services/audit/record.js';
 import { syncFixtureEvents } from '../services/teamEvents/mirror.js';
 import { playoffResultLock, syncPlayoff } from '../services/playoff/sync.js';
+import { checkParts, partsWon, profileFor } from '../services/sports/profile.js';
 import {
   AuthRequest,
   CreateGameRequest,
@@ -44,7 +45,8 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
     const game = await prisma.game.findUnique({
       where: { id: id },
       include: {
-        season: true,
+        // The league's sport decides the parts and the numbers a line keeps.
+        season: { include: { league: { select: { id: true, name: true, sportType: true } } } },
         // The statistics screen colours itself by team and decides who may edit
         // which line-up, so a single game carries the colour and the manager.
         homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, managerId: true } },
@@ -139,16 +141,13 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     const { id } = req.params;
     const {
       homeTeamId, awayTeamId, date, location,
-      homeScore, awayScore,
-      period1HomeScore, period1AwayScore,
-      period2HomeScore, period2AwayScore,
-      period3HomeScore, period3AwayScore,
       status, round, confirm
     } = req.body as UpdateGameRequest;
+    let { homeScore, awayScore } = req.body as UpdateGameRequest;
 
     const existingGame = await prisma.game.findUnique({
       where: { id: id },
-      include: { season: { include: { league: { select: { managerId: true } } } } }
+      include: { season: { include: { league: { select: { managerId: true, sportType: true } } } } }
     });
 
     if (!existingGame) {
@@ -172,14 +171,23 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // Halves, quarters, sets: as many parts as the sport has.
+    const profile = profileFor(existingGame.season.league.sportType);
+    const parts = checkParts(req.body.periodScores, profile);
+    if (!parts.ok) {
+      res.status(400).json({ error: parts.error });
+      return;
+    }
+    // A volleyball result is the sets won, so it follows from the sets entered.
+    if (profile.scoreIsPartsWon && parts.value) {
+      const won = partsWon(parts.value);
+      homeScore = won.home;
+      awayScore = won.away;
+    }
+
     // Scores of a game with an event log are derived from that log. Accepting a
     // hand-edited score here would last only until the next event was recorded.
-    const editsScore = [
-      homeScore, awayScore,
-      period1HomeScore, period1AwayScore,
-      period2HomeScore, period2AwayScore,
-      period3HomeScore, period3AwayScore,
-    ].some(value => value !== undefined);
+    const editsScore = [homeScore, awayScore, parts.value].some(value => value !== undefined);
     if (existingGame.eventsAuthoritative && editsScore) {
       res.status(409).json({
         error: 'This game\'s score comes from its event log. Edit the events instead.',
@@ -224,12 +232,9 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         ...(location !== undefined && { location }),
         ...(homeScore !== undefined && { homeScore: homeScore !== null ? homeScore : null }),
         ...(awayScore !== undefined && { awayScore: awayScore !== null ? awayScore : null }),
-        ...(period1HomeScore !== undefined && { period1HomeScore: period1HomeScore !== null ? period1HomeScore : null }),
-        ...(period1AwayScore !== undefined && { period1AwayScore: period1AwayScore !== null ? period1AwayScore : null }),
-        ...(period2HomeScore !== undefined && { period2HomeScore: period2HomeScore !== null ? period2HomeScore : null }),
-        ...(period2AwayScore !== undefined && { period2AwayScore: period2AwayScore !== null ? period2AwayScore : null }),
-        ...(period3HomeScore !== undefined && { period3HomeScore: period3HomeScore !== null ? period3HomeScore : null }),
-        ...(period3AwayScore !== undefined && { period3AwayScore: period3AwayScore !== null ? period3AwayScore : null }),
+        ...(parts.value !== undefined && {
+          periodScores: parts.value === null ? Prisma.JsonNull : (parts.value as unknown as Prisma.InputJsonValue),
+        }),
         ...(status && { status }),
         ...(roundNum !== undefined && { round: roundNum }),
         ...(confirms && { confirmedAt: new Date(), confirmedById: req.user?.id ?? null }),
@@ -553,7 +558,7 @@ function repairClashes(games: ScheduledGame[], previousGame?: ScheduledGame): Sc
 
 /** The fields of a game the trail keeps on each administrative change. */
 const GAME_AUDIT_FIELDS = [
-  'homeScore', 'awayScore', 'status', 'date', 'location', 'confirmedAt', 'eventsAuthoritative',
+  'homeScore', 'awayScore', 'periodScores', 'status', 'date', 'location', 'confirmedAt', 'eventsAuthoritative',
 ] as const;
 
 /**

@@ -307,6 +307,7 @@ export default function Detail() {
 			{resultGame && (
 				<ResultSheet
 					game={resultGame}
+					sport={season.league?.sportType}
 					onClose={() => setResultGame(null)}
 					onOpenReport={() => {
 						setReportGame(resultGame);
@@ -322,6 +323,7 @@ export default function Detail() {
 			{reportGame && (
 				<MatchReportSheet
 					game={reportGame}
+					sport={season.league?.sportType}
 					onClose={() => setReportGame(null)}
 					// The report derives the score server-side, so the fixture row is
 					// re-read rather than patched from what was typed.

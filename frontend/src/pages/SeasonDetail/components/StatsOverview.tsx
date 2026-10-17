@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Target, TrendingUp, Trophy } from 'lucide-react';
-import { Game, GameStatus, Standing, TopScorer } from '@types';
+import { Game, GameStatus, Standing, TopScorer, type SportType } from '@types';
 import { gameStatisticApi } from '@/services/api';
 import { mapArchivedPlayerStat } from '@/utils/archivedStats';
 import { Panel, StatTile, TeamCrest } from '@/components/public';
 import { FilterTimeEnum, GameSchedule } from './GameSchedule';
 import TopScorers from './TopScorers';
+import { profileFor, rankColumn } from '@/utils/sportProfiles';
 
 interface StatsOverviewProps {
 	seasonId: string;
 	standings: Standing[];
 	games: Game[];
 	archived?: boolean;
+	sport?: SportType;
 }
 
-export function StatsOverview({ seasonId, standings, games, archived }: StatsOverviewProps) {
+export function StatsOverview({ seasonId, standings, games, archived, sport }: StatsOverviewProps) {
 	const { t } = useTranslation();
 	const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
 	const [loadingScorers, setLoadingScorers] = useState(true);
@@ -74,14 +76,14 @@ export function StatsOverview({ seasonId, standings, games, archived }: StatsOve
 
 			<div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
 				<Panel flush title={t('seasonDetail.overview.upcomingGames')}>
-					<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} />
+					<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} sport={sport} />
 				</Panel>
 				<Panel
 					flush
 					title={t('seasonDetail.overview.topScorers')}
 					description={t('seasonDetail.overview.leagueLeadersDescription')}
 				>
-					<TopScorers topScorers={topScorers} loading={loadingScorers} />
+					<TopScorers topScorers={topScorers} loading={loadingScorers} rankLabelKey={rankColumn(profileFor(sport)).labelKey} />
 				</Panel>
 			</div>
 		</div>

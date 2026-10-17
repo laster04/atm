@@ -8,9 +8,11 @@ const MEDALS = ['bg-brand text-brand-ink', 'bg-border text-subtle-foreground', '
 interface TopScorersProps {
 	topScorers: TopScorer[];
 	loading?: boolean;
+	/** Label of the ranked number (points, goals); defaults to points. */
+	rankLabelKey?: string;
 }
 
-export default function TopScorers({ topScorers, loading }: TopScorersProps) {
+export default function TopScorers({ topScorers, loading, rankLabelKey }: TopScorersProps) {
 	const { t } = useTranslation();
 
 	if (loading) {
@@ -49,9 +51,9 @@ export default function TopScorers({ topScorers, loading }: TopScorersProps) {
 						</span>
 					</div>
 					<div className="ml-auto flex items-baseline gap-1">
-						<span className="text-[18px] font-extrabold">{scorer.points}</span>
+						<span className="text-[18px] font-extrabold">{scorer.rankTotal}</span>
 						<span className="text-[11px] text-muted-foreground">
-							{t('seasonDetail.overview.pointsShort')}
+							{t(rankLabelKey ?? 'seasonDetail.overview.pointsShort')}
 						</span>
 					</div>
 				</div>

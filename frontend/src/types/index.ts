@@ -29,12 +29,12 @@ export enum SeasonStatus {
 
 export enum SportType {
   HOCKEY = 'HOCKEY',
-  // FOOTBALL = 'FOOTBALL',
-  // BASKETBALL = 'BASKETBALL',
-  // VOLLEYBALL = 'VOLLEYBALL',
+  FOOTBALL = 'FOOTBALL',
+  BASKETBALL = 'BASKETBALL',
+  VOLLEYBALL = 'VOLLEYBALL',
   TENNIS = 'TENNIS',
-  // HANDBALL = 'HANDBALL',
-  // FLOORBALL = 'FLOORBALL',
+  HANDBALL = 'HANDBALL',
+  FLOORBALL = 'FLOORBALL',
   OTHER = 'OTHER',
 }
 
@@ -104,7 +104,7 @@ export interface RoundSummary {
     goalsAgainst: number;
     points: number;
   }[];
-  topScorers: { name: string; team: string; goals: number; assists: number; points: number }[];
+  topScorers: { name: string; team: string; goals: number; assists: number; points: number; detail: string | null }[];
 }
 
 export interface SeasonDigest {
@@ -250,12 +250,8 @@ export interface Game {
   location?: string | null;
   homeScore?: number | null;
   awayScore?: number | null;
-  period1HomeScore?: number | null;
-  period1AwayScore?: number | null;
-  period2HomeScore?: number | null;
-  period2AwayScore?: number | null;
-  period3HomeScore?: number | null;
-  period3AwayScore?: number | null;
+  /** Score of each period, half, quarter or set, in order (utils/sportProfiles.ts). */
+  periodScores?: PartScore[] | null;
   status: GameStatus;
   round?: number | null;
   /** Set on a play-off game: the series it belongs to. Such games never count in the table. */
@@ -332,8 +328,22 @@ export const MatchEventType = {
   PERIOD_START: 'PERIOD_START',
   PERIOD_END: 'PERIOD_END',
   SHOOTOUT_ATTEMPT: 'SHOOTOUT_ATTEMPT',
+  CARD: 'CARD',
 } as const;
 export type MatchEventType = (typeof MatchEventType)[keyof typeof MatchEventType];
+
+export type CardColor = 'YELLOW' | 'RED';
+
+/** The score of one part of a game: a period, half, quarter or set. */
+export interface PartScore {
+  home: number;
+  away: number;
+}
+
+/** A number a player line can carry; each sport keeps a few (utils/sportProfiles.ts). */
+export type StatKey = 'goals' | 'assists' | 'penaltyMinutes' | 'yellowCards' | 'redCards' | 'points' | 'fouls';
+
+export type StatTotals = Record<StatKey, number>;
 
 type EventPlayerRef = Pick<Player, 'id' | 'name' | 'number'>;
 
@@ -358,6 +368,7 @@ export interface MatchEvent {
   secondaryAssistPlayer?: EventPlayerRef | null;
   penaltyMinutes?: number | null;
   penaltyType?: string | null;
+  cardColor?: CardColor | null;
   note?: string | null;
   createdAt: string;
 }
@@ -446,16 +457,22 @@ export interface MatchEventInput {
   secondaryAssistPlayerId?: string | null;
   penaltyMinutes?: number | null;
   penaltyType?: string | null;
+  cardColor?: CardColor | null;
   note?: string | null;
 }
 
-export interface HockeyGameStatistic {
+/** One player's line in one game; numbers the sport does not keep stay null. */
+export interface PlayerGameStatistic {
   id: string;
   playerId: string;
   gameId: string;
   goals?: number | null;
   assists?: number | null;
   penaltyMinutes?: number | null;
+  yellowCards?: number | null;
+  redCards?: number | null;
+  points?: number | null;
+  fouls?: number | null;
   player?: Player & { team?: Team };
   game?: Game & { homeTeam?: Team; awayTeam?: Team };
 }
@@ -557,13 +574,14 @@ export interface SupportTicket {
   user: { id: string; name: string; email: string } | null;
 }
 
-export interface TopScorer {
+/**
+ * A player's totals. `points` is basketball points scored; `rankTotal` is what
+ * the sport ranks by (goals + assists in hockey, goals in football, points in basketball).
+ */
+export interface TopScorer extends StatTotals {
   player: Player;
-  goals: number;
-  assists: number;
-  penaltyMinutes: number;
   gamesPlayed: number;
-  points: number;
+  rankTotal: number;
 }
 
 export interface ArchivedStanding extends Standing {
@@ -571,13 +589,10 @@ export interface ArchivedStanding extends Standing {
   totalTeams: number;
 }
 
-export interface ArchivedPlayerStat {
+export interface ArchivedPlayerStat extends StatTotals {
   player: { id: string; name: string; number?: number | null; team: { id: string; name: string } };
-  goals: number;
-  assists: number;
-  penaltyMinutes: number;
   gamesPlayed: number;
-  points: number;
+  rankTotal: number;
 }
 
 // ============================================================
@@ -757,12 +772,10 @@ export interface PublicTeam extends Omit<Team, 'season'> {
   seasonCount: number;
 }
 
-export interface PlayerTotals {
+export interface PlayerTotals extends StatTotals {
   gamesPlayed: number;
-  goals: number;
-  assists: number;
-  points: number;
-  penaltyMinutes: number;
+  /** What the player's sport ranks by. */
+  rankTotal: number;
 }
 
 /** A player in the public directory. Totals are career-wide unless narrowed. */

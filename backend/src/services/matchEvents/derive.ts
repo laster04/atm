@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { profileFor } from '../sports/profile.js';
 
 /**
  * Rebuilds everything a game's event log implies: each player's line, the final
@@ -15,25 +16,26 @@ export const recomputeGameFromEvents = async (
 ): Promise<void> => {
   const game = await tx.game.findUnique({
     where: { id: gameId },
-    select: { id: true, homeTeamId: true, awayTeamId: true },
+    select: { id: true, homeTeamId: true, awayTeamId: true, season: { select: { league: { select: { sportType: true } } } } },
   });
   if (!game) return;
+  const profile = profileFor(game.season.league.sportType);
 
   const events = await tx.matchEvent.findMany({ where: { gameId } });
 
   // The last event was deleted. The game reverts to a plain result that a
   // manager edits by hand; leaving it derived would pin its score at 0-0.
   if (events.length === 0) {
-    await tx.hockeyGameStatistic.deleteMany({ where: { gameId } });
+    await tx.playerGameStatistic.deleteMany({ where: { gameId } });
     await tx.game.update({ where: { id: gameId }, data: { eventsAuthoritative: false } });
     return;
   }
 
-  const lines = new Map<string, { goals: number; assists: number; penaltyMinutes: number }>();
+  const lines = new Map<string, { goals: number; assists: number; penaltyMinutes: number; yellowCards: number; redCards: number }>();
   const line = (playerId: string) => {
     const existing = lines.get(playerId);
     if (existing) return existing;
-    const created = { goals: 0, assists: 0, penaltyMinutes: 0 };
+    const created = { goals: 0, assists: 0, penaltyMinutes: 0, yellowCards: 0, redCards: 0 };
     lines.set(playerId, created);
     return created;
   };
@@ -62,20 +64,34 @@ export const recomputeGameFromEvents = async (
     if (event.type === 'PENALTY' && event.playerId) {
       line(event.playerId).penaltyMinutes += event.penaltyMinutes ?? 0;
     }
+
+    if (event.type === 'CARD' && event.playerId) {
+      if (event.cardColor === 'YELLOW') line(event.playerId).yellowCards++;
+      if (event.cardColor === 'RED') line(event.playerId).redCards++;
+    }
   }
 
-  await tx.hockeyGameStatistic.deleteMany({ where: { gameId } });
+  // Only the numbers the sport keeps are written; the rest of the line stays null.
+  const kept = (key: 'goals' | 'assists' | 'penaltyMinutes' | 'yellowCards' | 'redCards', value: number) =>
+    profile.stats.includes(key) ? value : null;
+
+  await tx.playerGameStatistic.deleteMany({ where: { gameId } });
   if (lines.size > 0) {
-    await tx.hockeyGameStatistic.createMany({
+    await tx.playerGameStatistic.createMany({
       data: Array.from(lines.entries()).map(([playerId, totals]) => ({
         gameId,
         playerId,
-        goals: totals.goals,
-        assists: totals.assists,
-        penaltyMinutes: totals.penaltyMinutes,
+        goals: kept('goals', totals.goals),
+        assists: kept('assists', totals.assists),
+        penaltyMinutes: kept('penaltyMinutes', totals.penaltyMinutes),
+        yellowCards: kept('yellowCards', totals.yellowCards),
+        redCards: kept('redCards', totals.redCards),
       })),
     });
   }
+
+  const lastScoringPart = Math.max(0, ...periodGoals.keys());
+  const partCount = Math.min(profile.parts.max, Math.max(profile.parts.regulation, lastScoringPart));
 
   await tx.game.update({
     where: { id: gameId },
@@ -83,14 +99,12 @@ export const recomputeGameFromEvents = async (
       eventsAuthoritative: true,
       homeScore,
       awayScore,
-      // Only the three regulation periods have columns. Goals scored in
-      // overtime or a shootout still count toward the final score above.
-      period1HomeScore: periodGoals.get(1)?.home ?? 0,
-      period1AwayScore: periodGoals.get(1)?.away ?? 0,
-      period2HomeScore: periodGoals.get(2)?.home ?? 0,
-      period2AwayScore: periodGoals.get(2)?.away ?? 0,
-      period3HomeScore: periodGoals.get(3)?.home ?? 0,
-      period3AwayScore: periodGoals.get(3)?.away ?? 0,
+      // Every regulation part, scoreless ones included, then overtime if a
+      // goal was scored in it.
+      periodScores: Array.from({ length: partCount }, (_, i) => ({
+        home: periodGoals.get(i + 1)?.home ?? 0,
+        away: periodGoals.get(i + 1)?.away ?? 0,
+      })),
     },
   });
 };

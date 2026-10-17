@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { BarChart3 } from 'lucide-react';
 import { gameStatisticApi, leagueApi, seasonApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import type { League, Season, TopScorer } from '@types';
+import type { League, Season, SportType, TopScorer } from '@types';
+import { profileFor, rankColumn } from '@/utils/sportProfiles';
 import { EmptyState, PublicHero, TeamCrest } from '@/components/public';
 
 /** Gold, silver, bronze for the first three; the rest share the quiet chip. */
@@ -15,6 +16,8 @@ export default function StatsScreen() {
 	const [scorers, setScorers] = useState<TopScorer[]>([]);
 	const [leagues, setLeagues] = useState<League[]>([]);
 	const [seasons, setSeasons] = useState<Season[]>([]);
+	// One sport at a time: goals, cards and basketball points do not add up across sports.
+	const [sport, setSport] = useState<SportType | ''>('');
 	const [leagueId, setLeagueId] = useState('');
 	const [seasonId, setSeasonId] = useState('');
 	const [loading, setLoading] = useState(true);
@@ -26,6 +29,7 @@ export default function StatsScreen() {
 			.then(([leagueRes, seasonRes]) => {
 				setLeagues(leagueRes.data);
 				setSeasons(seasonRes.data);
+				setSport((current) => current || leagueRes.data[0]?.sportType || '');
 			})
 			.catch((error) => console.error(error));
 	}, []);
@@ -33,6 +37,7 @@ export default function StatsScreen() {
 	useEffect(() => {
 		setLoading(true);
 		gameStatisticApi.getTopScorers({
+			sport: sport || undefined,
 			leagueId: leagueId || undefined,
 			seasonId: seasonId || undefined,
 			limit: 50,
@@ -40,7 +45,13 @@ export default function StatsScreen() {
 			.then((res) => setScorers(res.data))
 			.catch((error) => console.error(error))
 			.finally(() => setLoading(false));
-	}, [leagueId, seasonId]);
+	}, [sport, leagueId, seasonId]);
+
+	const sports = [...new Set(leagues.map((league) => league.sportType))];
+	const leagueOptions = sport ? leagues.filter((league) => league.sportType === sport) : leagues;
+	const profile = profileFor(sport || undefined);
+	const rank = rankColumn(profile);
+	const columns = rank.key === 'rankTotal' ? [...profile.stats, 'rankTotal' as const] : profile.stats;
 
 	// Picking a league narrows which seasons can be chosen; picking a season of
 	// another league would otherwise contradict the league filter.
@@ -58,13 +69,23 @@ export default function StatsScreen() {
 			<div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 py-7 sm:px-8">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 					<select
+						value={sport}
+						onChange={(event) => { setSport(event.target.value as SportType); setLeagueId(''); setSeasonId(''); }}
+						aria-label={t('public.stats.sportFilter')}
+						className="h-10 rounded-lg border border-border bg-card px-3 text-sm font-medium text-subtle-foreground outline-none sm:w-48"
+					>
+						{sports.map((value) => (
+							<option key={value} value={value}>{t(`sports.${value}`)}</option>
+						))}
+					</select>
+					<select
 						value={leagueId}
 						onChange={(event) => { setLeagueId(event.target.value); setSeasonId(''); }}
 						aria-label={t('public.teams.leagueFilter')}
 						className="h-10 rounded-lg border border-border bg-card px-3 text-sm font-medium text-subtle-foreground outline-none sm:w-56"
 					>
 						<option value="">{t('public.teams.allLeagues')}</option>
-						{leagues.map((league) => (
+						{leagueOptions.map((league) => (
 							<option key={league.id} value={league.id}>{league.name}</option>
 						))}
 					</select>
@@ -84,6 +105,8 @@ export default function StatsScreen() {
 
 				{loading ? (
 					<div className="h-96 animate-pulse rounded-2xl border border-border bg-card" />
+				) : profile.stats.length === 0 ? (
+					<EmptyState icon={<BarChart3 className="size-7" />} title={t('stats.none')} />
 				) : scorers.length === 0 ? (
 					<EmptyState
 						icon={<BarChart3 className="size-7" />}
@@ -110,9 +133,9 @@ export default function StatsScreen() {
 										</span>
 									</div>
 									<div className="ml-auto flex flex-col items-end">
-										<span className="text-2xl font-extrabold leading-none">{scorer.points}</span>
+										<span className="text-2xl font-extrabold leading-none">{scorer.rankTotal}</span>
 										<span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-											{t('seasonDetail.overview.pointsShort')}
+											{t(rank.labelKey)}
 										</span>
 									</div>
 								</div>
@@ -131,10 +154,15 @@ export default function StatsScreen() {
 											<th className="px-3 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('public.players.player')}</th>
 											<th className="px-3 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('public.players.team')}</th>
 											<th className="px-3 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('seasonDetail.playersStats.gamesPlayed')}</th>
-											<th className="px-3 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('seasonDetail.playersStats.goals')}</th>
-											<th className="px-3 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('seasonDetail.playersStats.assists')}</th>
-											<th className="px-3 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('seasonDetail.playersStats.penaltyMinutes')}</th>
-											<th className="px-3 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-foreground">{t('seasonDetail.playersStats.points')}</th>
+											{columns.map((key) => (
+												<th
+													key={key}
+													className={`px-3 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider ${key === rank.key ? 'text-foreground' : 'text-muted-foreground'}`}
+													title={t(`stats.long.${key}`)}
+												>
+													{t(`stats.short.${key}`)}
+												</th>
+											))}
 										</tr>
 									</thead>
 									<tbody>
@@ -162,10 +190,11 @@ export default function StatsScreen() {
 													)}
 												</td>
 												<td className="px-3 py-3 text-center text-[13px]">{scorer.gamesPlayed}</td>
-												<td className="px-3 py-3 text-center text-[13px]">{scorer.goals}</td>
-												<td className="px-3 py-3 text-center text-[13px]">{scorer.assists}</td>
-												<td className="px-3 py-3 text-center text-[13px]">{scorer.penaltyMinutes}</td>
-												<td className="px-3 py-3 text-center text-[15px] font-extrabold">{scorer.points}</td>
+												{columns.map((key) => (
+													<td key={key} className={`px-3 py-3 text-center ${key === rank.key ? 'text-[15px] font-extrabold' : 'text-[13px]'}`}>
+														{scorer[key] ?? 0}
+													</td>
+												))}
 											</tr>
 										))}
 									</tbody>

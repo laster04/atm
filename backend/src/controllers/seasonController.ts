@@ -15,8 +15,9 @@ import { canManageLeague, isAdmin } from '../services/access.js';
 import { isVisibility, listedSeasonInLeagueWhere, listedSeasonWhere } from '../services/visibility.js';
 import { computeTable } from '../services/standings/compute.js';
 import { COUNTS_TOWARD_TABLE, PENDING_RESULTS, countsTowardTable } from '../services/standings/filters.js';
-import { ScoringPolicy } from '../services/scoring/policy.js';
+import { ScoringPolicy, checkScoringOverride } from '../services/scoring/policy.js';
 import { policyFromRows, resolveSeasonPolicy } from '../services/scoring/resolve.js';
+import { STAT_KEYS, type StatKey } from '../services/sports/profile.js';
 
 type StandingGame = {
   homeTeamId: string;
@@ -231,6 +232,12 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
       res.status(400).json({ error: 'Invalid visibility' });
       return;
     }
+    // The season's own scoring, or null to inherit the league's again.
+    const scoring = checkScoringOverride(req.body.scoring);
+    if (!scoring.ok) {
+      res.status(400).json({ error: scoring.error });
+      return;
+    }
 
     const existingSeason = await prisma.season.findUnique({
       where: { id: id },
@@ -273,7 +280,10 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
         ...(startDate && { startDate: new Date(startDate) }),
         ...(endDate && { endDate: new Date(endDate) }),
         ...(status && { status }),
-        ...(visibility && { visibility })
+        ...(visibility && { visibility }),
+        ...(scoring.value !== undefined && {
+          scoring: scoring.value === null ? Prisma.JsonNull : (scoring.value as Prisma.InputJsonValue),
+        })
       },
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
@@ -491,7 +501,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
 
       const gameIds = allGames.map(g => g.id);
       const stats = gameIds.length > 0
-        ? await tx.hockeyGameStatistic.findMany({
+        ? await tx.playerGameStatistic.findMany({
             where: { gameId: { in: gameIds } },
             include: { player: { include: { team: true } } }
           })
@@ -504,31 +514,22 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
         teamId: string;
         teamName: string;
         gamesPlayed: number;
-        goals: number;
-        assists: number;
-        penaltyMinutes: number;
+        totals: Record<StatKey, number>;
       }>();
 
       for (const stat of stats) {
-        const existing = playerAgg.get(stat.playerId);
-        if (existing) {
-          existing.goals += stat.goals || 0;
-          existing.assists += stat.assists || 0;
-          existing.penaltyMinutes += stat.penaltyMinutes || 0;
-          existing.gamesPlayed += 1;
-        } else {
-          playerAgg.set(stat.playerId, {
-            playerId: stat.player.id,
-            playerName: stat.player.name,
-            playerNumber: stat.player.number,
-            teamId: stat.player.team.id,
-            teamName: stat.player.team.name,
-            gamesPlayed: 1,
-            goals: stat.goals || 0,
-            assists: stat.assists || 0,
-            penaltyMinutes: stat.penaltyMinutes || 0
-          });
-        }
+        const entry = playerAgg.get(stat.playerId) ?? {
+          playerId: stat.player.id,
+          playerName: stat.player.name,
+          playerNumber: stat.player.number,
+          teamId: stat.player.team.id,
+          teamName: stat.player.team.name,
+          gamesPlayed: 0,
+          totals: Object.fromEntries(STAT_KEYS.map(key => [key, 0])) as Record<StatKey, number>,
+        };
+        for (const key of STAT_KEYS) entry.totals[key] += stat[key] ?? 0;
+        entry.gamesPlayed += 1;
+        playerAgg.set(stat.playerId, entry);
       }
 
       if (playerAgg.size > 0) {
@@ -541,9 +542,7 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
             teamId: p.teamId,
             teamName: p.teamName,
             gamesPlayed: p.gamesPlayed,
-            goals: p.goals,
-            assists: p.assists,
-            penaltyMinutes: p.penaltyMinutes
+            ...p.totals,
           }))
         });
       }
@@ -557,22 +556,18 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
       if (archivedPlayerStatCount !== playerAgg.size) {
         throw new Error('Archive verification failed: player stat row count mismatch');
       }
-      const sourceGoals = stats.reduce((sum, s) => sum + (s.goals || 0), 0);
-      const sourceAssists = stats.reduce((sum, s) => sum + (s.assists || 0), 0);
-      const sourcePenalties = stats.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
+      // Every number a line can carry must survive the copy, whatever the sport.
       const agg = Array.from(playerAgg.values());
-      const archivedGoals = agg.reduce((sum, p) => sum + p.goals, 0);
-      const archivedAssists = agg.reduce((sum, p) => sum + p.assists, 0);
-      const archivedPenalties = agg.reduce((sum, p) => sum + p.penaltyMinutes, 0);
-      if (archivedGoals !== sourceGoals || archivedAssists !== sourceAssists) {
-        throw new Error('Archive verification failed: goals/assists total mismatch');
-      }
-      if (archivedPenalties !== sourcePenalties) {
-        throw new Error('Archive verification failed: penalty minutes total mismatch');
+      for (const key of STAT_KEYS) {
+        const source = stats.reduce((sum, s) => sum + (s[key] ?? 0), 0);
+        const archived = agg.reduce((sum, p) => sum + p.totals[key], 0);
+        if (source !== archived) {
+          throw new Error(`Archive verification failed: ${key} total mismatch`);
+        }
       }
 
       // Verified — now safe to delete the live season-scoped rows
-      await tx.hockeyGameStatistic.deleteMany({ where: { gameId: { in: gameIds } } });
+      await tx.playerGameStatistic.deleteMany({ where: { gameId: { in: gameIds } } });
       // The fixtures mirrored into team calendars go with them. The foreign key
       // only nulls itself, which would strand every archived fixture in the
       // calendar of both teams that played it.

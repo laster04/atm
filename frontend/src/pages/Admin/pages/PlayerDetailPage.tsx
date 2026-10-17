@@ -12,18 +12,19 @@ import { Checkbox } from '@components/base/checkbox';
 import { Input } from '@components/base/input';
 import { Badge } from '@components/base/badge';
 import { formatGameDateTime } from '@/utils/date';
-import type { Player, HockeyGameStatistic, Season, Team, Game } from '@types';
+import type { Player, PlayerGameStatistic, Season, Team, Game } from '@types';
 import PlayerFormModal, { type PlayerFormData } from '../components/players/PlayerFormModal';
 import MovePlayerModal from '../components/players/MovePlayerModal';
 import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPositions';
+import { profileFor } from '@/utils/sportProfiles';
+import type { SportType, StatKey } from '@types';
 
 interface GameStatForm {
   gameId: string;
   game: Game;
   played: boolean;
-  goals: number;
-  assists: number;
-  penaltyMinutes: number;
+  /** Only the numbers the team's sport keeps. */
+  values: Partial<Record<StatKey, number>>;
   existingStatId?: string;
 }
 
@@ -33,7 +34,7 @@ export default function PlayerDetailPage() {
   const { t, i18n } = useTranslation();
 
   const [player, setPlayer] = useState<Player | null>(null);
-  const [statistics, setStatistics] = useState<HockeyGameStatistic[]>([]);
+  const [statistics, setStatistics] = useState<PlayerGameStatistic[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
@@ -94,7 +95,7 @@ export default function PlayerDetailPage() {
         );
 
         // Create a map of existing statistics by gameId
-        const statsMap = new Map<string, HockeyGameStatistic>();
+        const statsMap = new Map<string, PlayerGameStatistic>();
         statistics.forEach((stat) => {
           if (stat.gameId) statsMap.set(stat.gameId, stat);
         });
@@ -114,9 +115,10 @@ export default function PlayerDetailPage() {
               gameId: game.id,
               game,
               played: !!existingStat,
-              goals: existingStat?.goals ?? 0,
-              assists: existingStat?.assists ?? 0,
-              penaltyMinutes: existingStat?.penaltyMinutes ?? 0,
+              values: Object.fromEntries(
+                profileFor(teamSports(player.team)[0] as SportType | undefined).stats
+                  .map((key) => [key, existingStat?.[key] ?? 0])
+              ),
               existingStatId: existingStat?.id,
             };
           });
@@ -175,6 +177,14 @@ export default function PlayerDetailPage() {
     );
   };
 
+  const updateGameValue = (gameId: string, key: StatKey, value: number) => {
+    setTeamGames((prev) =>
+      prev.map((stat) =>
+        stat.gameId === gameId ? { ...stat, values: { ...stat.values, [key]: value } } : stat
+      )
+    );
+  };
+
   // Save all game statistics
   const handleSaveGameStats = async () => {
     if (!player) return;
@@ -185,18 +195,9 @@ export default function PlayerDetailPage() {
         if (stat.played) {
           // Player participated - create or update
           if (stat.existingStatId) {
-            await gameStatisticApi.update(stat.existingStatId, {
-              goals: stat.goals,
-              assists: stat.assists,
-              penaltyMinutes: stat.penaltyMinutes,
-            });
+            await gameStatisticApi.update(stat.existingStatId, stat.values);
           } else {
-            await gameStatisticApi.create(stat.gameId, {
-              playerId: player.id,
-              goals: stat.goals,
-              assists: stat.assists,
-              penaltyMinutes: stat.penaltyMinutes,
-            });
+            await gameStatisticApi.create(stat.gameId, { playerId: player.id, ...stat.values });
           }
         } else if (stat.existingStatId) {
           // Player didn't participate but has existing stat - delete it
@@ -259,10 +260,8 @@ export default function PlayerDetailPage() {
     );
   }
 
-  // Calculate totals
-  const totalGoals = statistics.reduce((sum, s) => sum + (s.goals || 0), 0);
-  const totalAssists = statistics.reduce((sum, s) => sum + (s.assists || 0), 0);
-  const totalPenaltyMinutes = statistics.reduce((sum, s) => sum + (s.penaltyMinutes || 0), 0);
+  // Totals of the numbers the team's sport keeps.
+  const statKeys = profileFor(teamSports(player.team)[0] as SportType | undefined).stats;
   const gamesPlayed = statistics.length;
 
   return (
@@ -356,18 +355,12 @@ export default function PlayerDetailPage() {
                   <p className="text-2xl font-bold text-blue-600">{gamesPlayed}</p>
                   <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.gamesPlayed')}</p>
                 </div>
-                <div className="bg-muted p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-green-600">{totalGoals}</p>
-                  <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.goals')}</p>
-                </div>
-                <div className="bg-muted p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-purple-600">{totalAssists}</p>
-                  <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.assists')}</p>
-                </div>
-                <div className="bg-muted p-4 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-amber-600">{totalPenaltyMinutes}</p>
-                  <p className="text-sm text-muted-foreground">{t('playerDetail.statistics.penaltyMinutes')}</p>
-                </div>
+                {statKeys.map((key) => (
+                  <div key={key} className="bg-muted p-4 rounded-lg text-center">
+                    <p className="text-2xl font-bold">{statistics.reduce((sum, s) => sum + (s[key] || 0), 0)}</p>
+                    <p className="text-sm text-muted-foreground">{t(`stats.long.${key}`)}</p>
+                  </div>
+                ))}
               </div>
 
               {/* Game by game stats */}
@@ -381,9 +374,9 @@ export default function PlayerDetailPage() {
                       <TableRow>
                         <TableHead>{t('playerDetail.statistics.date')}</TableHead>
                         <TableHead>{t('playerDetail.statistics.game')}</TableHead>
-                        <TableHead className="text-center">{t('playerDetail.statistics.goals')}</TableHead>
-                        <TableHead className="text-center">{t('playerDetail.statistics.assists')}</TableHead>
-                        <TableHead className="text-center">{t('playerDetail.statistics.penaltyMinutesShort')}</TableHead>
+                        {statKeys.map((key) => (
+                          <TableHead key={key} className="text-center">{t(`stats.short.${key}`)}</TableHead>
+                        ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -400,9 +393,9 @@ export default function PlayerDetailPage() {
                               {stat.game?.homeTeam?.name} vs {stat.game?.awayTeam?.name}
                             </Link>
                           </TableCell>
-                          <TableCell className="text-center font-medium">{stat.goals ?? 0}</TableCell>
-                          <TableCell className="text-center font-medium">{stat.assists ?? 0}</TableCell>
-                          <TableCell className="text-center font-medium">{stat.penaltyMinutes ?? 0}</TableCell>
+                          {statKeys.map((key) => (
+                            <TableCell key={key} className="text-center font-medium">{stat[key] ?? 0}</TableCell>
+                          ))}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -484,57 +477,24 @@ export default function PlayerDetailPage() {
                           )}
                         </div>
 
-                        {/* Goals input */}
-                        <div className="flex flex-col items-center">
-                          <label className="text-xs text-muted-foreground mb-1">
-                            {t('playerDetail.statistics.goals')}
-                          </label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={stat.goals}
-                            onChange={(e) =>
-                              updateGameStat(stat.gameId, 'goals', parseInt(e.target.value) || 0)
-                            }
-                            disabled={!stat.played}
-                            className="w-16 text-center"
-                          />
-                        </div>
-
-                        {/* Assists input */}
-                        <div className="flex flex-col items-center">
-                          <label className="text-xs text-muted-foreground mb-1">
-                            {t('playerDetail.statistics.assists')}
-                          </label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={stat.assists}
-                            onChange={(e) =>
-                              updateGameStat(stat.gameId, 'assists', parseInt(e.target.value) || 0)
-                            }
-                            disabled={!stat.played}
-                            className="w-16 text-center"
-                          />
-                        </div>
-
-                        {/* Penalty minutes input */}
-                        <div className="flex flex-col items-center">
-                          <label className="text-xs text-muted-foreground mb-1">
-                            {t('playerDetail.statistics.penaltyMinutesShort')}
-                          </label>
-                          <Input
-                            type="number"
-                            min={0}
-                            step={2}
-                            value={stat.penaltyMinutes}
-                            onChange={(e) =>
-                              updateGameStat(stat.gameId, 'penaltyMinutes', parseInt(e.target.value) || 0)
-                            }
-                            disabled={!stat.played}
-                            className="w-16 text-center"
-                          />
-                        </div>
+                        {statKeys.map((key) => (
+                          <div key={key} className="flex flex-col items-center">
+                            <label className="text-xs text-muted-foreground mb-1">
+                              {t(`stats.short.${key}`)}
+                            </label>
+                            <Input
+                              type="number"
+                              min={0}
+                              step={key === 'penaltyMinutes' ? 2 : 1}
+                              value={stat.values[key] ?? 0}
+                              onChange={(e) =>
+                                updateGameValue(stat.gameId, key, parseInt(e.target.value) || 0)
+                              }
+                              disabled={!stat.played}
+                              className="w-16 text-center"
+                            />
+                          </div>
+                        ))}
                       </div>
                     );
                   })}
