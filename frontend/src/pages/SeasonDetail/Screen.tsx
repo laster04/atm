@@ -14,6 +14,7 @@ import { BarChart3, CalendarDays, Trophy, Users, LayoutGrid, Swords } from 'luci
 import { formatSeasonDate } from '@/utils/date';
 import { Panel, PublicHero, SectionTabs, SeasonStatusBadge, VisibilityBadge, type SectionTab } from '@/components/public';
 import SeasonPlayoffBracket from '@/components/playoff/SeasonPlayoffBracket';
+import RegistrationButton from '@/components/registrations/RegistrationButton';
 import { strictest } from '@/utils/visibility';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
@@ -144,6 +145,7 @@ export default function SeasonDetailScreen() {
         title={season.league?.name ?? season.name}
         subtitle={season.league ? season.name : undefined}
         sport={season.league?.sportType}
+        actions={isArchived ? undefined : <RegistrationButton kind="season" id={season.id} />}
         badge={
           <>
             <SeasonStatusBadge status={season.status} archived={isArchived} />

@@ -4,6 +4,7 @@ import type {
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   SeasonPlayoff, CreatePlayoffInput,
+  RegistrationForm, RegistrationSettings, RegistrationInbox, Registration, MyRegistration, RegistrationInput, RegistrationKind,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
@@ -388,4 +389,19 @@ export const contactApi = {
   send: (data: SupportTicketInput) => api.post<{ received: true; id?: string }>('/contact', data),
   list: (status?: SupportTicketStatus) => api.get<SupportTicket[]>('/contact', { params: status ? { status } : undefined }),
   updateStatus: (id: string, status: SupportTicketStatus) => api.put<SupportTicket>(`/contact/${id}`, { status }),
+};
+
+/** Season and tournament sign-ups: the public form, the applicant's own list and the manager's inbox. */
+export const registrationApi = {
+  getForm: (kind: RegistrationKind, id: string) => api.get<RegistrationForm>(`/registrations/${kind}/${id}`),
+  submit: (kind: RegistrationKind, id: string, data: RegistrationInput) => api.post<Registration>(`/registrations/${kind}/${id}`, data),
+  mine: () => api.get<MyRegistration[]>('/registrations/mine'),
+  withdraw: (id: string) => api.post<Registration>(`/registrations/${id}/withdraw`),
+  getSettings: (kind: RegistrationKind, id: string) => api.get<RegistrationSettings>(`/registrations/${kind}/${id}/settings`),
+  updateSettings: (kind: RegistrationKind, id: string, data: Partial<RegistrationSettings>) =>
+    api.put<RegistrationSettings>(`/registrations/${kind}/${id}/settings`, data),
+  inbox: (kind: RegistrationKind, id: string) => api.get<RegistrationInbox>(`/registrations/${kind}/${id}/inbox`),
+  approve: (id: string) => api.post<Registration>(`/registrations/${id}/approve`),
+  reject: (id: string, reason?: string) => api.post<Registration>(`/registrations/${id}/reject`, { reason }),
+  waitlist: (id: string) => api.post<Registration>(`/registrations/${id}/waitlist`),
 };

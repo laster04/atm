@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CalendarDays, MoreHorizontal, Table2, Trophy, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -27,7 +27,9 @@ export default function Detail() {
 	const navigate = useNavigate();
 	const { isAdmin } = useAuth();
 
-	const [activeTab, setActiveTab] = useState<SeasonTab>('overview');
+	// The email about a new application links to ?registrations=1, which the More tab opens.
+	const [searchParams] = useSearchParams();
+	const [activeTab, setActiveTab] = useState<SeasonTab>(searchParams.get('registrations') === '1' ? 'more' : 'overview');
 	const [season, setSeason] = useState<Season | null>(null);
 	const [teams, setTeams] = useState<Team[]>([]);
 	const [games, setGames] = useState<Game[]>([]);
@@ -270,6 +272,9 @@ export default function Detail() {
 							gameCount={counts.games}
 							onGamesChange={setGames}
 							onSeasonChange={setSeason}
+							onTeamsReload={() => {
+								teamApi.getBySeason(season.id).then((res) => setTeams(res.data)).catch((err) => console.error(err));
+							}}
 						/>
 					)}
 				</div>

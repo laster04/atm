@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../../context/AuthContext';
@@ -22,6 +22,11 @@ export default function LoginForm() {
   const { login } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Where to go after signing in: a page that sent the user here (a season
+  // application) passes ?next=. Only paths inside the app are followed.
+  const [searchParams] = useSearchParams();
+  const next = searchParams.get('next');
+  const afterLogin = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
 
   const onSubmit = async (data: LoginFormData) => {
     setError('');
@@ -29,7 +34,7 @@ export default function LoginForm() {
 
     try {
       await login(normalizeEmail(data.email), data.password);
-      navigate('/dashboard');
+      navigate(afterLogin);
     } catch (err) {
       const axiosError = err as AxiosError<{ error: string }>;
       setError(axiosError.response?.data?.error || t('auth.login.failed'));
