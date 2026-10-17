@@ -13,6 +13,7 @@ import tournamentRoutes from './routes/tournaments.js';
 import searchRoutes from './routes/search.js';
 import contactRoutes from './routes/contact.js';
 import inviteRoutes from './routes/invites.js';
+import registrationRoutes from './routes/registrations.js';
 import { getSitemap } from './controllers/sitemapController.js';
 
 /**
@@ -72,6 +73,7 @@ app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/invites', inviteRoutes);
+app.use('/api/registrations', registrationRoutes);
 
 // Proxied by the frontend server as /sitemap-data.xml on the public domain.
 app.get('/api/sitemap.xml', getSitemap);

@@ -29,6 +29,7 @@ import Stats from './pages/Stats';
 import About from './pages/About';
 import Updates from './pages/Updates';
 import Contact from './pages/Contact';
+import Registration from './pages/Registration';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
@@ -94,6 +95,7 @@ function AppContent() {
           <Route path="/updates" element={<Updates />} />
           <Route path="/updates/roadmap" element={<Updates />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/prihlaska/:kind/:id" element={<Registration />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />

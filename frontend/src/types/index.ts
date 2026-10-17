@@ -834,3 +834,88 @@ export interface SearchResults {
   })[];
   leagues: (Pick<League, 'id' | 'name' | 'sportType' | 'logo'> & { _count: { seasons: number } })[];
 }
+
+// ============================================================
+// REGISTRATIONS
+// ============================================================
+
+export type RegistrationKind = 'season' | 'tournament';
+export type RegistrationStatus = 'PENDING' | 'WAITLISTED' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
+
+/** What the public sign-up form of a season or tournament shows. */
+export interface RegistrationForm {
+  kind: RegistrationKind;
+  id: string;
+  name: string;
+  parentName: string;
+  sport: SportType;
+  state: 'OPEN' | 'CLOSED' | 'PAST_DEADLINE';
+  deadline: string | null;
+  maxTeams: number | null;
+  placesTaken: number;
+  full: boolean;
+  rules: string | null;
+  rulesVersion: number;
+  fee: string | null;
+}
+
+export interface RegistrationSettings {
+  open: boolean;
+  deadline: string | null;
+  maxTeams: number | null;
+  rules: string | null;
+  rulesVersion: number;
+  fee: string | null;
+}
+
+export interface RosterEntry {
+  name: string;
+  number: number | null;
+}
+
+export interface Registration {
+  id: string;
+  status: RegistrationStatus;
+  applicantId: string | null;
+  contactName: string;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  existingTeamId: string | null;
+  existingTeam?: { id: string; name: string } | null;
+  teamName: string;
+  primaryColor: string | null;
+  roster: RosterEntry[] | null;
+  rulesAcceptedAt: string | null;
+  decidedAt: string | null;
+  reason: string | null;
+  teamId: string | null;
+  tournamentTeamId: string | null;
+  createdAt: string;
+}
+
+export interface MyRegistration extends Registration {
+  competition: { kind: RegistrationKind; id: string; name: string };
+}
+
+export interface RegistrationInbox {
+  registrations: Registration[];
+  teamCount: number;
+  maxTeams: number | null;
+}
+
+export interface RegistrationInput {
+  clientToken: string;
+  teamName?: string;
+  existingTeamId?: string;
+  primaryColor?: string | null;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  note?: string;
+  roster?: RosterEntry[];
+  acceptRules?: boolean;
+  locale?: string;
+  /** Honeypot: left empty by people. */
+  website?: string;
+}

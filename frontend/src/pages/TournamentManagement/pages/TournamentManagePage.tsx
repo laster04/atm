@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
+import RegistrationsPanel from '@/components/registrations/RegistrationsPanel';
 import { useTranslation } from 'react-i18next';
 import {
   tournamentApi, tournamentTeamApi, tournamentPlayerApi,
@@ -63,6 +64,8 @@ const sel = inp + ' bg-white';
 
 export default function TournamentManagePage() {
   const { id } = useParams<{ id: string }>();
+  // The email about a new application links to ?registrations=1.
+  const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
 
   // ── state ──────────────────────────────────────────────────
@@ -492,13 +495,19 @@ export default function TournamentManagePage() {
       {error && <div className="bg-red-50 text-red-700 border border-red-200 rounded p-3 text-sm">{error}</div>}
 
       {/* Tabs */}
-      <Tabs defaultValue="teams">
+      <Tabs defaultValue={searchParams.get('registrations') === '1' ? 'registrations' : 'teams'}>
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="teams">{t('tm.tournament.tabs.teams', { context: tennisCtx })} ({teams.length})</TabsTrigger>
           <TabsTrigger value="groups">{t('tm.tournament.tabs.groups')} ({groups.length})</TabsTrigger>
           <TabsTrigger value="results">{t('tm.tournament.tabs.results')} ({groupGames.length})</TabsTrigger>
           <TabsTrigger value="playoff">{t('tm.tournament.tabs.playoff')} ({playoffGames.length})</TabsTrigger>
+          <TabsTrigger value="registrations">{t('registrations.title')}</TabsTrigger>
         </TabsList>
+
+        {/* ── REGISTRATIONS ─────────────────────────────────── */}
+        <TabsContent value="registrations" className="mt-4 max-w-2xl">
+          <RegistrationsPanel kind="tournament" id={tournament.id} accent="#7c3aed" onTeamsChanged={() => void load()} />
+        </TabsContent>
 
         {/* ── TEAMS ─────────────────────────────────────────── */}
         <TabsContent value="teams" className="mt-4">

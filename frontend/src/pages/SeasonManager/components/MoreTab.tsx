@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ExternalLink, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
+import { CalendarPlus, ClipboardSignature, ExternalLink, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import { gameApi, seasonApi } from '@/services/api';
+import { gameApi, registrationApi, seasonApi } from '@/services/api';
 import type { Game, Season, Team } from '@types';
 import GenerateScheduleModal, { type GenerateScheduleData } from '@/pages/Admin/components/games/GenerateScheduleModal';
 import ScoringSheet from './ScoringSheet';
 import ResultsEmailSheet from './ResultsEmailSheet';
 import DivisionsSheet from './DivisionsSheet';
 import PlayoffSheet from './PlayoffSheet';
+import RegistrationsSheet from './RegistrationsSheet';
 import { SEASON_ACCENT } from './util';
 
 interface MoreTabProps {
@@ -20,15 +22,27 @@ interface MoreTabProps {
 	gameCount: number;
 	onGamesChange: (games: Game[]) => void;
 	onSeasonChange: (season: Season) => void;
+	/** Re-reads the season's teams after an application adds one. */
+	onTeamsReload: () => void;
 }
 
-export default function MoreTab({ season, games, teams, teamCount, gameCount, onGamesChange, onSeasonChange }: MoreTabProps) {
+export default function MoreTab({ season, games, teams, teamCount, gameCount, onGamesChange, onSeasonChange, onTeamsReload }: MoreTabProps) {
 	const { t, i18n } = useTranslation();
 	const [showGenerate, setShowGenerate] = useState(false);
 	const [showScoring, setShowScoring] = useState(false);
 	const [showSummary, setShowSummary] = useState(false);
 	const [showDivisions, setShowDivisions] = useState(false);
 	const [showPlayoff, setShowPlayoff] = useState(false);
+	// The email about a new application links here with ?registrations=1.
+	const [searchParams] = useSearchParams();
+	const [showRegistrations, setShowRegistrations] = useState(searchParams.get('registrations') === '1');
+	const [waitingApplications, setWaitingApplications] = useState(0);
+
+	useEffect(() => {
+		registrationApi.inbox('season', season.id)
+			.then((res) => setWaitingApplications(res.data.registrations.filter((r) => r.status === 'PENDING').length))
+			.catch(() => setWaitingApplications(0));
+	}, [season.id, showRegistrations]);
 	const [groupCount, setGroupCount] = useState(0);
 
 	// Only used to decide whether the schedule generator offers to keep fixtures
@@ -114,6 +128,22 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 				</button>
 
 				<button
+					onClick={() => setShowRegistrations(true)}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left"
+				>
+					<ClipboardSignature className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-sm font-semibold">{t('registrations.title')}</span>
+						<span className="text-xs text-muted-foreground">{t('registrations.hint')}</span>
+					</span>
+					{waitingApplications > 0 && (
+						<span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: SEASON_ACCENT }}>
+							{waitingApplications}
+						</span>
+					)}
+				</button>
+
+				<button
 					onClick={() => setShowPlayoff(true)}
 					disabled={teamCount < 2}
 					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left disabled:opacity-50"
@@ -174,6 +204,14 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 					// A new division changes the table, which the caller re-reads by
 					// refreshing the fixtures it is derived from.
 					onChanged={() => onGamesChange([...games])}
+				/>
+			)}
+
+			{showRegistrations && (
+				<RegistrationsSheet
+					season={season}
+					onClose={() => setShowRegistrations(false)}
+					onTeamsChanged={onTeamsReload}
 				/>
 			)}
 
