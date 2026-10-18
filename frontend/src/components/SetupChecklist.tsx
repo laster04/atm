@@ -16,6 +16,8 @@ export interface SetupStep {
 	/** A way past a step that is fine to leave, e.g. running the teams yourself. */
 	skip?: { label: string; run: () => void };
 	busy?: boolean;
+	/** A short tag beside the title, e.g. "New" for a step a feature just added. */
+	badge?: string;
 }
 
 interface SetupChecklistProps {
@@ -24,6 +26,14 @@ interface SetupChecklistProps {
 	/** The shell's colour: season navy, or the team's own. */
 	accent: string;
 	guide: { to: string; label: string };
+}
+
+function StepBadge({ label, accent }: { label: string; accent: string }) {
+	return (
+		<span className="ml-2 inline-block rounded-full px-1.5 py-px align-middle text-[10.5px] font-bold uppercase tracking-wide text-white" style={{ backgroundColor: accent }}>
+			{label}
+		</span>
+	);
 }
 
 /**
@@ -52,6 +62,7 @@ export default function SetupChecklist({ steps, title, accent, guide }: SetupChe
 				</span>
 				<h2 id={headingId} className="text-[17px] font-bold leading-snug">
 					{next.title}
+					{next.badge && <StepBadge label={next.badge} accent={accent} />}
 				</h2>
 				<p className="text-[13.5px] leading-snug text-muted-foreground">{next.body}</p>
 				<button
@@ -104,6 +115,7 @@ export default function SetupChecklist({ steps, title, accent, guide }: SetupChe
 							<span className="flex min-w-0 flex-1 flex-col gap-px">
 								<span className={`text-sm font-semibold ${step.done ? 'text-muted-foreground' : ''}`}>
 									{step.title}
+									{step.badge && !step.done && <StepBadge label={step.badge} accent={accent} />}
 								</span>
 								<span className="text-xs text-muted-foreground">{step.status}</span>
 							</span>

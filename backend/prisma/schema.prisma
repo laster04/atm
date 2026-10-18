@@ -111,6 +111,9 @@ model User {
   sentDigests             SeasonDigest[]     @relation("DigestSender")
   supportTickets          SupportTicket[]
   sentManagerInvites      ManagerInvite[]    @relation("InviteSender")
+  registrations           Registration[]     @relation("RegistrationApplicant")
+  decidedRegistrations    Registration[]     @relation("RegistrationDecider")
+  promotedRegistrations   Registration[]     @relation("RegistrationPromoter")
 
   @@map("users")
 }
@@ -164,6 +167,7 @@ model Season {
   digests             SeasonDigest[]
   groups              SeasonGroup[]
   playoffSeries       PlayoffSeries[]
+  registrationWindow  RegistrationWindow?
 
   @@map("seasons")
 }
@@ -237,6 +241,8 @@ model Team {
   playoffHome         PlayoffSeries[] @relation("PlayoffSeriesHome")
   playoffAway         PlayoffSeries[] @relation("PlayoffSeriesAway")
   playoffWins         PlayoffSeries[] @relation("PlayoffSeriesWinner")
+  registrations       Registration[]  @relation("RegistrationTeam")
+  applications        Registration[]  @relation("RegistrationExistingTeam")
 
   @@map("teams")
 }
@@ -729,6 +735,8 @@ model Tournament {
   groups TournamentGroup[]
   games  TournamentGame[]
 
+  registrationWindow RegistrationWindow?
+
   @@map("tournaments")
 }
 
@@ -748,6 +756,8 @@ model TournamentTeam {
   groupTeams TournamentGroupTeam[]
   homeGames  TournamentGame[]      @relation("TournamentHomeTeam")
   awayGames  TournamentGame[]      @relation("TournamentAwayTeam")
+
+  registration Registration?
 
   @@map("tournament_teams")
 }
@@ -884,4 +894,107 @@ model SupportTicket {
 
   @@index([status, createdAt])
   @@map("support_tickets")
+}
+
+enum RegistrationStatus {
+  PENDING
+  WAITLISTED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+/// The sign-up form of one season or one tournament (exactly one of the two,
+/// enforced by a CHECK constraint). Teams apply while it is open and before
+/// the deadline; the manager decides each application.
+model RegistrationWindow {
+  id           String      @id @default(uuid())
+  seasonId     String?     @unique @map("season_id")
+  season       Season?     @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  tournamentId String?     @unique @map("tournament_id")
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  open     Boolean   @default(false)
+  deadline DateTime?
+  // Teams the competition takes; past it, new applications join the waiting list.
+  maxTeams Int?      @map("max_teams")
+  // Rules the applicant must accept. The version goes up whenever the text
+  // changes, so each application records which text was accepted.
+  rules        String?
+  rulesVersion Int     @default(1) @map("rules_version")
+  // Entry fee as plain text ("1 500 Kč per team, pay by 30 June").
+  fee String?
+  // First time the manager opened the form, and the last time they closed it.
+  // A window never published is still a draft.
+  publishedAt DateTime? @map("published_at")
+  closedAt    DateTime? @map("closed_at")
+
+  registrations Registration[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("registration_windows")
+}
+
+/// One team's application to a season or tournament. A season application
+/// comes from a signed-in user, who manages the team once approved; a
+/// tournament one needs only an email address.
+model Registration {
+  id       String             @id @default(uuid())
+  windowId String             @map("window_id")
+  window   RegistrationWindow @relation(fields: [windowId], references: [id], onDelete: Cascade)
+  status   RegistrationStatus @default(PENDING)
+
+  applicantId String? @map("applicant_id")
+  applicant   User?   @relation("RegistrationApplicant", fields: [applicantId], references: [id], onDelete: SetNull)
+  contactName String  @map("contact_name")
+  email       String
+  phone       String?
+  note        String?
+  // Language of the emails about this application.
+  locale      String  @default("cs")
+
+  // A season applicant's own team returning for another season.
+  existingTeamId String? @map("existing_team_id")
+  existingTeam   Team?   @relation("RegistrationExistingTeam", fields: [existingTeamId], references: [id], onDelete: SetNull)
+  teamName       String  @map("team_name")
+  primaryColor   String? @map("primary_color")
+  // Tournament only: [{ name, number?, position? }].
+  roster         Json?
+
+  rulesAcceptedAt DateTime? @map("rules_accepted_at")
+  rulesVersion    Int?      @map("rules_version")
+
+  decidedAt   DateTime? @map("decided_at")
+  decidedById String?   @map("decided_by_id")
+  decidedBy   User?     @relation("RegistrationDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  reason      String?
+  withdrawnAt DateTime? @map("withdrawn_at")
+
+  // A waitlisted application the manager moved up to the queue. Moving one up
+  // ahead of an older one is flagged, so the order can be accounted for.
+  promotedAt         DateTime? @map("promoted_at")
+  promotedById       String?   @map("promoted_by_id")
+  promotedBy         User?     @relation("RegistrationPromoter", fields: [promotedById], references: [id], onDelete: SetNull)
+  promotedOutOfOrder Boolean   @default(false) @map("promoted_out_of_order")
+
+  // What the approval created or added.
+  teamId           String?         @map("team_id")
+  team             Team?           @relation("RegistrationTeam", fields: [teamId], references: [id], onDelete: SetNull)
+  tournamentTeamId String?         @unique @map("tournament_team_id")
+  tournamentTeam   TournamentTeam? @relation(fields: [tournamentTeamId], references: [id], onDelete: SetNull)
+
+  // A retried submit returns the application that already arrived.
+  clientToken String @unique @map("client_token")
+  // The applicant's status link, for a tournament applicant with no account.
+  // Only its hash is stored, as with manager invites.
+  statusTokenHash String? @unique @map("status_token_hash")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([windowId, status])
+  @@index([applicantId])
+  @@map("registrations")
 }

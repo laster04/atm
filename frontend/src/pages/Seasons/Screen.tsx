@@ -8,7 +8,8 @@ import { EmptyState, PublicHero } from '@/components/public';
 import FilterTabs, { type FilterTab } from '@/components/public/FilterTabs';
 import SeasonCard from './components/SeasonCard';
 
-type Filter = 'all' | SeasonStatus;
+/** `applications`: seasons taking team sign-ups right now. */
+type Filter = 'all' | 'applications' | SeasonStatus;
 
 export default function SeasonsScreen() {
 	const { t } = useTranslation();
@@ -31,12 +32,15 @@ export default function SeasonsScreen() {
 		{ value: SeasonStatus.ACTIVE, label: t('seasons.status.ACTIVE'), dot: 'rgb(var(--success))' },
 		{ value: SeasonStatus.COMPLETED, label: t('seasons.status.COMPLETED') },
 		{ value: SeasonStatus.DRAFT, label: t('seasons.status.DRAFT') },
+		...(seasons.some((season) => season.registrationOpen)
+			? [{ value: 'applications' as const, label: t('public.seasons.filterApplications'), dot: 'rgb(var(--success))' }]
+			: []),
 	];
 
 	const visible = useMemo(() => {
 		const term = search.trim().toLowerCase();
 		return seasons.filter((season) => {
-			if (filter !== 'all' && season.status !== filter) return false;
+			if (filter === 'applications' ? !season.registrationOpen : filter !== 'all' && season.status !== filter) return false;
 			if (!term) return true;
 			return (
 				season.name.toLowerCase().includes(term) ||

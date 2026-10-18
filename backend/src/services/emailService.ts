@@ -30,6 +30,23 @@ function iconSvg(name: IconName): string {
   return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name]}</svg>`;
 }
 
+/** Where a competition's places stand, as the registration emails tell it. */
+interface PlacesSummary {
+  approved: number;
+  pending: number;
+  waitlisted: number;
+  max: number | null;
+}
+
+/** "6 v soutěži · 2 čeká na rozhodnutí · 3 na čekací listině · 8 míst" for the organiser. */
+const placesLine = (places: PlacesSummary): string =>
+  [
+    `${places.approved} v soutěži`,
+    `${places.pending} čeká na rozhodnutí`,
+    `${places.waitlisted} na čekací listině`,
+    places.max != null ? `${places.max} míst` : 'bez omezení počtu',
+  ].join(' · ');
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -49,8 +66,9 @@ class EmailService {
     return this.resend;
   }
 
+  /** Tests never send, whatever key the environment happens to carry. */
   private isConfigured(): boolean {
-    return !!process.env.RESEND_API_KEY;
+    return process.env.NODE_ENV !== 'test' && !!process.env.RESEND_API_KEY;
   }
 
   private getFromAddress(): string {
@@ -132,6 +150,14 @@ class EmailService {
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     if (!this.isConfigured()) {
+      if (process.env.NODE_ENV === 'test') return false;
+      // In development the mail is logged instead, so the links in it
+      // (activation, application status) can be followed by hand.
+      if (process.env.NODE_ENV !== 'production') {
+        const links = [...options.html.matchAll(/href="([^"]+)"/g)].map((match) => match[1].replace(/&amp;/g, '&'));
+        console.info(`[email:dev] to=${options.to} subject="${options.subject}"${links.length ? `\n  ${links.join('\n  ')}` : ''}`);
+        return false;
+      }
       console.warn('Email service not configured (RESEND_API_KEY missing). Skipping email send.');
       return false;
     }
@@ -160,9 +186,11 @@ class EmailService {
   async sendActivationEmail(
     to: string,
     name: string,
-    activationToken: string
+    activationToken: string,
+    /** A path in the app the activation page sends the user on to. */
+    next?: string | null
   ): Promise<boolean> {
-    const activationLink = `${this.getAppUrl()}/activate/${activationToken}`;
+    const activationLink = `${this.getAppUrl()}/activate/${activationToken}${next ? `?next=${encodeURIComponent(next)}` : ''}`;
     const accent = '#2563eb';
     const safeName = escapeHtml(name);
 
@@ -585,6 +613,173 @@ class EmailService {
       to,
       subject: `[ATM support] ${ticket.subject.slice(0, 120)}`,
       html: this.buildEmailHtml(accent, 'mail-check', 'New support message', body),
+    });
+  }
+
+  /** Tells an applicant their application arrived, and whether it is waiting for a place. */
+  async sendRegistrationReceivedEmail(params: {
+    to: string;
+    contactName: string;
+    teamName: string;
+    competitionName: string;
+    waitlisted: boolean;
+    link: string;
+    /** A tournament applicant without an account follows this to see and withdraw the application. */
+    statusLink?: string | null;
+    locale?: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const isCs = params.locale !== 'en';
+    const name = escapeHtml(params.contactName);
+    const team = escapeHtml(params.teamName);
+    const competition = escapeHtml(params.competitionName);
+    const t = isCs
+      ? {
+          subject: `Přihláška týmu ${params.teamName} – ${params.competitionName}`,
+          header: 'Přihláška přijata',
+          greeting: `Dobrý den, <strong>${name}</strong>,`,
+          received: `přihláška týmu <strong>${team}</strong> do soutěže <strong>${competition}</strong> dorazila.`,
+          next: params.waitlisted
+            ? 'Soutěž je teď plná, proto jste na čekací listině. Pokud se místo uvolní, organizátor vás může přijmout – dáme vám vědět e-mailem.'
+            : 'Organizátor ji teď posoudí. O jeho rozhodnutí vám dáme vědět e-mailem.',
+          button: 'Zobrazit soutěž',
+          status: 'Stav přihlášky',
+          statusHint: 'Na stránce přihlášky uvidíte, jak organizátor rozhodl, a přihlášku tam můžete i stáhnout. Odkaz nikomu nepřeposílejte.',
+        }
+      : {
+          subject: `Application for ${params.teamName} – ${params.competitionName}`,
+          header: 'Application received',
+          greeting: `Hello <strong>${name}</strong>,`,
+          received: `the application of <strong>${team}</strong> to <strong>${competition}</strong> has arrived.`,
+          next: params.waitlisted
+            ? "The competition is full right now, so you are on the waiting list. If a place frees up the organiser can accept you – we'll let you know by email."
+            : "The organiser will now review it. We'll email you their decision.",
+          button: 'View the competition',
+          status: 'Check application status',
+          statusHint: "The application page shows the organiser's decision, and you can withdraw the application there. Keep the link to yourself.",
+        };
+    const body = [
+      this.p(t.greeting),
+      this.p(t.received),
+      this.p(t.next, { mb: 0 }),
+      params.statusLink
+        ? this.button(t.status, params.statusLink, accent) + this.p(t.statusHint, { mb: 0, size: 14, color: COLORS.muted })
+        : this.button(t.button, params.link, accent),
+    ].join('');
+    return this.sendEmail({ to: params.to, subject: t.subject, html: this.buildEmailHtml(accent, 'mail-check', t.header, body) });
+  }
+
+  /** Tells the organiser a team applied, with what they need to decide. */
+  async sendRegistrationNoticeEmail(params: {
+    to: string;
+    teamName: string;
+    contactName: string;
+    contactEmail: string;
+    competitionName: string;
+    waitlisted: boolean;
+    capacity: PlacesSummary;
+    link: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const body = [
+      this.p(`Tým <strong>${escapeHtml(params.teamName)}</strong> se přihlásil do soutěže <strong>${escapeHtml(params.competitionName)}</strong>.`),
+      this.p(`Kontakt: ${escapeHtml(params.contactName)} &lt;${escapeHtml(params.contactEmail)}&gt;`, { size: 14, color: COLORS.muted }),
+      params.waitlisted ? this.p('Soutěž je plná, přihláška je proto na čekací listině.', { size: 14 }) : '',
+      this.p(placesLine(params.capacity), { size: 14, color: COLORS.muted }),
+      this.button('Otevřít přihlášky', params.link, accent),
+    ].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: `Nová přihláška: ${params.teamName} – ${params.competitionName}`,
+      html: this.buildEmailHtml(accent, 'user-plus', 'Nová přihláška týmu', body),
+      replyTo: params.contactEmail,
+    });
+  }
+
+  /** The organiser's decision on an application, with the reason when they gave one. */
+  async sendRegistrationDecisionEmail(params: {
+    to: string;
+    contactName: string;
+    teamName: string;
+    competitionName: string;
+    decision: 'APPROVED' | 'REJECTED' | 'WAITLISTED' | 'PROMOTED';
+    reason: string | null;
+    link: string;
+    locale?: string;
+  }): Promise<boolean> {
+    const accent = params.decision === 'APPROVED' ? '#15803D' : '#0F172A';
+    const isCs = params.locale !== 'en';
+    const name = escapeHtml(params.contactName);
+    const team = escapeHtml(params.teamName);
+    const competition = escapeHtml(params.competitionName);
+    const reason = params.reason ? escapeHtml(params.reason) : null;
+    const t = isCs
+      ? {
+          subject: {
+            APPROVED: `${params.teamName} je v soutěži ${params.competitionName}`,
+            REJECTED: `Přihláška týmu ${params.teamName} nebyla přijata`,
+            WAITLISTED: `${params.teamName} je na čekací listině – ${params.competitionName}`,
+            PROMOTED: `Uvolnilo se místo pro ${params.teamName} – ${params.competitionName}`,
+          }[params.decision],
+          header: { APPROVED: 'Přihláška schválena', REJECTED: 'Přihláška zamítnuta', WAITLISTED: 'Čekací listina', PROMOTED: 'Uvolnilo se místo' }[params.decision],
+          text: {
+            APPROVED: `organizátor schválil přihlášku týmu <strong>${team}</strong> do soutěže <strong>${competition}</strong>. Tým je teď v soutěži.`,
+            REJECTED: `organizátor soutěže <strong>${competition}</strong> přihlášku týmu <strong>${team}</strong> nepřijal.`,
+            WAITLISTED: `přihláška týmu <strong>${team}</strong> do soutěže <strong>${competition}</strong> je na čekací listině. Pokud se místo uvolní, organizátor vás může přijmout.`,
+            PROMOTED: `v soutěži <strong>${competition}</strong> se uvolnilo místo a přihláška týmu <strong>${team}</strong> postoupila z čekací listiny. Teď čeká na rozhodnutí organizátora.`,
+          }[params.decision],
+          reason: reason ? `Zdůvodnění: ${reason}` : '',
+          button: params.decision === 'APPROVED' ? 'Otevřít ATM' : 'Zobrazit soutěž',
+        }
+      : {
+          subject: {
+            APPROVED: `${params.teamName} is in ${params.competitionName}`,
+            REJECTED: `The application of ${params.teamName} was not accepted`,
+            WAITLISTED: `${params.teamName} is on the waiting list – ${params.competitionName}`,
+            PROMOTED: `A place opened for ${params.teamName} – ${params.competitionName}`,
+          }[params.decision],
+          header: { APPROVED: 'Application approved', REJECTED: 'Application declined', WAITLISTED: 'Waiting list', PROMOTED: 'A place opened' }[params.decision],
+          text: {
+            APPROVED: `the organiser approved the application of <strong>${team}</strong> to <strong>${competition}</strong>. The team is now in the competition.`,
+            REJECTED: `the organiser of <strong>${competition}</strong> did not accept the application of <strong>${team}</strong>.`,
+            WAITLISTED: `the application of <strong>${team}</strong> to <strong>${competition}</strong> is on the waiting list. If a place frees up the organiser can accept you.`,
+            PROMOTED: `a place opened in <strong>${competition}</strong> and the application of <strong>${team}</strong> has moved up from the waiting list. It now waits for the organiser's decision.`,
+          }[params.decision],
+          reason: reason ? `Reason: ${reason}` : '',
+          button: params.decision === 'APPROVED' ? 'Open ATM' : 'View the competition',
+        };
+    const body = [
+      this.p(isCs ? `Dobrý den, <strong>${name}</strong>,` : `Hello <strong>${name}</strong>,`),
+      this.p(t.text, { mb: t.reason ? 16 : 0 }),
+      t.reason ? this.p(t.reason, { mb: 0, size: 14, color: COLORS.muted }) : '',
+      this.button(t.button, params.link, accent),
+    ].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: t.subject,
+      html: this.buildEmailHtml(accent, params.decision === 'APPROVED' ? 'badge-check' : 'mail-check', t.header, body),
+    });
+  }
+
+  /** Tells the organiser a pending application was withdrawn while teams wait for its place. */
+  async sendRegistrationWithdrawnEmail(params: {
+    to: string;
+    teamName: string;
+    competitionName: string;
+    capacity: PlacesSummary;
+    link: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const body = [
+      this.p(`Tým <strong>${escapeHtml(params.teamName)}</strong> stáhl přihlášku do soutěže <strong>${escapeHtml(params.competitionName)}</strong> a uvolnil tím místo.`),
+      this.p(`Na čekací listině je ${params.capacity.waitlisted}. Nikdo nepostupuje sám – v přihláškách můžete posunout dalšího v pořadí.`),
+      this.p(placesLine(params.capacity), { size: 14, color: COLORS.muted }),
+      this.button('Otevřít přihlášky', params.link, accent),
+    ].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: `Uvolnilo se místo: ${params.competitionName}`,
+      html: this.buildEmailHtml(accent, 'user-plus', 'Přihláška stažena', body),
     });
   }
 }

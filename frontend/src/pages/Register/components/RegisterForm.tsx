@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { authApi } from '@/services/api';
 import { normalizeEmail } from '@/utils/email';
+import { safeNextPath, withNext } from '@/utils/nextPath';
 import { AxiosError } from 'axios';
 import { CheckCircle, Mail, Trophy } from 'lucide-react';
 
@@ -27,6 +28,8 @@ export default function RegisterForm() {
   const SELF_REGISTERABLE_ROLES = ['TOURNAMENT_MANAGER'];
   const requestedRole = searchParams.get('role') ?? '';
   const role = SELF_REGISTERABLE_ROLES.includes(requestedRole) ? requestedRole : undefined;
+  // Someone on the way to an application comes back to it after activating.
+  const next = safeNextPath(searchParams.get('next'));
 
   const password = watch('password');
 
@@ -36,7 +39,7 @@ export default function RegisterForm() {
 
     try {
       const email = normalizeEmail(data.email);
-      await authApi.register({ email, password: data.password, name: data.name, role });
+      await authApi.register({ email, password: data.password, name: data.name, role, ...(next && { next }) });
       setRegisteredEmail(email);
       setSuccess(true);
     } catch (err) {
@@ -64,7 +67,8 @@ export default function RegisterForm() {
         <p className="text-sm text-gray-500 mb-4">
           {t('auth.register.activationNote', 'Please check your email and click the activation link to complete your registration.')}
         </p>
-        <Link to="/login" className="text-blue-600 hover:underline">
+        {next && <p className="text-sm text-gray-500 mb-4">{t('auth.register.returnNote')}</p>}
+        <Link to={withNext('/login', next)} className="text-blue-600 hover:underline">
           {t('auth.register.loginLink', 'Go to Login')}
         </Link>
       </div>
@@ -78,6 +82,10 @@ export default function RegisterForm() {
           <Trophy className="size-4 shrink-0" />
           Registering as Tournament Manager
         </div>
+      )}
+
+      {next && (
+        <div className="bg-blue-50 text-blue-800 px-4 py-3 rounded-lg mb-4 text-sm">{t('auth.register.forApplication')}</div>
       )}
 
       {error && (
@@ -142,7 +150,7 @@ export default function RegisterForm() {
 
       <p className="text-center mt-4 text-gray-600">
         {t('auth.register.hasAccount')}{' '}
-        <Link to="/login" className="text-blue-600 hover:underline">
+        <Link to={withNext('/login', next)} className="text-blue-600 hover:underline">
           {t('auth.register.loginLink')}
         </Link>
       </p>

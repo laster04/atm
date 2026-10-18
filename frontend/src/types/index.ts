@@ -176,6 +176,8 @@ export interface Season {
   updatedAt: string;
   leagueId: string;
   league?: LeagueRef;
+  /** In public lists: the season takes team applications right now. */
+  registrationOpen?: boolean;
   teams?: Team[];
   _count?: {
     seasonTeams?: number;
@@ -651,6 +653,8 @@ export interface TournamentSeries {
   manager?: Pick<User, 'id' | 'name' | 'email'> | null;
   tournaments?: Tournament[];
   _count?: { tournaments: number };
+  /** In public lists: one of its tournaments takes team applications right now. */
+  registrationOpen?: boolean;
 }
 
 export interface Tournament {
@@ -667,6 +671,8 @@ export interface Tournament {
   groups?: TournamentGroup[];
   games?: TournamentGame[];
   _count?: { teams: number; groups: number; games: number };
+  /** In a series' list: the tournament takes team applications right now. */
+  registrationOpen?: boolean;
 }
 
 export interface TournamentTeam {
@@ -833,4 +839,164 @@ export interface SearchResults {
     league: LeagueRef;
   })[];
   leagues: (Pick<League, 'id' | 'name' | 'sportType' | 'logo'> & { _count: { seasons: number } })[];
+}
+
+// ============================================================
+// REGISTRATIONS
+// ============================================================
+
+export type RegistrationKind = 'season' | 'tournament';
+export type RegistrationStatus = 'PENDING' | 'WAITLISTED' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
+
+/**
+ * Where a competition's places stand: teams in, applications holding a place
+ * while they wait for a decision, and the waiting list. `free` is null when
+ * the competition has no maximum.
+ */
+export interface RegistrationCapacity {
+  approved: number;
+  pending: number;
+  waitlisted: number;
+  max: number | null;
+  free: number | null;
+}
+
+/** The form's life as the manager sees it: a draft until first published. */
+export type RegistrationLifecycle = 'DRAFT' | 'OPEN' | 'FULL' | 'PAST_DEADLINE' | 'CLOSED';
+
+/** A season or tournament the signed-in user runs, as the dashboard lists it. */
+export interface ManagedCompetition {
+  kind: RegistrationKind;
+  id: string;
+  name: string;
+  /** League or series. */
+  parentName: string;
+  lifecycle: RegistrationLifecycle;
+  pending: number;
+  waitlisted: number;
+  /** The competition's applications inbox inside the app. */
+  inboxPath: string;
+}
+
+/** What the public sign-up form of a season or tournament shows. */
+export interface RegistrationForm {
+  kind: RegistrationKind;
+  id: string;
+  name: string;
+  parentName: string;
+  sport: SportType;
+  state: 'OPEN' | 'CLOSED' | 'PAST_DEADLINE';
+  deadline: string | null;
+  maxTeams: number | null;
+  placesTaken: number;
+  /** A new application now would join the waiting list. */
+  full: boolean;
+  capacity: RegistrationCapacity;
+  rules: string | null;
+  rulesVersion: number;
+  fee: string | null;
+}
+
+export interface RegistrationSettings {
+  open: boolean;
+  deadline: string | null;
+  maxTeams: number | null;
+  rules: string | null;
+  rulesVersion: number;
+  fee: string | null;
+  publishedAt: string | null;
+  closedAt: string | null;
+  lifecycle: RegistrationLifecycle;
+  capacity: RegistrationCapacity;
+  competitionName: string;
+}
+
+export type RegistrationSettingsInput = Partial<Pick<RegistrationSettings, 'open' | 'deadline' | 'maxTeams' | 'rules' | 'fee'>>;
+
+export interface RosterEntry {
+  name: string;
+  number: number | null;
+}
+
+export interface Registration {
+  id: string;
+  status: RegistrationStatus;
+  applicantId: string | null;
+  contactName: string;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  existingTeamId: string | null;
+  existingTeam?: { id: string; name: string } | null;
+  teamName: string;
+  primaryColor: string | null;
+  roster: RosterEntry[] | null;
+  rulesAcceptedAt: string | null;
+  decidedAt: string | null;
+  reason: string | null;
+  withdrawnAt: string | null;
+  promotedAt: string | null;
+  promotedBy?: { id: string; name: string } | null;
+  /** Moved up from the waiting list ahead of an older application. */
+  promotedOutOfOrder: boolean;
+  teamId: string | null;
+  tournamentTeamId: string | null;
+  createdAt: string;
+  /** Only in the answer to a tournament submit: the applicant's own status page. */
+  statusLink?: string | null;
+}
+
+export interface MyRegistration extends Registration {
+  competition: { kind: RegistrationKind; id: string; name: string };
+}
+
+export interface RegistrationInbox {
+  registrations: Registration[];
+  capacity: RegistrationCapacity;
+}
+
+/** What a tournament applicant's status link shows. */
+export interface RegistrationStatusView {
+  id: string;
+  status: RegistrationStatus;
+  teamName: string;
+  primaryColor: string | null;
+  contactName: string;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  roster: RosterEntry[] | null;
+  reason: string | null;
+  createdAt: string;
+  decidedAt: string | null;
+  withdrawnAt: string | null;
+  waitlistPosition: number | null;
+  competition: { kind: RegistrationKind; id: string; name: string };
+}
+
+/** The admin's view of whether the forms get used. Times are in hours. */
+export interface RegistrationFunnel {
+  competitions: number;
+  published: number;
+  publishedWithApplications: number;
+  applications: number;
+  approvalRate: number | null;
+  medianHoursToPublish: number | null;
+  medianHoursToFirstApplication: number | null;
+}
+
+export interface RegistrationInput {
+  clientToken: string;
+  teamName?: string;
+  existingTeamId?: string;
+  primaryColor?: string | null;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  note?: string;
+  roster?: RosterEntry[];
+  acceptRules?: boolean;
+  locale?: string;
+  /** Honeypot: left empty by people. */
+  website?: string;
 }

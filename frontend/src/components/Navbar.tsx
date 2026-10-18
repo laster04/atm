@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.tsx';
-import { hasUnreadUpdates } from '@/content/updates';
 import { Button } from "@components/base/button";
 import {
 	DropdownMenu,
@@ -17,7 +16,7 @@ import { Role } from "@types";
 import logoImage from '../assets/logo-full.png';
 
 export default function Navbar() {
-	const { user, logout, isAdmin, isSeasonManager, isTeamManager, isTournamentManager } = useAuth();
+	const { user, logout } = useAuth();
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 
@@ -71,7 +70,7 @@ export default function Navbar() {
 						<div className="flex items-center justify-end gap-8">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" className="flex items-center gap-2" data-tour="nav-menu">
+									<Button variant="ghost" className="flex items-center gap-2">
 										{user ? (
 											<UserCircle className="size-5" />
 										) : <></>}
@@ -109,42 +108,15 @@ export default function Navbar() {
 										<Link to="/seasons">{t('nav.seasons')}</Link>
 									</DropdownMenuItem>
 									<DropdownMenuItem asChild>
-										<Link to="/tournaments">Tournaments</Link>
+										<Link to="/tournaments">{t('public.nav.tournaments')}</Link>
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
 
 									{user ? (
 										<>
-											{isTeamManager() && (
-												<DropdownMenuItem asChild>
-													<Link to="/team-management">{t('nav.myTeams')}</Link>
-												</DropdownMenuItem>
-											)}
-											{(isTournamentManager() || isAdmin()) && (
-												<DropdownMenuItem asChild>
-													<Link to="/tournament-management">{t('nav.manageTournaments')}</Link>
-												</DropdownMenuItem>
-											)}
-											{isSeasonManager() && (
-												<DropdownMenuItem asChild>
-													<Link to="/season-management">{t('nav.mySeasons')}</Link>
-												</DropdownMenuItem>
-											)}
-											{isAdmin() && (
-												<DropdownMenuItem asChild>
-													<Link to="/admin">{t('nav.admin')}</Link>
-												</DropdownMenuItem>
-											)}
+											{/* Management areas, help and news live on the dashboard. */}
 											<DropdownMenuItem asChild>
-												<Link to="/docs">{t('public.nav.docs')}</Link>
-											</DropdownMenuItem>
-											<DropdownMenuItem asChild>
-												<Link to="/updates" className="flex items-center justify-between">
-													{t('public.nav.updates')}
-													{hasUnreadUpdates(user.updatesSeenAt) && (
-														<span className="size-2 rounded-full bg-primary" aria-label={t('public.updates.unread')} />
-													)}
-												</Link>
+												<Link to="/dashboard">{t('public.nav.dashboard')}</Link>
 											</DropdownMenuItem>
 											<DropdownMenuItem onClick={handleLogout}>
 												<LogOut className="size-4 mr-2" />

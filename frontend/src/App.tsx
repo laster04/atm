@@ -29,6 +29,9 @@ import Stats from './pages/Stats';
 import About from './pages/About';
 import Updates from './pages/Updates';
 import Contact from './pages/Contact';
+import Registration from './pages/Registration';
+import RegistrationStatus from './pages/Registration/StatusScreen';
+import RegistrationPoster from './pages/Registration/PosterScreen';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
@@ -52,7 +55,7 @@ import { Toaster } from "@components/base/toaster.tsx";
 import ErrorBoundary from './components/ErrorBoundary';
 
 /**
- * The signed-in utility pages — dashboard, sign-in, registration — keep the
+ * The account pages — sign-in, registration, activation, invites — keep the
  * original navbar. The public part has its own shell (PublicLayout) and the
  * manager shells bring their own chrome, so neither is wrapped here.
  */
@@ -75,6 +78,8 @@ function AppContent() {
       <Toaster />
       <Routes>
         <Route path="/" element={<Landing />} />
+        {/* Printed and pinned up, so without the site's header and footer. */}
+        <Route path="/prihlaska/:kind/:id/plakat" element={<RegistrationPoster />} />
 
         {/* Public part: readable signed out, one header and footer for all. */}
         <Route element={<PublicLayout />}>
@@ -94,13 +99,16 @@ function AppContent() {
           <Route path="/updates" element={<Updates />} />
           <Route path="/updates/roadmap" element={<Updates />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/prihlaska/stav/:token" element={<RegistrationStatus />} />
+          <Route path="/prihlaska/:kind/:id" element={<Registration />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />
+          {/* Signed in only; the page sends anyone else to the landing page. */}
+          <Route path="/dashboard" element={<Home />} />
         </Route>
 
         <Route element={<AccountShell />}>
-          <Route path="/dashboard" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/activate/:token" element={<Activate />} />

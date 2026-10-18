@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
+import { takesApplications } from '../services/registrationState.js';
 import {
   AuthRequest,
   LiveProjection,
@@ -108,12 +109,17 @@ export const getAllSeasons = async (req: AuthRequest, res: Response): Promise<vo
       where: listedSeasonWhere(req.user),
       include: {
         league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
-        _count: { select: { seasonTeams: true, games: true } }
+        _count: { select: { seasonTeams: true, games: true } },
+        registrationWindow: { select: { open: true, deadline: true } },
       },
       orderBy: { startDate: 'desc' }
     });
 
-    res.json(seasons);
+    // The list badges seasons that take team applications right now.
+    res.json(seasons.map(({ registrationWindow, ...season }) => ({
+      ...season,
+      registrationOpen: takesApplications(registrationWindow, season.archivedAt !== null),
+    })));
   } catch (error) {
     console.error('Get seasons error:', error);
     res.status(500).json({ error: 'Failed to fetch seasons' });

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { authApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/base/card';
 import { Button } from '@/components/base/button';
+import { safeNextPath, withNext } from '@/utils/nextPath';
 
 type ActivationStatus = 'loading' | 'success' | 'error';
 
@@ -13,6 +14,9 @@ export default function ActivateScreen() {
   const { token } = useParams<{ token: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Someone who signed up on the way to an application goes back to it.
+  const [searchParams] = useSearchParams();
+  const next = safeNextPath(searchParams.get('next'));
   const [status, setStatus] = useState<ActivationStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -65,7 +69,7 @@ export default function ActivateScreen() {
               <p className="mt-2 text-muted-foreground">
                 {t('activate.successMessage', 'Your account has been successfully activated. You can now log in.')}
               </p>
-              <Button className="mt-6" onClick={() => navigate('/login')}>
+              <Button className="mt-6" onClick={() => navigate(withNext('/login', next))}>
                 {t('activate.goToLogin', 'Go to Login')}
               </Button>
             </div>
@@ -79,12 +83,12 @@ export default function ActivateScreen() {
               </h3>
               <p className="mt-2 text-muted-foreground">{errorMessage}</p>
               <div className="mt-6 space-y-2">
-                <Link to="/login">
+                <Link to={withNext('/login', next)}>
                   <Button variant="outline" className="w-full">
                     {t('activate.goToLogin', 'Go to Login')}
                   </Button>
                 </Link>
-                <Link to="/register">
+                <Link to={withNext('/register', next)}>
                   <Button variant="ghost" className="w-full">
                     {t('activate.registerAgain', 'Register Again')}
                   </Button>

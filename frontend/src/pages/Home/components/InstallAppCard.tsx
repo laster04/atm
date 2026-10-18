@@ -43,7 +43,7 @@ export default function InstallAppCard() {
 	};
 
 	return (
-		<div className="mb-8 flex items-center gap-3 rounded-xl border border-border bg-card p-3.5">
+		<div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5">
 			<Smartphone className="size-5 shrink-0 text-muted-foreground" aria-hidden />
 			<span className="flex min-w-0 flex-1 flex-col gap-0.5">
 				<span className="text-[14.5px] font-semibold">{t('home.installApp.title')}</span>

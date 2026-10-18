@@ -31,8 +31,8 @@ export default function MyPlayerTeamsSection() {
 	if (profiles.length === 0) return null;
 
 	return (
-		<div className="mb-8">
-			<h2 className="mb-3 text-xl font-bold text-gray-900">{t('home.myPlayerTeams.title')}</h2>
+		<section>
+			<h2 className="mb-3 text-[20px] font-bold">{t('home.myPlayerTeams.title')}</h2>
 			<div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
 				{profiles.map((profile) => {
 					const { team } = profile;
@@ -75,6 +75,6 @@ export default function MyPlayerTeamsSection() {
 					);
 				})}
 			</div>
-		</div>
+		</section>
 	);
 }

@@ -28,10 +28,6 @@
     "tagline": "Správa sezón a týmů",
     "leagues": "Ligy",
     "seasons": "Sezony",
-    "myTeams": "Moje Týmy",
-    "mySeasons": "Moje Sezony",
-    "admin": "Administrace",
-    "manageTournaments": "Správa turnajů",
     "login": "Prihlasit",
     "register": "Registrovat",
     "logout": "Odhlasit",
@@ -50,23 +46,21 @@
         "title": "Vítejte v ATM!",
         "body": "Pojďme se rychle podívat, kde co najdete."
       },
-      "navMenu": {
-        "title": "Vaše menu účtu",
-        "body": "Toto menu kdykoliv otevřete a dostanete se k týmům, sezonám i nastavení."
-      },
       "myTeams": {
         "title": "Vaše týmy",
         "body": "Týmy, které spravujete, se zobrazují zde. Klikněte na tým a spravujte jeho soupisku, rozpis a nastavení."
       },
-      "activeSeasons": {
-        "title": "Aktivní sezony",
-        "body": "Zde se zobrazují aktuálně aktivní sezony. Klikněte na sezonu pro zobrazení týmů, rozpisu a tabulky."
+      "workspaces": {
+        "title": "Vaše správa",
+        "body": "Odsud otevřete sezóny, týmy a turnaje, které spravujete. Ještě nemáte ligu? Založíte ji jedním tlačítkem."
+      },
+      "openCompetitions": {
+        "title": "Soutěže s otevřenými přihláškami",
+        "body": "Sezóny a turnaje, které právě přijímají týmy, a sezóny, které se hrají."
       }
     }
   },
   "home": {
-    "title": "Planovac Sportovnich Sezon",
-    "subtitle": "Spravujte sve sportovni ligy snadno. Vytvarejte sezony, sledujte tymy, planujte zapasy a zobrazujte tabulky na jednom miste.",
     "features": {
       "leagueManagement": {
         "title": "Sprava Ligy",
@@ -81,11 +75,9 @@
         "description": "Sledujte tabulky v realnem case s pridavanim vysledku zapasu."
       }
     },
-    "activeSeasons": "Aktivni Sezony",
-    "viewAllSeasons": "Zobrazit všechny sezony",
+    "viewAllSeasons": "Zobrazit všechny sezóny",
     "viewAllLeagues": "Zobrazit všechny ligy",
-    "noActiveSeasons": "Zatim zadne aktivni sezony.",
-    "myTeams": "Moje Tymy",
+    "myTeams": "Týmy, které spravuji",
     "appInfo": {
       "title": "Proč si vybrat Amateur Team Manager?",
       "description": "Komplexní platforma navržená pro zjednodušení správy sportovních lig. Od nastavení ligy přes plánování zápasů až po sledování výkonu - máme vše, co potřebujete.",
@@ -276,7 +268,9 @@
       "failed": "Registrace selhala",
       "success": "Registrace uspesna!",
       "checkEmail": "Poslali jsme aktivacni odkaz na:",
-      "activationNote": "Zkontrolujte svuj e-mail a kliknete na aktivacni odkaz pro dokonceni registrace."
+      "activationNote": "Zkontrolujte svuj e-mail a kliknete na aktivacni odkaz pro dokonceni registrace.",
+      "forApplication": "Pro přihlášku týmu si založte účet. Po aktivaci se vrátíte rovnou k přihlášce.",
+      "returnNote": "Aktivační odkaz vás vrátí k formuláři přihlášky."
     },
     "activate": {
       "title": "Aktivace uctu",
@@ -1342,6 +1336,25 @@
       "seasonWorkTitle": "Týmy, termíny a výsledky",
       "seasonWorkHint": "Spravují se v detailu sezóny, ne v globální tabulce.",
       "openSeasons": "Otevřít sezóny"
+    },
+    "funnel": {
+      "title": "Přihlášky týmů",
+      "conversion": "Zveřejněné formuláře s přihláškou",
+      "conversionHint": "{{with}} z {{published}} zveřejněných formulářů",
+      "adoption": "Soutěže se zveřejněným formulářem",
+      "adoptionHint": "{{published}} z {{total}} sezón a turnajů",
+      "toPublish": "Od vytvoření ke zveřejnění (medián)",
+      "toFirst": "Od zveřejnění k první přihlášce (medián)",
+      "approval": "Schválené přihlášky",
+      "applications_one": "Celkem {{count}} přihláška",
+      "applications_few": "Celkem {{count}} přihlášky",
+      "applications_other": "Celkem {{count}} přihlášek",
+      "hours_one": "{{count}} hodina",
+      "hours_few": "{{count}} hodiny",
+      "hours_other": "{{count}} hodin",
+      "days_one": "{{count}} den",
+      "days_few": "{{count}} dny",
+      "days_other": "{{count}} dní"
     }
   },
   "hats": {
@@ -1815,7 +1828,8 @@
         "IN_DEVELOPMENT": "Funkce se aktivně implementuje.",
         "DESIGNING": "Existuje schválený návrh, práce nemusí být zahájena.",
         "CONSIDERING": "Nápad se vyhodnocuje a není slíbený."
-      }
+      },
+      "readGuide": "Přečíst návod"
     },
     "contact": {
       "title": "Napište nám",
@@ -1919,7 +1933,8 @@
       "subtitle": "Prohlížejte všechny sezóny, sledujte jejich průběh a výsledky. Amatérský sport má svou historii.",
       "view": "Zobrazit",
       "searchPlaceholder": "Hledat sezónu…",
-      "emptyHint": "Zkuste jiný filtr nebo hledejte podle názvu ligy."
+      "emptyHint": "Zkuste jiný filtr nebo hledejte podle názvu ligy.",
+      "filterApplications": "Přijímá přihlášky"
     },
     "teams": {
       "title": "Týmy",
@@ -2038,7 +2053,26 @@
         "previewTitle": "Tabulka po 12 zápasech",
         "previewNote": "Ukázka veřejné stránky sezóny."
       },
-      "nextTitle": "Nejbližší zápasy"
+      "nextTitle": "Nejbližší zápasy",
+      "registrations": {
+        "kicker": "Přihlášky týmů",
+        "title": "Otevřete přihlášky do další sezóny nebo turnaje.",
+        "text": "Nastavte uzávěrku, kapacitu, pravidla a startovné. Sdílejte jeden veřejný odkaz a všechny přihlášky vyřizujte na jednom místě.",
+        "steps": {
+          "setup": "Připravte formulář přihlášky.",
+          "share": "Sdílejte veřejný odkaz nebo QR kód.",
+          "approve": "Schvalte týmy a sestavte soutěž."
+        },
+        "cta": "Otevřít přihlášky",
+        "secondary": "Jak to funguje",
+        "previewTitle": "Přihlášky · Jarní pohár",
+        "previewPlaces": "3 z 8 míst",
+        "status": {
+          "new": "Nová",
+          "waiting": "Čekací listina",
+          "approved": "Schválená"
+        }
+      }
     },
     "leagues": {
       "title": "Ligy",
@@ -2308,8 +2342,16 @@
         "live": "Zveřejněno",
         "body": "Zveřejněním se rozpis a tabulka objeví ve veřejné části.",
         "action": "Zveřejnit sezónu"
+      },
+      "registrations": {
+        "title": "Nechte týmy, ať se přihlásí",
+        "none": "Zatím bez formuláře",
+        "body": "Otevřete formulář přihlášky a pošlete odkaz: týmy se přihlásí samy a vy je jen schválíte, místo abyste každý tým přidávali sami.",
+        "action": "Otevřít přihlášky",
+        "skip": "Týmy přidám ručně"
       }
-    }
+    },
+    "new": "Nové"
   },
   "teamChecklist": {
     "title": "Připravte svůj tým",
@@ -2394,5 +2436,353 @@
       "rankTotal": "Body (G+A)"
     },
     "none": "Tento sport nevede statistiky hráčů"
+  },
+  "registration": {
+    "title": "Přihláška",
+    "notFound": "Přihláška nenalezena.",
+    "heading": "Přihláška: {{name}}",
+    "seasonIntro": "Přihlaste svůj tým do sezóny. Po schválení budete jeho manažerem.",
+    "tournamentIntro": "Přihlaste tým do turnaje. Účet nepotřebujete, stačí e-mail.",
+    "applyButton": "Přihlásit tým",
+    "playerName": "Jméno hráče",
+    "teamName": "Název týmu",
+    "color": "Barva",
+    "contactName": "Kontaktní osoba",
+    "email": "E-mail",
+    "phone": "Telefon (nepovinné)",
+    "note": "Poznámka pro organizátora (nepovinné)",
+    "roster": "Soupiska (nepovinné)",
+    "rosterHint": "Hráče můžete doplnit i později přes organizátora.",
+    "rosterName": "Jméno hráče {{n}}",
+    "rosterNumber": "Číslo hráče {{n}}",
+    "rosterNamePlaceholder": "Jméno a příjmení",
+    "rosterRemove": "Odebrat hráče",
+    "rosterAdd": "Přidat hráče",
+    "rules": "Pravidla soutěže",
+    "acceptRules": "Přečetl(a) jsem pravidla a souhlasím s nimi.",
+    "submit": "Odeslat přihlášku",
+    "sending": "Odesílám…",
+    "sentTitle": "Přihláška odeslána",
+    "sentWaitlisted": "Přihláška je na čekací listině",
+    "sentText": "Potvrzení jsme poslali na {{email}}. O rozhodnutí organizátora vám dáme vědět e-mailem.",
+    "backToCompetition": "Zpět na soutěž",
+    "toDashboard": "Moje přihlášky na přehledu",
+    "pastDeadline": "Termín pro přihlášky už vypršel.",
+    "closed": "Přihlášky do této soutěže nejsou otevřené.",
+    "signInTitle": "Přihlaste se",
+    "signInText": "Do sezóny se tým hlásí z účtu v ATM – po schválení se stanete manažerem týmu. Přihlaste se, nebo si účet založte.",
+    "signIn": "Přihlásit se",
+    "createAccount": "Založit účet",
+    "fullNote": "Soutěž je plná. Přihláška půjde na čekací listinu.",
+    "whichTeam": "Který tým přihlašujete?",
+    "newTeam": "Nový tým",
+    "factsTitle": "Podmínky",
+    "noFacts": "Organizátor neuvedl termín, kapacitu ani startovné.",
+    "deadline": "Přihlášky do {{date}}",
+    "fee": "Startovné: {{fee}}",
+    "seasonAfter": "Po schválení vznikne tým v sezóně a vy budete jeho manažerem.",
+    "tournamentAfter": "Po schválení organizátor tým zařadí do turnaje.",
+    "errors": {
+      "teamName": "Vyplňte název.",
+      "contactName": "Vyplňte kontaktní osobu.",
+      "email": "Zadejte platný e-mail.",
+      "acceptRules": "Bez souhlasu s pravidly přihlášku nelze odeslat.",
+      "roster": "Každý hráč potřebuje jméno; číslo jen číslicemi.",
+      "send": "Přihlášku se nepodařilo odeslat."
+    },
+    "mine": {
+      "title": "Moje přihlášky",
+      "withdraw": "Stáhnout",
+      "withdrawError": "Přihlášku se nepodařilo stáhnout."
+    },
+    "checkStatus": "Stav přihlášky",
+    "freePlaces_one": "Volné {{count}} z {{max}} míst",
+    "freePlaces_few": "Volná {{count}} z {{max}} míst",
+    "freePlaces_other": "Volných {{count}} z {{max}} míst",
+    "noFreePlaces": "Všech {{max}} míst je obsazeno – nové přihlášky jdou na čekací listinu (čeká {{waiting}})",
+    "waitlistOnly": "Plno – jen čekací listina",
+    "openBadge": "Přijímá přihlášky",
+    "placeNote_one": "Volné je ještě {{count}} místo. Přihláška počká na rozhodnutí organizátora.",
+    "placeNote_few": "Volná jsou ještě {{count}} místa. Přihláška počká na rozhodnutí organizátora.",
+    "placeNote_other": "Volných je ještě {{count}} míst. Přihláška počká na rozhodnutí organizátora.",
+    "previewOpen": "Náhled – takhle formulář vidí týmy. Odsud se nic neodešle.",
+    "previewClosed": "Náhled – formulář zatím není pro týmy otevřený. Odsud se nic neodešle.",
+    "requiredNote": "Pole označená * jsou povinná.",
+    "sentStatusText": "V e-mailu je i odkaz na vaši přihlášku, kde uvidíte její stav a můžete ji stáhnout.",
+    "signInReturn": "Váš účet bude po schválení tým spravovat. Po přihlášení nebo založení účtu se vrátíte k tomuto formuláři.",
+    "status": {
+      "PENDING": "Čeká na rozhodnutí",
+      "WAITLISTED": "Čekací listina",
+      "APPROVED": "Schválená",
+      "REJECTED": "Zamítnutá",
+      "WITHDRAWN": "Stažená"
+    },
+    "statusPage": {
+      "title": "Stav přihlášky",
+      "sentOn": "Odesláno {{date}}",
+      "sent": "Co jste odeslali",
+      "text": {
+        "PENDING": "Přihláška dorazila a čeká na rozhodnutí organizátora. Až rozhodne, pošleme vám e-mail.",
+        "WAITLISTED": "Soutěž je plná, proto je přihláška na čekací listině. Pokud se místo uvolní, organizátor ji může posunout.",
+        "WAITLISTED_position": "Soutěž je plná, proto je přihláška na čekací listině, {{position}}. v pořadí. Pokud se místo uvolní, organizátor ji může posunout.",
+        "APPROVED": "Organizátor přihlášku schválil. Tým je v soutěži.",
+        "REJECTED": "Organizátor přihlášku nepřijal.",
+        "WITHDRAWN": "Tuto přihlášku jste stáhli."
+      },
+      "withdraw": "Stáhnout přihlášku",
+      "withdrawConfirm": "Stáhnout přihlášku? Organizátor ji už nebude posuzovat a museli byste se přihlásit znovu.",
+      "keepPrivate": "Kdokoli s tímto odkazem přihlášku uvidí a může ji stáhnout, proto ho nikomu nepřeposílejte.",
+      "notFound": "Odkaz na přihlášku nefunguje. Zkontrolujte, že jste z e-mailu zkopírovali celý odkaz.",
+      "expired": "Platnost odkazu na přihlášku vypršela. O přihlášce bylo rozhodnuto před více než 30 dny."
+    }
+  },
+  "registrations": {
+    "title": "Přihlášky",
+    "hint": "Formulář pro týmy a schránka přihlášek",
+    "loadError": "Přihlášky se nepodařilo načíst.",
+    "saveError": "Nastavení se nepodařilo uložit.",
+    "decideError": "Rozhodnutí se nepodařilo uložit.",
+    "returningTeam": "Vracející se tým",
+    "newTeam": "Nový tým",
+    "status": {
+      "PENDING": "Nová",
+      "WAITLISTED": "Čekací listina",
+      "APPROVED": "Schválená",
+      "REJECTED": "Zamítnutá",
+      "WITHDRAWN": "Stažená"
+    },
+    "roster_one": "Soupiska: {{count}} hráč",
+    "roster_few": "Soupiska: {{count}} hráči",
+    "roster_other": "Soupiska: {{count}} hráčů",
+    "reason": "Důvod: {{reason}}",
+    "reasonPlaceholder": "Důvod (nepovinné, uvidí ho žadatel)",
+    "confirmReject": "Zamítnout přihlášku",
+    "approve": "Schválit",
+    "waitlist": "Čekací listina",
+    "reject": "Zamítnout",
+    "deadline": "Termín (nepovinné)",
+    "maxTeams": "Maximum týmů (nepovinné)",
+    "fee": "Startovné (nepovinné)",
+    "feePlaceholder": "např. 1 500 Kč za tým, zaplatit do 30. 6.",
+    "rules": "Pravidla k odsouhlasení (nepovinné)",
+    "save": "Uložit podmínky",
+    "link": "Odkaz na formulář",
+    "copy": "Kopírovat",
+    "copied": "Zkopírováno",
+    "linkHintClosed": "Formulář je zavřený; po otevření začne odkaz fungovat.",
+    "inbox": "Schránka přihlášek",
+    "empty": "Zatím žádné přihlášky.",
+    "decided_one": "Vyřízená: {{count}}",
+    "decided_few": "Vyřízené: {{count}}",
+    "decided_other": "Vyřízených: {{count}}",
+    "terms": "Podmínky",
+    "publish": "Zveřejnit přihlášky",
+    "reopen": "Znovu otevřít přihlášky",
+    "close": "Uzavřít přihlášky",
+    "preview": "Náhled formuláře",
+    "previewSaveFirst": "Pro náhled podmínky nejdřív uložte.",
+    "published": "Přihlášky jsou otevřené",
+    "publishedHint": "Pošlete formulář týmům.",
+    "lifecycle": {
+      "DRAFT": "Nezveřejněno",
+      "OPEN": "Přihlášky otevřené",
+      "FULL": "Plno",
+      "PAST_DEADLINE": "Po uzávěrce",
+      "CLOSED": "Uzavřeno"
+    },
+    "lifecycleHint": {
+      "DRAFT": "Připravte podmínky, prohlédněte si formulář v náhledu a pak ho zveřejněte.",
+      "OPEN": "Týmy se mohou hlásit přes veřejný formulář.",
+      "FULL": "Všechna místa jsou obsazená. Nové přihlášky jdou na čekací listinu.",
+      "PAST_DEADLINE": "Uzávěrka uplynula, formulář už přihlášky nepřijímá. Pro další přihlášky posuňte uzávěrku.",
+      "CLOSED": "Formulář nepřijímá přihlášky. Kdo ho otevře, uvidí, že je uzavřený."
+    },
+    "checklist": {
+      "deadline": "Uzávěrka",
+      "capacity": "Kapacita",
+      "rules": "Pravidla",
+      "fee": "Startovné"
+    },
+    "checklistWarn": {
+      "deadline": "Bez uzávěrky zůstane formulář otevřený, dokud ho neuzavřete.",
+      "capacity": "Bez kapacity jde každá přihláška rovnou k rozhodnutí, bez čekací listiny."
+    },
+    "confirm": {
+      "publishTitle": "Zveřejnit formulář přihlášky?",
+      "competition": "Soutěž",
+      "deadline": "Uzávěrka",
+      "noDeadline": "Žádná – otevřeno, dokud neuzavřete",
+      "capacity": "Kapacita",
+      "teams_one": "{{count}} tým",
+      "teams_few": "{{count}} týmy",
+      "teams_other": "{{count}} týmů",
+      "noLimit": "Bez omezení",
+      "fee": "Startovné",
+      "noFee": "Žádné",
+      "link": "Veřejný odkaz",
+      "publish": "Zveřejnit",
+      "closeTitle": "Uzavřít přihlášky?",
+      "closeText": "Formulář přestane přijímat přihlášky. Ty, které dorazily, zůstanou ve schránce a formulář můžete kdykoli znovu otevřít."
+    },
+    "capacity": {
+      "approved": "Schválené",
+      "pending": "Nové",
+      "waitlisted": "Čekací listina",
+      "max": "Kapacita",
+      "noLimit": "Maximum není nastavené, takže nikdo na místo nečeká."
+    },
+    "freePlaces_one": "Volné je {{count}} místo a čeká {{waiting}}. Nikdo nepostupuje sám.",
+    "freePlaces_few": "Volná jsou {{count}} místa a čeká {{waiting}}. Nikdo nepostupuje sám.",
+    "freePlaces_other": "Volných je {{count}} míst a čeká {{waiting}}. Nikdo nepostupuje sám.",
+    "promote": "Posunout",
+    "promoteNext": "Posunout dalšího v pořadí: {{team}}",
+    "promotedOutOfOrder": "Posunuto mimo pořadí, {{name}}, {{date}}",
+    "someone": "manažer",
+    "waitlistPosition": "Čeká, {{position}}.",
+    "manage": "Spravovat",
+    "overviewHint": "Nové: {{pending}} · na čekací listině: {{waiting}}",
+    "setup": {
+      "title": "Nechte týmy, ať se přihlásí",
+      "body": "Otevřete formulář přihlášky: týmy se přihlásí samy a vy je jen schválíte, místo abyste každý tým zadávali ručně.",
+      "action": "Otevřít přihlášky",
+      "dismiss": "Teď ne"
+    },
+    "share": {
+      "title": "Pošlete formulář týmům",
+      "native": "Sdílet",
+      "whatsapp": "WhatsApp",
+      "email": "E-mail",
+      "poster": "Plakát k tisku",
+      "qrAlt": "QR kód formuláře přihlášky: {{name}}",
+      "qrHint": "Týmy ho naskenují a otevře se jim formulář. Dejte ho na plakát nebo do prezentace.",
+      "qrDownload": "Stáhnout QR kód",
+      "qrFile": "prihlaska-qr",
+      "chatLabel": "Zpráva do chatu nebo e-mailu",
+      "postLabel": "Příspěvek na sociální sítě",
+      "copyMessage": "Kopírovat: {{label}}",
+      "emailSubject": "Přihlášky jsou otevřené: {{name}}",
+      "message": "Přihlášky do soutěže {{name}} jsou otevřené. Přihlaste tým do {{deadline}}: {{link}}",
+      "messageNoDeadline": "Přihlášky do soutěže {{name}} jsou otevřené. Přihlaste tým: {{link}}",
+      "post": "Spouštíme přihlášky týmů do soutěže {{name}}! Počet míst je omezený – přihlaste se do {{deadline}}: {{link}}",
+      "postNoDeadline": "Spouštíme přihlášky týmů do soutěže {{name}}! Přihlaste tým tady: {{link}}"
+    },
+    "poster": {
+      "title": "Plakát",
+      "print": "Vytisknout",
+      "headline": "Přihlášky týmů jsou otevřené",
+      "scan": "Naskenujte kód a přihlaste svůj tým",
+      "places_one": "{{count}} místo",
+      "places_few": "{{count}} místa",
+      "places_other": "{{count}} míst"
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "title": "Ahoj, {{name}}",
+      "managerText": "Všechno, co spravujete, a co tam na vás čeká.",
+      "newText": "Založte ligu nebo turnaj, nebo najděte soutěž, která právě přijímá týmy.",
+      "pending_one": "{{count}} přihláška k rozhodnutí",
+      "pending_few": "{{count}} přihlášky k rozhodnutí",
+      "pending_other": "{{count}} přihlášek k rozhodnutí"
+    },
+    "workspaces": {
+      "title": "Vaše správa",
+      "text": "Otevřete oblast, ve které chcete pracovat.",
+      "emptyText": "Zatím nic nespravujete. Založte ligu nebo turnaj, zabere to minutu.",
+      "pending_one": "{{count}} nová přihláška",
+      "pending_few": "{{count}} nové přihlášky",
+      "pending_other": "{{count}} nových přihlášek",
+      "season": {
+        "title": "Sezóny",
+        "count_one": "{{count}} liga",
+        "count_few": "{{count}} ligy",
+        "count_other": "{{count}} lig"
+      },
+      "team": {
+        "title": "Týmy",
+        "count_one": "Spravujete {{count}} tým",
+        "count_few": "Spravujete {{count}} týmy",
+        "count_other": "Spravujete {{count}} týmů"
+      },
+      "tournament": {
+        "title": "Turnaje",
+        "count_one": "{{count}} série turnajů",
+        "count_few": "{{count}} série turnajů",
+        "count_other": "{{count}} sérií turnajů"
+      },
+      "admin": {
+        "title": "Administrace",
+        "text": "Uživatelé, ligy a tikety podpory"
+      }
+    },
+    "start": {
+      "sport": "Sport",
+      "creating": "Zakládám…",
+      "error": "Nepodařilo se to založit. Zkuste to znovu.",
+      "league": {
+        "title": "Založit ligu",
+        "text": "Sezóny, rozpis, tabulky a přihlášky týmů",
+        "dialogTitle": "Založit ligu",
+        "dialogText": "Liga drží vaše sezóny. Budete ji spravovat a hned potom přidáte sezónu a týmy.",
+        "name": "Název ligy",
+        "namePlaceholder": "např. Brněnská hobby hokejová liga",
+        "next": "Potom založíte první sezónu a pozvete týmy, nebo otevřete přihlášky.",
+        "create": "Založit ligu"
+      },
+      "series": {
+        "title": "Založit turnaj",
+        "text": "Skupiny, play-off a přihlášky bez účtu",
+        "dialogTitle": "Založit turnaj",
+        "dialogText": "Série turnajů drží vaše turnaje, třeba jeden každý rok. Budete ji spravovat.",
+        "name": "Název série",
+        "namePlaceholder": "např. Letní florbalový pohár",
+        "next": "Potom přidáte první turnaj a jeho týmy, nebo otevřete přihlášky.",
+        "create": "Založit sérii"
+      }
+    },
+    "managed": {
+      "title": "Přihlášky týmů ve vašich soutěžích",
+      "text": "Nové přihlášky čekají na vaše rozhodnutí. Přihlášky může přijímat i soutěž, která formulář ještě nezveřejnila.",
+      "guide": "Jak přihlášky fungují",
+      "open": "Otevřít schránku přihlášek",
+      "publish": "Otevřít přihlášky",
+      "pending_one": "{{count}} nová",
+      "pending_few": "{{count}} nové",
+      "pending_other": "{{count}} nových",
+      "waitlisted_one": "{{count}} na čekací listině",
+      "waitlisted_few": "{{count}} na čekací listině",
+      "waitlisted_other": "{{count}} na čekací listině",
+      "kind": {
+        "season": "Sezóna",
+        "tournament": "Turnaj"
+      }
+    },
+    "open": {
+      "title": "Přihlášky otevřené",
+      "text": "Soutěže, které právě přijímají týmy.",
+      "all": "Všechny sezóny",
+      "empty": "Teď žádná soutěž nepřijímá přihlášky."
+    },
+    "playing": {
+      "title": "Právě se hraje",
+      "teams_one": "{{count}} tým",
+      "teams_few": "{{count}} týmy",
+      "teams_other": "{{count}} týmů",
+      "games_one": "{{count}} zápas",
+      "games_few": "{{count}} zápasy",
+      "games_other": "{{count}} zápasů"
+    },
+    "whatsNew": {
+      "title": "Novinky",
+      "new": "Nové",
+      "all": "Všechny novinky"
+    },
+    "help": {
+      "title": "Nápověda",
+      "quickStart": "Rychlý start",
+      "registrations": "Návod k přihláškám týmů",
+      "all": "Centrum nápovědy",
+      "contact": "Napište nám"
+    }
   }
 }

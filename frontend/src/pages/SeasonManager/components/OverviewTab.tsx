@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ClipboardSignature } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { seasonApi } from '@/services/api';
-import { GameStatus, SeasonStatus, type Game, type ManagerInvite, type Season, type Team } from '@types';
+import { registrationApi, seasonApi } from '@/services/api';
+import { GameStatus, SeasonStatus, type Game, type ManagerInvite, type RegistrationSettings, type Season, type Team } from '@types';
+import RegistrationsSheet from './RegistrationsSheet';
 import type { SeasonTab } from '../Detail';
 import { SEASON_ACCENT, isPlayed, needsDate } from './util';
 import VisibilityCard from './VisibilityCard';
@@ -13,10 +14,12 @@ import { APP_TIME_ZONE } from '@/utils/date';
 
 /** Per season and browser: the manager chose to run the teams themselves. */
 const skipManagersKey = (seasonId: string) => `atm.seasonChecklist.skipManagers.${seasonId}`;
+/** Per season and browser: the manager adds the teams without a sign-up form. */
+const skipRegistrationsKey = (seasonId: string) => `atm.seasonChecklist.skipRegistrations.${seasonId}`;
 
-function readSkip(seasonId: string): boolean {
+function readSkip(seasonId: string, key = skipManagersKey): boolean {
 	try {
-		return localStorage.getItem(skipManagersKey(seasonId)) === '1';
+		return localStorage.getItem(key(seasonId)) === '1';
 	} catch {
 		return false;
 	}
@@ -33,6 +36,8 @@ interface OverviewTabProps {
 	onOpenDates: (round: number) => void;
 	onOpenResult: (game: Game) => void;
 	onSeasonChange: (season: Season) => void;
+	/** Re-reads the season's teams after an application adds one. */
+	onTeamsReload: () => void;
 }
 
 export default function OverviewTab({
@@ -46,6 +51,7 @@ export default function OverviewTab({
 	onOpenDates,
 	onOpenResult,
 	onSeasonChange,
+	onTeamsReload,
 }: OverviewTabProps) {
 	const { t, i18n } = useTranslation();
 	const [statusError, setStatusError] = useState('');
@@ -72,6 +78,19 @@ export default function OverviewTab({
 	};
 
 	const [skipManagers, setSkipManagers] = useState(() => readSkip(season.id));
+	const [skipRegistrations, setSkipRegistrations] = useState(() => readSkip(season.id, skipRegistrationsKey));
+	const [registrations, setRegistrations] = useState<RegistrationSettings | null>(null);
+	const [showRegistrations, setShowRegistrations] = useState(false);
+
+	const loadRegistrations = useCallback(() => {
+		registrationApi.getSettings('season', season.id).then((res) => setRegistrations(res.data)).catch(() => setRegistrations(null));
+	}, [season.id]);
+
+	useEffect(() => {
+		loadRegistrations();
+	}, [loadRegistrations]);
+
+	const registrationsLive = registrations?.lifecycle === 'OPEN' || registrations?.lifecycle === 'FULL' || registrations?.lifecycle === 'PAST_DEADLINE';
 
 	// Getting the season live, in the order it is actually built up.
 	const steps = useMemo<SetupStep[]>(() => {
@@ -82,6 +101,31 @@ export default function OverviewTab({
 		});
 		const undatedRounds = games.filter(needsDate).map((g) => g.round ?? 0);
 		return [
+			{
+				// Teams can sign themselves up instead of being typed in. A live
+				// season is past this point, so it is not asked again.
+				id: 'registrations',
+				title: t('seasonChecklist.steps.registrations.title'),
+				badge: t('seasonChecklist.new'),
+				status: registrations && registrations.lifecycle !== 'DRAFT'
+					? t(`registrations.lifecycle.${registrations.lifecycle}`)
+					: t('seasonChecklist.steps.registrations.none'),
+				body: t('seasonChecklist.steps.registrations.body'),
+				action: t('seasonChecklist.steps.registrations.action'),
+				run: () => setShowRegistrations(true),
+				done: skipRegistrations || season.status !== SeasonStatus.DRAFT || (!!registrations && registrations.lifecycle !== 'DRAFT'),
+				skip: {
+					label: t('seasonChecklist.steps.registrations.skip'),
+					run: () => {
+						try {
+							localStorage.setItem(skipRegistrationsKey(season.id), '1');
+						} catch {
+							// Private mode: the skip lasts until the page is left.
+						}
+						setSkipRegistrations(true);
+					},
+				},
+			},
 			{
 				id: 'teams',
 				title: t('seasonChecklist.steps.teams.title'),
@@ -154,7 +198,7 @@ export default function OverviewTab({
 		];
 		// changeStatus is recreated each render but only reads its argument.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [t, teams, invites, games, teamCount, undatedCount, season.id, season.status, skipManagers, savingStatus, onTabChange, onOpenDates]);
+	}, [t, teams, invites, games, teamCount, undatedCount, season.id, season.status, skipManagers, skipRegistrations, registrations, savingStatus, onTabChange, onOpenDates]);
 	const setupDone = steps.every((step) => step.done);
 
 	const lifecycle = {
@@ -219,6 +263,34 @@ export default function OverviewTab({
 					title={t('seasonChecklist.title')}
 					accent={SEASON_ACCENT}
 					guide={{ to: '/docs/zacinate-jako-manazer-sezony', label: t('seasonChecklist.guide') }}
+				/>
+			)}
+
+			{registrationsLive && registrations && (
+				<button
+					type="button"
+					onClick={() => setShowRegistrations(true)}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-sm"
+				>
+					<ClipboardSignature className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-[15px] font-semibold leading-snug">{t(`registrations.lifecycle.${registrations.lifecycle}`)}</span>
+						<span className="text-[12.5px] leading-snug text-muted-foreground">
+							{t('registrations.overviewHint', { pending: registrations.capacity.pending, waiting: registrations.capacity.waitlisted })}
+						</span>
+					</span>
+					<span className="shrink-0 text-[13px] font-semibold" style={{ color: SEASON_ACCENT }}>{t('registrations.manage')}</span>
+				</button>
+			)}
+
+			{showRegistrations && (
+				<RegistrationsSheet
+					season={season}
+					onClose={() => {
+						setShowRegistrations(false);
+						loadRegistrations();
+					}}
+					onTeamsChanged={onTeamsReload}
 				/>
 			)}
 

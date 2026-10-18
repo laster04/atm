@@ -4,6 +4,7 @@ import { AuthRequest, CreateTournamentSeriesRequest, UpdateTournamentSeriesReque
 import { toNullableId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
 import { isVisibility, listedSeriesWhere } from '../services/visibility.js';
+import { takesApplications } from '../services/registrationState.js';
 
 const seriesInclude = {
   manager: { select: { id: true, name: true, email: true } },
@@ -14,10 +15,17 @@ export const getAllSeries = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const series = await prisma.tournamentSeries.findMany({
       where: listedSeriesWhere(req.user),
-      include: seriesInclude,
+      include: {
+        ...seriesInclude,
+        tournaments: { select: { status: true, registrationWindow: { select: { open: true, deadline: true } } } },
+      },
       orderBy: { name: 'asc' },
     });
-    res.json(series);
+    // A series is badged while any of its tournaments takes team applications.
+    res.json(series.map(({ tournaments, ...row }) => ({
+      ...row,
+      registrationOpen: tournaments.some((t) => takesApplications(t.registrationWindow, t.status === 'COMPLETED')),
+    })));
   } catch (error) {
     console.error('Get tournament series error:', error);
     res.status(500).json({ error: 'Failed to fetch tournament series' });
@@ -33,12 +41,21 @@ export const getSeriesById = async (req: Request, res: Response): Promise<void> 
         ...seriesInclude,
         tournaments: {
           orderBy: [{ year: 'desc' }, { startDate: 'desc' }],
-          include: { _count: { select: { teams: true, games: true } } },
+          include: {
+            _count: { select: { teams: true, games: true } },
+            registrationWindow: { select: { open: true, deadline: true } },
+          },
         },
       },
     });
     if (!series) { res.status(404).json({ error: 'Tournament series not found' }); return; }
-    res.json(series);
+    res.json({
+      ...series,
+      tournaments: series.tournaments.map(({ registrationWindow, ...tournament }) => ({
+        ...tournament,
+        registrationOpen: takesApplications(registrationWindow, tournament.status === 'COMPLETED'),
+      })),
+    });
   } catch (error) {
     console.error('Get tournament series error:', error);
     res.status(500).json({ error: 'Failed to fetch tournament series' });

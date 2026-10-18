@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, ChevronRight, LifeBuoy, Trophy, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ADMIN_GOLD_INK } from '../components/util';
+import RegistrationFunnelCard from '../components/RegistrationFunnelCard';
 
 /**
  * What is left once per-season work moved to the season manager: the two views
@@ -48,6 +49,8 @@ export default function MorePage() {
 					))}
 				</div>
 			</div>
+
+			{isAdmin() && <RegistrationFunnelCard />}
 
 			<div className="flex flex-col gap-2">
 				<span className="tm-section-label">{t('admin.more.seasonWork')}</span>

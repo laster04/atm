@@ -3,9 +3,9 @@ import SpotlightTour, { type TourStep } from './SpotlightTour';
 
 const STEPS: TourStep[] = [
   { target: 'dashboard-title', titleKey: 'onboarding.steps.welcome.title', bodyKey: 'onboarding.steps.welcome.body' },
-  { target: 'nav-menu', titleKey: 'onboarding.steps.navMenu.title', bodyKey: 'onboarding.steps.navMenu.body' },
+  { target: 'workspaces', titleKey: 'onboarding.steps.workspaces.title', bodyKey: 'onboarding.steps.workspaces.body' },
   { target: 'my-teams-section', titleKey: 'onboarding.steps.myTeams.title', bodyKey: 'onboarding.steps.myTeams.body' },
-  { target: 'active-seasons-section', titleKey: 'onboarding.steps.activeSeasons.title', bodyKey: 'onboarding.steps.activeSeasons.body' },
+  { target: 'open-competitions', titleKey: 'onboarding.steps.openCompetitions.title', bodyKey: 'onboarding.steps.openCompetitions.body' },
 ];
 
 export default function OnboardingTour() {

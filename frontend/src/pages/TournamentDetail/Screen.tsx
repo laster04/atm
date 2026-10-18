@@ -12,6 +12,7 @@ import ScheduleTab from './components/ScheduleTab';
 import PlayoffBracket from './components/PlayoffBracket';
 import TeamsTab from './components/TeamsTab';
 import { seedLabels, sportContext } from './components/shared';
+import RegistrationButton from '@/components/registrations/RegistrationButton';
 
 type TournamentTab = 'groups' | 'schedule' | 'playoff' | 'teams';
 
@@ -92,6 +93,7 @@ export default function TournamentDetailScreen() {
 				title={tournament.name}
 				kicker={series?.name}
 				sport={series?.sportType}
+				actions={<RegistrationButton kind="tournament" id={tournament.id} />}
 				crumbs={[
 					{ label: t('public.nav.home'), to: '/' },
 					{ label: t('public.nav.tournaments'), to: '/tournaments' },

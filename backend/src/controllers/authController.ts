@@ -47,6 +47,13 @@ const generateActivationToken = (): string => {
   return crypto.randomBytes(32).toString('hex');
 };
 
+/**
+ * Where to send a new user once they have activated: a page inside the app
+ * that sent them to sign up (a season application). Anything else is dropped.
+ */
+export const safeNextPath = (value: unknown): string | null =>
+  typeof value === 'string' && value.length <= 300 && /^\/(?![/\\])[^\s]*$/.test(value) ? value : null;
+
 const getActivationTokenExpiry = (): Date => {
   const expiry = new Date();
   expiry.setHours(expiry.getHours() + 24); // 24 hours
@@ -56,6 +63,7 @@ const getActivationTokenExpiry = (): Date => {
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { email: rawEmail, password, name } = req.body as RegisterRequest;
+    const next = safeNextPath((req.body as RegisterRequest).next);
 
     if (!rawEmail || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
@@ -93,7 +101,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     });
 
     // Send activation email (don't wait for it to complete)
-    emailService.sendActivationEmail(email, name, activationToken).catch((err) => {
+    emailService.sendActivationEmail(email, name, activationToken, next).catch((err) => {
       console.error('Failed to send activation email:', err);
     });
 
@@ -200,6 +208,7 @@ export const activateAccount = async (req: AuthRequest, res: Response): Promise<
 export const resendActivationEmail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { email: rawEmail } = req.body;
+    const next = safeNextPath(req.body?.next);
 
     if (!rawEmail) {
       res.status(400).json({ error: 'Email is required' });
@@ -231,7 +240,7 @@ export const resendActivationEmail = async (req: AuthRequest, res: Response): Pr
       }
     });
 
-    await emailService.sendActivationEmail(email, user.name, activationToken);
+    await emailService.sendActivationEmail(email, user.name, activationToken, next);
 
     res.json({ message: 'If an account exists with this email, an activation link will be sent.' });
   } catch (error) {

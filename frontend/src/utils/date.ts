@@ -105,6 +105,22 @@ export function getTodayString(): string {
 }
 
 /**
+ * A sign-up deadline in full, in Prague time, as the form and the share
+ * messages state it. Example output: "30 June 2027, 18:00"
+ */
+export function formatDeadline(dateString: string | null | undefined, locale: string): string | null {
+	if (!dateString) return null;
+	return new Date(dateString).toLocaleString(getLocale(locale), {
+		timeZone: APP_TIME_ZONE,
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
+}
+
+/**
  * Format a date string for game schedules with time.
  * Example output: "Mon, Jan 17, 10:30 AM"
  */

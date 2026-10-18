@@ -4,6 +4,9 @@ import type {
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   SeasonPlayoff, CreatePlayoffInput,
+  RegistrationForm, RegistrationSettings, RegistrationInbox, Registration, MyRegistration, RegistrationInput, RegistrationKind,
+  RegistrationSettingsInput, RegistrationStatusView, RegistrationFunnel,
+  ManagedCompetition,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
@@ -49,14 +52,14 @@ api.interceptors.response.use(
 );
 
 export const authApi = {
-  register: (data: { email: string; password: string; name: string; role?: string }) =>
+  register: (data: { email: string; password: string; name: string; role?: string; next?: string }) =>
     api.post<{ message: string; user: User; token: string }>('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post<{ user: User; token: string }>('/auth/login', data),
   activateAccount: (token: string) =>
     api.get<{ message: string }>(`/auth/activate/${token}`),
-  resendActivationEmail: (email: string) =>
-    api.post<{ message: string }>('/auth/resend-activation', { email }),
+  resendActivationEmail: (email: string, next?: string) =>
+    api.post<{ message: string }>('/auth/resend-activation', { email, next }),
   forgotPassword: (email: string) =>
     api.post<{ message: string }>('/auth/forgot-password', { email }),
   resetPassword: (token: string, password: string) =>
@@ -388,4 +391,26 @@ export const contactApi = {
   send: (data: SupportTicketInput) => api.post<{ received: true; id?: string }>('/contact', data),
   list: (status?: SupportTicketStatus) => api.get<SupportTicket[]>('/contact', { params: status ? { status } : undefined }),
   updateStatus: (id: string, status: SupportTicketStatus) => api.put<SupportTicket>(`/contact/${id}`, { status }),
+};
+
+/** Season and tournament sign-ups: the public form, the applicant's own list and the manager's inbox. */
+export const registrationApi = {
+  getForm: (kind: RegistrationKind, id: string) => api.get<RegistrationForm>(`/registrations/${kind}/${id}`),
+  submit: (kind: RegistrationKind, id: string, data: RegistrationInput) => api.post<Registration>(`/registrations/${kind}/${id}`, data),
+  mine: () => api.get<MyRegistration[]>('/registrations/mine'),
+  withdraw: (id: string) => api.post<Registration>(`/registrations/${id}/withdraw`),
+  getSettings: (kind: RegistrationKind, id: string) => api.get<RegistrationSettings>(`/registrations/${kind}/${id}/settings`),
+  updateSettings: (kind: RegistrationKind, id: string, data: RegistrationSettingsInput) =>
+    api.put<RegistrationSettings>(`/registrations/${kind}/${id}/settings`, data),
+  inbox: (kind: RegistrationKind, id: string) => api.get<RegistrationInbox>(`/registrations/${kind}/${id}/inbox`),
+  approve: (id: string) => api.post<Registration>(`/registrations/${id}/approve`),
+  reject: (id: string, reason?: string) => api.post<Registration>(`/registrations/${id}/reject`, { reason }),
+  waitlist: (id: string) => api.post<Registration>(`/registrations/${id}/waitlist`),
+  promote: (id: string) => api.post<Registration>(`/registrations/${id}/promote`),
+  /** A tournament applicant's own page, reached by the link in their receipt. */
+  status: (token: string) => api.get<RegistrationStatusView>(`/registrations/status/${token}`),
+  withdrawByToken: (token: string) => api.post<Registration>(`/registrations/status/${token}/withdraw`),
+  funnel: () => api.get<RegistrationFunnel>('/registrations/funnel'),
+  /** The caller's own running competitions and their forms, for the dashboard. */
+  managed: () => api.get<ManagedCompetition[]>('/registrations/managed'),
 };
