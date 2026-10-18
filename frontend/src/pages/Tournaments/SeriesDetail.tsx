@@ -6,6 +6,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { tournamentSeriesApi } from '@/services/api';
 import type { TournamentSeries, TournamentStatus } from '@types';
 import { EmptyState, Panel, PublicHero, VisibilityBadge } from '@/components/public';
+import ApplicationsOpenBadge from '@/components/registrations/ApplicationsOpenBadge';
 
 /** Same soft/strong badge tones the rest of the public part uses. */
 const STATUS_TONE: Record<TournamentStatus, string> = {
@@ -102,6 +103,7 @@ export default function TournamentSeriesDetail() {
 											>
 												{t(`public.tournaments.status.${edition.status}`)}
 											</span>
+											{edition.registrationOpen && <ApplicationsOpenBadge />}
 										</div>
 										{edition.location && (
 											<span className="flex items-center gap-1.5 text-xs text-muted-foreground">

@@ -1,9 +1,11 @@
+import crypto from 'crypto';
 import { Response } from 'express';
-import { Prisma, RegistrationStatus } from '@prisma/client';
+import { Prisma, Registration, RegistrationStatus } from '@prisma/client';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { canManageSeason, canManageTournament } from '../services/access.js';
 import emailService from '../services/emailService.js';
+import { registrationFormState } from '../services/registrationState.js';
 
 type Kind = 'season' | 'tournament';
 
@@ -20,12 +22,14 @@ const LIVE: RegistrationStatus[] = ['PENDING', 'WAITLISTED', 'APPROVED'];
  * guard: at most this many per address per window, kept in process memory.
  */
 const RATE_LIMIT = 5;
+/** Status links are read more often than forms are sent, so they get more room. */
+const STATUS_RATE_LIMIT = 30;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const recentByIp = new Map<string, number[]>();
 
-const overRateLimit = (ip: string, now = Date.now()): boolean => {
+const overRateLimit = (ip: string, limit = RATE_LIMIT, now = Date.now()): boolean => {
   const recent = (recentByIp.get(ip) ?? []).filter((at) => now - at < RATE_WINDOW_MS);
-  if (recent.length >= RATE_LIMIT) {
+  if (recent.length >= limit) {
     recentByIp.set(ip, recent);
     return true;
   }
@@ -100,32 +104,93 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
   };
 }
 
+/** The competition a window belongs to. */
+async function competitionOfWindow(windowId: string): Promise<Competition | null> {
+  const window = await prisma.registrationWindow.findUnique({ where: { id: windowId }, select: { seasonId: true, tournamentId: true } });
+  if (!window) return null;
+  return window.seasonId ? loadCompetition('season', window.seasonId) : loadCompetition('tournament', window.tournamentId!);
+}
+
 /** Whether the form takes applications right now, and if not, why. */
-const formState = (competition: Competition, now = new Date()): 'OPEN' | 'CLOSED' | 'PAST_DEADLINE' => {
+const formState = (competition: Competition, now = new Date()) =>
+  registrationFormState(competition.window, competition.archived, now);
+
+/**
+ * Where the places stand, one model for the manager's inbox, the public form
+ * and the emails: teams already in, applications holding a place while they
+ * wait for a decision, and the waiting list behind them.
+ */
+export interface Capacity {
+  approved: number;
+  pending: number;
+  waitlisted: number;
+  max: number | null;
+  /** Places nobody holds yet; null when the competition has no maximum. */
+  free: number | null;
+}
+
+const capacityOf = async (competition: Competition, db: Pick<typeof prisma, 'registration'> = prisma): Promise<Capacity> => {
   const window = competition.window;
-  if (!window?.open || competition.archived) return 'CLOSED';
-  if (window.deadline && window.deadline < now) return 'PAST_DEADLINE';
-  return 'OPEN';
+  const counts = window
+    ? await db.registration.groupBy({
+        by: ['status'],
+        where: { windowId: window.id, status: { in: ['PENDING', 'WAITLISTED'] } },
+        _count: { _all: true },
+      })
+    : [];
+  const count = (status: RegistrationStatus) => counts.find((row) => row.status === status)?._count._all ?? 0;
+  const pending = count('PENDING');
+  const max = window?.maxTeams ?? null;
+  return {
+    approved: competition.teamCount,
+    pending,
+    waitlisted: count('WAITLISTED'),
+    max,
+    free: max === null ? null : Math.max(0, max - competition.teamCount - pending),
+  };
 };
 
-/** Places taken: teams already in, plus applications waiting for a decision. */
-const placesTaken = async (competition: Competition): Promise<number> => {
-  if (!competition.window) return competition.teamCount;
-  const pending = await prisma.registration.count({ where: { windowId: competition.window.id, status: 'PENDING' } });
-  return competition.teamCount + pending;
+/**
+ * The manager's view of the form's life: a draft until first published, then
+ * open (or full, still taking waiting-list applications), past its deadline,
+ * or closed.
+ */
+type Lifecycle = 'DRAFT' | 'OPEN' | 'FULL' | 'PAST_DEADLINE' | 'CLOSED';
+
+const lifecycleOf = (competition: Competition, capacity: Capacity): Lifecycle => {
+  const window = competition.window;
+  if (!window?.open && !window?.publishedAt) return 'DRAFT';
+  const state = formState(competition);
+  if (state !== 'OPEN') return state;
+  return capacity.free === 0 ? 'FULL' : 'OPEN';
 };
 
-const competitionLink = (competition: Competition): string => {
-  const base = process.env.APP_URL || 'http://localhost:5173';
-  return competition.kind === 'season' ? `${base}/season-detail/${competition.id}` : `${base}/tournament/${competition.id}`;
-};
+const appUrl = (): string => process.env.APP_URL || 'http://localhost:5173';
 
-const inboxLink = (competition: Competition): string => {
-  const base = process.env.APP_URL || 'http://localhost:5173';
-  return competition.kind === 'season'
-    ? `${base}/season-management/${competition.id}?registrations=1`
-    : `${base}/tournament-management/tournament/${competition.id}?registrations=1`;
-};
+const competitionLink = (competition: Competition): string =>
+  competition.kind === 'season' ? `${appUrl()}/season-detail/${competition.id}` : `${appUrl()}/tournament/${competition.id}`;
+
+// ---------------------------------------------------------------- status link
+
+/**
+ * A tournament applicant has no account, so their receipt carries a link to
+ * the application itself: its status and a way to withdraw it. Only the
+ * SHA-256 of the token is stored, as with manager invites; the link stops
+ * working this long after the application was decided or withdrawn.
+ */
+const STATUS_LINK_DAYS = 30;
+
+const hashToken = (token: string): string => crypto.createHash('sha256').update(token).digest('hex');
+
+const statusLink = (token: string): string => `${appUrl()}/prihlaska/stav/${token}`;
+
+/** An application as it leaves the API: the status token's hash stays inside. */
+const view = <T extends Pick<Registration, 'statusTokenHash'>>({ statusTokenHash: _hash, ...row }: T): Omit<T, 'statusTokenHash'> => row;
+
+const inboxLink = (competition: Competition): string =>
+  competition.kind === 'season'
+    ? `${appUrl()}/season-management/${competition.id}?registrations=1`
+    : `${appUrl()}/tournament-management/tournament/${competition.id}?registrations=1`;
 
 const managerEmailsOrAdmins = async (competition: Competition): Promise<string[]> =>
   competition.managerEmails.length > 0
@@ -162,7 +227,7 @@ export const getForm = async (req: AuthRequest, res: Response): Promise<void> =>
       return;
     }
     const window = competition.window;
-    const taken = await placesTaken(competition);
+    const capacity = await capacityOf(competition);
     res.json({
       kind,
       id: competition.id,
@@ -171,9 +236,11 @@ export const getForm = async (req: AuthRequest, res: Response): Promise<void> =>
       sport: competition.sport,
       state: formState(competition),
       deadline: window?.deadline ?? null,
-      maxTeams: window?.maxTeams ?? null,
-      placesTaken: taken,
-      full: window?.maxTeams != null && taken >= window.maxTeams,
+      maxTeams: capacity.max,
+      placesTaken: capacity.approved + capacity.pending,
+      // A new application now would join the waiting list.
+      full: capacity.free === 0,
+      capacity,
       rules: window?.rules ?? null,
       rulesVersion: window?.rulesVersion ?? 1,
       fee: window?.fee ?? null,
@@ -219,9 +286,10 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
       return;
     }
     // A retry of an application that already arrived returns it.
+    // The status link is not repeated: it was in the first answer and the receipt.
     const existing = await prisma.registration.findUnique({ where: { clientToken } });
     if (existing) {
-      res.status(200).json(existing);
+      res.status(200).json(view(existing));
       return;
     }
 
@@ -317,7 +385,9 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
       return;
     }
 
-    const waitlisted = window.maxTeams != null && (await placesTaken(competition)) >= window.maxTeams;
+    const waitlisted = (await capacityOf(competition)).free === 0;
+    // A tournament applicant may have no account, so they get a status link.
+    const statusToken = kind === 'tournament' ? crypto.randomBytes(32).toString('base64url') : null;
     const registration = await prisma.registration.create({
       data: {
         windowId: window.id,
@@ -335,8 +405,10 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
         rulesAcceptedAt: window.rules ? new Date() : null,
         rulesVersion: window.rules ? window.rulesVersion : null,
         clientToken,
+        statusTokenHash: statusToken ? hashToken(statusToken) : null,
       },
     });
+    const link = statusToken ? statusLink(statusToken) : null;
 
     // Mail is best effort: a failed send must not lose an application that arrived.
     void emailService
@@ -347,22 +419,24 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
         competitionName: competition.name,
         waitlisted,
         link: competitionLink(competition),
+        statusLink: link,
         locale,
       })
       .catch((error) => console.error('Registration receipt email error:', error));
-    void managerEmailsOrAdmins(competition)
-      .then((recipients) => Promise.all(recipients.map((to) => emailService.sendRegistrationNoticeEmail({
+    void Promise.all([managerEmailsOrAdmins(competition), capacityOf(competition)])
+      .then(([recipients, capacity]) => Promise.all(recipients.map((to) => emailService.sendRegistrationNoticeEmail({
         to,
         teamName: teamName!,
         contactName: contactName!,
         contactEmail: email,
         competitionName: competition.name,
         waitlisted,
+        capacity,
         link: inboxLink(competition),
       }))))
       .catch((error) => console.error('Registration notice email error:', error));
 
-    res.status(201).json(registration);
+    res.status(201).json({ ...view(registration), statusLink: link });
   } catch (error) {
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
       res.status(409).json({ error: 'This application already arrived' });
@@ -391,7 +465,7 @@ export const listMine = async (req: AuthRequest, res: Response): Promise<void> =
       orderBy: { createdAt: 'desc' },
     });
     res.json(rows.map(({ window, ...row }) => ({
-      ...row,
+      ...view(row),
       competition: window.season
         ? { kind: 'season', id: window.season.id, name: `${window.season.league.name} – ${window.season.name}` }
         : { kind: 'tournament', id: window.tournament!.id, name: window.tournament!.name },
@@ -402,7 +476,42 @@ export const listMine = async (req: AuthRequest, res: Response): Promise<void> =
   }
 };
 
-/** An applicant takes back an application nobody has decided yet. */
+/**
+ * Takes back an application nobody has decided yet. A pending one frees its
+ * place; nobody moves up by themselves, so the manager hears about it when
+ * teams are waiting for that place.
+ */
+async function withdrawRegistration(registration: Registration, res: Response): Promise<void> {
+  if (registration.status !== 'PENDING' && registration.status !== 'WAITLISTED') {
+    res.status(409).json({ error: 'Only an application waiting for a decision can be withdrawn' });
+    return;
+  }
+  const updated = await prisma.registration.update({
+    where: { id: registration.id },
+    data: { status: 'WITHDRAWN', withdrawnAt: new Date() },
+  });
+
+  if (registration.status === 'PENDING') {
+    void (async () => {
+      const competition = await competitionOfWindow(registration.windowId);
+      if (!competition) return;
+      const capacity = await capacityOf(competition);
+      if (capacity.waitlisted === 0) return;
+      const recipients = await managerEmailsOrAdmins(competition);
+      await Promise.all(recipients.map((to) => emailService.sendRegistrationWithdrawnEmail({
+        to,
+        teamName: registration.teamName,
+        competitionName: competition.name,
+        capacity,
+        link: inboxLink(competition),
+      })));
+    })().catch((error) => console.error('Registration withdrawn email error:', error));
+  }
+
+  res.json(view(updated));
+}
+
+/** A signed-in applicant takes back their own application. */
 export const withdraw = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const registration = await prisma.registration.findUnique({ where: { id: req.params.id } });
@@ -410,21 +519,107 @@ export const withdraw = async (req: AuthRequest, res: Response): Promise<void> =
       res.status(404).json({ error: 'Application not found' });
       return;
     }
-    if (registration.status !== 'PENDING' && registration.status !== 'WAITLISTED') {
-      res.status(409).json({ error: 'Only an application waiting for a decision can be withdrawn' });
-      return;
-    }
-    const updated = await prisma.registration.update({ where: { id: registration.id }, data: { status: 'WITHDRAWN' } });
-    res.json(updated);
+    await withdrawRegistration(registration, res);
   } catch (error) {
     console.error('Withdraw registration error:', error);
     res.status(500).json({ error: 'Failed to withdraw the application' });
   }
 };
 
+/** The application a status link points to, or null once it answered for it. */
+async function byStatusToken(req: AuthRequest, res: Response) {
+  if (overRateLimit(`status:${req.ip ?? 'unknown'}`, STATUS_RATE_LIMIT)) {
+    res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    return null;
+  }
+  const token = req.params.token;
+  const registration = typeof token === 'string' && token.length >= 20 && token.length <= 100
+    ? await prisma.registration.findUnique({ where: { statusTokenHash: hashToken(token) } })
+    : null;
+  if (!registration) {
+    res.status(404).json({ error: 'Application not found' });
+    return null;
+  }
+  const endedAt = registration.decidedAt ?? registration.withdrawnAt;
+  if (endedAt && Date.now() - endedAt.getTime() > STATUS_LINK_DAYS * 24 * 60 * 60 * 1000) {
+    res.status(410).json({ error: 'This status link has expired' });
+    return null;
+  }
+  return registration;
+}
+
+/**
+ * What a status link shows: the application as it was sent and where it
+ * stands. Nothing about other applications or the organiser's inbox.
+ */
+export const getStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const registration = await byStatusToken(req, res);
+    if (!registration) return;
+    const competition = await competitionOfWindow(registration.windowId);
+    if (!competition) {
+      res.status(404).json({ error: 'Application not found' });
+      return;
+    }
+    const waitlistPosition = registration.status === 'WAITLISTED'
+      ? 1 + await prisma.registration.count({
+          where: { windowId: registration.windowId, status: 'WAITLISTED', createdAt: { lt: registration.createdAt } },
+        })
+      : null;
+    res.json({
+      id: registration.id,
+      status: registration.status,
+      teamName: registration.teamName,
+      primaryColor: registration.primaryColor,
+      contactName: registration.contactName,
+      email: registration.email,
+      phone: registration.phone,
+      note: registration.note,
+      roster: registration.roster,
+      reason: registration.reason,
+      createdAt: registration.createdAt,
+      decidedAt: registration.decidedAt,
+      withdrawnAt: registration.withdrawnAt,
+      waitlistPosition,
+      competition: { kind: competition.kind, id: competition.id, name: competition.name },
+    });
+  } catch (error) {
+    console.error('Get registration status error:', error);
+    res.status(500).json({ error: 'Failed to load the application' });
+  }
+};
+
+/** The holder of a status link takes the application back. */
+export const withdrawByStatusToken = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const registration = await byStatusToken(req, res);
+    if (!registration) return;
+    await withdrawRegistration(registration, res);
+  } catch (error) {
+    console.error('Withdraw registration by link error:', error);
+    res.status(500).json({ error: 'Failed to withdraw the application' });
+  }
+};
+
 // ---------------------------------------------------------------- manager
 
-/** The form's settings as the manager edits them; a competition with no form yet gets the defaults. */
+/**
+ * The form's settings as the manager edits them, with where it stands in its
+ * life and its places; a competition with no form yet gets the defaults.
+ */
+const settingsView = async (competition: Competition) => {
+  const capacity = await capacityOf(competition);
+  return {
+    ...(competition.window ?? {
+      open: false, deadline: null, maxTeams: null, rules: null, rulesVersion: 1, fee: null, publishedAt: null, closedAt: null,
+    }),
+    lifecycle: lifecycleOf(competition, capacity),
+    capacity,
+    // For the publish confirmation and the ready-made share messages.
+    competitionName: competition.name,
+  };
+};
+
 export const getSettings = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const kind = kindOf(req);
@@ -437,7 +632,7 @@ export const getSettings = async (req: AuthRequest, res: Response): Promise<void
       res.status(404).json({ error: 'Not found' });
       return;
     }
-    res.json(competition.window ?? { open: false, deadline: null, maxTeams: null, rules: null, rulesVersion: 1, fee: null });
+    res.json(await settingsView(competition));
   } catch (error) {
     console.error('Get registration settings error:', error);
     res.status(500).json({ error: 'Failed to load the registration settings' });
@@ -496,13 +691,17 @@ export const updateSettings = async (req: AuthRequest, res: Response): Promise<v
     // Changed rules are a new version: later applicants accept the new text,
     // and the earlier ones keep the record of what they accepted.
     const rulesChanged = data.rules !== undefined && competition.window && data.rules !== competition.window.rules;
+    // Publishing is remembered once, at the first opening; closing each time.
+    const wasOpen = competition.window?.open ?? false;
+    if (data.open === true && !wasOpen && !competition.window?.publishedAt) data.publishedAt = new Date();
+    if (data.open === false && wasOpen) data.closedAt = new Date();
     const target = kind === 'season' ? { seasonId: competition.id } : { tournamentId: competition.id };
     const window = await prisma.registrationWindow.upsert({
       where: target,
       create: { ...target, ...(data as Prisma.RegistrationWindowUncheckedCreateInput) },
       update: { ...data, ...(rulesChanged && { rulesVersion: { increment: 1 } }) },
     });
-    res.json(window);
+    res.json(await settingsView({ ...competition, window }));
   } catch (error) {
     console.error('Update registration settings error:', error);
     res.status(500).json({ error: 'Failed to save the registration settings' });
@@ -525,16 +724,18 @@ export const getInbox = async (req: AuthRequest, res: Response): Promise<void> =
     const rows = competition.window
       ? await prisma.registration.findMany({
           where: { windowId: competition.window.id },
-          include: { existingTeam: { select: { id: true, name: true } } },
+          include: {
+            existingTeam: { select: { id: true, name: true } },
+            promotedBy: { select: { id: true, name: true } },
+          },
           orderBy: { createdAt: 'asc' },
         })
       : [];
     const order: RegistrationStatus[] = ['PENDING', 'WAITLISTED', 'APPROVED', 'REJECTED', 'WITHDRAWN'];
     rows.sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
     res.json({
-      registrations: rows,
-      teamCount: competition.teamCount,
-      maxTeams: competition.window?.maxTeams ?? null,
+      registrations: rows.map(view),
+      capacity: await capacityOf(competition),
     });
   } catch (error) {
     console.error('Get registration inbox error:', error);
@@ -565,7 +766,7 @@ async function forDecision(req: AuthRequest, res: Response) {
 const notifyDecision = (
   registration: { email: string; contactName: string; teamName: string; locale: string; reason: string | null },
   competition: Competition,
-  decision: 'APPROVED' | 'REJECTED' | 'WAITLISTED'
+  decision: 'APPROVED' | 'REJECTED' | 'WAITLISTED' | 'PROMOTED'
 ) => {
   void emailService
     .sendRegistrationDecisionEmail({
@@ -584,10 +785,14 @@ const notifyDecision = (
 class Full extends Error {}
 class AlreadyIn extends Error {}
 
+const FULL_ERROR = 'The competition is full. Raise the maximum or remove a team first.';
+const HELD_ERROR = 'The free places are held by pending applications. Decide those first or raise the maximum.';
+
 /**
  * Accepts an application and puts the team in the competition, in one
  * transaction with the capacity check so two approvals cannot pass the
- * maximum between them.
+ * maximum between them. A pending application holds its place; one from the
+ * waiting list may only take a place no pending application holds.
  */
 export const approve = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -609,7 +814,11 @@ export const approve = async (req: AuthRequest, res: Response): Promise<void> =>
         const teams = competition.kind === 'season'
           ? await tx.seasonTeam.count({ where: { seasonId: competition.id } })
           : await tx.tournamentTeam.count({ where: { tournamentId: competition.id } });
-        if (teams >= max) throw new Full();
+        if (teams >= max) throw new Full(FULL_ERROR);
+        if (registration.status === 'WAITLISTED') {
+          const pending = await tx.registration.count({ where: { windowId: registration.windowId, status: 'PENDING' } });
+          if (teams + pending >= max) throw new Full(HELD_ERROR);
+        }
       }
 
       if (competition.kind === 'season') {
@@ -647,10 +856,10 @@ export const approve = async (req: AuthRequest, res: Response): Promise<void> =>
     });
 
     notifyDecision(updated, competition, 'APPROVED');
-    res.json(updated);
+    res.json(view(updated));
   } catch (error) {
     if (error instanceof Full) {
-      res.status(409).json({ error: 'The competition is full. Raise the maximum or remove a team first.' });
+      res.status(409).json({ error: error.message });
       return;
     }
     if (error instanceof AlreadyIn) {
@@ -682,7 +891,7 @@ export const reject = async (req: AuthRequest, res: Response): Promise<void> => 
       data: { status: 'REJECTED', decidedAt: new Date(), decidedById: req.user!.id, reason: reason || null },
     });
     notifyDecision(updated, competition, 'REJECTED');
-    res.json(updated);
+    res.json(view(updated));
   } catch (error) {
     console.error('Reject registration error:', error);
     res.status(500).json({ error: 'Failed to reject the application' });
@@ -701,9 +910,111 @@ export const waitlist = async (req: AuthRequest, res: Response): Promise<void> =
     }
     const updated = await prisma.registration.update({ where: { id: registration.id }, data: { status: 'WAITLISTED' } });
     notifyDecision(updated, competition, 'WAITLISTED');
-    res.json(updated);
+    res.json(view(updated));
   } catch (error) {
     console.error('Waitlist registration error:', error);
     res.status(500).json({ error: 'Failed to move the application to the waiting list' });
+  }
+};
+
+/**
+ * Moves an application up from the waiting list into the queue, once a place
+ * is free. Nobody moves up by themselves: the manager picks, usually the
+ * oldest, and picking another one is recorded.
+ */
+export const promote = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const found = await forDecision(req, res);
+    if (!found) return;
+    const { registration, competition } = found;
+    if (registration.status !== 'WAITLISTED') {
+      res.status(409).json({ error: 'Only an application on the waiting list can be moved up' });
+      return;
+    }
+    if (competition.archived) {
+      res.status(400).json({ error: 'The competition is finished' });
+      return;
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const capacity = await capacityOf(competition, tx);
+      if (capacity.free === 0) throw new Full('No place is free. Decide a pending application or raise the maximum first.');
+      const oldest = await tx.registration.findFirst({
+        where: { windowId: registration.windowId, status: 'WAITLISTED' },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true },
+      });
+      return tx.registration.update({
+        where: { id: registration.id },
+        data: {
+          status: 'PENDING',
+          promotedAt: new Date(),
+          promotedById: req.user!.id,
+          promotedOutOfOrder: oldest?.id !== registration.id,
+        },
+      });
+    });
+
+    notifyDecision(updated, competition, 'PROMOTED');
+    res.json(view(updated));
+  } catch (error) {
+    if (error instanceof Full) {
+      res.status(409).json({ error: error.message });
+      return;
+    }
+    console.error('Promote registration error:', error);
+    res.status(500).json({ error: 'Failed to move the application up' });
+  }
+};
+
+// ---------------------------------------------------------------- funnel
+
+const median = (values: number[]): number | null => {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+};
+
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * For the admin: whether organisers find the forms and teams use them, worked
+ * out from what the database already holds. The figure that matters most is
+ * the share of published forms that brought at least one application.
+ */
+export const getFunnel = async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const [seasons, tournaments, windows] = await Promise.all([
+      prisma.season.count(),
+      prisma.tournament.count(),
+      prisma.registrationWindow.findMany({
+        where: { publishedAt: { not: null } },
+        select: {
+          publishedAt: true,
+          season: { select: { createdAt: true } },
+          tournament: { select: { createdAt: true } },
+          registrations: { select: { status: true, createdAt: true }, orderBy: { createdAt: 'asc' } },
+        },
+      }),
+    ]);
+    const withApplications = windows.filter((window) => window.registrations.length > 0);
+    const statuses = windows.flatMap((window) => window.registrations.map((row) => row.status));
+    const approved = statuses.filter((status) => status === 'APPROVED').length;
+    const decided = approved + statuses.filter((status) => status === 'REJECTED').length;
+    res.json({
+      competitions: seasons + tournaments,
+      published: windows.length,
+      publishedWithApplications: withApplications.length,
+      applications: statuses.length,
+      approvalRate: decided > 0 ? approved / decided : null,
+      medianHoursToPublish: median(windows.map((window) =>
+        (window.publishedAt!.getTime() - (window.season ?? window.tournament)!.createdAt.getTime()) / HOUR_MS)),
+      medianHoursToFirstApplication: median(withApplications.map((window) =>
+        (window.registrations[0].createdAt.getTime() - window.publishedAt!.getTime()) / HOUR_MS)),
+    });
+  } catch (error) {
+    console.error('Registration funnel error:', error);
+    res.status(500).json({ error: 'Failed to load the registration funnel' });
   }
 };

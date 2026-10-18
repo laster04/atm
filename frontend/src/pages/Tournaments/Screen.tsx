@@ -6,11 +6,17 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { tournamentSeriesApi } from '@/services/api';
 import type { TournamentSeries } from '@types';
 import { EmptyState, PublicHero } from '@/components/public';
+import FilterTabs, { type FilterTab } from '@/components/public/FilterTabs';
+import ApplicationsOpenBadge from '@/components/registrations/ApplicationsOpenBadge';
+
+/** `applications`: series with a tournament taking team sign-ups right now. */
+type Filter = 'all' | 'applications';
 
 export default function TournamentsScreen() {
 	const { t } = useTranslation();
 	const [series, setSeries] = useState<TournamentSeries[]>([]);
 	const [search, setSearch] = useState('');
+	const [filter, setFilter] = useState<Filter>('all');
 	const [loading, setLoading] = useState(true);
 
 	useDocumentTitle([t('public.tournaments.title')]);
@@ -24,11 +30,17 @@ export default function TournamentsScreen() {
 
 	const visible = useMemo(() => {
 		const term = search.trim().toLowerCase();
-		if (!term) return series;
-		return series.filter((row) =>
-			row.name.toLowerCase().includes(term) || (row.description ?? '').toLowerCase().includes(term)
-		);
-	}, [series, search]);
+		return series.filter((row) => {
+			if (filter === 'applications' && !row.registrationOpen) return false;
+			if (!term) return true;
+			return row.name.toLowerCase().includes(term) || (row.description ?? '').toLowerCase().includes(term);
+		});
+	}, [series, search, filter]);
+
+	const tabs: FilterTab<Filter>[] = [
+		{ value: 'all', label: t('seasons.filter.all') },
+		{ value: 'applications', label: t('public.seasons.filterApplications'), dot: 'rgb(var(--success))' },
+	];
 
 	return (
 		<>
@@ -42,6 +54,7 @@ export default function TournamentsScreen() {
 
 			<div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 py-7 sm:px-8">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+					{series.some((row) => row.registrationOpen) && <FilterTabs tabs={tabs} value={filter} onChange={setFilter} />}
 					<div className="flex h-10 items-center gap-2.5 rounded-lg border border-border bg-card px-3.5 sm:w-72">
 						<Search className="size-4 shrink-0 text-muted-foreground" />
 						<input
@@ -89,9 +102,12 @@ export default function TournamentsScreen() {
 										)}
 										<h2 className="truncate text-xl font-bold leading-tight">{row.name}</h2>
 									</div>
-									<span className="shrink-0 rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold tracking-wide text-accent-foreground">
-										{t(`sports.${row.sportType}`)}
-									</span>
+									<div className="flex shrink-0 flex-col items-end gap-1.5">
+										<span className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold tracking-wide text-accent-foreground">
+											{t(`sports.${row.sportType}`)}
+										</span>
+										{row.registrationOpen && <ApplicationsOpenBadge />}
+									</div>
 								</div>
 
 								{row.description && (

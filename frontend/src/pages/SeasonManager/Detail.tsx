@@ -103,6 +103,12 @@ export default function Detail() {
 		});
 	}, []);
 
+	// An approved application adds a team to the season.
+	const reloadTeams = useCallback(() => {
+		if (!season) return;
+		teamApi.getBySeason(season.id).then((res) => setTeams(res.data)).catch((err) => console.error(err));
+	}, [season]);
+
 	const handleBack = () => {
 		navigate(isAdmin() ? '/admin/seasons' : '/season-management/my-seasons');
 	};
@@ -244,6 +250,7 @@ export default function Detail() {
 							onOpenDates={setDatesRound}
 							onOpenResult={setResultGame}
 							onSeasonChange={setSeason}
+							onTeamsReload={reloadTeams}
 						/>
 					)}
 					{activeTab === 'games' && (
@@ -272,9 +279,7 @@ export default function Detail() {
 							gameCount={counts.games}
 							onGamesChange={setGames}
 							onSeasonChange={setSeason}
-							onTeamsReload={() => {
-								teamApi.getBySeason(season.id).then((res) => setTeams(res.data)).catch((err) => console.error(err));
-							}}
+							onTeamsReload={reloadTeams}
 						/>
 					)}
 				</div>

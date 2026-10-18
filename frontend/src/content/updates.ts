@@ -18,10 +18,7 @@ export interface ReleaseNote {
 	/** YYYY-MM-DD, the day it reached production. */
 	releasedAt: string;
 	areas: UpdatesArea[];
-	/**
-	 * Help article slugs to read more. Left empty until /docs is released;
-	 * then fill in and render the links.
-	 */
+	/** Help article slugs to read more, linked under the note. */
 	docs: string[];
 	content: Record<UpdatesLocale, { title: string; summary: string; items: string[] }>;
 }
@@ -39,6 +36,36 @@ export const updatesLocale = (language: string | undefined): UpdatesLocale =>
 	language?.toLowerCase().startsWith('cs') ? 'cs' : 'en';
 
 export const RELEASES: ReleaseNote[] = [
+	{
+		slug: 'prihlasky-tymu',
+		releasedAt: '2026-10-17',
+		areas: ['league', 'tournaments', 'public'],
+		docs: ['prihlasky-tymu'],
+		content: {
+			cs: {
+				title: 'Přihlášky týmů do sezóny a turnaje',
+				summary: 'Týmy se do sezóny nebo turnaje přihlásí přes veřejný formulář. Organizátor nastaví pravidla, uzávěrku a kapacitu a přihlášky schvaluje na jednom místě.',
+				items: [
+					'Formulář si před zveřejněním prohlédnete v náhledu a zveřejníte ho jedním tlačítkem.',
+					'Odkaz pošlete přes WhatsApp nebo e-mail, nebo vytiskněte plakát s QR kódem.',
+					'Když je plno, další přihlášky čekají na čekací listině. Uvolněné místo nabídnete dalšímu v pořadí.',
+					'Tým bez účtu dostane odkaz, kde vidí stav přihlášky a může ji stáhnout.',
+					'Na veřejných stránkách je vidět, které soutěže právě přijímají přihlášky.',
+				],
+			},
+			en: {
+				title: 'Team applications for seasons and tournaments',
+				summary: 'Teams apply to a season or tournament through a public form. The organiser sets the rules, deadline and capacity, and approves applications in one inbox.',
+				items: [
+					'Preview the form before publishing it, then publish it with one button.',
+					'Share the link by WhatsApp or email, or print a poster with a QR code.',
+					'Once the competition is full, new applications join a waiting list. Offer a freed place to the next team in line.',
+					'A team without an account gets a link where it can check the application and withdraw it.',
+					'Public pages show which competitions are taking applications right now.',
+				],
+			},
+		},
+	},
 	{
 		slug: 'skupiny-a-potvrzene-vysledky',
 		releasedAt: '2026-09-14',

@@ -5,6 +5,7 @@ import { formatSeasonDate } from '@/utils/date';
 import { SeasonStatus, type Season } from '@types';
 import { SeasonStatusBadge, VisibilityBadge } from '@/components/public';
 import { strictest } from '@/utils/visibility';
+import ApplicationsOpenBadge from '@/components/registrations/ApplicationsOpenBadge';
 
 /** The accent stripe reads status at a glance across a grid of cards. */
 const STRIPE: Record<SeasonStatus, string> = {
@@ -43,6 +44,7 @@ export default function SeasonCard({ season }: { season: Season }) {
 				<div className="flex shrink-0 flex-col items-end gap-1.5">
 					<SeasonStatusBadge status={season.status} archived={!!season.archivedAt} />
 					<VisibilityBadge visibility={strictest(season.league?.visibility, season.visibility)} />
+					{season.registrationOpen && <ApplicationsOpenBadge />}
 				</div>
 			</div>
 

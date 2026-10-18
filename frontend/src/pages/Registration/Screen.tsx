@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AxiosError } from 'axios';
-import { CalendarClock, CheckCircle2, Coins, Plus, Users, X } from 'lucide-react';
+import { CalendarClock, CheckCircle2, Coins, Eye, Plus, Users, X } from 'lucide-react';
 import { registrationApi, teamApi } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PublicHero } from '@/components/public';
 import type { Registration, RegistrationForm, RegistrationKind, RosterEntry, Team } from '@types';
-import { APP_TIME_ZONE } from '@/utils/date';
+import { formatDeadline } from '@/utils/date';
 
 const newToken = () =>
 	typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -30,6 +30,11 @@ export default function RegistrationScreen() {
 	const kind = KIND_BY_SLUG[slug];
 	const { t, i18n } = useTranslation();
 	const { user } = useAuth();
+	// The manager's preview: the form as applicants will see it, whatever its
+	// state, with nothing sent. Only someone who may manage it gets that far;
+	// the settings call answers 403 to anyone else.
+	const [searchParams] = useSearchParams();
+	const [preview, setPreview] = useState(false);
 
 	const [form, setForm] = useState<RegistrationForm | null>(null);
 	const [loadError, setLoadError] = useState(false);
@@ -57,6 +62,11 @@ export default function RegistrationScreen() {
 		if (!kind) return;
 		registrationApi.getForm(kind, id).then((res) => setForm(res.data)).catch(() => setLoadError(true));
 	}, [kind, id]);
+
+	useEffect(() => {
+		if (!kind || !user || searchParams.get('preview') !== '1') return;
+		registrationApi.getSettings(kind, id).then(() => setPreview(true)).catch(() => setPreview(false));
+	}, [kind, id, user, searchParams]);
 
 	// A returning team keeps its history: offer the teams this user manages.
 	useEffect(() => {
@@ -98,7 +108,7 @@ export default function RegistrationScreen() {
 
 	const submit = async (event: React.FormEvent) => {
 		event.preventDefault();
-		if (sending || !validate()) return;
+		if (preview || sending || !validate()) return;
 		setSendError('');
 		setSending(true);
 		try {
@@ -125,6 +135,9 @@ export default function RegistrationScreen() {
 		}
 	};
 
+	/** Marks a field the application cannot go without. */
+	const required = <span className="text-destructive-strong" aria-hidden> *</span>;
+
 	const inputClass = (field?: Field) =>
 		`h-11 w-full rounded-lg border bg-input-background px-3.5 text-base outline-none focus:ring-2 focus:ring-ring sm:text-[15px] ${
 			field && errors[field] ? 'border-destructive' : 'border-border'
@@ -133,13 +146,14 @@ export default function RegistrationScreen() {
 	const facts = [
 		form.deadline && {
 			icon: CalendarClock,
-			text: t('registration.deadline', {
-				date: new Date(form.deadline).toLocaleString(i18n.language, {
-					timeZone: APP_TIME_ZONE, day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-				}),
-			}),
+			text: t('registration.deadline', { date: formatDeadline(form.deadline, i18n.language) }),
 		},
-		form.maxTeams != null && { icon: Users, text: t('registration.places', { taken: Math.min(form.placesTaken, form.maxTeams), max: form.maxTeams }) },
+		form.capacity.max != null && {
+			icon: Users,
+			text: form.capacity.free
+				? t('registration.freePlaces', { count: form.capacity.free, max: form.capacity.max })
+				: t('registration.noFreePlaces', { max: form.capacity.max, waiting: form.capacity.waitlisted }),
+		},
 		form.fee && { icon: Coins, text: t('registration.fee', { fee: form.fee }) },
 	].filter(Boolean) as { icon: typeof Users; text: string }[];
 
@@ -165,12 +179,18 @@ export default function RegistrationScreen() {
 								{sent.status === 'WAITLISTED' ? t('registration.sentWaitlisted') : t('registration.sentTitle')}
 							</h2>
 							<p className="text-[15px] text-subtle-foreground">{t('registration.sentText', { email: sent.email })}</p>
+							{sent.statusLink && (
+								<p className="text-[15px] text-subtle-foreground">{t('registration.sentStatusText')}</p>
+							)}
 							<div className="mt-2 flex flex-wrap gap-4 text-sm font-semibold">
+								{sent.statusLink && (
+									<a href={sent.statusLink} className="text-primary hover:underline">{t('registration.checkStatus')}</a>
+								)}
 								<Link to={competitionPath} className="text-primary hover:underline">{t('registration.backToCompetition')}</Link>
 								{user && <Link to="/dashboard" className="text-primary hover:underline">{t('registration.toDashboard')}</Link>}
 							</div>
 						</div>
-					) : form.state !== 'OPEN' ? (
+					) : form.state !== 'OPEN' && !preview ? (
 						<div className="flex flex-col items-start gap-3">
 							<h2 className="text-xl font-bold">
 								{form.state === 'PAST_DEADLINE' ? t('registration.pastDeadline') : t('registration.closed')}
@@ -181,6 +201,7 @@ export default function RegistrationScreen() {
 						<div className="flex flex-col items-start gap-3">
 							<h2 className="text-xl font-bold">{t('registration.signInTitle')}</h2>
 							<p className="text-[15px] text-subtle-foreground">{t('registration.signInText')}</p>
+							<p className="text-[15px] text-subtle-foreground">{t('registration.signInReturn')}</p>
 							<div className="mt-2 flex flex-wrap items-center gap-4">
 								<Link
 									to={`/login?next=${encodeURIComponent(nextPath)}`}
@@ -188,17 +209,27 @@ export default function RegistrationScreen() {
 								>
 									{t('registration.signIn')}
 								</Link>
-								<Link to="/register" className="text-sm font-semibold text-primary hover:underline">{t('registration.createAccount')}</Link>
+								<Link to={`/register?next=${encodeURIComponent(nextPath)}`} className="text-sm font-semibold text-primary hover:underline">{t('registration.createAccount')}</Link>
 							</div>
 						</div>
 					) : (
 						<form onSubmit={submit} noValidate className="flex flex-col gap-6">
+							{preview && (
+								<div role="status" className="flex items-start gap-2.5 rounded-lg bg-ice px-4 py-3 text-sm font-medium text-navy">
+									<Eye className="mt-0.5 size-4 shrink-0" aria-hidden />
+									<span>{form.state === 'OPEN' ? t('registration.previewOpen') : t('registration.previewClosed')}</span>
+								</div>
+							)}
 							{sendError && (
 								<div role="alert" className="rounded-lg bg-destructive-soft px-4 py-3 text-sm font-medium text-destructive-strong">{sendError}</div>
 							)}
-							{form.full && (
+							{/* Said before sending: where the application will land. */}
+							{form.full ? (
 								<div className="rounded-lg bg-warning-soft px-4 py-3 text-sm font-medium text-warning-strong">{t('registration.fullNote')}</div>
+							) : form.capacity.free != null && (
+								<p className="text-sm text-muted-foreground">{t('registration.placeNote', { count: form.capacity.free })}</p>
 							)}
+							<p className="text-[13px] text-muted-foreground">{t('registration.requiredNote')}</p>
 
 							{kind === 'season' && myTeams.length > 0 && (
 								<div className="flex flex-col gap-1.5">
@@ -218,7 +249,7 @@ export default function RegistrationScreen() {
 							{!existingTeamId && (
 								<div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
 									<div className="flex flex-col gap-1.5">
-										<label htmlFor="reg-team" className="text-sm font-semibold">{teamLabel}</label>
+										<label htmlFor="reg-team" className="text-sm font-semibold">{teamLabel}{required}</label>
 										<input
 											id="reg-team"
 											value={teamName}
@@ -238,13 +269,13 @@ export default function RegistrationScreen() {
 
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="flex flex-col gap-1.5">
-									<label htmlFor="reg-contact" className="text-sm font-semibold">{t('registration.contactName')}</label>
+									<label htmlFor="reg-contact" className="text-sm font-semibold">{t('registration.contactName')}{required}</label>
 									<input id="reg-contact" value={contactName} onChange={(e) => setContactName(e.target.value)} maxLength={120} aria-invalid={!!errors.contactName} className={inputClass('contactName')} />
 									{errors.contactName && <p className="text-sm text-destructive-strong">{errors.contactName}</p>}
 								</div>
 								{kind === 'tournament' && (
 									<div className="flex flex-col gap-1.5">
-										<label htmlFor="reg-email" className="text-sm font-semibold">{t('registration.email')}</label>
+										<label htmlFor="reg-email" className="text-sm font-semibold">{t('registration.email')}{required}</label>
 										<input id="reg-email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!errors.email} className={inputClass('email')} />
 										{errors.email && <p className="text-sm text-destructive-strong">{errors.email}</p>}
 									</div>
@@ -311,7 +342,7 @@ export default function RegistrationScreen() {
 									<div className="max-h-56 overflow-y-auto whitespace-pre-wrap rounded-lg bg-background p-4 text-[14px] leading-relaxed">{form.rules}</div>
 									<label className="flex cursor-pointer items-start gap-3">
 										<input type="checkbox" checked={acceptRules} onChange={(e) => setAcceptRules(e.target.checked)} aria-invalid={!!errors.acceptRules} className="mt-0.5 size-5 shrink-0 accent-[rgb(var(--primary))]" />
-										<span className="text-sm">{t('registration.acceptRules')}</span>
+										<span className="text-sm">{t('registration.acceptRules')}{required}</span>
 									</label>
 									{errors.acceptRules && <p className="text-sm text-destructive-strong">{errors.acceptRules}</p>}
 								</div>
@@ -325,7 +356,7 @@ export default function RegistrationScreen() {
 
 							<button
 								type="submit"
-								disabled={sending}
+								disabled={sending || preview}
 								className="flex h-12 items-center justify-center rounded-lg bg-primary px-6 text-[15px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60 sm:self-start"
 							>
 								{sending ? t('registration.sending') : t('registration.submit')}

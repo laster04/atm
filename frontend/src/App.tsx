@@ -30,6 +30,8 @@ import About from './pages/About';
 import Updates from './pages/Updates';
 import Contact from './pages/Contact';
 import Registration from './pages/Registration';
+import RegistrationStatus from './pages/Registration/StatusScreen';
+import RegistrationPoster from './pages/Registration/PosterScreen';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
@@ -76,6 +78,8 @@ function AppContent() {
       <Toaster />
       <Routes>
         <Route path="/" element={<Landing />} />
+        {/* Printed and pinned up, so without the site's header and footer. */}
+        <Route path="/prihlaska/:kind/:id/plakat" element={<RegistrationPoster />} />
 
         {/* Public part: readable signed out, one header and footer for all. */}
         <Route element={<PublicLayout />}>
@@ -95,6 +99,7 @@ function AppContent() {
           <Route path="/updates" element={<Updates />} />
           <Route path="/updates/roadmap" element={<Updates />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/prihlaska/stav/:token" element={<RegistrationStatus />} />
           <Route path="/prihlaska/:kind/:id" element={<Registration />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />

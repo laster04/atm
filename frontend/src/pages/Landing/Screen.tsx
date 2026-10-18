@@ -297,6 +297,72 @@ export default function LandingScreen() {
 				</div>
 			</section>
 
+			{/* TEAM APPLICATIONS */}
+			<section className="mx-auto w-full max-w-[1600px] px-4 py-14 sm:px-8">
+				<div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+					<div className="order-2 overflow-hidden rounded-2xl border border-border bg-card shadow-lg lg:order-1">
+						<div className="flex items-center justify-between gap-3 border-b border-border bg-muted/50 px-5 py-3.5">
+							<span className="text-sm font-bold">{t('public.landing.registrations.previewTitle')}</span>
+							<span className="text-[12px] font-semibold text-muted-foreground">{t('public.landing.registrations.previewPlaces')}</span>
+						</div>
+						<div className="flex flex-col gap-2 p-5">
+							{[
+								{ name: 'FBC Ořechovka', color: '#0369A1', status: 'new', tone: { bg: '#dbeafe', fg: '#1e3a8a' } },
+								{ name: 'Sokol Libeň', color: '#B91C1C', status: 'new', tone: { bg: '#dbeafe', fg: '#1e3a8a' } },
+								{ name: 'Draci Kbely', color: '#166534', status: 'approved', tone: { bg: '#dcfce7', fg: '#166534' } },
+								{ name: 'HC Vršovice', color: '#7C3AED', status: 'waiting', tone: { bg: '#fef3c7', fg: '#92400e' } },
+							].map((row) => (
+								<div key={row.name} className="flex items-center gap-3 rounded-lg border border-border px-3.5 py-3">
+									<span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: row.color }} />
+									<span className="flex-1 truncate text-[13.5px] font-semibold">{row.name}</span>
+									<span className="rounded-full px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide" style={{ backgroundColor: row.tone.bg, color: row.tone.fg }}>
+										{t(`public.landing.registrations.status.${row.status}`)}
+									</span>
+								</div>
+							))}
+							<p className="pt-1 text-[11px] text-muted-foreground">{t('public.landing.organisers.previewNote')}</p>
+						</div>
+					</div>
+
+					<div className="order-1 flex flex-col gap-4 lg:order-2">
+						<span className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
+							{t('public.landing.registrations.kicker')}
+						</span>
+						<h2 className="text-[28px] font-extrabold leading-tight tracking-tight sm:text-[34px]">
+							{t('public.landing.registrations.title')}
+						</h2>
+						<p className="text-[15px] leading-relaxed text-subtle-foreground">
+							{t('public.landing.registrations.text')}
+						</p>
+						<ol className="mt-1 flex flex-col gap-3">
+							{['setup', 'share', 'approve'].map((key, index) => (
+								<li key={key} className="flex items-center gap-3">
+									<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-bold text-primary-foreground">
+										{index + 1}
+									</span>
+									<span className="text-sm">{t(`public.landing.registrations.steps.${key}`)}</span>
+								</li>
+							))}
+						</ol>
+						<div className="mt-3 flex flex-wrap items-center gap-3">
+							<Link
+								to={user ? '/dashboard' : '/register'}
+								className="flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+							>
+								{t('public.landing.registrations.cta')}
+								<ArrowRight className="size-4" />
+							</Link>
+							<Link
+								to="/docs/prihlasky-tymu"
+								className="flex h-11 items-center rounded-xl border border-border bg-card px-5 text-sm font-semibold transition-colors hover:bg-muted"
+							>
+								{t('public.landing.registrations.secondary')}
+							</Link>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			{/* TOURNAMENT CTA */}
 			<section className="mx-auto w-full max-w-[1600px] px-4 py-14 sm:px-8">
 				<div className="relative flex flex-col gap-6 overflow-hidden rounded-3xl bg-navy px-6 py-10 sm:px-12 lg:flex-row lg:items-center">

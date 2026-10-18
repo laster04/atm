@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Check } from 'lucide-react';
+import { BookOpen, Check } from 'lucide-react';
 import { FilterTabs, PublicHero } from '@/components/public';
 import { useAuth } from '@/context/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -129,6 +129,13 @@ export default function UpdatesScreen() {
 												</li>
 											))}
 										</ul>
+										{/* The help pages load on their own, so the link names no title. */}
+										{release.docs.map((slug) => (
+											<Link key={slug} to={`/docs/${slug}`} className="flex items-center gap-2 self-start text-[14px] font-semibold text-primary hover:underline">
+												<BookOpen className="size-4" aria-hidden />
+												{t('public.updates.readGuide')}
+											</Link>
+										))}
 										<div className="flex flex-wrap gap-2">
 											{release.areas.map((tag) => (
 												<span key={tag} className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-subtle-foreground">

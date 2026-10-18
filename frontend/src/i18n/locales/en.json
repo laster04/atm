@@ -276,7 +276,9 @@
       "failed": "Registration failed",
       "success": "Registration Successful!",
       "checkEmail": "We have sent an activation link to:",
-      "activationNote": "Please check your email and click the activation link to complete your registration."
+      "activationNote": "Please check your email and click the activation link to complete your registration.",
+      "forApplication": "Create an account to apply your team. After activating it you'll come straight back to the application.",
+      "returnNote": "The activation link takes you back to the application form."
     },
     "activate": {
       "title": "Account Activation",
@@ -1330,6 +1332,22 @@
       "seasonWorkTitle": "Teams, dates and results",
       "seasonWorkHint": "Managed inside a season, not in a global table.",
       "openSeasons": "Open seasons"
+    },
+    "funnel": {
+      "title": "Team applications",
+      "conversion": "Published forms with an application",
+      "conversionHint": "{{with}} of {{published}} published forms",
+      "adoption": "Competitions that published a form",
+      "adoptionHint": "{{published}} of {{total}} seasons and tournaments",
+      "toPublish": "From creation to publishing (median)",
+      "toFirst": "From publishing to the first application (median)",
+      "approval": "Applications approved",
+      "applications_one": "{{count}} application in all",
+      "applications_other": "{{count}} applications in all",
+      "hours_one": "{{count}} hour",
+      "hours_other": "{{count}} hours",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days"
     }
   },
   "hats": {
@@ -1802,7 +1820,8 @@
         "IN_DEVELOPMENT": "Being built right now.",
         "DESIGNING": "An approved design exists; work may not have started.",
         "CONSIDERING": "An idea under review, not a promise."
-      }
+      },
+      "readGuide": "Read the guide"
     },
     "contact": {
       "title": "Write to us",
@@ -1906,7 +1925,8 @@
       "subtitle": "Browse every season, follow how it is going and how it ended. Amateur sport has a history of its own.",
       "view": "View",
       "searchPlaceholder": "Search a season…",
-      "emptyHint": "Try another filter, or search by the league's name."
+      "emptyHint": "Try another filter, or search by the league's name.",
+      "filterApplications": "Open for applications"
     },
     "teams": {
       "title": "Teams",
@@ -2019,7 +2039,26 @@
         "previewTitle": "Table after 12 games",
         "previewNote": "Example of a public season page."
       },
-      "nextTitle": "Next games"
+      "nextTitle": "Next games",
+      "registrations": {
+        "kicker": "Team applications",
+        "title": "Open registrations for your next season or tournament.",
+        "text": "Set a deadline, capacity, rules and entry fee. Share one public link and manage every application from a single inbox.",
+        "steps": {
+          "setup": "Set up the application form.",
+          "share": "Share the public link or QR code.",
+          "approve": "Approve teams and build the competition."
+        },
+        "cta": "Open applications",
+        "secondary": "See how it works",
+        "previewTitle": "Applications · Spring Cup",
+        "previewPlaces": "3 of 8 places",
+        "status": {
+          "new": "New",
+          "waiting": "Waiting list",
+          "approved": "Approved"
+        }
+      }
     },
     "leagues": {
       "title": "Leagues",
@@ -2278,8 +2317,16 @@
         "live": "Published",
         "body": "Publishing shows the schedule and table on the public site.",
         "action": "Publish season"
+      },
+      "registrations": {
+        "title": "Let teams apply",
+        "none": "No application form yet",
+        "body": "Open an application form and share its link: teams sign themselves up and you approve them, instead of adding every team yourself.",
+        "action": "Open applications",
+        "skip": "I'll add the teams myself"
       }
-    }
+    },
+    "new": "New"
   },
   "teamChecklist": {
     "title": "Get your team ready",
@@ -2368,7 +2415,7 @@
     "heading": "Apply: {{name}}",
     "seasonIntro": "Sign your team up for the season. Once approved you'll manage it.",
     "tournamentIntro": "Sign your team up for the tournament. No account needed, just an email address.",
-    "applyButton": "Sign up a team",
+    "applyButton": "Apply your team",
     "playerName": "Player name",
     "teamName": "Team name",
     "color": "Colour",
@@ -2404,7 +2451,6 @@
     "factsTitle": "Terms",
     "noFacts": "The organiser set no deadline, capacity or fee.",
     "deadline": "Applications until {{date}}",
-    "places": "{{taken}} of {{max}} places taken",
     "fee": "Entry fee: {{fee}}",
     "seasonAfter": "Once approved the team is created in the season and you manage it.",
     "tournamentAfter": "Once approved the organiser adds the team to the tournament.",
@@ -2420,6 +2466,44 @@
       "title": "My applications",
       "withdraw": "Withdraw",
       "withdrawError": "The application couldn't be withdrawn."
+    },
+    "checkStatus": "Check application status",
+    "freePlaces_one": "{{count}} of {{max}} places free",
+    "freePlaces_other": "{{count}} of {{max}} places free",
+    "noFreePlaces": "All {{max}} places taken – new applications join the waiting list ({{waiting}} waiting)",
+    "waitlistOnly": "Full – waiting list only",
+    "openBadge": "Applications open",
+    "placeNote_one": "{{count}} place is still free. Your application will wait for the organiser's decision.",
+    "placeNote_other": "{{count}} places are still free. Your application will wait for the organiser's decision.",
+    "previewOpen": "Preview – this is the form teams see. Nothing is sent from here.",
+    "previewClosed": "Preview – the form is not open to teams yet. Nothing is sent from here.",
+    "requiredNote": "Fields marked * are required.",
+    "sentStatusText": "The email also has a link to your application, where you can check its status or withdraw it.",
+    "signInReturn": "Your account will manage this team after approval. After signing in or creating an account you'll come back to this form.",
+    "status": {
+      "PENDING": "Waiting for a decision",
+      "WAITLISTED": "Waiting list",
+      "APPROVED": "Approved",
+      "REJECTED": "Declined",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "statusPage": {
+      "title": "Application status",
+      "sentOn": "Sent on {{date}}",
+      "sent": "What you sent",
+      "text": {
+        "PENDING": "Your application has arrived and is waiting for the organiser's decision. We'll email you when they decide.",
+        "WAITLISTED": "The competition is full, so your application is on the waiting list. If a place frees up the organiser can move it up.",
+        "WAITLISTED_position": "The competition is full, so your application is on the waiting list, number {{position}}. If a place frees up the organiser can move it up.",
+        "APPROVED": "The organiser approved your application. The team is in the competition.",
+        "REJECTED": "The organiser did not accept your application.",
+        "WITHDRAWN": "You withdrew this application."
+      },
+      "withdraw": "Withdraw application",
+      "withdrawConfirm": "Withdraw the application? The organiser will no longer consider it, and you would have to apply again.",
+      "keepPrivate": "Anyone with this link can see and withdraw the application, so keep it to yourself.",
+      "notFound": "This application link doesn't work. Check that you copied the whole link from the email.",
+      "expired": "This application link has expired. The application was decided more than 30 days ago."
     }
   },
   "registrations": {
@@ -2445,24 +2529,116 @@
     "approve": "Approve",
     "waitlist": "Waiting list",
     "reject": "Decline",
-    "settings": "Settings",
-    "open": "Applications are open",
     "deadline": "Deadline (optional)",
     "maxTeams": "Maximum teams (optional)",
     "fee": "Entry fee (optional)",
     "feePlaceholder": "e.g. 1 500 CZK per team, pay by 30 June",
     "rules": "Rules to accept (optional)",
-    "save": "Save settings",
+    "save": "Save terms",
     "link": "Link to the form",
     "copy": "Copy",
     "copied": "Copied",
-    "linkHintOpen": "Send the link to teams, e.g. in WhatsApp. The form is also on the public page.",
     "linkHintClosed": "The form is closed; the link works once you open it.",
     "inbox": "Applications inbox",
-    "placesOf": "{{teams}} of {{max}} teams",
-    "places": "{{teams}} teams",
     "empty": "No applications yet.",
     "decided_one": "Decided: {{count}}",
-    "decided_other": "Decided: {{count}}"
+    "decided_other": "Decided: {{count}}",
+    "terms": "Terms",
+    "publish": "Publish applications",
+    "reopen": "Reopen applications",
+    "close": "Close applications",
+    "preview": "Preview application form",
+    "previewSaveFirst": "Save the terms to preview them.",
+    "published": "Applications are now open",
+    "publishedHint": "Share this form with teams.",
+    "lifecycle": {
+      "DRAFT": "Not published",
+      "OPEN": "Applications open",
+      "FULL": "Full",
+      "PAST_DEADLINE": "Past deadline",
+      "CLOSED": "Closed"
+    },
+    "lifecycleHint": {
+      "DRAFT": "Prepare the terms, preview the form, then publish it.",
+      "OPEN": "Teams can apply through the public form.",
+      "FULL": "All places are held. New applications join the waiting list.",
+      "PAST_DEADLINE": "The deadline has passed, so the form takes no more applications. Move the deadline to take more.",
+      "CLOSED": "The form takes no applications. Teams who open it see that it is closed."
+    },
+    "checklist": {
+      "deadline": "Deadline",
+      "capacity": "Capacity",
+      "rules": "Rules",
+      "fee": "Entry fee"
+    },
+    "checklistWarn": {
+      "deadline": "No deadline: the form stays open until you close it.",
+      "capacity": "No capacity: every application goes straight to your decision, with no waiting list."
+    },
+    "confirm": {
+      "publishTitle": "Publish the application form?",
+      "competition": "Competition",
+      "deadline": "Deadline",
+      "noDeadline": "None – open until you close it",
+      "capacity": "Capacity",
+      "teams_one": "{{count}} team",
+      "teams_other": "{{count}} teams",
+      "noLimit": "No limit",
+      "fee": "Entry fee",
+      "noFee": "None",
+      "link": "Public link",
+      "publish": "Publish",
+      "closeTitle": "Close applications?",
+      "closeText": "The form stops taking applications. The ones that arrived stay in the inbox, and you can reopen the form at any time."
+    },
+    "capacity": {
+      "approved": "Approved",
+      "pending": "New",
+      "waitlisted": "Waiting list",
+      "max": "Capacity",
+      "noLimit": "No maximum is set, so nobody waits for a place."
+    },
+    "freePlaces_one": "{{count}} place is free and {{waiting}} waiting. Nobody moves up on their own.",
+    "freePlaces_other": "{{count}} places are free and {{waiting}} waiting. Nobody moves up on their own.",
+    "promote": "Move up",
+    "promoteNext": "Promote next applicant: {{team}}",
+    "promotedOutOfOrder": "Moved up out of turn by {{name}} on {{date}}",
+    "someone": "a manager",
+    "waitlistPosition": "Waiting #{{position}}",
+    "manage": "Manage",
+    "overviewHint": "{{pending}} new · {{waiting}} on the waiting list",
+    "setup": {
+      "title": "Let teams apply",
+      "body": "Open an application form: teams sign themselves up and you approve them, instead of typing every team in.",
+      "action": "Open applications",
+      "dismiss": "Not now"
+    },
+    "share": {
+      "title": "Share this form with teams",
+      "native": "Share",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "poster": "Printable poster",
+      "qrAlt": "QR code for the application form of {{name}}",
+      "qrHint": "Teams scan it to open the form. Put it on a poster or a slide.",
+      "qrDownload": "Download QR code",
+      "qrFile": "application-qr",
+      "chatLabel": "Message for chat or email",
+      "postLabel": "Social post",
+      "copyMessage": "Copy: {{label}}",
+      "emailSubject": "Applications are open: {{name}}",
+      "message": "Applications are open for {{name}}. Apply your team by {{deadline}}: {{link}}",
+      "messageNoDeadline": "Applications are open for {{name}}. Apply your team: {{link}}",
+      "post": "Team applications for {{name}} are open! Places are limited – apply by {{deadline}}: {{link}}",
+      "postNoDeadline": "Team applications for {{name}} are open! Apply your team here: {{link}}"
+    },
+    "poster": {
+      "title": "Poster",
+      "print": "Print",
+      "headline": "Team applications are open",
+      "scan": "Scan the code to apply your team",
+      "places_one": "{{count}} place",
+      "places_other": "{{count}} places"
+    }
   }
 }

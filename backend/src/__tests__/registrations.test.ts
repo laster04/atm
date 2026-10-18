@@ -1,8 +1,11 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import app from '../app.js';
 import prisma from '../config/database.js';
 import { resetRegistrationRateLimit } from '../controllers/registrationController.js';
+import emailService from '../services/emailService.js';
+import { safeNextPath } from '../controllers/authController.js';
 
 const stamp = Date.now();
 let adminToken: string;
@@ -56,6 +59,24 @@ beforeAll(async () => {
 });
 
 beforeEach(() => resetRegistrationRateLimit());
+
+// No mail leaves the tests: each email is a recorded call, checked where it matters.
+const receipts = jest.spyOn(emailService, 'sendRegistrationReceivedEmail').mockResolvedValue(true);
+const decisions = jest.spyOn(emailService, 'sendRegistrationDecisionEmail').mockResolvedValue(true);
+const withdrawals = jest.spyOn(emailService, 'sendRegistrationWithdrawnEmail').mockResolvedValue(true);
+jest.spyOn(emailService, 'sendRegistrationNoticeEmail').mockResolvedValue(true);
+
+/** Mail goes out after the answer; wait until it has. */
+async function eventually(check: () => boolean, timeoutMs = 2000) {
+  const until = Date.now() + timeoutMs;
+  while (!check()) {
+    if (Date.now() > until) throw new Error('Timed out waiting');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+}
+
+const decide = (id: string, action: 'approve' | 'reject' | 'waitlist' | 'promote') =>
+  request(app).post(`/api/registrations/${id}/${action}`).set(auth(adminToken));
 
 afterAll(async () => {
   await prisma.$disconnect();
@@ -241,5 +262,194 @@ describe('the manager side', () => {
     expect((await settings('season', id, { maxTeams: 1 })).status).toBe(400);
     expect((await settings('season', id, { deadline: 'soon' })).status).toBe(400);
     expect((await settings('season', id, { open: 'yes' })).status).toBe(400);
+  });
+});
+
+describe('capacity and the waiting list', () => {
+  it('counts the places the same way in the form, the inbox and the settings', async () => {
+    const id = await season('capacity');
+    await settings('season', id, { open: true, maxTeams: 2 });
+    const first = await applyToSeason(id, { teamName: 'Cap One' });
+    await applyToSeason(id, { teamName: 'Cap Two' });
+    await applyToSeason(id, { teamName: 'Cap Three' });
+    await decide(first.body.id, 'approve');
+
+    const expected = { approved: 1, pending: 1, waitlisted: 1, max: 2, free: 0 };
+    expect((await request(app).get(`/api/registrations/season/${id}`)).body.capacity).toEqual(expected);
+    expect((await request(app).get(`/api/registrations/season/${id}/inbox`).set(auth(adminToken))).body.capacity).toEqual(expected);
+    const current = await request(app).get(`/api/registrations/season/${id}/settings`).set(auth(adminToken));
+    expect(current.body).toMatchObject({ capacity: expected, lifecycle: 'FULL' });
+
+    // A bigger maximum shows at once.
+    const raised = await settings('season', id, { maxTeams: 3 });
+    expect(raised.body).toMatchObject({ capacity: { free: 1 }, lifecycle: 'OPEN' });
+  });
+
+  it('moves a team up only into a free place, and records moving one up out of turn', async () => {
+    const id = await season('promote');
+    await settings('season', id, { open: true, maxTeams: 2 });
+    const one = await applyToSeason(id, { teamName: 'Up One' });
+    await applyToSeason(id, { teamName: 'Up Two' });
+    const older = await applyToSeason(id, { teamName: 'Up Three' });
+    const younger = await applyToSeason(id, { teamName: 'Up Four' });
+    expect([older.body.status, younger.body.status]).toEqual(['WAITLISTED', 'WAITLISTED']);
+
+    expect((await decide(younger.body.id, 'promote')).status).toBe(409);
+    // While the pending ones hold the places, the waiting list cannot be approved past them.
+    expect((await decide(older.body.id, 'approve')).status).toBe(409);
+
+    await request(app).post(`/api/registrations/${one.body.id}/withdraw`).set(auth(applicantToken));
+    await eventually(() => withdrawals.mock.calls.some(([params]) => params.teamName === 'Up One'));
+
+    const promoted = await decide(younger.body.id, 'promote');
+    expect(promoted.status).toBe(200);
+    expect(promoted.body).toMatchObject({ status: 'PENDING', promotedOutOfOrder: true });
+    expect(promoted.body.promotedAt).not.toBeNull();
+    await eventually(() => decisions.mock.calls.some(([params]) => params.teamName === 'Up Four' && params.decision === 'PROMOTED'));
+
+    // The place is taken again.
+    expect((await decide(older.body.id, 'promote')).status).toBe(409);
+  });
+
+  it('records moving up the oldest as in turn', async () => {
+    const id = await season('in-turn');
+    await settings('season', id, { open: true, maxTeams: 2 });
+    await applyToSeason(id, { teamName: 'Turn One' });
+    await applyToSeason(id, { teamName: 'Turn Two' });
+    const waiting = await applyToSeason(id, { teamName: 'Turn Three' });
+    await settings('season', id, { maxTeams: 3 });
+    const promoted = await decide(waiting.body.id, 'promote');
+    expect(promoted.body).toMatchObject({ status: 'PENDING', promotedOutOfOrder: false });
+  });
+});
+
+describe('the publish lifecycle', () => {
+  it('is a draft until first opened, and remembers publishing and closing', async () => {
+    const id = await season('lifecycle');
+    const draft = await request(app).get(`/api/registrations/season/${id}/settings`).set(auth(adminToken));
+    expect(draft.body).toMatchObject({ lifecycle: 'DRAFT', publishedAt: null });
+
+    const saved = await settings('season', id, { fee: '100 Kč' });
+    expect(saved.body.lifecycle).toBe('DRAFT');
+
+    const opened = await settings('season', id, { open: true });
+    expect(opened.body.lifecycle).toBe('OPEN');
+    expect(opened.body.publishedAt).not.toBeNull();
+
+    const closed = await settings('season', id, { open: false });
+    expect(closed.body.lifecycle).toBe('CLOSED');
+    expect(closed.body.closedAt).not.toBeNull();
+
+    const reopened = await settings('season', id, { open: true });
+    expect(reopened.body.publishedAt).toBe(opened.body.publishedAt);
+  });
+});
+
+describe('the status link', () => {
+  it('shows a tournament application to whoever holds the link, and lets them withdraw it', async () => {
+    const id = await tournament('status');
+    await settings('tournament', id, { open: true, maxTeams: 2 });
+    const applied = await applyToTournament(id, { teamName: 'Linked', roster: [{ name: 'Eve', number: 3 }] });
+    expect(applied.status).toBe(201);
+    expect(applied.body.statusLink).toMatch(/\/prihlaska\/stav\/[\w-]{20,}$/);
+    expect(applied.body.statusTokenHash).toBeUndefined();
+    const token = applied.body.statusLink.split('/').pop();
+
+    // Only the hash is kept, and the receipt carries the link.
+    const stored = await prisma.registration.findUnique({ where: { id: applied.body.id } });
+    expect(stored!.statusTokenHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(stored!.statusTokenHash).not.toContain(token);
+    await eventually(() => receipts.mock.calls.some(([params]) => params.statusLink === applied.body.statusLink));
+
+    const inbox = await request(app).get(`/api/registrations/tournament/${id}/inbox`).set(auth(adminToken));
+    expect(inbox.body.registrations[0].statusTokenHash).toBeUndefined();
+
+    const status = await request(app).get(`/api/registrations/status/${token}`);
+    expect(status.status).toBe(200);
+    expect(status.body).toMatchObject({ status: 'PENDING', teamName: 'Linked', competition: { kind: 'tournament', id } });
+    expect(status.body.roster).toEqual([{ name: 'Eve', number: 3 }]);
+
+    expect((await request(app).get(`/api/registrations/status/${'x'.repeat(43)}`)).status).toBe(404);
+
+    const withdrawn = await request(app).post(`/api/registrations/status/${token}/withdraw`);
+    expect(withdrawn.body.status).toBe('WITHDRAWN');
+    expect((await request(app).post(`/api/registrations/status/${token}/withdraw`)).status).toBe(409);
+    const form = await request(app).get(`/api/registrations/tournament/${id}`);
+    expect(form.body.capacity).toMatchObject({ pending: 0, free: 2 });
+  });
+
+  it('stops working a while after the decision', async () => {
+    const id = await tournament('expired');
+    await settings('tournament', id, { open: true });
+    const applied = await applyToTournament(id, { teamName: 'Old News' });
+    const token = applied.body.statusLink.split('/').pop();
+    await decide(applied.body.id, 'reject');
+    await prisma.registration.update({ where: { id: applied.body.id }, data: { decidedAt: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000) } });
+    expect((await request(app).get(`/api/registrations/status/${token}`)).status).toBe(410);
+  });
+
+  it('is not given to a season application, which the dashboard shows', async () => {
+    const id = await season('no-link');
+    await settings('season', id, { open: true });
+    const applied = await applyToSeason(id, { teamName: 'Accounted' });
+    expect(applied.body.statusLink).toBeNull();
+  });
+});
+
+describe('public lists', () => {
+  it('badge seasons and tournament series that take applications', async () => {
+    const open = await season('listed-open');
+    const closed = await season('listed-closed');
+    await settings('season', open, { open: true });
+    await prisma.season.update({ where: { id: open }, data: { visibility: 'PUBLIC' } });
+    await prisma.season.update({ where: { id: closed }, data: { visibility: 'PUBLIC' } });
+    const seasons = await request(app).get('/api/seasons');
+    const byId = new Map(seasons.body.map((row: { id: string; registrationOpen: boolean }) => [row.id, row.registrationOpen]));
+    expect(byId.get(open)).toBe(true);
+    expect(byId.get(closed)).toBe(false);
+
+    const cup = await tournament('listed');
+    await settings('tournament', cup, { open: true });
+    const { seriesId } = (await prisma.tournament.findUnique({ where: { id: cup } }))!;
+    const series = await request(app).get('/api/tournaments/series').set(auth(adminToken));
+    expect(series.body.find((row: { id: string }) => row.id === seriesId).registrationOpen).toBe(true);
+    const detail = await request(app).get(`/api/tournaments/series/${seriesId}`).set(auth(adminToken));
+    expect(detail.body.tournaments[0].registrationOpen).toBe(true);
+  });
+});
+
+describe('the funnel', () => {
+  it('is for admins only and counts published forms', async () => {
+    expect((await request(app).get('/api/registrations/funnel').set(auth(strangerToken))).status).toBe(403);
+    const funnel = await request(app).get('/api/registrations/funnel').set(auth(adminToken));
+    expect(funnel.status).toBe(200);
+    expect(funnel.body.published).toBeGreaterThan(0);
+    expect(funnel.body.publishedWithApplications).toBeLessThanOrEqual(funnel.body.published);
+  });
+});
+
+describe('signing up on the way to a season application', () => {
+  it('keeps the way back to the form in the activation link, and only a path inside the app', async () => {
+    const activation = jest.spyOn(emailService, 'sendActivationEmail').mockResolvedValue(true);
+    const next = '/prihlaska/sezona/some-season';
+    const registered = await request(app).post('/api/auth/register')
+      .send({ email: `newcomer-${stamp}@test.com`, password: 'password123', name: 'Newcomer', next });
+    expect(registered.status).toBe(201);
+    await eventually(() => activation.mock.calls.some(([to]) => to === `newcomer-${stamp}@test.com`));
+    expect(activation.mock.calls.find(([to]) => to === `newcomer-${stamp}@test.com`)![3]).toBe(next);
+
+    await request(app).post('/api/auth/register')
+      .send({ email: `wanderer-${stamp}@test.com`, password: 'password123', name: 'Wanderer', next: 'https://evil.example' });
+    await eventually(() => activation.mock.calls.some(([to]) => to === `wanderer-${stamp}@test.com`));
+    expect(activation.mock.calls.find(([to]) => to === `wanderer-${stamp}@test.com`)![3]).toBeNull();
+  });
+
+  it('follows only paths inside the app', () => {
+    expect(safeNextPath('/prihlaska/turnaj/1')).toBe('/prihlaska/turnaj/1');
+    expect(safeNextPath('//evil.example')).toBeNull();
+    expect(safeNextPath('/\\evil.example')).toBeNull();
+    expect(safeNextPath('https://evil.example')).toBeNull();
+    expect(safeNextPath('/with space')).toBeNull();
+    expect(safeNextPath(42)).toBeNull();
   });
 });

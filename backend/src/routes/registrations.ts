@@ -2,16 +2,20 @@ import { NextFunction, Response, Router } from 'express';
 import {
   approve,
   getForm,
+  getFunnel,
   getInbox,
   getSettings,
+  getStatus,
   listMine,
+  promote,
   reject,
   submit,
   updateSettings,
   waitlist,
   withdraw,
+  withdrawByStatusToken,
 } from '../controllers/registrationController.js';
-import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
 import { requireVisible } from '../middleware/access.js';
 import { AuthRequest } from '../types/index.js';
 
@@ -25,6 +29,9 @@ const visible = (req: AuthRequest, res: Response, next: NextFunction) =>
 // The applicant's side.
 router.get('/mine', authenticate, listMine);
 router.post('/:id/withdraw', authenticate, withdraw);
+// A tournament applicant without an account follows the link from their receipt.
+router.get('/status/:token', getStatus);
+router.post('/status/:token/withdraw', withdrawByStatusToken);
 
 // The manager's side; access is checked per competition in the controller.
 router.get('/:kind(season|tournament)/:id/settings', authenticate, getSettings);
@@ -33,6 +40,8 @@ router.get('/:kind(season|tournament)/:id/inbox', authenticate, getInbox);
 router.post('/:id/approve', authenticate, approve);
 router.post('/:id/reject', authenticate, reject);
 router.post('/:id/waitlist', authenticate, waitlist);
+router.post('/:id/promote', authenticate, promote);
+router.get('/funnel', authenticate, authorize('ADMIN'), getFunnel);
 
 // The public form. A season application needs an account (checked in the
 // controller so the form itself can still be read signed out).

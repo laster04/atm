@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../../context/AuthContext';
+import { safeNextPath, withNext } from '@/utils/nextPath';
 import { normalizeEmail } from '../../../utils/email';
 import { AxiosError } from 'axios';
 import { Button } from '@components/base/button';
@@ -25,8 +26,7 @@ export default function LoginForm() {
   // Where to go after signing in: a page that sent the user here (a season
   // application) passes ?next=. Only paths inside the app are followed.
   const [searchParams] = useSearchParams();
-  const next = searchParams.get('next');
-  const afterLogin = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
+  const afterLogin = safeNextPath(searchParams.get('next')) ?? '/dashboard';
 
   const onSubmit = async (data: LoginFormData) => {
     setError('');
@@ -91,7 +91,7 @@ export default function LoginForm() {
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
             {t('auth.login.noAccount')}{' '}
-            <Link to="/register" className="text-blue-600 hover:underline">
+            <Link to={withNext('/register', safeNextPath(searchParams.get('next')))} className="text-blue-600 hover:underline">
               {t('auth.login.registerLink')}
             </Link>
           </span>

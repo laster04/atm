@@ -4,10 +4,10 @@ import RegistrationsPanel from '@/components/registrations/RegistrationsPanel';
 import { useTranslation } from 'react-i18next';
 import {
   tournamentApi, tournamentTeamApi, tournamentPlayerApi,
-  tournamentGroupApi, tournamentGameApi, tournamentPlayoffApi,
+  tournamentGroupApi, tournamentGameApi, tournamentPlayoffApi, registrationApi,
 } from '@/services/api';
 import type {
-  PlayerPosition, Tournament, TournamentTeam, TournamentPlayer,
+  PlayerPosition, RegistrationSettings, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentStatus, TournamentGamePhase,
 } from '@types';
 import { Button } from '@components/base/button';
@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@components/ba
 import { Checkbox } from '@components/base/checkbox';
 import {
   Plus, Pencil, Trash2,
-  Trophy, RefreshCw,
+  Trophy, RefreshCw, ClipboardSignature, X,
 } from 'lucide-react';
 import TeamsPanel from '../components/TeamsPanel';
 import TennisTeamsPanel from '../components/TennisTeamsPanel';
@@ -26,6 +26,18 @@ import PositionSelect from '@components/PositionSelect';
 import { positionsForSports } from '@/utils/playerPositions';
 
 // ── helpers ─────────────────────────────────────────────────
+
+/** Per tournament and browser: the manager adds the teams without a sign-up form. */
+const skipRegistrationsKey = (id: string) => `atm.tournament.skipRegistrations.${id}`;
+
+const readSkipRegistrations = (id: string | undefined): boolean => {
+  if (!id) return false;
+  try {
+    return localStorage.getItem(skipRegistrationsKey(id)) === '1';
+  } catch {
+    return false;
+  }
+};
 
 const STATUS_OPTIONS: TournamentStatus[] = ['DRAFT', 'REGISTRATION', 'GROUP_STAGE', 'PLAYOFF', 'COMPLETED'];
 const PHASE_OPTIONS: TournamentGamePhase[] = ['ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'BRONZE', 'FINAL'];
@@ -67,6 +79,9 @@ export default function TournamentManagePage() {
   // The email about a new application links to ?registrations=1.
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
+  const [tab, setTab] = useState(searchParams.get('registrations') === '1' ? 'registrations' : 'teams');
+  const [registrations, setRegistrations] = useState<RegistrationSettings | null>(null);
+  const [skipRegistrations, setSkipRegistrations] = useState(() => readSkipRegistrations(id));
 
   // ── state ──────────────────────────────────────────────────
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -146,6 +161,14 @@ export default function TournamentManagePage() {
   };
 
   useEffect(() => { load(); }, [id]);
+
+  // Where the sign-up form stands: a setup card while it was never
+  // published, and a count of new applications on its tab.
+  const loadRegistrations = () => {
+    if (!id) return;
+    registrationApi.getSettings('tournament', id).then((res) => setRegistrations(res.data)).catch(() => setRegistrations(null));
+  };
+  useEffect(loadRegistrations, [id, tab]);
 
   // ── expand team players ────────────────────────────────────
   const toggleTeam = async (teamId: string) => {
@@ -494,19 +517,66 @@ export default function TournamentManagePage() {
 
       {error && <div className="bg-red-50 text-red-700 border border-red-200 rounded p-3 text-sm">{error}</div>}
 
+      {/* Before teams are in: let them sign themselves up. */}
+      {registrations?.lifecycle === 'DRAFT' && !skipRegistrations && tab !== 'registrations'
+        && (tournament.status === 'DRAFT' || tournament.status === 'REGISTRATION') && (
+        <div className="flex items-start gap-3 rounded-xl border-2 border-violet-300 bg-violet-50 p-4">
+          <ClipboardSignature className="mt-0.5 size-5 shrink-0 text-violet-700" aria-hidden />
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <span className="text-[15px] font-semibold">
+              {t('registrations.setup.title')}
+              <span className="ml-2 inline-block rounded-full bg-violet-700 px-1.5 py-px align-middle text-[10.5px] font-bold uppercase tracking-wide text-white">
+                {t('seasonChecklist.new')}
+              </span>
+            </span>
+            <span className="text-[13px] text-muted-foreground">{t('registrations.setup.body')}</span>
+            <Button size="sm" className="mt-1 self-start bg-violet-700 hover:bg-violet-800" onClick={() => setTab('registrations')}>
+              {t('registrations.setup.action')}
+            </Button>
+          </div>
+          <button
+            type="button"
+            aria-label={t('registrations.setup.dismiss')}
+            title={t('registrations.setup.dismiss')}
+            onClick={() => {
+              try {
+                localStorage.setItem(skipRegistrationsKey(tournament.id), '1');
+              } catch {
+                // Private mode: hidden until the page is left.
+              }
+              setSkipRegistrations(true);
+            }}
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-violet-100"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+        </div>
+      )}
+
       {/* Tabs */}
-      <Tabs defaultValue={searchParams.get('registrations') === '1' ? 'registrations' : 'teams'}>
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="teams">{t('tm.tournament.tabs.teams', { context: tennisCtx })} ({teams.length})</TabsTrigger>
           <TabsTrigger value="groups">{t('tm.tournament.tabs.groups')} ({groups.length})</TabsTrigger>
           <TabsTrigger value="results">{t('tm.tournament.tabs.results')} ({groupGames.length})</TabsTrigger>
           <TabsTrigger value="playoff">{t('tm.tournament.tabs.playoff')} ({playoffGames.length})</TabsTrigger>
-          <TabsTrigger value="registrations">{t('registrations.title')}</TabsTrigger>
+          <TabsTrigger value="registrations">
+            {t('registrations.title')}
+            {registrations && registrations.capacity.pending > 0 && (
+              <span className="ml-1.5 rounded-full bg-violet-700 px-1.5 text-[11px] font-bold text-white">{registrations.capacity.pending}</span>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         {/* ── REGISTRATIONS ─────────────────────────────────── */}
         <TabsContent value="registrations" className="mt-4 max-w-2xl">
-          <RegistrationsPanel kind="tournament" id={tournament.id} accent="#7c3aed" onTeamsChanged={() => void load()} />
+          <RegistrationsPanel
+            kind="tournament"
+            id={tournament.id}
+            accent="#7c3aed"
+            onTeamsChanged={() => void load()}
+            onLifecycleChanged={loadRegistrations}
+          />
         </TabsContent>
 
         {/* ── TEAMS ─────────────────────────────────────────── */}

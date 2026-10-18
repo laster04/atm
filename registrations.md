@@ -58,6 +58,27 @@ Decided on page 11 (14 Oct 2026):
 - **Dashboard:** a "Moje přihlášky" section with status and a withdraw button.
 - **Texts:** everything in `cs.json` and `en.json`.
 
+## Follow-ups from docs/REGISTRATION_FLOW_REVIEW.md (18 Oct 2026, same branch)
+- **Publish lifecycle:** `RegistrationWindow.publishedAt`/`closedAt`; settings return `lifecycle` (DRAFT, OPEN, FULL, PAST_DEADLINE, CLOSED), `capacity` and `competitionName`. The panel prepares the terms, previews the form (`?preview=1`, managers only, submit disabled), publishes and closes behind an inline confirmation, then shows a share panel: link, native share, QR code (`qrcode`), WhatsApp and email messages, social post, and a printable poster at `/prihlaska/:kind/:id/plakat`.
+- **One capacity model** (`approved`, `pending`, `waitlisted`, `max`, `free`) in the form, the inbox, the settings and the organiser's emails. The form says before sending whether the application would be waitlisted.
+- **Waiting list stays manual:**
+  - `POST /registrations/:id/promote` moves a waitlisted application to pending, but only into a free place.
+  - Moving one up ahead of an older one is recorded (`promotedAt`, `promotedById`, `promotedOutOfOrder`).
+  - Approving from the waiting list may not take a place held by a pending application.
+  - Withdrawing a pending application emails the organiser when teams are waiting.
+- **Season sign-up keeps its way back:** `?next=` passes through register, the activation email and the activation page (`safeNextPath` on both sides).
+- **Tournament status link:**
+  - A random token (only its SHA-256 is stored in `statusTokenHash`) goes into the 201 answer and the receipt.
+  - `GET /registrations/status/:token` shows the application, and `POST .../withdraw` takes it back.
+  - The link stops working (410) 30 days after the application was decided or withdrawn.
+  - The page is `/prihlaska/stav/:token`.
+- **Discovery:**
+  - `registrationOpen` on public season and series lists, with an "Applications open" badge and filter.
+  - Deadline, free places and fee next to the public Apply button.
+  - A landing section, a release note, the help article `prihlasky-tymu`, a season checklist step and a tournament setup card.
+- **Funnel:** `GET /registrations/funnel` (admin only), shown as a card on the admin More page.
+- **Email in dev and tests:** tests never send (`NODE_ENV=test`). Without a Resend key, development logs each email and its links instead.
+
 Out of scope for now: plan limits (page 9), a tournament team manager account, single players applying to a season, QR payment of the entry fee (phase 3), and a "Open registrations" step in the season setup checklist.
 
 ## Verification

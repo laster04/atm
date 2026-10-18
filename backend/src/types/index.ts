@@ -81,6 +81,8 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
+  /** A path in the app to return to after activation. */
+  next?: string;
 }
 
 export interface LoginRequest {

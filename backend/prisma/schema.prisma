@@ -113,6 +113,7 @@ model User {
   sentManagerInvites      ManagerInvite[]    @relation("InviteSender")
   registrations           Registration[]     @relation("RegistrationApplicant")
   decidedRegistrations    Registration[]     @relation("RegistrationDecider")
+  promotedRegistrations   Registration[]     @relation("RegistrationPromoter")
 
   @@map("users")
 }
@@ -923,6 +924,10 @@ model RegistrationWindow {
   rulesVersion Int     @default(1) @map("rules_version")
   // Entry fee as plain text ("1 500 Kč per team, pay by 30 June").
   fee String?
+  // First time the manager opened the form, and the last time they closed it.
+  // A window never published is still a draft.
+  publishedAt DateTime? @map("published_at")
+  closedAt    DateTime? @map("closed_at")
 
   registrations Registration[]
 
@@ -965,6 +970,14 @@ model Registration {
   decidedById String?   @map("decided_by_id")
   decidedBy   User?     @relation("RegistrationDecider", fields: [decidedById], references: [id], onDelete: SetNull)
   reason      String?
+  withdrawnAt DateTime? @map("withdrawn_at")
+
+  // A waitlisted application the manager moved up to the queue. Moving one up
+  // ahead of an older one is flagged, so the order can be accounted for.
+  promotedAt         DateTime? @map("promoted_at")
+  promotedById       String?   @map("promoted_by_id")
+  promotedBy         User?     @relation("RegistrationPromoter", fields: [promotedById], references: [id], onDelete: SetNull)
+  promotedOutOfOrder Boolean   @default(false) @map("promoted_out_of_order")
 
   // What the approval created or added.
   teamId           String?         @map("team_id")
@@ -974,6 +987,9 @@ model Registration {
 
   // A retried submit returns the application that already arrived.
   clientToken String @unique @map("client_token")
+  // The applicant's status link, for a tournament applicant with no account.
+  // Only its hash is stored, as with manager invites.
+  statusTokenHash String? @unique @map("status_token_hash")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
