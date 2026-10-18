@@ -864,6 +864,20 @@ export interface RegistrationCapacity {
 /** The form's life as the manager sees it: a draft until first published. */
 export type RegistrationLifecycle = 'DRAFT' | 'OPEN' | 'FULL' | 'PAST_DEADLINE' | 'CLOSED';
 
+/** A season or tournament the signed-in user runs, as the dashboard lists it. */
+export interface ManagedCompetition {
+  kind: RegistrationKind;
+  id: string;
+  name: string;
+  /** League or series. */
+  parentName: string;
+  lifecycle: RegistrationLifecycle;
+  pending: number;
+  waitlisted: number;
+  /** The competition's applications inbox inside the app. */
+  inboxPath: string;
+}
+
 /** What the public sign-up form of a season or tournament shows. */
 export interface RegistrationForm {
   kind: RegistrationKind;

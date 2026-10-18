@@ -418,6 +418,39 @@ describe('public lists', () => {
   });
 });
 
+describe('the dashboard list', () => {
+  it("shows a manager their own running competitions, work waiting first", async () => {
+    const owner = await account('owner-reg');
+    const league = await request(app).post('/api/leagues').set(auth(owner.token))
+      .send({ name: `Own League ${stamp}`, sportType: 'FOOTBALL' });
+    const ownSeason = await request(app).post('/api/seasons').set(auth(owner.token))
+      .send({ name: `Own Season ${stamp}`, leagueId: league.body.id, startDate: '2027-09-01', endDate: '2028-04-30' });
+    const series = await request(app).post('/api/tournaments/series').set(auth(owner.token))
+      .send({ name: `Own Cup ${stamp}`, sportType: 'HOCKEY' });
+    const cup = await request(app).post(`/api/tournaments/series/${series.body.id}/tournaments`).set(auth(owner.token))
+      .send({ name: `Own Cup ${stamp}` });
+    await request(app).put(`/api/registrations/tournament/${cup.body.id}/settings`).set(auth(owner.token))
+      .send({ open: true, maxTeams: 4 });
+    expect((await applyToTournament(cup.body.id, { teamName: 'Visitors' })).status).toBe(201);
+
+    const mine = await request(app).get('/api/registrations/managed').set(auth(owner.token));
+    expect(mine.status).toBe(200);
+    expect(mine.body).toEqual([
+      expect.objectContaining({
+        kind: 'tournament', id: cup.body.id, lifecycle: 'OPEN', pending: 1, waitlisted: 0,
+        inboxPath: `/tournament-management/tournament/${cup.body.id}?registrations=1`,
+      }),
+      expect.objectContaining({ kind: 'season', id: ownSeason.body.id, lifecycle: 'DRAFT', pending: 0, parentName: `Own League ${stamp}` }),
+    ]);
+
+    // Only the manager relation counts, so neither a stranger nor an admin sees them.
+    expect((await request(app).get('/api/registrations/managed').set(auth(strangerToken))).body).toEqual([]);
+    const admin = await request(app).get('/api/registrations/managed').set(auth(adminToken));
+    expect(admin.body.some((row: { id: string }) => row.id === cup.body.id)).toBe(false);
+    expect((await request(app).get('/api/registrations/managed')).status).toBe(401);
+  });
+});
+
 describe('the funnel', () => {
   it('is for admins only and counts published forms', async () => {
     expect((await request(app).get('/api/registrations/funnel').set(auth(strangerToken))).status).toBe(403);

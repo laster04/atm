@@ -48,8 +48,8 @@ export default function MyEventsSection() {
 	if (events.length === 0) return null;
 
 	return (
-		<div className="mb-8">
-			<h2 className="mb-3 text-xl font-bold text-gray-900">{t('home.myEvents.title')}</h2>
+		<section>
+			<h2 className="mb-3 text-[20px] font-bold">{t('home.myEvents.title')}</h2>
 			{error && <p className="mb-2 text-sm text-red-600">{error}</p>}
 
 			<div className="flex flex-col gap-2">
@@ -104,6 +104,6 @@ export default function MyEventsSection() {
 					</div>
 				))}
 			</div>
-		</div>
+		</section>
 	);
 }

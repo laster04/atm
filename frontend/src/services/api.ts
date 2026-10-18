@@ -6,6 +6,7 @@ import type {
   SeasonPlayoff, CreatePlayoffInput,
   RegistrationForm, RegistrationSettings, RegistrationInbox, Registration, MyRegistration, RegistrationInput, RegistrationKind,
   RegistrationSettingsInput, RegistrationStatusView, RegistrationFunnel,
+  ManagedCompetition,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
   TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
@@ -410,4 +411,6 @@ export const registrationApi = {
   status: (token: string) => api.get<RegistrationStatusView>(`/registrations/status/${token}`),
   withdrawByToken: (token: string) => api.post<Registration>(`/registrations/status/${token}/withdraw`),
   funnel: () => api.get<RegistrationFunnel>('/registrations/funnel'),
+  /** The caller's own running competitions and their forms, for the dashboard. */
+  managed: () => api.get<ManagedCompetition[]>('/registrations/managed'),
 };

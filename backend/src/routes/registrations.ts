@@ -6,6 +6,7 @@ import {
   getInbox,
   getSettings,
   getStatus,
+  listManaged,
   listMine,
   promote,
   reject,
@@ -42,6 +43,8 @@ router.post('/:id/reject', authenticate, reject);
 router.post('/:id/waitlist', authenticate, waitlist);
 router.post('/:id/promote', authenticate, promote);
 router.get('/funnel', authenticate, authorize('ADMIN'), getFunnel);
+// The dashboard's list of the caller's own competitions and their forms.
+router.get('/managed', authenticate, listManaged);
 
 // The public form. A season application needs an account (checked in the
 // controller so the form itself can still be read signed out).

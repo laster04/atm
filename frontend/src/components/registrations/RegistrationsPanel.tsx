@@ -14,7 +14,7 @@ const STATUS_TONE: Record<RegistrationStatus, { bg: string; fg: string }> = {
 	REJECTED: { bg: '#fee2e2', fg: '#991b1b' },
 	WITHDRAWN: { bg: '#f1f5f9', fg: '#475569' },
 };
-const LIFECYCLE_TONE: Record<RegistrationLifecycle, { bg: string; fg: string }> = {
+export const LIFECYCLE_TONE: Record<RegistrationLifecycle, { bg: string; fg: string }> = {
 	DRAFT: { bg: '#f1f5f9', fg: '#475569' },
 	OPEN: { bg: '#dcfce7', fg: '#166534' },
 	FULL: { bg: '#fef3c7', fg: '#92400e' },

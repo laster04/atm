@@ -55,7 +55,7 @@ import { Toaster } from "@components/base/toaster.tsx";
 import ErrorBoundary from './components/ErrorBoundary';
 
 /**
- * The signed-in utility pages — dashboard, sign-in, registration — keep the
+ * The account pages — sign-in, registration, activation, invites — keep the
  * original navbar. The public part has its own shell (PublicLayout) and the
  * manager shells bring their own chrome, so neither is wrapped here.
  */
@@ -104,10 +104,11 @@ function AppContent() {
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />
+          {/* Signed in only; the page sends anyone else to the landing page. */}
+          <Route path="/dashboard" element={<Home />} />
         </Route>
 
         <Route element={<AccountShell />}>
-          <Route path="/dashboard" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/activate/:token" element={<Activate />} />

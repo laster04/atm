@@ -28,10 +28,6 @@
     "tagline": "Správa sezón a týmů",
     "leagues": "Ligy",
     "seasons": "Sezony",
-    "myTeams": "Moje Týmy",
-    "mySeasons": "Moje Sezony",
-    "admin": "Administrace",
-    "manageTournaments": "Správa turnajů",
     "login": "Prihlasit",
     "register": "Registrovat",
     "logout": "Odhlasit",
@@ -50,23 +46,21 @@
         "title": "Vítejte v ATM!",
         "body": "Pojďme se rychle podívat, kde co najdete."
       },
-      "navMenu": {
-        "title": "Vaše menu účtu",
-        "body": "Toto menu kdykoliv otevřete a dostanete se k týmům, sezonám i nastavení."
-      },
       "myTeams": {
         "title": "Vaše týmy",
         "body": "Týmy, které spravujete, se zobrazují zde. Klikněte na tým a spravujte jeho soupisku, rozpis a nastavení."
       },
-      "activeSeasons": {
-        "title": "Aktivní sezony",
-        "body": "Zde se zobrazují aktuálně aktivní sezony. Klikněte na sezonu pro zobrazení týmů, rozpisu a tabulky."
+      "workspaces": {
+        "title": "Vaše správa",
+        "body": "Odsud otevřete sezóny, týmy a turnaje, které spravujete. Ještě nemáte ligu? Založíte ji jedním tlačítkem."
+      },
+      "openCompetitions": {
+        "title": "Soutěže s otevřenými přihláškami",
+        "body": "Sezóny a turnaje, které právě přijímají týmy, a sezóny, které se hrají."
       }
     }
   },
   "home": {
-    "title": "Planovac Sportovnich Sezon",
-    "subtitle": "Spravujte sve sportovni ligy snadno. Vytvarejte sezony, sledujte tymy, planujte zapasy a zobrazujte tabulky na jednom miste.",
     "features": {
       "leagueManagement": {
         "title": "Sprava Ligy",
@@ -81,11 +75,9 @@
         "description": "Sledujte tabulky v realnem case s pridavanim vysledku zapasu."
       }
     },
-    "activeSeasons": "Aktivni Sezony",
-    "viewAllSeasons": "Zobrazit všechny sezony",
+    "viewAllSeasons": "Zobrazit všechny sezóny",
     "viewAllLeagues": "Zobrazit všechny ligy",
-    "noActiveSeasons": "Zatim zadne aktivni sezony.",
-    "myTeams": "Moje Tymy",
+    "myTeams": "Týmy, které spravuji",
     "appInfo": {
       "title": "Proč si vybrat Amateur Team Manager?",
       "description": "Komplexní platforma navržená pro zjednodušení správy sportovních lig. Od nastavení ligy přes plánování zápasů až po sledování výkonu - máme vše, co potřebujete.",
@@ -2682,6 +2674,115 @@
       "places_one": "{{count}} místo",
       "places_few": "{{count}} místa",
       "places_other": "{{count}} míst"
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "title": "Ahoj, {{name}}",
+      "managerText": "Všechno, co spravujete, a co tam na vás čeká.",
+      "newText": "Založte ligu nebo turnaj, nebo najděte soutěž, která právě přijímá týmy.",
+      "pending_one": "{{count}} přihláška k rozhodnutí",
+      "pending_few": "{{count}} přihlášky k rozhodnutí",
+      "pending_other": "{{count}} přihlášek k rozhodnutí"
+    },
+    "workspaces": {
+      "title": "Vaše správa",
+      "text": "Otevřete oblast, ve které chcete pracovat.",
+      "emptyText": "Zatím nic nespravujete. Založte ligu nebo turnaj, zabere to minutu.",
+      "pending_one": "{{count}} nová přihláška",
+      "pending_few": "{{count}} nové přihlášky",
+      "pending_other": "{{count}} nových přihlášek",
+      "season": {
+        "title": "Sezóny",
+        "count_one": "{{count}} liga",
+        "count_few": "{{count}} ligy",
+        "count_other": "{{count}} lig"
+      },
+      "team": {
+        "title": "Týmy",
+        "count_one": "Spravujete {{count}} tým",
+        "count_few": "Spravujete {{count}} týmy",
+        "count_other": "Spravujete {{count}} týmů"
+      },
+      "tournament": {
+        "title": "Turnaje",
+        "count_one": "{{count}} série turnajů",
+        "count_few": "{{count}} série turnajů",
+        "count_other": "{{count}} sérií turnajů"
+      },
+      "admin": {
+        "title": "Administrace",
+        "text": "Uživatelé, ligy a tikety podpory"
+      }
+    },
+    "start": {
+      "sport": "Sport",
+      "creating": "Zakládám…",
+      "error": "Nepodařilo se to založit. Zkuste to znovu.",
+      "league": {
+        "title": "Založit ligu",
+        "text": "Sezóny, rozpis, tabulky a přihlášky týmů",
+        "dialogTitle": "Založit ligu",
+        "dialogText": "Liga drží vaše sezóny. Budete ji spravovat a hned potom přidáte sezónu a týmy.",
+        "name": "Název ligy",
+        "namePlaceholder": "např. Brněnská hobby hokejová liga",
+        "next": "Potom založíte první sezónu a pozvete týmy, nebo otevřete přihlášky.",
+        "create": "Založit ligu"
+      },
+      "series": {
+        "title": "Založit turnaj",
+        "text": "Skupiny, play-off a přihlášky bez účtu",
+        "dialogTitle": "Založit turnaj",
+        "dialogText": "Série turnajů drží vaše turnaje, třeba jeden každý rok. Budete ji spravovat.",
+        "name": "Název série",
+        "namePlaceholder": "např. Letní florbalový pohár",
+        "next": "Potom přidáte první turnaj a jeho týmy, nebo otevřete přihlášky.",
+        "create": "Založit sérii"
+      }
+    },
+    "managed": {
+      "title": "Přihlášky týmů ve vašich soutěžích",
+      "text": "Nové přihlášky čekají na vaše rozhodnutí. Přihlášky může přijímat i soutěž, která formulář ještě nezveřejnila.",
+      "guide": "Jak přihlášky fungují",
+      "open": "Otevřít schránku přihlášek",
+      "publish": "Otevřít přihlášky",
+      "pending_one": "{{count}} nová",
+      "pending_few": "{{count}} nové",
+      "pending_other": "{{count}} nových",
+      "waitlisted_one": "{{count}} na čekací listině",
+      "waitlisted_few": "{{count}} na čekací listině",
+      "waitlisted_other": "{{count}} na čekací listině",
+      "kind": {
+        "season": "Sezóna",
+        "tournament": "Turnaj"
+      }
+    },
+    "open": {
+      "title": "Přihlášky otevřené",
+      "text": "Soutěže, které právě přijímají týmy.",
+      "all": "Všechny sezóny",
+      "empty": "Teď žádná soutěž nepřijímá přihlášky."
+    },
+    "playing": {
+      "title": "Právě se hraje",
+      "teams_one": "{{count}} tým",
+      "teams_few": "{{count}} týmy",
+      "teams_other": "{{count}} týmů",
+      "games_one": "{{count}} zápas",
+      "games_few": "{{count}} zápasy",
+      "games_other": "{{count}} zápasů"
+    },
+    "whatsNew": {
+      "title": "Novinky",
+      "new": "Nové",
+      "all": "Všechny novinky"
+    },
+    "help": {
+      "title": "Nápověda",
+      "quickStart": "Rychlý start",
+      "registrations": "Návod k přihláškám týmů",
+      "all": "Centrum nápovědy",
+      "contact": "Napište nám"
     }
   }
 }

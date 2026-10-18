@@ -28,10 +28,6 @@
     "tagline": "Season & Team Management",
     "leagues": "Leagues",
     "seasons": "Seasons",
-    "myTeams": "My Teams",
-    "mySeasons": "My Seasons",
-    "admin": "Admin",
-    "manageTournaments": "Manage Tournaments",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
@@ -50,23 +46,21 @@
         "title": "Welcome to ATM!",
         "body": "Let's take a quick look at where things are."
       },
-      "navMenu": {
-        "title": "Your account menu",
-        "body": "Open this menu anytime to reach your teams, seasons, and settings."
-      },
       "myTeams": {
         "title": "Your teams",
         "body": "The teams you manage show up here. Click one to manage its roster, schedule, and settings."
       },
-      "activeSeasons": {
-        "title": "Active seasons",
-        "body": "Currently active seasons appear here. Open one to see its teams, schedule, and standings."
+      "workspaces": {
+        "title": "Your workspaces",
+        "body": "Seasons, teams and tournaments you run open from here. No league yet? Start one with a single button."
+      },
+      "openCompetitions": {
+        "title": "Competitions open for applications",
+        "body": "Seasons and tournaments taking teams right now, and the seasons being played."
       }
     }
   },
   "home": {
-    "title": "Amateur Team Manager",
-    "subtitle": "Manage your sports leagues with ease. Create seasons, track teams, schedule games, and view standings all in one place.",
     "features": {
       "leagueManagement": {
         "title": "League Management",
@@ -81,11 +75,9 @@
         "description": "Track standings in real-time as game results are entered."
       }
     },
-    "activeSeasons": "Active Seasons",
     "viewAllSeasons": "View all seasons",
     "viewAllLeagues": "View all leagues",
-    "noActiveSeasons": "No active seasons yet.",
-    "myTeams": "My Teams",
+    "myTeams": "Teams I manage",
     "appInfo": {
       "title": "Why choose Amateur Team Manager?",
       "description": "A comprehensive platform designed to simplify sports league management. From league setup to game scheduling and performance tracking, we have everything you need.",
@@ -515,7 +507,7 @@
     "title": "Team Management",
     "tabs": {
       "title": "Team Management",
-      "myTeams": "My Teams"
+      "myTeams": "Teams I manage"
     },
     "back": "Back",
     "pwa": {
@@ -2639,6 +2631,106 @@
       "scan": "Scan the code to apply your team",
       "places_one": "{{count}} place",
       "places_other": "{{count}} places"
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "title": "Hi, {{name}}",
+      "managerText": "Everything you run, and what waits for you there.",
+      "newText": "Start a league or a tournament, or find a competition that is taking teams.",
+      "pending_one": "{{count}} application to decide",
+      "pending_other": "{{count}} applications to decide"
+    },
+    "workspaces": {
+      "title": "Your workspaces",
+      "text": "Open the area you want to work in.",
+      "emptyText": "You don't run anything yet. Start a league or a tournament; it takes a minute.",
+      "pending_one": "{{count}} new application",
+      "pending_other": "{{count}} new applications",
+      "season": {
+        "title": "Seasons",
+        "count_one": "{{count}} league",
+        "count_other": "{{count}} leagues"
+      },
+      "team": {
+        "title": "Teams",
+        "count_one": "{{count}} team you manage",
+        "count_other": "{{count}} teams you manage"
+      },
+      "tournament": {
+        "title": "Tournaments",
+        "count_one": "{{count}} tournament series",
+        "count_other": "{{count}} tournament series"
+      },
+      "admin": {
+        "title": "Administration",
+        "text": "Users, leagues and support tickets"
+      }
+    },
+    "start": {
+      "sport": "Sport",
+      "creating": "Creating…",
+      "error": "It could not be created. Try again.",
+      "league": {
+        "title": "Start a league",
+        "text": "Seasons, schedule, tables and team applications",
+        "dialogTitle": "Start a league",
+        "dialogText": "A league holds your seasons. You will manage it, and can add seasons and teams right after.",
+        "name": "League name",
+        "namePlaceholder": "e.g. Brno Hobby Hockey League",
+        "next": "Next you create its first season, then invite teams or open applications.",
+        "create": "Create league"
+      },
+      "series": {
+        "title": "Start a tournament",
+        "text": "Groups, play-off and applications without accounts",
+        "dialogTitle": "Start a tournament",
+        "dialogText": "A tournament series holds your tournaments, for example one per year. You will manage it.",
+        "name": "Series name",
+        "namePlaceholder": "e.g. Summer Floorball Cup",
+        "next": "Next you add the first tournament and its teams, or open applications.",
+        "create": "Create series"
+      }
+    },
+    "managed": {
+      "title": "Team applications in your competitions",
+      "text": "New applications wait for your decision. A competition without a published form can take applications too.",
+      "guide": "How applications work",
+      "open": "Open applications inbox",
+      "publish": "Open applications",
+      "pending_one": "{{count}} new",
+      "pending_other": "{{count}} new",
+      "waitlisted_one": "{{count}} on the waiting list",
+      "waitlisted_other": "{{count}} on the waiting list",
+      "kind": {
+        "season": "Season",
+        "tournament": "Tournament"
+      }
+    },
+    "open": {
+      "title": "Open for applications",
+      "text": "Competitions taking teams right now.",
+      "all": "All seasons",
+      "empty": "No competition is taking applications right now."
+    },
+    "playing": {
+      "title": "Playing now",
+      "teams_one": "{{count}} team",
+      "teams_other": "{{count}} teams",
+      "games_one": "{{count}} game",
+      "games_other": "{{count}} games"
+    },
+    "whatsNew": {
+      "title": "What's new",
+      "new": "New",
+      "all": "All updates"
+    },
+    "help": {
+      "title": "Help",
+      "quickStart": "Quick start",
+      "registrations": "Team applications guide",
+      "all": "Help centre",
+      "contact": "Contact us"
     }
   }
 }

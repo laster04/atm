@@ -1018,3 +1018,91 @@ export const getFunnel = async (_req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ error: 'Failed to load the registration funnel' });
   }
 };
+
+const MANAGED_LIMIT = 30;
+
+/**
+ * The running seasons and tournaments the caller runs, with where their sign-up
+ * form stands and how many applications wait for a decision, for the
+ * dashboard. Ownership is the manager relation even for an admin, who would
+ * otherwise see every competition there is.
+ */
+export const listManaged = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.id;
+    const [seasons, tournaments] = await Promise.all([
+      prisma.season.findMany({
+        where: { league: { managerId: userId }, archivedAt: null, status: { not: 'COMPLETED' } },
+        include: { league: { select: { name: true } }, registrationWindow: true, _count: { select: { seasonTeams: true } } },
+      }),
+      prisma.tournament.findMany({
+        where: { series: { managerId: userId }, status: { not: 'COMPLETED' } },
+        include: { series: { select: { name: true } }, registrationWindow: true, _count: { select: { teams: true } } },
+      }),
+    ]);
+    const competitions: Competition[] = [
+      ...seasons.map((season): Competition => ({
+        kind: 'season',
+        id: season.id,
+        name: season.name,
+        parentName: season.league.name,
+        sport: '',
+        archived: false,
+        teamCount: season._count.seasonTeams,
+        managerEmails: [],
+        window: season.registrationWindow,
+      })),
+      ...tournaments.map((tournament): Competition => ({
+        kind: 'tournament',
+        id: tournament.id,
+        name: tournament.name,
+        parentName: tournament.series.name,
+        sport: '',
+        archived: false,
+        teamCount: tournament._count.teams,
+        managerEmails: [],
+        window: tournament.registrationWindow,
+      })),
+    ];
+    const windowIds = competitions.flatMap((competition) => (competition.window ? [competition.window.id] : []));
+    const counts = windowIds.length > 0
+      ? await prisma.registration.groupBy({
+          by: ['windowId', 'status'],
+          where: { windowId: { in: windowIds }, status: { in: ['PENDING', 'WAITLISTED'] } },
+          _count: { _all: true },
+        })
+      : [];
+    const count = (windowId: string | undefined, status: RegistrationStatus) =>
+      counts.find((row) => row.windowId === windowId && row.status === status)?._count._all ?? 0;
+
+    const rows = competitions.map((competition) => {
+      const pending = count(competition.window?.id, 'PENDING');
+      const waitlisted = count(competition.window?.id, 'WAITLISTED');
+      const max = competition.window?.maxTeams ?? null;
+      const capacity: Capacity = {
+        approved: competition.teamCount,
+        pending,
+        waitlisted,
+        max,
+        free: max === null ? null : Math.max(0, max - competition.teamCount - pending),
+      };
+      return {
+        kind: competition.kind,
+        id: competition.id,
+        name: competition.name,
+        parentName: competition.parentName,
+        lifecycle: lifecycleOf(competition, capacity),
+        pending,
+        waitlisted,
+        inboxPath: inboxLink(competition).slice(appUrl().length),
+      };
+    });
+    // Work waiting first, then the forms still to publish, then the rest.
+    const rank = (row: (typeof rows)[number]) => (row.pending > 0 ? 0 : row.lifecycle === 'DRAFT' ? 2 : 1);
+    rows.sort((a, b) => rank(a) - rank(b) || b.pending - a.pending || a.name.localeCompare(b.name));
+    res.json(rows.slice(0, MANAGED_LIMIT));
+  } catch (error) {
+    console.error('List managed registrations error:', error);
+    res.status(500).json({ error: 'Failed to load your competitions' });
+  }
+};

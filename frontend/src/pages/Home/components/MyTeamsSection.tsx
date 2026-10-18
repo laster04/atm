@@ -14,13 +14,13 @@ export default function MyTeamsSection({ teams }: MyTeamsSectionProps): React.JS
   if (teams.length === 0) return null;
 
   return (
-    <div className="mb-12">
-      <h2 className="text-2xl font-bold mb-4">{t('home.myTeams')}</h2>
-      <div className="grid md:grid-cols-3 gap-4">
+    <section>
+      <h2 className="mb-3 text-[20px] font-bold">{t('home.myTeams')}</h2>
+      <div className="grid gap-3 md:grid-cols-2">
         {teams.map((team) => (
             <TeamCard key={team.id} team={team} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

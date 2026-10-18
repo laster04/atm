@@ -39,8 +39,8 @@ export default function MyRegistrationsSection() {
 	if (rows.length === 0) return null;
 
 	return (
-		<div className="mb-8">
-			<h2 className="mb-3 text-xl font-bold text-gray-900">{t('registration.mine.title')}</h2>
+		<section>
+			<h2 className="mb-3 text-[20px] font-bold">{t('registration.mine.title')}</h2>
 			{error && <p className="mb-2 text-sm text-red-600">{error}</p>}
 			<div className="flex flex-col gap-2">
 				{rows.map((row) => {
@@ -66,6 +66,6 @@ export default function MyRegistrationsSection() {
 					);
 				})}
 			</div>
-		</div>
+		</section>
 	);
 }
