@@ -1,6 +1,6 @@
 # Signed-in dashboard (`/dashboard`)
 
-Status: built 2026-10-18 on `feat/registrations`, uncommitted. Canvas page 12.
+Status: built 2026-10-18, in PR #41 (`feat/registrations`). Canvas page 12.
 
 ## Why
 
