@@ -8,6 +8,7 @@ import type { TournamentSeries } from '@types';
 import { EmptyState, PublicHero } from '@/components/public';
 import FilterTabs, { type FilterTab } from '@/components/public/FilterTabs';
 import ApplicationsOpenBadge from '@/components/registrations/ApplicationsOpenBadge';
+import LogoImage from '@/components/LogoImage';
 
 /** `applications`: series with a tournament taking team sign-ups right now. */
 type Filter = 'all' | 'applications';
@@ -93,13 +94,15 @@ export default function TournamentsScreen() {
 								<span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-brand" />
 								<div className="flex items-start justify-between gap-3">
 									<div className="flex min-w-0 items-center gap-3.5">
-										{row.logo ? (
-											<img src={row.logo} alt="" className="size-11 shrink-0 rounded-xl object-cover" />
-										) : (
-											<span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/15">
-												<Trophy className="size-5 text-brand-text" />
-											</span>
-										)}
+										<LogoImage
+											src={row.logo}
+											className="size-11 shrink-0 rounded-xl object-cover"
+											fallback={
+												<span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/15">
+													<Trophy className="size-5 text-brand-text" />
+												</span>
+											}
+										/>
 										<h2 className="truncate text-xl font-bold leading-tight">{row.name}</h2>
 									</div>
 									<div className="flex shrink-0 flex-col items-end gap-1.5">

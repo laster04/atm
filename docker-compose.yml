@@ -21,6 +21,9 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/sport_scheduling
       JWT_SECRET: your-secret-key-change-in-production
       PORT: 3001
+      STORAGE_DRIVER: local
+      # The browser loads logos straight from the backend, as it does the API.
+      STORAGE_PUBLIC_URL: http://localhost:3001/api/uploads
     ports:
       - "3001:3001"
     depends_on:

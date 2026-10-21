@@ -694,6 +694,13 @@
       "removed": "Odkaz na chat odebrán",
       "invalid": "Vložte celý odkaz s pozvánkou, začínající https://",
       "saveError": "Odkaz na chat se nepodařilo uložit"
+    },
+    "logo": {
+      "title": "Logo týmu",
+      "description": "Zobrazí se u týmu v tabulkách, rozpisu a na veřejných stránkách.",
+      "saved": "Logo uloženo",
+      "removed": "Logo odebráno",
+      "saveError": "Logo se nepodařilo uložit"
     }
   },
   "seasonManagement": {
@@ -1198,7 +1205,7 @@
       "createLeagueDesc": "Vytvořte novou ligu pro organizaci vašich sezón",
       "editLeagueDesc": "Upravte detaily ligy",
       "leagueName": "Název ligy",
-      "leagueLogo": "URL loga",
+      "leagueLogo": "Logo",
       "leagueDescription": "Popis",
       "createSeason": "Vytvořit sezónu",
       "editSeason": "Upravit sezónu",
@@ -1274,7 +1281,8 @@
       "noAvailableTeams": "V této sezóně nejsou dostupné žádné jiné týmy",
       "movePlayerBtn": "Přesunout hráče",
       "withinGroups": "Losovat jen uvnitř skupin",
-      "withinGroupsHint": "Týmy hrají jen s ostatními ve své skupině ({{count}} skupiny)"
+      "withinGroupsHint": "Týmy hrají jen s ostatními ve své skupině ({{count}} skupiny)",
+      "teamLogo": "Logo týmu"
     },
     "roles": {
       "ADMIN": "Administrátor",
@@ -1468,7 +1476,6 @@
       "endDate": "Datum konce",
       "sportType": "Typ sportu",
       "description": "Popis",
-      "logoUrl": "URL loga",
       "country": "Země",
       "primaryColor": "Primární barva",
       "number": "Číslo dresu",
@@ -1485,7 +1492,8 @@
       "date": "Datum",
       "team": "Tým",
       "team_TENNIS": "Hráč",
-      "groupName": "Název skupiny"
+      "groupName": "Název skupiny",
+      "logo": "Logo"
     },
     "series": {
       "title": "Série turnajů",
@@ -3091,6 +3099,18 @@
       "consultation": "číslo dotazu {{id}}",
       "ico": "IČO {{ico}}",
       "dic": "DIČ {{dic}}"
+    }
+  },
+  "files": {
+    "upload": "Nahrát logo",
+    "replace": "Vyměnit logo",
+    "remove": "Odebrat",
+    "uploading": "Nahrávám…",
+    "logoHint": "PNG, JPG nebo WebP do 1 MB. Můžete ho sem i přetáhnout.",
+    "errors": {
+      "FILE_TOO_LARGE": "Logo je větší než 1 MB.",
+      "FILE_TYPE_NOT_ALLOWED": "Logo musí být obrázek PNG, JPG nebo WebP.",
+      "failed": "Logo se nepodařilo nahrát. Zkuste to znovu."
     }
   }
 }

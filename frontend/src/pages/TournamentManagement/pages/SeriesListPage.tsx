@@ -9,6 +9,7 @@ import { Badge } from '@components/base/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@components/base/dialog';
 import { Plus, Pencil, Trash2, Trophy, ChevronRight } from 'lucide-react';
 import VisibilityPicker from '@/components/VisibilityPicker';
+import LogoUpload from '@/components/LogoUpload';
 import { VisibilityBadge } from '@/components/public';
 
 const EMPTY: Partial<TournamentSeries> = { name: '', sportType: SportType.HOCKEY, description: '', logo: '', visibility: Visibility.PUBLIC };
@@ -22,6 +23,7 @@ export default function SeriesListPage() {
   const [editing, setEditing] = useState<TournamentSeries | null>(null);
   const [form, setForm] = useState<Partial<TournamentSeries>>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     tournamentSeriesApi.getAll()
@@ -143,13 +145,15 @@ export default function SeriesListPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">{t('tm.fields.logoUrl')}</label>
-              <input
-                className="w-full mt-1 px-3 py-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                value={form.logo ?? ''}
-                onChange={e => setForm(f => ({ ...f, logo: e.target.value }))}
-                placeholder="https://..."
-              />
+              <label className="text-sm font-medium">{t('tm.fields.logo')}</label>
+              <div className="mt-1">
+                <LogoUpload
+                  value={form.logo}
+                  onChange={logo => setForm(f => ({ ...f, logo }))}
+                  name={form.name ?? ''}
+                  onBusyChange={setUploading}
+                />
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium">{t('visibility.label')}</label>
@@ -163,7 +167,7 @@ export default function SeriesListPage() {
             {error && <p className="text-red-600 text-sm">{error}</p>}
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setModalOpen(false)}>{t('tm.common.cancel')}</Button>
-              <Button onClick={handleSave} disabled={saving || !form.name}>
+              <Button onClick={handleSave} disabled={saving || uploading || !form.name}>
                 {saving ? t('tm.common.saving') : t('tm.common.save')}
               </Button>
             </div>

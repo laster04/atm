@@ -18,6 +18,7 @@ import MovePlayerModal from '../components/players/MovePlayerModal';
 import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPositions';
 import { profileFor } from '@/utils/sportProfiles';
 import type { SportType, StatKey } from '@types';
+import LogoImage from '@/components/LogoImage';
 
 interface GameStatForm {
   gameId: string;
@@ -521,17 +522,16 @@ export default function PlayerDetailPage() {
                   className="block p-4 border rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    {player.team.logo ? (
-                      <img
-                        src={player.team.logo}
-                        alt={player.team.name}
-                        className="w-12 h-12 object-contain"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center text-muted-foreground text-xl font-bold">
-                        {player.team.name.charAt(0)}
-                      </div>
-                    )}
+                    <LogoImage
+                      src={player.team.logo}
+                      alt={player.team.name}
+                      className="w-12 h-12 object-contain"
+                      fallback={
+                        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center text-muted-foreground text-xl font-bold">
+                          {player.team.name.charAt(0)}
+                        </div>
+                      }
+                    />
                     <div>
                       <p className="font-bold text-lg">{player.team.name}</p>
                       {player.team.season && (

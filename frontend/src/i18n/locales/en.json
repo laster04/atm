@@ -689,6 +689,13 @@
       "removed": "Chat link removed",
       "invalid": "Paste the full invite link, starting with https://",
       "saveError": "Couldn't save the chat link"
+    },
+    "logo": {
+      "title": "Team logo",
+      "description": "Shown next to the team in standings, the schedule and on public pages.",
+      "saved": "Logo saved",
+      "removed": "Logo removed",
+      "saveError": "The logo could not be saved"
     }
   },
   "seasonManagement": {
@@ -1185,7 +1192,7 @@
       "createLeagueDesc": "Create a new league to organize your seasons",
       "editLeagueDesc": "Update league details",
       "leagueName": "League Name",
-      "leagueLogo": "Logo URL",
+      "leagueLogo": "Logo",
       "leagueDescription": "Description",
       "createSeason": "Create Season",
       "editSeason": "Edit Season",
@@ -1261,7 +1268,8 @@
       "noAvailableTeams": "No other teams available in this season",
       "movePlayerBtn": "Move Player",
       "withinGroups": "Keep fixtures inside divisions",
-      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)"
+      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)",
+      "teamLogo": "Team logo"
     },
     "roles": {
       "ADMIN": "Admin",
@@ -1452,7 +1460,6 @@
       "endDate": "End Date",
       "sportType": "Sport Type",
       "description": "Description",
-      "logoUrl": "Logo URL",
       "country": "Country",
       "primaryColor": "Primary Color",
       "number": "Jersey #",
@@ -1469,7 +1476,8 @@
       "date": "Date",
       "team": "Team",
       "team_TENNIS": "Player",
-      "groupName": "Group Name"
+      "groupName": "Group Name",
+      "logo": "Logo"
     },
     "series": {
       "title": "Tournament Series",
@@ -3027,6 +3035,18 @@
       "consultation": "consultation number {{id}}",
       "ico": "IČO {{ico}}",
       "dic": "VAT ID {{dic}}"
+    }
+  },
+  "files": {
+    "upload": "Upload logo",
+    "replace": "Replace logo",
+    "remove": "Remove",
+    "uploading": "Uploading…",
+    "logoHint": "PNG, JPG or WebP up to 1 MB. You can also drop it here.",
+    "errors": {
+      "FILE_TOO_LARGE": "The logo is larger than 1 MB.",
+      "FILE_TYPE_NOT_ALLOWED": "The logo must be a PNG, JPG or WebP image.",
+      "failed": "The logo could not be uploaded. Please try again."
     }
   }
 }

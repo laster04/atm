@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import app from './app.js';
 import { startVatCheckRetry } from './jobs/vatCheckRetry.js';
+import { startFileSweep } from './jobs/fileSweep.js';
 
 dotenv.config();
 
@@ -10,3 +11,5 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   startVatCheckRetry();
 });
+
+startFileSweep();

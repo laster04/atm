@@ -9,6 +9,8 @@ import {
   UpdateTournamentPlayerRequest,
 } from '../types/index.js';
 import { checkPosition } from '../utils/playerPositions.js';
+import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
+import { releaseFiles } from '../services/storage/files.js';
 
 // ── Teams ──────────────────────────────────────────────────
 
@@ -54,10 +56,12 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
     const { tournamentId } = req.params;
     const { name, logo, primaryColor, country } = req.body as CreateTournamentTeamRequest;
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
+    const storedLogo = await prepareLogo(logo, null, req.user!.id);
 
     const team = await prisma.tournamentTeam.create({
-      data: { name, logo, primaryColor, country, tournamentId: tournamentId },
+      data: { name, logo: storedLogo, primaryColor, country, tournamentId: tournamentId },
     });
+    await settleLogo({ type: 'TOURNAMENT_TEAM', id: team.id }, storedLogo);
     res.status(201).json(team);
   } catch (error) {
     console.error('Create tournament team error:', error);
@@ -69,16 +73,20 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
   try {
     const { id } = req.params;
     const { name, logo, primaryColor, country } = req.body as UpdateTournamentTeamRequest;
+    const current = await prisma.tournamentTeam.findUnique({ where: { id: id }, select: { logo: true } });
+    if (!current) { res.status(404).json({ error: 'Team not found' }); return; }
+    const storedLogo = await prepareLogo(logo, current.logo, req.user!.id);
 
     const team = await prisma.tournamentTeam.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
-        ...(logo !== undefined && { logo }),
+        ...(storedLogo !== undefined && { logo: storedLogo }),
         ...(primaryColor !== undefined && { primaryColor }),
         ...(country !== undefined && { country }),
       },
     });
+    await settleLogo({ type: 'TOURNAMENT_TEAM', id: team.id }, storedLogo);
     res.json(team);
   } catch (error) {
     console.error('Update tournament team error:', error);
@@ -90,6 +98,7 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
   try {
     const { id } = req.params;
     await prisma.tournamentTeam.delete({ where: { id: id } });
+    await releaseFiles([{ type: 'TOURNAMENT_TEAM', id }]);
     res.json({ message: 'Team deleted' });
   } catch (error) {
     console.error('Delete tournament team error:', error);
