@@ -14,6 +14,8 @@ import searchRoutes from './routes/search.js';
 import contactRoutes from './routes/contact.js';
 import inviteRoutes from './routes/invites.js';
 import registrationRoutes from './routes/registrations.js';
+import fileRoutes from './routes/files.js';
+import { serveLocalUploads } from './controllers/fileController.js';
 import { getSitemap } from './controllers/sitemapController.js';
 
 /**
@@ -74,6 +76,9 @@ app.use('/api/search', searchRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/invites', inviteRoutes);
 app.use('/api/registrations', registrationRoutes);
+app.use('/api/files', fileRoutes);
+// The local storage driver's public files; R2 serves its own in production.
+app.use('/api/uploads', serveLocalUploads);
 
 // Proxied by the frontend server as /sitemap-data.xml on the public domain.
 app.get('/api/sitemap.xml', getSitemap);

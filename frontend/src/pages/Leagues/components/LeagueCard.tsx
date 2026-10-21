@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import type { League } from '@types';
 import { VisibilityBadge } from '@/components/public';
+import LogoImage from '@/components/LogoImage';
 
 export default function LeagueCard({ league }: { league: League }) {
 	const { t } = useTranslation();
@@ -21,13 +22,15 @@ export default function LeagueCard({ league }: { league: League }) {
 
 			<div className="relative flex items-start justify-between gap-3">
 				<div className="flex min-w-0 items-center gap-3.5">
-					{league.logo ? (
-						<img src={league.logo} alt="" className="size-11 shrink-0 rounded-xl object-cover" />
-					) : (
-						<span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent text-base font-extrabold text-accent-foreground">
-							{league.name.charAt(0).toUpperCase()}
-						</span>
-					)}
+					<LogoImage
+						src={league.logo}
+						className="size-11 shrink-0 rounded-xl object-cover"
+						fallback={
+							<span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent text-base font-extrabold text-accent-foreground">
+								{league.name.charAt(0).toUpperCase()}
+							</span>
+						}
+					/>
 					<h2 className="truncate text-xl font-bold leading-tight">{league.name}</h2>
 				</div>
 				<div className="flex shrink-0 flex-col items-end gap-1.5">

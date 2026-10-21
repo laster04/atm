@@ -62,6 +62,31 @@ Your backend will be available at something like:
 - Railway: `https://your-app.up.railway.app`
 - Render: `https://your-app.onrender.com`
 
+### Step 5: File Storage (Cloudflare R2)
+
+Logos are uploaded files, so production needs storage that outlives a deploy. Hosts like Railway and Render have ephemeral disks, which rules out the local driver there.
+
+1. In Cloudflare, create two R2 buckets with the **EU** jurisdiction, for example `atm-public` (logos) and `atm-private` (invoices later).
+2. On the public bucket, connect a custom domain such as `files.atm-online.cz`. Leave the private bucket without public access.
+3. Create an R2 API token with **Object Read & Write** limited to those two buckets.
+4. Set these variables on the backend:
+   ```
+   STORAGE_DRIVER=s3
+   STORAGE_PUBLIC_URL=https://files.atm-online.cz
+   S3_ENDPOINT=https://<account id>.eu.r2.cloudflarestorage.com
+   S3_ACCESS_KEY_ID=...
+   S3_SECRET_ACCESS_KEY=...
+   S3_PUBLIC_BUCKET=atm-public
+   S3_PRIVATE_BUCKET=atm-private
+   ```
+5. Once, after the first deploy with storage, copy logos that are still external links into the bucket:
+   ```bash
+   npm run files:import-logos -- --dry-run   # what would be fetched
+   npm run files:import-logos
+   ```
+
+The server deletes logos nothing references every six hours. `npm run files:sweep` does the same by hand.
+
 ---
 
 ## Part 2: Frontend Deployment (FTP)

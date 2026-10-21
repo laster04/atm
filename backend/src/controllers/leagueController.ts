@@ -9,6 +9,8 @@ import {
   UpdateLeagueRequest,
 } from '../types/index.js';
 import { Prisma } from '@prisma/client';
+import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
+import { releaseFiles } from '../services/storage/files.js';
 
 export const getAllLeagues = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -90,12 +92,13 @@ export const createLeague = async (req: AuthRequest, res: Response): Promise<voi
     // The creator owns the league; only an admin may hand it to someone else.
     // TODO(free-tier): cap how many leagues a non-admin may own once quotas land.
     const managerId = isAdmin(req.user!) ? (toNullableId(req.body.managerId) ?? null) : req.user!.id;
+    const storedLogo = await prepareLogo(logo, null, req.user!.id);
 
     const league = await prisma.league.create({
       data: {
         name,
         sportType,
-        logo,
+        logo: storedLogo,
         description,
         managerId,
         ...(visibility && { visibility })
@@ -104,6 +107,7 @@ export const createLeague = async (req: AuthRequest, res: Response): Promise<voi
         manager: { select: { id: true, name: true, email: true } }
       }
     });
+    await settleLogo({ type: 'LEAGUE', id: league.id }, storedLogo);
 
     res.status(201).json(league);
   } catch (error) {
@@ -122,12 +126,19 @@ export const updateLeague = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
+    const current = await prisma.league.findUnique({ where: { id: id }, select: { logo: true } });
+    if (!current) {
+      res.status(404).json({ error: 'League not found' });
+      return;
+    }
+    const storedLogo = await prepareLogo(logo, current.logo, req.user!.id);
+
     const league = await prisma.league.update({
       where: { id: id },
       data: {
         ...(name && { name }),
         ...(sportType && { sportType }),
-        ...(logo !== undefined && { logo }),
+        ...(storedLogo !== undefined && { logo: storedLogo }),
         ...(description !== undefined && { description }),
         ...(visibility && { visibility })
       },
@@ -135,6 +146,7 @@ export const updateLeague = async (req: AuthRequest, res: Response): Promise<voi
         manager: { select: { id: true, name: true, email: true } }
       }
     });
+    await settleLogo({ type: 'LEAGUE', id: league.id }, storedLogo);
 
     res.json(league);
   } catch (error) {
@@ -167,6 +179,7 @@ export const deleteLeague = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     await prisma.league.delete({ where: { id: id } });
+    await releaseFiles([{ type: 'LEAGUE', id }]);
     res.json({ message: 'League deleted successfully' });
   } catch (error) {
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2025') {

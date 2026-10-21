@@ -5,6 +5,8 @@ import { toNullableId } from '../utils/ids.js';
 import { isAdmin } from '../services/access.js';
 import { isVisibility, listedSeriesWhere } from '../services/visibility.js';
 import { takesApplications } from '../services/registrationState.js';
+import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
+import { releaseFiles, seriesFileOwners } from '../services/storage/files.js';
 
 const seriesInclude = {
   manager: { select: { id: true, name: true, email: true } },
@@ -73,10 +75,13 @@ export const createSeries = async (req: AuthRequest, res: Response): Promise<voi
     // TODO(free-tier): cap how many series a non-admin may own once quotas land.
     const ownerId = isAdmin(req.user!) ? (managerId ?? null) : req.user!.id;
 
+    const storedLogo = await prepareLogo(logo, null, req.user!.id);
+
     const series = await prisma.tournamentSeries.create({
-      data: { name, sportType, logo, description, managerId: ownerId, ...(visibility && { visibility }) },
+      data: { name, sportType, logo: storedLogo, description, managerId: ownerId, ...(visibility && { visibility }) },
       include: seriesInclude,
     });
+    await settleLogo({ type: 'TOURNAMENT_SERIES', id: series.id }, storedLogo);
     res.status(201).json(series);
   } catch (error) {
     console.error('Create tournament series error:', error);
@@ -91,18 +96,23 @@ export const updateSeries = async (req: AuthRequest, res: Response): Promise<voi
     const managerId = toNullableId(req.body.managerId);
     if (visibility !== undefined && !isVisibility(visibility)) { res.status(400).json({ error: 'Invalid visibility' }); return; }
 
+    const current = await prisma.tournamentSeries.findUnique({ where: { id: id }, select: { logo: true } });
+    if (!current) { res.status(404).json({ error: 'Tournament series not found' }); return; }
+    const storedLogo = await prepareLogo(logo, current.logo, req.user!.id);
+
     const series = await prisma.tournamentSeries.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(sportType !== undefined && { sportType }),
-        ...(logo !== undefined && { logo }),
+        ...(storedLogo !== undefined && { logo: storedLogo }),
         ...(description !== undefined && { description }),
         ...(managerId !== undefined && { managerId }),
         ...(visibility !== undefined && { visibility }),
       },
       include: seriesInclude,
     });
+    await settleLogo({ type: 'TOURNAMENT_SERIES', id: series.id }, storedLogo);
     res.json(series);
   } catch (error) {
     console.error('Update tournament series error:', error);
@@ -113,7 +123,9 @@ export const updateSeries = async (req: AuthRequest, res: Response): Promise<voi
 export const deleteSeries = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    const owners = await seriesFileOwners(id);
     await prisma.tournamentSeries.delete({ where: { id: id } });
+    await releaseFiles(owners);
     res.json({ message: 'Tournament series deleted' });
   } catch (error) {
     console.error('Delete tournament series error:', error);

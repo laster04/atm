@@ -53,7 +53,7 @@ export default function TeamsTab({ season, teams, invites, onTeamsChange, onInvi
 	const handleCreate = async (data: TeamFormData) => {
 		setError('');
 		try {
-			const res = await teamApi.create(season.id, { name: data.name });
+			const res = await teamApi.create(season.id, { name: data.name, logo: data.logo });
 			onTeamsChange([...teams, res.data]);
 			setShowForm(false);
 		} catch (err) {

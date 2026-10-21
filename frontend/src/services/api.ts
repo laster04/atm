@@ -51,6 +51,22 @@ api.interceptors.response.use(
   }
 );
 
+export interface UploadedLogo {
+  id: string;
+  url: string;
+  width: number;
+  height: number;
+}
+
+export const fileApi = {
+  // Content-Type left to the browser, which adds the multipart boundary.
+  uploadLogo: (file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return api.post<UploadedLogo>('/files/logo', body, { headers: { 'Content-Type': undefined } });
+  },
+};
+
 export const authApi = {
   register: (data: { email: string; password: string; name: string; role?: string; next?: string }) =>
     api.post<{ message: string; user: User; token: string }>('/auth/register', data),

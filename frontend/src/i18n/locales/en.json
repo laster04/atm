@@ -686,6 +686,13 @@
       "removed": "Chat link removed",
       "invalid": "Paste the full invite link, starting with https://",
       "saveError": "Couldn't save the chat link"
+    },
+    "logo": {
+      "title": "Team logo",
+      "description": "Shown next to the team in standings, the schedule and on public pages.",
+      "saved": "Logo saved",
+      "removed": "Logo removed",
+      "saveError": "The logo could not be saved"
     }
   },
   "seasonManagement": {
@@ -1189,7 +1196,7 @@
       "createLeagueDesc": "Create a new league to organize your seasons",
       "editLeagueDesc": "Update league details",
       "leagueName": "League Name",
-      "leagueLogo": "Logo URL",
+      "leagueLogo": "Logo",
       "leagueDescription": "Description",
       "createSeason": "Create Season",
       "editSeason": "Edit Season",
@@ -1217,6 +1224,7 @@
       "copyTeamsNone": "None",
       "copyTeamsEmpty": "This season has no teams to copy.",
       "teamName": "Team Name",
+      "teamLogo": "Team logo",
       "manager": "Team Manager",
       "noManager": "No manager",
       "playerName": "Player Name",
@@ -1475,7 +1483,7 @@
       "endDate": "End Date",
       "sportType": "Sport Type",
       "description": "Description",
-      "logoUrl": "Logo URL",
+      "logo": "Logo",
       "country": "Country",
       "primaryColor": "Primary Color",
       "number": "Jersey #",
@@ -2731,6 +2739,18 @@
       "registrations": "Team applications guide",
       "all": "Help centre",
       "contact": "Contact us"
+    }
+  },
+  "files": {
+    "upload": "Upload logo",
+    "replace": "Replace logo",
+    "remove": "Remove",
+    "uploading": "Uploading…",
+    "logoHint": "PNG, JPG or WebP up to 1 MB. You can also drop it here.",
+    "errors": {
+      "FILE_TOO_LARGE": "The logo is larger than 1 MB.",
+      "FILE_TYPE_NOT_ALLOWED": "The logo must be a PNG, JPG or WebP image.",
+      "failed": "The logo could not be uploaded. Please try again."
     }
   }
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Team } from '@types';
 
 /** Initials stand in where a team has no logo: first letters, at most two. */
@@ -19,8 +20,10 @@ interface TeamCrestProps {
 export default function TeamCrest({ team, size = 34, className = '' }: TeamCrestProps) {
 	const color = team.primaryColor || '#0F172A';
 	const radius = Math.round(size * 0.24);
+	// A logo that fails to load (a dead external link) falls back to initials.
+	const [failedLogo, setFailedLogo] = useState<string | null>(null);
 
-	if (team.logo) {
+	if (team.logo && team.logo !== failedLogo) {
 		return (
 			<img
 				src={team.logo}
@@ -28,6 +31,7 @@ export default function TeamCrest({ team, size = 34, className = '' }: TeamCrest
 				aria-hidden
 				className={`shrink-0 object-cover ${className}`}
 				style={{ width: size, height: size, borderRadius: radius }}
+				onError={() => setFailedLogo(team.logo ?? null)}
 			/>
 		);
 	}

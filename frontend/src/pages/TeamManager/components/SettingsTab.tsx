@@ -9,18 +9,21 @@ import { sentAgo } from '@/components/invite/inviteState';
 import { SEASON_ACCENT } from '@/pages/SeasonManager/components/util';
 import TeamColorPicker from './TeamColorPicker';
 import TeamChatCard from './TeamChatCard';
+import TeamLogoCard from './TeamLogoCard';
 import type { ManagerInvite, ManagerInviteSent, Standing, Team } from '@types';
 
 interface SettingsTabProps {
 	team: Team;
 	standing?: Standing;
 	onColorChange: (color: string | null) => void;
+	onLogoChange?: (logo: string | null) => void;
 }
 
 export default function SettingsTab({
 	team,
 	standing,
 	onColorChange,
+	onLogoChange,
 }: SettingsTabProps) {
 	const { t, i18n } = useTranslation();
 	const { isAdmin, isSeasonManager, user } = useAuth();
@@ -82,6 +85,14 @@ export default function SettingsTab({
 				initialColor={team.primaryColor}
 				points={standing?.points}
 				onColorChange={onColorChange}
+			/>
+
+			<TeamLogoCard
+				teamId={team.id}
+				teamName={team.name}
+				color={team.primaryColor}
+				initialLogo={team.logo}
+				onLogoChange={onLogoChange}
 			/>
 
 			<TeamChatCard teamId={team.id} initialUrl={team.chatUrl} />
