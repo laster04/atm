@@ -7,3 +7,4 @@ export { default as PlayersPage } from './PlayersPage';
 export { default as PlayerDetailPage } from './PlayerDetailPage';
 export { default as GamesPage } from './GamesPage';
 export { default as SupportPage } from './SupportPage';
+export { default as PricingPage } from './PricingPage';

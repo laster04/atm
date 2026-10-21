@@ -885,6 +885,78 @@ export interface AdminUserDetail extends Omit<AdminUserRow, '_count'> {
   _count: AdminUserRow['_count'] & { playerProfiles: number; supportTickets: number; registrations: number };
 }
 
+/** A dated version of a price, rate or limit; nothing is edited in place. */
+interface Versioned {
+  id: string;
+  validFrom: string;
+  createdAt: string;
+}
+
+export interface PriceVersion extends Versioned {
+  /** Minor units (haléře / cents), VAT included. */
+  priceCzk: number;
+  priceEur: number;
+}
+
+export interface VatRateVersion extends Versioned {
+  country: string;
+  /** Hundredths of a percent: 2100 = 21 %. */
+  rateBp: number;
+}
+
+export interface PlanLimitVersion extends Versioned {
+  plan: string;
+  key: string;
+  /** null = unlimited, 0 = not included. */
+  value: number | null;
+}
+
+export interface VersionSplit<T> {
+  current: T | null;
+  scheduled: T[];
+  history: T[];
+}
+
+export interface PricingOverview {
+  /** Only the account flagged for pricing may change anything here. */
+  canEdit: boolean;
+  products: ({ id: string; code: string; nameCs: string; nameEn: string } & VersionSplit<PriceVersion>)[];
+  vatRates: ({ country: string } & VersionSplit<VatRateVersion>)[];
+  euCountries: string[];
+  limits: {
+    plans: string[];
+    keys: string[];
+    cells: ({ plan: string; key: string } & VersionSplit<PlanLimitVersion>)[];
+  };
+  oss: {
+    enabled: boolean;
+    year: number;
+    totalEurCents: number;
+    limitEurCents: number;
+    level: 'OK' | 'WARNING' | 'EXCEEDED';
+    /** False until payments (celek B) feed the counter. */
+    tracked: boolean;
+  };
+}
+
+export interface VatCheckResult {
+  id: string;
+  countryCode: string;
+  vatNumber: string;
+  status: 'VALID' | 'INVALID' | 'UNAVAILABLE';
+  name: string | null;
+  address: string | null;
+  requestIdentifier: string | null;
+  checkedAt: string;
+}
+
+export interface CompanyLookup {
+  ico: string;
+  name: string;
+  vatId: string | null;
+  address: { street: string | null; city: string | null; postalCode: string | null; country: string; text: string | null };
+}
+
 export interface AdminOverview {
   /** `payments` stays null until celek B adds payments. */
   queues: { payments: number | null; openTickets: number; staleRegistrations: number };

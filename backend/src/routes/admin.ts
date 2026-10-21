@@ -2,6 +2,16 @@ import { Router } from 'express';
 import { getUserDetail, listUsers, setUsersActive } from '../controllers/adminUserController.js';
 import { listAudit, listAuditTypes } from '../controllers/adminAuditController.js';
 import { getOverview } from '../controllers/adminOverviewController.js';
+import {
+  cancelPrice,
+  cancelVatRate,
+  createLimits,
+  createPrice,
+  createVatRate,
+  getPricing,
+  requirePricingManager,
+  updateOss,
+} from '../controllers/adminPricingController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -16,5 +26,14 @@ router.post('/users/active', setUsersActive);
 router.get('/users/:id', getUserDetail);
 router.get('/audit', listAudit);
 router.get('/audit/types', listAuditTypes);
+
+// Every admin sees pricing; only the account flagged canManagePricing changes it.
+router.get('/pricing', getPricing);
+router.post('/pricing/products/:code/prices', requirePricingManager, createPrice);
+router.delete('/pricing/prices/:id', requirePricingManager, cancelPrice);
+router.post('/pricing/vat-rates', requirePricingManager, createVatRate);
+router.delete('/pricing/vat-rates/:id', requirePricingManager, cancelVatRate);
+router.post('/pricing/limits', requirePricingManager, createLimits);
+router.put('/pricing/oss', requirePricingManager, updateOss);
 
 export default router;

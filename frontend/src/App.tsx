@@ -35,7 +35,7 @@ import RegistrationPoster from './pages/Registration/PosterScreen';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
-import { AdminLayout, OverviewPage, UsersPage, AuditPage, LeaguesPage, SeasonsPage, PlayersPage, PlayerDetailPage, GamesPage, SupportPage } from './pages/Admin';
+import { AdminLayout, OverviewPage, PricingPage, UsersPage, AuditPage, LeaguesPage, SeasonsPage, PlayersPage, PlayerDetailPage, GamesPage, SupportPage } from './pages/Admin';
 import { TournamentManagementLayout, TournamentManagementIndex, SeriesListPage, SeriesDetailPage, TournamentManagePage } from './pages/TournamentManagement';
 import GameStatistic from "@/pages/Admin/components/games/GameStatistic.tsx";
 import './index.css';
@@ -140,6 +140,7 @@ function AppContent() {
           <Route index element={<OverviewPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="audit" element={<AuditPage />} />
+          <Route path="pricing" element={<PricingPage />} />
           <Route path="leagues" element={<LeaguesPage />} />
           <Route path="seasons" element={<SeasonsPage />} />
           <Route path="players" element={<PlayersPage />} />

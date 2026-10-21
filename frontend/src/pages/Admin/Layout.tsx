@@ -20,7 +20,7 @@ interface Section {
 	/** Opens a screen outside the administration. */
 	external?: boolean;
 	/** Which celek builds it. */
-	comingIn?: 'B' | 'G' | 'H';
+	comingIn?: 'B' | 'H';
 }
 
 /**
@@ -32,7 +32,7 @@ interface Section {
 const SECTIONS: Section[] = [
 	{ key: 'overview', icon: LayoutDashboard, to: '/admin' },
 	{ key: 'payments', icon: Receipt, comingIn: 'B' },
-	{ key: 'pricing', icon: BadgePercent, comingIn: 'G' },
+	{ key: 'pricing', icon: BadgePercent, to: '/admin/pricing' },
 	{ key: 'users', icon: Users, to: '/admin/users' },
 	{ key: 'leagues', icon: Trophy, to: '/admin/leagues' },
 	{ key: 'seasons', icon: CalendarDays, to: '/admin/seasons' },

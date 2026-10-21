@@ -96,6 +96,9 @@ model User {
   lastLoggedInAt              DateTime? @map("last_logged_in_at")
   // Newest release note the user has opened /updates past; drives the unread dot.
   updatesSeenAt               DateTime? @map("updates_seen_at")
+  // May change prices, VAT rates, plan limits and the OSS switch. Other admins
+  // only see them. Set by migration on admin@atm.cz, never by comparing emails.
+  canManagePricing            Boolean   @default(false) @map("can_manage_pricing")
   createdAt                   DateTime  @default(now()) @map("created_at")
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 
@@ -114,6 +117,10 @@ model User {
   registrations           Registration[]     @relation("RegistrationApplicant")
   decidedRegistrations    Registration[]     @relation("RegistrationDecider")
   promotedRegistrations   Registration[]     @relation("RegistrationPromoter")
+  priceVersions           ProductPrice[]     @relation("PriceAuthor")
+  vatRateVersions         VatRate[]          @relation("VatRateAuthor")
+  planLimitVersions       PlanLimit[]        @relation("PlanLimitAuthor")
+  vatChecks               VatCheck[]         @relation("VatCheckRequester")
 
   // The admin user list sorts and filters on these.
   @@index([createdAt])
@@ -1005,4 +1012,126 @@ model Registration {
   // The admin overview's "pending for over a week" queue.
   @@index([status, createdAt])
   @@map("registrations")
+}
+
+// ============================================================================
+// PRICING, VAT AND PLAN LIMITS (celek G)
+//
+// Nothing here is edited in place. A change is a new row with the instant it
+// takes effect; the row in force at a moment is the newest one whose
+// `validFrom` is not after it. Payments (celek B) copy what applied when they
+// were created, so later changes never touch an issued document.
+// ============================================================================
+
+/// Something ATM sells: TOURNAMENT, TOURNAMENT_PLUS, ORGANIZER_YEAR; league plans later.
+model Product {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  nameCs    String   @map("name_cs")
+  nameEn    String   @map("name_en")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  prices ProductPrice[]
+
+  @@map("products")
+}
+
+/// One version of a product's price, VAT included. EUR is a fixed price of
+/// its own, never converted from CZK.
+model ProductPrice {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  // Minor units: haléře and cents.
+  priceCzk  Int      @map("price_czk")
+  priceEur  Int      @map("price_eur")
+  validFrom DateTime @map("valid_from")
+
+  createdById String?  @map("created_by_id")
+  createdBy   User?    @relation("PriceAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([productId, validFrom])
+  @@map("product_prices")
+}
+
+/// One version of a country's standard VAT rate.
+model VatRate {
+  id        String   @id @default(uuid())
+  // ISO 3166 alpha-2 (GR for Greece, even though VIES says EL).
+  country   String
+  // Hundredths of a percent: 2100 is 21 %.
+  rateBp    Int      @map("rate_bp")
+  validFrom DateTime @map("valid_from")
+
+  createdById String?  @map("created_by_id")
+  createdBy   User?    @relation("VatRateAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([country, validFrom])
+  @@map("vat_rates")
+}
+
+/// One version of one limit of one plan. `value` null means unlimited.
+model PlanLimit {
+  id        String   @id @default(uuid())
+  // FREE, TOURNAMENT, TOURNAMENT_PLUS, ORGANIZER
+  plan      String
+  // TEAMS_PER_TOURNAMENT, SPONSOR_LOGOS, DOCUMENTS, DOCUMENT_MAX_MB, LOGO_MAX_MB
+  key       String
+  value     Int?
+  validFrom DateTime @map("valid_from")
+
+  createdById String?  @map("created_by_id")
+  createdBy   User?    @relation("PlanLimitAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([plan, key, validFrom])
+  @@map("plan_limits")
+}
+
+/// Switches an admin changes at run time, e.g. `oss` = { enabled }.
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+enum VatCheckStatus {
+  VALID
+  INVALID
+  // VIES did not answer. Czech VAT applies until a retry gets an answer.
+  UNAVAILABLE
+}
+
+/// One VIES lookup of an EU VAT ID: the evidence behind charging 0 % under
+/// reverse charge. A payment (celek B) points at the check it relied on.
+model VatCheck {
+  id                String         @id @default(uuid())
+  // VIES country code (EL for Greece) and the number without it.
+  countryCode       String         @map("country_code")
+  vatNumber         String         @map("vat_number")
+  status            VatCheckStatus
+  name              String?
+  address           String?
+  // The consultation number VIES issues when ATM's own VAT ID is sent along.
+  requestIdentifier String?        @map("request_identifier")
+  requestDate       DateTime?      @map("request_date")
+  response          Json?
+  attempts          Int            @default(1)
+  // Set while UNAVAILABLE: when the retry job asks again.
+  nextRetryAt       DateTime?      @map("next_retry_at")
+  checkedAt         DateTime       @map("checked_at")
+
+  requestedById String? @map("requested_by_id")
+  requestedBy   User?   @relation("VatCheckRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([countryCode, vatNumber, checkedAt])
+  @@index([status, nextRetryAt])
+  @@map("vat_checks")
 }
