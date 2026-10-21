@@ -839,6 +839,56 @@ export interface SearchResults {
     league: LeagueRef;
   })[];
   leagues: (Pick<League, 'id' | 'name' | 'sportType' | 'logo'> & { _count: { seasons: number } })[];
+  /** Admin only; empty for everyone else. */
+  users?: Pick<User, 'id' | 'name' | 'email' | 'role' | 'active'>[];
+  /** Admin only; empty for everyone else. */
+  tournaments?: (Pick<Tournament, 'id' | 'name' | 'status' | 'startDate'> & {
+    series: Pick<TournamentSeries, 'id' | 'name' | 'sportType'>;
+  })[];
+}
+
+// ============================================================
+// ADMINISTRATION
+// ============================================================
+
+/** One page of an admin list. `estimated` totals come from the planner. */
+export interface ListPage<T> {
+  rows: T[];
+  total: number;
+  estimated: boolean;
+  page: number;
+  pageSize: number;
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  active: boolean;
+  emailVerified: boolean;
+  lastLoggedInAt: string | null;
+  createdAt: string;
+  _count: { managedLeagues: number; managedTeams: number; managedTournamentSeries: number };
+}
+
+export interface AdminUserDetail extends Omit<AdminUserRow, '_count'> {
+  emailVerifiedAt: string | null;
+  emailDigest: boolean;
+  managedLeagues: (Pick<League, 'id' | 'name' | 'sportType'> & {
+    seasons: Pick<Season, 'id' | 'name' | 'status'>[];
+  })[];
+  managedTournamentSeries: (Pick<TournamentSeries, 'id' | 'name' | 'sportType'> & {
+    tournaments: Pick<Tournament, 'id' | 'name' | 'status'>[];
+  })[];
+  managedTeams: Pick<Team, 'id' | 'name' | 'primaryColor'>[];
+  _count: AdminUserRow['_count'] & { playerProfiles: number; supportTickets: number; registrations: number };
+}
+
+export interface AdminOverview {
+  /** `payments` stays null until celek B adds payments. */
+  queues: { payments: number | null; openTickets: number; staleRegistrations: number };
+  last30Days: { newUsers: number; activeLeagues: number; activeTournaments: number };
 }
 
 // ============================================================

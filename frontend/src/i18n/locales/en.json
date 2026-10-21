@@ -15,7 +15,9 @@
     "all": "All",
     "close": "Close",
     "name": "Name",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "yes": "Yes",
+    "no": "No"
   },
   "errorBoundary": {
     "title": "Something went wrong",
@@ -609,7 +611,8 @@
       "goalsShort_other": "{{count}} goals",
       "assistsShort_one": "{{count}} assist",
       "assistsShort_other": "{{count}} assists",
-      "noPoints": "No points"
+      "noPoints": "No points",
+      "moved": "Player moved"
     },
     "toast": {
       "colorUpdated": "Color for {{name}} updated!"
@@ -1005,6 +1008,18 @@
       "loadError": "Couldn't load the play-off",
       "createError": "Couldn't create the play-off",
       "deleteError": "Couldn't delete the play-off"
+    },
+    "leagues": {
+      "title": "My leagues",
+      "new": "New league",
+      "empty": "You run no league yet.",
+      "seasons_one": "{{count}} season",
+      "seasons_other": "{{count}} seasons",
+      "edit": "Edit {{name}}",
+      "delete": "Delete {{name}}",
+      "saved": "League saved",
+      "deleted": "League deleted",
+      "seasonsTitle": "Seasons"
     }
   },
   "admin": {
@@ -1031,11 +1046,9 @@
         "IDEA": "Idea"
       }
     },
-    "title": "Admin Dashboard",
     "accessDenied": "Access Denied",
     "noPrivileges": "You need admin privileges to access this page.",
     "tabs": {
-      "title": "Select your choice",
       "league": {
         "title": "Leagues",
         "addLeague": "Add League",
@@ -1049,31 +1062,14 @@
         "goToSeasons": "View seasons"
       },
       "user": {
-        "title": "Users",
         "addUser": "Add User",
-        "th-name": "Name",
-        "th-email": "Email",
-        "th-role": "Role",
-        "th-status": "Status",
-        "th-emailStatus": "Email",
-        "th-lastLogin": "Last login",
         "neverLoggedIn": "Never",
-        "th-actions": "Actions",
         "active": "Active",
         "inactive": "Inactive",
-        "verified": "Verified",
         "unverified": "Unverified",
-        "emailVerifiedTooltip": "Email has been verified",
-        "emailUnverifiedTooltip": "Email not yet verified",
         "resendVerification": "Resend verification email",
         "verificationSent": "Verification email sent",
-        "verificationFailed": "Failed to send verification email",
-        "filterByName": "Search by name...",
-        "filterByRole": "Filter by role",
-        "filterByStatus": "Filter by status",
-        "allRoles": "All roles",
-        "allStatuses": "All statuses",
-        "clearFilters": "Clear"
+        "verificationFailed": "Failed to send verification email"
       },
       "season": {
         "title": "Seasons",
@@ -1305,25 +1301,6 @@
       "movePlayer": "Failed to move player",
       "archiveSeason": "Failed to archive season",
       "copyTeams": "Season was created, but copying teams failed"
-    },
-    "nav": {
-      "support": "Support",
-      "users": "Users",
-      "leagues": "Leagues",
-      "seasons": "Seasons",
-      "more": "More",
-      "players": "Players",
-      "games": "Games"
-    },
-    "more": {
-      "supportHint": "Messages sent through the contact form",
-      "acrossSeasons": "Across seasons",
-      "playersHint": "Search players in every team and move them",
-      "gamesHint": "Every fixture regardless of season",
-      "seasonWork": "Season management",
-      "seasonWorkTitle": "Teams, dates and results",
-      "seasonWorkHint": "Managed inside a season, not in a global table.",
-      "openSeasons": "Open seasons"
     },
     "funnel": {
       "title": "Team applications",
@@ -2731,6 +2708,220 @@
       "registrations": "Team applications guide",
       "all": "Help centre",
       "contact": "Contact us"
+    }
+  },
+  "adminShell": {
+    "title": "Administration",
+    "menuLabel": "Administration sections",
+    "openMenu": "Open the menu",
+    "toDashboard": "Back to the dashboard",
+    "soon": "Soon",
+    "comingIn": "Arrives with part {{celek}}",
+    "badge_one": "{{count}} waiting",
+    "badge_other": "{{count}} waiting",
+    "sections": {
+      "overview": {
+        "label": "Overview",
+        "hint": "What waits for you, and the last 30 days in numbers."
+      },
+      "payments": {
+        "label": "Payments and invoices",
+        "hint": "QR transfers and tax documents."
+      },
+      "pricing": {
+        "label": "Pricing and VAT",
+        "hint": "Prices, VAT rates and plan limits."
+      },
+      "users": {
+        "label": "Users",
+        "hint": "Accounts, what they run, and their history."
+      },
+      "leagues": {
+        "label": "Leagues",
+        "hint": "Every league; seasons open from here."
+      },
+      "seasons": {
+        "label": "Seasons",
+        "hint": "Every season, filtered by league."
+      },
+      "tournaments": {
+        "label": "Tournaments and series",
+        "hint": "Opens the tournament management."
+      },
+      "players": {
+        "label": "Players",
+        "hint": "Players across seasons."
+      },
+      "games": {
+        "label": "Games",
+        "hint": "Games across seasons."
+      },
+      "registrations": {
+        "label": "Registrations",
+        "hint": "Season and tournament applications."
+      },
+      "files": {
+        "label": "Files",
+        "hint": "Uploaded logos and documents."
+      },
+      "support": {
+        "label": "Support",
+        "hint": "Messages from the contact form."
+      },
+      "audit": {
+        "label": "Audit log",
+        "hint": "Who changed what, and when."
+      }
+    },
+    "search": {
+      "label": "Search the whole administration",
+      "placeholder": "Email, league, team, tournament…",
+      "users": "Users",
+      "tournaments": "Tournaments"
+    },
+    "list": {
+      "export": "Export CSV",
+      "exportError": "The export failed. Try again.",
+      "loadError": "Could not load. Try again.",
+      "filtersInUrl": "Filters are in the page address, so the link can be shared.",
+      "bulkActions": "Actions for the selected rows",
+      "selected_one": "{{count}} selected",
+      "selected_other": "{{count}} selected",
+      "clearSelection": "Clear selection",
+      "selectAll": "Select all on this page",
+      "selectRow": "Select {{name}}",
+      "pages": "Pages",
+      "range": "{{from}}–{{to}} of {{total}}",
+      "rangeEstimated": "{{from}}–{{to}} of about {{total}}",
+      "perPage_one": "{{count}} per page",
+      "perPage_other": "{{count}} per page",
+      "previous": "Previous",
+      "next": "Next",
+      "addFilter": "Add filter",
+      "removeFilter": "Remove filter {{label}}",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "any": "any"
+    },
+    "panel": {
+      "close": "Close detail",
+      "overview": "Overview",
+      "history": "History"
+    },
+    "confirm": {
+      "reasonRequired": "Reason (required)",
+      "reasonOptional": "Reason (optional)",
+      "reasonHint": "Saved in the audit log with your name."
+    },
+    "audit": {
+      "when": "When",
+      "who": "Who",
+      "section": "Section",
+      "record": "Record",
+      "recordId": "Record ID",
+      "action": "Action",
+      "reason": "Reason",
+      "period": "Period",
+      "field": "Field",
+      "before": "Before",
+      "after": "After",
+      "system": "System",
+      "noChanges": "No field changed.",
+      "emptyRecord": "Nothing recorded yet.",
+      "empty": "No entries match these filters.",
+      "search": "Search the log",
+      "searchPlaceholder": "Reason or record ID…",
+      "actorPlaceholder": "Name or email",
+      "actions": {
+        "CREATE": "Created",
+        "UPDATE": "Changed",
+        "DELETE": "Deleted",
+        "CONFIRM": "Confirmed",
+        "REOPEN": "Reopened"
+      },
+      "types": {
+        "User": "Users",
+        "Game": "Games",
+        "Season": "Seasons",
+        "SupportTicket": "Support"
+      }
+    },
+    "users": {
+      "kicker": "User",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "account": "Account",
+      "activation": "Email confirmed",
+      "verifiedOn": "Yes, {{date}}",
+      "registered": "Registered",
+      "lastLogin": "Last login",
+      "digest": "Round summaries",
+      "activity": "Activity",
+      "activityValue": "{{players}} roster spots · {{tickets}} support messages · {{registrations}} applications",
+      "manages": "Runs",
+      "managesNothing": "Runs no league, tournament series or team.",
+      "leagues": "Leagues and seasons",
+      "series": "Tournament series",
+      "teams": "Teams",
+      "leaguesCount_one": "{{count}} league",
+      "leaguesCount_other": "{{count}} leagues",
+      "seriesCount_one": "{{count}} series",
+      "seriesCount_other": "{{count}} series",
+      "teamsCount_one": "{{count}} team",
+      "teamsCount_other": "{{count}} teams",
+      "managesFilter": {
+        "league": "A league",
+        "series": "A tournament series",
+        "team": "A team",
+        "any": "Anything",
+        "none": "Nothing"
+      },
+      "tabs": {
+        "plans": "Plans and subscriptions",
+        "payments": "Payments and invoices",
+        "billing": "Billing details",
+        "manages": "Runs"
+      },
+      "plansPending": "Plans arrive with paid tournaments (part B): the yearly Organiser plan with its dates, tournament plans, their state and expiry.",
+      "paymentsPending": "Payments arrive with part B: the user's payments with their variable symbol and invoices to download.",
+      "billingPending": "Billing details arrive with part B, including the VAT ID check.",
+      "search": "Search users",
+      "searchPlaceholder": "Name or email…",
+      "empty": "No users match these filters.",
+      "created": "User created",
+      "saved": "User saved",
+      "deleted": "User deleted",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "activated_one": "Account activated",
+      "activated_other": "{{count}} accounts activated",
+      "deactivated_one": "Account deactivated",
+      "deactivated_other": "{{count}} accounts deactivated",
+      "deactivateTitle_one": "Deactivate the account?",
+      "deactivateTitle_other": "Deactivate {{count}} accounts?",
+      "deactivateHint_one": "{{name}} is signed out at once and cannot sign in until an admin activates the account again.",
+      "deactivateHint_other": "They are signed out at once and cannot sign in until an admin activates their accounts again.",
+      "activateTitle": "Activate the account?",
+      "activateHint": "{{name}} can sign in again.",
+      "deleteTitle": "Delete the user?",
+      "deleteHint": "{{name}} is deleted for good. Leagues, teams and series they run stay, without a manager.",
+      "notYourself": "You cannot deactivate your own account."
+    },
+    "overview": {
+      "waiting": "Waiting for you",
+      "payments": "Payments to confirm",
+      "paymentsPending": "Arrives with paid tournaments (part B).",
+      "tickets": "Support messages",
+      "ticketsHint": "New or in progress.",
+      "registrations": "Applications without an answer",
+      "registrationsHint": "Pending for more than 7 days.",
+      "last30Days": "Last 30 days",
+      "newUsers": "New users",
+      "activeLeagues": "Active leagues",
+      "activeTournaments": "Active tournaments",
+      "activeHint": "Active means a game was dated in the last 30 days."
     }
   }
 }

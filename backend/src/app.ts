@@ -14,6 +14,7 @@ import searchRoutes from './routes/search.js';
 import contactRoutes from './routes/contact.js';
 import inviteRoutes from './routes/invites.js';
 import registrationRoutes from './routes/registrations.js';
+import adminRoutes from './routes/admin.js';
 import { getSitemap } from './controllers/sitemapController.js';
 
 /**
@@ -74,6 +75,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/invites', inviteRoutes);
 app.use('/api/registrations', registrationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Proxied by the frontend server as /sitemap-data.xml on the public domain.
 app.get('/api/sitemap.xml', getSitemap);

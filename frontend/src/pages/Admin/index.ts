@@ -1,2 +1,2 @@
-export { default as AdminLayout, AdminIndex } from './Layout';
-export { UsersPage, LeaguesPage, SeasonsPage, MorePage, PlayersPage, PlayerDetailPage, GamesPage, SupportPage } from './pages';
+export { default as AdminLayout } from './Layout';
+export { OverviewPage, UsersPage, AuditPage, LeaguesPage, SeasonsPage, PlayersPage, PlayerDetailPage, GamesPage, SupportPage } from './pages';

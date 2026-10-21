@@ -115,6 +115,9 @@ model User {
   decidedRegistrations    Registration[]     @relation("RegistrationDecider")
   promotedRegistrations   Registration[]     @relation("RegistrationPromoter")
 
+  // The admin user list sorts and filters on these.
+  @@index([createdAt])
+  @@index([lastLoggedInAt])
   @@map("users")
 }
 
@@ -525,6 +528,9 @@ model AuditLog {
 
   @@index([entityType, entityId])
   @@index([actorId])
+  // The admin audit list: newest first, optionally one section.
+  @@index([createdAt])
+  @@index([entityType, createdAt])
   @@map("audit_log")
 }
 
@@ -996,5 +1002,7 @@ model Registration {
 
   @@index([windowId, status])
   @@index([applicantId])
+  // The admin overview's "pending for over a week" queue.
+  @@index([status, createdAt])
   @@map("registrations")
 }

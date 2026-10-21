@@ -15,6 +15,7 @@ import type {
   PublicGameQuery, TopScorerQuery, SearchResults,
   SupportTicket, SupportTicketInput, SupportTicketStatus,
   ManagerInvite, ManagerInviteSent, PublicManagerInvite, AcceptedManagerInvite,
+  ListPage, AdminUserRow, AdminUserDetail, AdminOverview,
 } from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -384,6 +385,34 @@ export const searchApi = {
   // server answers with empty lists rather than half the database.
   search: (q: string, limit?: number) =>
     api.get<SearchResults>('/search', { params: { q, limit } })
+};
+
+/** Query values of an admin list: page, sort, search and its filters. */
+export type ListQuery = Record<string, string>;
+
+/** Saves a CSV export under the name the server gives it. */
+async function downloadCsv(path: string, params: ListQuery): Promise<void> {
+  const res = await api.get<Blob>(path, { params: { ...params, format: 'csv' }, responseType: 'blob' });
+  const name = /filename="([^"]+)"/.exec(res.headers['content-disposition'] ?? '')?.[1] ?? 'export.csv';
+  const url = URL.createObjectURL(res.data);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+/** The administration's own endpoints; the server lets only the Admin role in. */
+export const adminApi = {
+  overview: () => api.get<AdminOverview>('/admin/overview'),
+  users: (params: ListQuery) => api.get<ListPage<AdminUserRow>>('/admin/users', { params }),
+  exportUsers: (params: ListQuery) => downloadCsv('/admin/users', params),
+  user: (id: string) => api.get<AdminUserDetail>(`/admin/users/${id}`),
+  setUsersActive: (ids: string[], active: boolean, reason?: string) =>
+    api.post<{ updated: number }>('/admin/users/active', { ids, active, reason }),
+  audit: (params: ListQuery) => api.get<ListPage<AuditEntry>>('/admin/audit', { params }),
+  exportAudit: (params: ListQuery) => downloadCsv('/admin/audit', params),
+  auditTypes: () => api.get<string[]>('/admin/audit/types'),
 };
 
 export const contactApi = {

@@ -15,6 +15,9 @@ import {
  * The header's search is a jump-to rather than a report, so each kind returns
  * only its best few matches and every row carries what a person needs to tell
  * two similarly named things apart — the player's team, the season's league.
+ *
+ * An admin also gets accounts (by name or email) and tournaments, for the
+ * administration's own search box. Payment variable symbols join with celek B.
  */
 export const searchAll = async (req: AuthRequest, res: Response): Promise<void> => {
 	try {
@@ -23,13 +26,14 @@ export const searchAll = async (req: AuthRequest, res: Response): Promise<void> 
 
 		// Two characters is where a prefix stops matching half the database.
 		if (q.length < 2) {
-			res.json({ query: q, teams: [], players: [], seasons: [], leagues: [] });
+			res.json({ query: q, teams: [], players: [], seasons: [], leagues: [], users: [], tournaments: [] });
 			return;
 		}
 
 		const contains = { contains: q, mode: 'insensitive' as const };
+		const admin = req.user?.role === 'ADMIN';
 
-		const [teams, players, seasons, leagues] = await Promise.all([
+		const [teams, players, seasons, leagues, users, tournaments] = await Promise.all([
 			prisma.team.findMany({
 				where: { AND: [{ name: contains }, listedTeamWhere(req.user)] },
 				select: { id: true, name: true, logo: true, primaryColor: true, _count: { select: { players: true } } },
@@ -62,10 +66,29 @@ export const searchAll = async (req: AuthRequest, res: Response): Promise<void> 
 				},
 				orderBy: { name: 'asc' },
 				take: perKind
-			})
+			}),
+			admin
+				? prisma.user.findMany({
+					where: { OR: [{ name: contains }, { email: contains }] },
+					select: { id: true, name: true, email: true, role: true, active: true },
+					orderBy: { name: 'asc' },
+					take: perKind
+				})
+				: [],
+			admin
+				? prisma.tournament.findMany({
+					where: { name: contains },
+					select: {
+						id: true, name: true, status: true, startDate: true,
+						series: { select: { id: true, name: true, sportType: true } }
+					},
+					orderBy: { startDate: { sort: 'desc', nulls: 'last' } },
+					take: perKind
+				})
+				: []
 		]);
 
-		res.json({ query: q, teams, players, seasons, leagues });
+		res.json({ query: q, teams, players, seasons, leagues, users, tournaments });
 	} catch (error) {
 		console.error('Search error:', error);
 		res.status(500).json({ error: 'Search failed' });
