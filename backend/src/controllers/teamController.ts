@@ -11,6 +11,8 @@ import {
 } from '../types/index.js';
 import { toNullableId } from '../utils/ids.js';
 import { Prisma } from '@prisma/client';
+import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
+import { releaseFiles } from '../services/storage/files.js';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -194,12 +196,14 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    const storedLogo = await prepareLogo(logo, null, req.user!.id);
+
     // Create team and SeasonTeam association in a transaction
     const team = await prisma.$transaction(async (tx) => {
       const newTeam = await tx.team.create({
         data: {
           name,
-          logo,
+          logo: storedLogo,
           managerId: managerId ?? null
         },
         include: {
@@ -216,6 +220,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 
       return newTeam;
     });
+    await settleLogo({ type: 'TEAM', id: team.id }, storedLogo);
 
     res.status(201).json(team);
   } catch (error) {
@@ -285,11 +290,13 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    const storedLogo = await prepareLogo(logo, existingTeam.logo, req.user!.id);
+
     const team = await prisma.team.update({
       where: { id: id },
       data: {
         ...(name && { name }),
-        ...(logo !== undefined && { logo }),
+        ...(storedLogo !== undefined && { logo: storedLogo }),
         ...(primaryColor !== undefined && { primaryColor }),
         ...(chatUrl !== undefined && { chatUrl }),
         ...(managerId !== undefined && { managerId }),
@@ -300,6 +307,7 @@ export const updateTeam = async (req: AuthRequest, res: Response): Promise<void>
         manager: { select: { id: true, name: true, email: true } }
       }
     });
+    await settleLogo({ type: 'TEAM', id: team.id }, storedLogo);
 
     res.json(team);
   } catch (error) {
@@ -338,6 +346,7 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
 
 
     await prisma.team.delete({ where: { id: id } });
+    await releaseFiles([{ type: 'TEAM', id }]);
     res.json({ message: 'Team deleted successfully' });
   } catch (error) {
     console.error('Delete team error:', error);

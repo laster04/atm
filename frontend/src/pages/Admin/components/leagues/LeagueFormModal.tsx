@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SportType, Visibility } from '@types';
 import type { League } from '@types';
@@ -8,6 +9,7 @@ import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
 import VisibilityPicker from '@/components/VisibilityPicker';
+import LogoUpload from '@/components/LogoUpload';
 
 interface LeagueFormData {
 	name: string;
@@ -39,6 +41,9 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 		defaultValues: initValues,
 	});
 	const visibility = form.watch('visibility');
+	const logo = form.watch('logo');
+	const leagueName = form.watch('name');
+	const [uploading, setUploading] = useState(false);
 
 	return (
 		<Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -84,11 +89,11 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 						</div>
 						<div className="space-y-2">
 							<Label>{t('admin.modal.leagueLogo')}</Label>
-							<Input
-								type="text"
-								{...form.register('logo')}
-								className="w-full px-3 py-2 border rounded"
-								placeholder="https://..."
+							<LogoUpload
+								value={logo}
+								onChange={(url) => form.setValue('logo', url ?? '', { shouldDirty: true })}
+								name={leagueName}
+								onBusyChange={setUploading}
 							/>
 						</div>
 						<div className="space-y-2">
@@ -108,7 +113,7 @@ export default function LeagueFormModal({ league, onSubmit, onClose }: LeagueFor
 					</div>
 
 					<div className="flex gap-2 pt-4">
-						<Button className="flex-1" type="submit">
+						<Button className="flex-1" type="submit" disabled={uploading}>
 							{isEditing ? t('common.save') : t('common.create')}
 						</Button>
 						<Button onClick={onClose} variant="outline">

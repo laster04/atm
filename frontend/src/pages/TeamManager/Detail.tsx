@@ -231,6 +231,7 @@ export default function Detail() {
 							team={team}
 							standing={standing}
 							onColorChange={setLocalColor}
+							onLogoChange={(logo) => setTeam((current) => current && { ...current, logo })}
 						/>
 					)}
 				</div>

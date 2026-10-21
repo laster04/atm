@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog.tsx';
 import { Label } from '@components/base/label';
 import { Input } from '@/components/base/input';
 import { Button } from '@components/base/button';
+import LogoUpload from '@/components/LogoUpload';
 import type { Team } from '@types';
 
 interface TeamFormData {
 	name: string;
+	logo?: string | null;
 }
 
 interface TeamFormModalProps {
@@ -24,11 +27,15 @@ export default function TeamFormModal({ team, onSubmit, onClose }: TeamFormModal
 
 	const initValues = {
 		name: team?.name || '',
+		logo: team?.logo || null,
 	};
 
 	const form = useForm<TeamFormData>({
 		defaultValues: initValues,
 	});
+	const logo = form.watch('logo');
+	const teamName = form.watch('name');
+	const [uploading, setUploading] = useState(false);
 
 	return (
 		<Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -50,10 +57,20 @@ export default function TeamFormModal({ team, onSubmit, onClose }: TeamFormModal
 								required
 							/>
 						</div>
+						<div className="space-y-2">
+							<Label>{t('admin.modal.teamLogo')}</Label>
+							<LogoUpload
+								value={logo}
+								onChange={(url) => form.setValue('logo', url, { shouldDirty: true })}
+								name={teamName}
+								color={team?.primaryColor}
+								onBusyChange={setUploading}
+							/>
+						</div>
 					</div>
 
 					<div className="flex gap-2 pt-4">
-						<Button className="flex-1" type="submit">
+						<Button className="flex-1" type="submit" disabled={uploading}>
 							{isEditing ? t('common.save') : t('common.create')}
 						</Button>
 						<Button onClick={onClose} variant="outline" type="button">

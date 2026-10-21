@@ -15,9 +15,13 @@
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:review-game-times": "tsx prisma/review-game-times.ts",
-    "db:import-schedule": "tsx prisma/import-season-schedule.ts"
+    "db:import-schedule": "tsx prisma/import-season-schedule.ts",
+    "files:sweep": "tsx prisma/sweep-files.ts",
+    "files:import-logos": "tsx prisma/import-logos.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1154.0",
+    "@aws-sdk/s3-request-presigner": "^3.1154.0",
     "@prisma/client": "^5.22.0",
     "@resvg/resvg-js": "^2.6.2",
     "bcryptjs": "^2.4.3",
@@ -25,8 +29,10 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.4.0",
     "resend": "^6.8.0",
-    "satori": "^0.33.5"
+    "satori": "^0.33.5",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -34,6 +40,7 @@
     "@types/express": "^4.17.21",
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^2.3.0",
     "@types/node": "^20.11.0",
     "@types/supertest": "^6.0.3",
     "jest": "^30.2.0",

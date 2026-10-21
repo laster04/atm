@@ -691,6 +691,13 @@
       "removed": "Odkaz na chat odebrán",
       "invalid": "Vložte celý odkaz s pozvánkou, začínající https://",
       "saveError": "Odkaz na chat se nepodařilo uložit"
+    },
+    "logo": {
+      "title": "Logo týmu",
+      "description": "Zobrazí se u týmu v tabulkách, rozpisu a na veřejných stránkách.",
+      "saved": "Logo uloženo",
+      "removed": "Logo odebráno",
+      "saveError": "Logo se nepodařilo uložit"
     }
   },
   "seasonManagement": {
@@ -1201,7 +1208,7 @@
       "createLeagueDesc": "Vytvořte novou ligu pro organizaci vašich sezón",
       "editLeagueDesc": "Upravte detaily ligy",
       "leagueName": "Název ligy",
-      "leagueLogo": "URL loga",
+      "leagueLogo": "Logo",
       "leagueDescription": "Popis",
       "createSeason": "Vytvořit sezónu",
       "editSeason": "Upravit sezónu",
@@ -1229,6 +1236,7 @@
       "copyTeamsNone": "Žádná",
       "copyTeamsEmpty": "Tato sezóna nemá žádné týmy ke zkopírování.",
       "teamName": "Název týmu",
+      "teamLogo": "Logo týmu",
       "manager": "Manažer týmu",
       "noManager": "Bez manažera",
       "playerName": "Jméno hráče",
@@ -1490,7 +1498,7 @@
       "endDate": "Datum konce",
       "sportType": "Typ sportu",
       "description": "Popis",
-      "logoUrl": "URL loga",
+      "logo": "Logo",
       "country": "Země",
       "primaryColor": "Primární barva",
       "number": "Číslo dresu",
@@ -2783,6 +2791,18 @@
       "registrations": "Návod k přihláškám týmů",
       "all": "Centrum nápovědy",
       "contact": "Napište nám"
+    }
+  },
+  "files": {
+    "upload": "Nahrát logo",
+    "replace": "Vyměnit logo",
+    "remove": "Odebrat",
+    "uploading": "Nahrávám…",
+    "logoHint": "PNG, JPG nebo WebP do 1 MB. Můžete ho sem i přetáhnout.",
+    "errors": {
+      "FILE_TOO_LARGE": "Logo je větší než 1 MB.",
+      "FILE_TYPE_NOT_ALLOWED": "Logo musí být obrázek PNG, JPG nebo WebP.",
+      "failed": "Logo se nepodařilo nahrát. Zkuste to znovu."
     }
   }
 }

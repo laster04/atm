@@ -24,6 +24,7 @@ import TennisTeamsPanel from '../components/TennisTeamsPanel';
 import { APP_TIME_ZONE } from '@/utils/date';
 import PositionSelect from '@components/PositionSelect';
 import { positionsForSports } from '@/utils/playerPositions';
+import LogoUpload from '@components/LogoUpload';
 
 // ── helpers ─────────────────────────────────────────────────
 
@@ -100,6 +101,7 @@ export default function TournamentManagePage() {
   const [teamModal, setTeamModal] = useState(false);
   const [editingTeam, setEditingTeam] = useState<TournamentTeam | null>(null);
   const [teamForm, setTeamForm] = useState({ name: '', country: '', primaryColor: '', logo: '' });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [playerModal, setPlayerModal] = useState(false);
   const [playerTeamId, setPlayerTeamId] = useState<string | null>(null);
@@ -193,7 +195,7 @@ export default function TournamentManagePage() {
     if (!teamForm.name || !id) return;
     setSaving(true); setError('');
     try {
-      const payload = { name: teamForm.name, country: teamForm.country || undefined, primaryColor: teamForm.primaryColor || undefined, logo: teamForm.logo || undefined };
+      const payload = { name: teamForm.name, country: teamForm.country || undefined, primaryColor: teamForm.primaryColor || undefined, logo: teamForm.logo || null };
       if (editingTeam) {
         const res = await tournamentTeamApi.update(editingTeam.id, payload);
         setTeams(prev => prev.map(t => t.id === editingTeam.id ? res.data : t));
@@ -767,10 +769,18 @@ export default function TournamentManagePage() {
             <Field label={`${t('tm.fields.name')} *`}><input className={inp} value={teamForm.name} onChange={e => setTeamForm(f => ({ ...f, name: e.target.value }))} placeholder="Team name" /></Field>
             <Field label={t('tm.fields.country')}><input className={inp} value={teamForm.country} onChange={e => setTeamForm(f => ({ ...f, country: e.target.value }))} placeholder="Czech Republic" /></Field>
             <Field label={t('tm.fields.primaryColor')}><input type="color" className="h-9 px-1 border rounded w-full" value={teamForm.primaryColor || '#3b82f6'} onChange={e => setTeamForm(f => ({ ...f, primaryColor: e.target.value }))} /></Field>
-            <Field label={t('tm.fields.logoUrl')}><input className={inp} value={teamForm.logo} onChange={e => setTeamForm(f => ({ ...f, logo: e.target.value }))} placeholder="https://..." /></Field>
+            <Field label={t('tm.fields.logo')}>
+              <LogoUpload
+                value={teamForm.logo}
+                onChange={logo => setTeamForm(f => ({ ...f, logo: logo ?? '' }))}
+                name={teamForm.name}
+                color={teamForm.primaryColor || null}
+                onBusyChange={setUploadingLogo}
+              />
+            </Field>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setTeamModal(false)}>{t('tm.common.cancel')}</Button>
-              <Button onClick={saveTeam} disabled={saving || !teamForm.name}>{saving ? t('tm.common.saving') : t('tm.common.save')}</Button>
+              <Button onClick={saveTeam} disabled={saving || uploadingLogo || !teamForm.name}>{saving ? t('tm.common.saving') : t('tm.common.save')}</Button>
             </div>
           </div>
         </DialogContent>

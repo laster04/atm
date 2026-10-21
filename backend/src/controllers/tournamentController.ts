@@ -3,6 +3,7 @@ import prisma from '../config/database.js';
 import { AuthRequest, CreateTournamentRequest, UpdateTournamentRequest } from '../types/index.js';
 import { TournamentStatus } from '@prisma/client';
 import { computeGroupStandings } from '../utils/tournamentStandings.js';
+import { releaseFiles, tournamentFileOwners } from '../services/storage/files.js';
 
 const tournamentInclude = {
   series: { select: { id: true, name: true, sportType: true, logo: true, visibility: true } },
@@ -110,7 +111,9 @@ export const updateTournament = async (req: AuthRequest, res: Response): Promise
 export const deleteTournament = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    const owners = await tournamentFileOwners(id);
     await prisma.tournament.delete({ where: { id: id } });
+    await releaseFiles(owners);
     res.json({ message: 'Tournament deleted' });
   } catch (error) {
     console.error('Delete tournament error:', error);

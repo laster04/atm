@@ -114,6 +114,7 @@ model User {
   registrations           Registration[]     @relation("RegistrationApplicant")
   decidedRegistrations    Registration[]     @relation("RegistrationDecider")
   promotedRegistrations   Registration[]     @relation("RegistrationPromoter")
+  uploadedFiles           StoredFile[]       @relation("FileUploader")
 
   @@map("users")
 }
@@ -997,4 +998,55 @@ model Registration {
   @@index([windowId, status])
   @@index([applicantId])
   @@map("registrations")
+}
+
+// What a stored file belongs to. Polymorphic like AuditLog, without a foreign
+// key: the object in the bucket has to be removed by the app, so a cascade
+// would only orphan it. Null owner = uploaded, not yet saved on anything.
+enum FileOwnerType {
+  TEAM
+  TOURNAMENT_TEAM
+  TOURNAMENT
+  TOURNAMENT_SERIES
+  LEAGUE
+}
+
+enum FileKind {
+  LOGO
+  SPONSOR_LOGO
+  DOCUMENT
+}
+
+enum FileVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+// A file in storage (R2 in production, the local disk in development).
+// Logo columns keep holding a URL; this row is how the app knows the URL is
+// its own and when nothing references it any more.
+model StoredFile {
+  id         String         @id @default(uuid())
+  key        String         @unique
+  // Public files only; private ones are reached through signed links.
+  url        String?        @unique
+  kind       FileKind
+  visibility FileVisibility
+  ownerType  FileOwnerType? @map("owner_type")
+  ownerId    String?        @map("owner_id")
+  mimeType   String         @map("mime_type")
+  size       Int
+  width      Int?
+  height     Int?
+  // The external link a logo was imported from, if it was.
+  sourceUrl  String?        @map("source_url")
+
+  uploadedById String? @map("uploaded_by_id")
+  uploadedBy   User?   @relation("FileUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([ownerType, ownerId])
+  @@index([createdAt])
+  @@map("files")
 }
