@@ -15,6 +15,8 @@ import type {
   PublicGameQuery, TopScorerQuery, SearchResults,
   SupportTicket, SupportTicketInput, SupportTicketStatus,
   ManagerInvite, ManagerInviteSent, PublicManagerInvite, AcceptedManagerInvite,
+  ListPage, AdminUserRow, AdminUserDetail, AdminOverview,
+  PricingOverview, PriceVersion, VatRateVersion, VatCheckResult, CompanyLookup,
 } from '@types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -400,6 +402,50 @@ export const searchApi = {
   // server answers with empty lists rather than half the database.
   search: (q: string, limit?: number) =>
     api.get<SearchResults>('/search', { params: { q, limit } })
+};
+
+/** Query values of an admin list: page, sort, search and its filters. */
+export type ListQuery = Record<string, string>;
+
+/** Saves a CSV export under the name the server gives it. */
+async function downloadCsv(path: string, params: ListQuery): Promise<void> {
+  const res = await api.get<Blob>(path, { params: { ...params, format: 'csv' }, responseType: 'blob' });
+  const name = /filename="([^"]+)"/.exec(res.headers['content-disposition'] ?? '')?.[1] ?? 'export.csv';
+  const url = URL.createObjectURL(res.data);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+/** The administration's own endpoints; the server lets only the Admin role in. */
+export const adminApi = {
+  overview: () => api.get<AdminOverview>('/admin/overview'),
+  users: (params: ListQuery) => api.get<ListPage<AdminUserRow>>('/admin/users', { params }),
+  exportUsers: (params: ListQuery) => downloadCsv('/admin/users', params),
+  user: (id: string) => api.get<AdminUserDetail>(`/admin/users/${id}`),
+  setUsersActive: (ids: string[], active: boolean, reason?: string) =>
+    api.post<{ updated: number }>('/admin/users/active', { ids, active, reason }),
+  audit: (params: ListQuery) => api.get<ListPage<AuditEntry>>('/admin/audit', { params }),
+  exportAudit: (params: ListQuery) => downloadCsv('/admin/audit', params),
+  auditTypes: () => api.get<string[]>('/admin/audit/types'),
+  pricing: () => api.get<PricingOverview>('/admin/pricing'),
+  createPrice: (code: string, data: { priceCzk: number; priceEur: number; validFrom: string | null }) =>
+    api.post<PriceVersion>(`/admin/pricing/products/${code}/prices`, data),
+  cancelPrice: (id: string) => api.delete(`/admin/pricing/prices/${id}`),
+  createVatRate: (data: { country: string; ratePercent: string; validFrom: string | null }) =>
+    api.post<VatRateVersion>('/admin/pricing/vat-rates', data),
+  cancelVatRate: (id: string) => api.delete(`/admin/pricing/vat-rates/${id}`),
+  createLimits: (data: { validFrom: string | null; values: { plan: string; key: string; value: number | null }[] }) =>
+    api.post('/admin/pricing/limits', data),
+  setOss: (enabled: boolean, reason: string) => api.put<{ enabled: boolean }>('/admin/pricing/oss', { enabled, reason }),
+};
+
+/** Billing details: an EU VAT ID through VIES, a Czech IČO through ARES. */
+export const billingApi = {
+  vatCheck: (vatId: string) => api.post<VatCheckResult>('/billing/vat-check', { vatId }),
+  company: (ico: string) => api.get<CompanyLookup>(`/billing/company/${encodeURIComponent(ico)}`),
 };
 
 export const contactApi = {

@@ -6,6 +6,7 @@ import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { normalizeEmail } from '../utils/email.js';
 import { getManagedCounts } from '../services/access.js';
+import { auditSnapshot, recordAudit } from '../services/audit/record.js';
 import {
   AuthRequest,
   RegisterRequest,
@@ -429,6 +430,9 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+/** What the audit trail keeps of an account an admin changed. */
+const AUDITED_USER_FIELDS: ('email' | 'name' | 'role' | 'active')[] = ['email', 'name', 'role', 'active'];
+
 export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { role, name, active } = req.query as GetUsersQuery;
@@ -494,6 +498,13 @@ export const createUser = async (req: AuthRequest, res: Response): Promise<void>
       },
       select: { id: true, email: true, name: true, role: true, active: true, emailVerified: true }
     });
+    await recordAudit({
+      entityType: 'User',
+      entityId: user.id,
+      action: 'CREATE',
+      after: auditSnapshot(user, AUDITED_USER_FIELDS),
+      actorId: req.user!.id,
+    });
 
     if (shouldSendActivation && activationToken) {
       emailService.sendActivationEmail(email, name, activationToken).catch((err) => {
@@ -541,6 +552,15 @@ export const updateUser = async (req: AuthRequest, res: Response): Promise<void>
       data: updateData,
       select: { id: true, email: true, name: true, role: true, active: true }
     });
+    await recordAudit({
+      entityType: 'User',
+      entityId: user.id,
+      action: 'UPDATE',
+      before: auditSnapshot(existingUser, AUDITED_USER_FIELDS),
+      // The hash never goes into the trail, only that it changed.
+      after: { ...auditSnapshot(user, AUDITED_USER_FIELDS), ...(password && { passwordChanged: true }) },
+      actorId: req.user!.id,
+    });
 
     res.json(user);
   } catch (error) {
@@ -567,6 +587,13 @@ export const deleteUser = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     await prisma.user.delete({ where: { id: userId } });
+    await recordAudit({
+      entityType: 'User',
+      entityId: userId,
+      action: 'DELETE',
+      before: auditSnapshot(existingUser, AUDITED_USER_FIELDS),
+      actorId: req.user!.id,
+    });
 
     res.json({ message: 'User deleted successfully' });
   } catch (error) {

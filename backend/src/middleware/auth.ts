@@ -36,15 +36,21 @@ export const authenticate = async (
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, role: true, onboardingCompletedAt: true, teamTourCompletedAt: true, updatesSeenAt: true }
+      select: { id: true, email: true, name: true, role: true, active: true, onboardingCompletedAt: true, teamTourCompletedAt: true, updatesSeenAt: true }
     });
 
     if (!user) {
       res.status(401).json({ error: 'User not found' });
       return;
     }
+    // A deactivated account loses access at once, not when its token expires.
+    if (!user.active) {
+      res.status(401).json({ error: 'Account is deactivated' });
+      return;
+    }
 
-    req.user = user;
+    const { active: _active, ...authUser } = user;
+    req.user = authUser;
     next();
   } catch (error) {
     // Anything past token verification is a server-side failure (e.g. database
@@ -83,11 +89,13 @@ export const optionalAuth = async (
 
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: { id: true, email: true, name: true, role: true }
+        select: { id: true, email: true, name: true, role: true, active: true }
       });
 
-      if (user) {
-        req.user = user;
+      // A deactivated account browses as a visitor.
+      if (user?.active) {
+        const { active: _active, ...authUser } = user;
+        req.user = authUser;
       }
     }
   } catch (error) {

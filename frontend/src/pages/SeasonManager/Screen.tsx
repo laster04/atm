@@ -8,6 +8,7 @@ import { leagueApi, seasonApi } from '@/services/api';
 import type { League, Season } from '@types';
 import SeasonFormModal, { type SeasonFormData } from '@/pages/Admin/components/seasons/SeasonFormModal';
 import { SEASON_ACCENT, SEASON_STATUS_TONE, teamCount } from './components/util';
+import LeaguesSection from './components/LeaguesSection';
 import { VisibilityBadge } from '@/components/public';
 import { strictest } from '@/utils/visibility';
 
@@ -67,6 +68,14 @@ export default function Screen() {
 	return (
 		<>
 			{error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+
+			{/* An admin edits every league in /admin; here a manager edits their own. */}
+			{!isAdmin() && (
+				<>
+					<LeaguesSection leagues={leagues} seasons={seasons} onChange={setLeagues} />
+					<h2 className="tm-section-label mb-2">{t('seasonManagement.leagues.seasonsTitle')}</h2>
+				</>
+			)}
 
 			{seasons.length === 0 ? (
 				<div className="py-8 text-center text-muted-foreground">{t('seasonManagement.noSeasons')}</div>

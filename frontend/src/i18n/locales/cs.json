@@ -15,7 +15,9 @@
     "all": "Vse",
     "close": "Zavřít",
     "name": "Jméno",
-    "unknown": "Neznámý"
+    "unknown": "Neznámý",
+    "yes": "Ano",
+    "no": "Ne"
   },
   "errorBoundary": {
     "title": "Něco se pokazilo",
@@ -614,7 +616,8 @@
       "assistsShort_one": "{{count}} asistence",
       "assistsShort_few": "{{count}} asistence",
       "assistsShort_other": "{{count}} asistencí",
-      "noPoints": "Bez bodů"
+      "noPoints": "Bez bodů",
+      "moved": "Hráč přesunut"
     },
     "toast": {
       "colorUpdated": "Barva pro {{name}} byla aktualizována!"
@@ -1024,6 +1027,19 @@
       "loadError": "Play-off se nepodařilo načíst",
       "createError": "Play-off se nepodařilo založit",
       "deleteError": "Play-off se nepodařilo smazat"
+    },
+    "leagues": {
+      "title": "Moje ligy",
+      "new": "Nová liga",
+      "empty": "Zatím nespravujete žádnou ligu.",
+      "seasons_one": "{{count}} sezóna",
+      "seasons_few": "{{count}} sezóny",
+      "seasons_other": "{{count}} sezón",
+      "edit": "Upravit {{name}}",
+      "delete": "Smazat {{name}}",
+      "saved": "Liga uložena",
+      "deleted": "Liga smazána",
+      "seasonsTitle": "Sezóny"
     }
   },
   "admin": {
@@ -1050,11 +1066,9 @@
         "IDEA": "Nápad"
       }
     },
-    "title": "Administrace",
     "accessDenied": "Pristup odepren",
     "noPrivileges": "Pro pristup na tuto stranku potrebujete administratorska opravneni.",
     "tabs": {
-      "title": "Vyber pro úpravu",
       "league": {
         "title": "Ligy",
         "addLeague": "Pridat ligu",
@@ -1068,31 +1082,14 @@
         "goToSeasons": "Zobrazit sezóny"
       },
       "user": {
-        "title": "Uživatelé",
         "addUser": "Přidat uživatele",
-        "th-name": "Jméno",
-        "th-email": "Email",
-        "th-role": "Role",
-        "th-status": "Stav",
-        "th-emailStatus": "Email",
-        "th-lastLogin": "Poslední přihlášení",
         "neverLoggedIn": "Nikdy",
-        "th-actions": "Akce",
         "active": "Aktivní",
         "inactive": "Neaktivní",
-        "verified": "Ověřen",
         "unverified": "Neověřen",
-        "emailVerifiedTooltip": "Email byl ověřen",
-        "emailUnverifiedTooltip": "Email zatím nebyl ověřen",
         "resendVerification": "Znovu odeslat ověřovací email",
         "verificationSent": "Ověřovací email odeslán",
-        "verificationFailed": "Nepodařilo se odeslat ověřovací email",
-        "filterByName": "Hledat podle jména...",
-        "filterByRole": "Filtrovat podle role",
-        "filterByStatus": "Filtrovat podle stavu",
-        "allRoles": "Všechny role",
-        "allStatuses": "Všechny stavy",
-        "clearFilters": "Vymazat"
+        "verificationFailed": "Nepodařilo se odeslat ověřovací email"
       },
       "season": {
         "title": "Sezóny",
@@ -1236,7 +1233,6 @@
       "copyTeamsNone": "Žádná",
       "copyTeamsEmpty": "Tato sezóna nemá žádné týmy ke zkopírování.",
       "teamName": "Název týmu",
-      "teamLogo": "Logo týmu",
       "manager": "Manažer týmu",
       "noManager": "Bez manažera",
       "playerName": "Jméno hráče",
@@ -1285,7 +1281,8 @@
       "noAvailableTeams": "V této sezóně nejsou dostupné žádné jiné týmy",
       "movePlayerBtn": "Přesunout hráče",
       "withinGroups": "Losovat jen uvnitř skupin",
-      "withinGroupsHint": "Týmy hrají jen s ostatními ve své skupině ({{count}} skupiny)"
+      "withinGroupsHint": "Týmy hrají jen s ostatními ve své skupině ({{count}} skupiny)",
+      "teamLogo": "Logo týmu"
     },
     "roles": {
       "ADMIN": "Administrátor",
@@ -1325,25 +1322,6 @@
       "movePlayer": "Přesun hráče selhal",
       "archiveSeason": "Archivace sezóny selhala",
       "copyTeams": "Sezóna byla vytvořena, ale kopírování týmů selhalo"
-    },
-    "nav": {
-      "support": "Podpora",
-      "users": "Uživatelé",
-      "leagues": "Ligy",
-      "seasons": "Sezóny",
-      "more": "Více",
-      "players": "Hráči",
-      "games": "Zápasy"
-    },
-    "more": {
-      "supportHint": "Zprávy odeslané přes kontaktní formulář",
-      "acrossSeasons": "Napříč sezónami",
-      "playersHint": "Hledat hráče ve všech týmech a přesouvat je",
-      "gamesHint": "Všechny zápasy bez ohledu na sezónu",
-      "seasonWork": "Správa sezóny",
-      "seasonWorkTitle": "Týmy, termíny a výsledky",
-      "seasonWorkHint": "Spravují se v detailu sezóny, ne v globální tabulce.",
-      "openSeasons": "Otevřít sezóny"
     },
     "funnel": {
       "title": "Přihlášky týmů",
@@ -1498,7 +1476,6 @@
       "endDate": "Datum konce",
       "sportType": "Typ sportu",
       "description": "Popis",
-      "logo": "Logo",
       "country": "Země",
       "primaryColor": "Primární barva",
       "number": "Číslo dresu",
@@ -1515,7 +1492,8 @@
       "date": "Datum",
       "team": "Tým",
       "team_TENNIS": "Hráč",
-      "groupName": "Název skupiny"
+      "groupName": "Název skupiny",
+      "logo": "Logo"
     },
     "series": {
       "title": "Série turnajů",
@@ -2791,6 +2769,336 @@
       "registrations": "Návod k přihláškám týmů",
       "all": "Centrum nápovědy",
       "contact": "Napište nám"
+    }
+  },
+  "adminShell": {
+    "title": "Administrace",
+    "menuLabel": "Sekce administrace",
+    "openMenu": "Otevřít menu",
+    "toDashboard": "Zpět na nástěnku",
+    "soon": "Brzy",
+    "comingIn": "Přibude s celkem {{celek}}",
+    "badge_one": "{{count}} čeká",
+    "badge_few": "{{count}} čekají",
+    "badge_other": "{{count}} čeká",
+    "sections": {
+      "overview": {
+        "label": "Přehled",
+        "hint": "Co na vás čeká a posledních 30 dní v číslech."
+      },
+      "payments": {
+        "label": "Platby a doklady",
+        "hint": "QR převody a daňové doklady."
+      },
+      "pricing": {
+        "label": "Ceník a DPH",
+        "hint": "Ceny jsou s DPH. Každá změna platí od zvoleného data; vystavené platby a doklady se nemění. Všechno se zapisuje do auditního logu."
+      },
+      "users": {
+        "label": "Uživatelé",
+        "hint": "Účty, co spravují, a jejich historie."
+      },
+      "leagues": {
+        "label": "Ligy",
+        "hint": "Všechny ligy; odsud se otevírají sezóny."
+      },
+      "seasons": {
+        "label": "Sezóny",
+        "hint": "Všechny sezóny, filtr podle ligy."
+      },
+      "tournaments": {
+        "label": "Turnaje a série",
+        "hint": "Otevře správu turnajů."
+      },
+      "players": {
+        "label": "Hráči",
+        "hint": "Hráči napříč sezónami."
+      },
+      "games": {
+        "label": "Zápasy",
+        "hint": "Zápasy napříč sezónami."
+      },
+      "registrations": {
+        "label": "Přihlášky",
+        "hint": "Přihlášky do sezón a turnajů."
+      },
+      "files": {
+        "label": "Soubory",
+        "hint": "Nahraná loga a dokumenty."
+      },
+      "support": {
+        "label": "Podpora",
+        "hint": "Zprávy z kontaktního formuláře."
+      },
+      "audit": {
+        "label": "Audit log",
+        "hint": "Kdo co změnil a kdy."
+      }
+    },
+    "search": {
+      "label": "Hledat v celé administraci",
+      "placeholder": "E-mail, liga, tým, turnaj…",
+      "users": "Uživatelé",
+      "tournaments": "Turnaje"
+    },
+    "list": {
+      "export": "Export CSV",
+      "exportError": "Export se nepovedl. Zkuste to znovu.",
+      "loadError": "Nepodařilo se načíst. Zkuste to znovu.",
+      "filtersInUrl": "Filtry jsou v adrese stránky, odkaz jde poslat dál.",
+      "bulkActions": "Akce pro vybrané řádky",
+      "selected_one": "{{count}} vybraný",
+      "selected_few": "{{count}} vybrané",
+      "selected_other": "{{count}} vybraných",
+      "clearSelection": "Zrušit výběr",
+      "selectAll": "Vybrat vše na stránce",
+      "selectRow": "Vybrat {{name}}",
+      "pages": "Stránky",
+      "range": "{{from}}–{{to}} z {{total}}",
+      "rangeEstimated": "{{from}}–{{to}} z přibližně {{total}}",
+      "perPage_one": "{{count}} na stránku",
+      "perPage_few": "{{count}} na stránku",
+      "perPage_other": "{{count}} na stránku",
+      "previous": "Předchozí",
+      "next": "Další",
+      "addFilter": "Přidat filtr",
+      "removeFilter": "Odebrat filtr {{label}}",
+      "from": "Od",
+      "to": "Do",
+      "apply": "Použít",
+      "any": "jakýkoli"
+    },
+    "panel": {
+      "close": "Zavřít detail",
+      "overview": "Přehled",
+      "history": "Historie"
+    },
+    "confirm": {
+      "reasonRequired": "Důvod (povinný)",
+      "reasonOptional": "Důvod (nepovinný)",
+      "reasonHint": "Uloží se do auditního logu s vaším jménem."
+    },
+    "audit": {
+      "when": "Kdy",
+      "who": "Kdo",
+      "section": "Sekce",
+      "record": "Záznam",
+      "recordId": "ID záznamu",
+      "action": "Akce",
+      "reason": "Důvod",
+      "period": "Období",
+      "field": "Pole",
+      "before": "Předtím",
+      "after": "Potom",
+      "system": "Systém",
+      "noChanges": "Žádné pole se nezměnilo.",
+      "emptyRecord": "Zatím nic nezapsáno.",
+      "empty": "Těmto filtrům neodpovídá žádný záznam.",
+      "search": "Hledat v logu",
+      "searchPlaceholder": "Důvod nebo ID záznamu…",
+      "actorPlaceholder": "Jméno nebo e-mail",
+      "actions": {
+        "CREATE": "Vytvořeno",
+        "UPDATE": "Změněno",
+        "DELETE": "Smazáno",
+        "CONFIRM": "Potvrzeno",
+        "REOPEN": "Znovu otevřeno"
+      },
+      "types": {
+        "User": "Uživatelé",
+        "Game": "Zápasy",
+        "Season": "Sezóny",
+        "SupportTicket": "Podpora",
+        "ProductPrice": "Ceny",
+        "VatRate": "Sazby DPH",
+        "PlanLimit": "Limity plánů",
+        "Setting": "Nastavení"
+      }
+    },
+    "users": {
+      "kicker": "Uživatel",
+      "name": "Jméno",
+      "email": "E-mail",
+      "role": "Role",
+      "account": "Účet",
+      "activation": "E-mail ověřen",
+      "verifiedOn": "Ano, {{date}}",
+      "registered": "Registrace",
+      "lastLogin": "Poslední přihlášení",
+      "digest": "Souhrny kol",
+      "activity": "Aktivita",
+      "activityValue": "{{players}} míst v soupiskách · {{tickets}} zpráv podpoře · {{registrations}} přihlášek",
+      "manages": "Spravuje",
+      "managesNothing": "Nespravuje žádnou ligu, sérii turnajů ani tým.",
+      "leagues": "Ligy a sezóny",
+      "series": "Série turnajů",
+      "teams": "Týmy",
+      "leaguesCount_one": "{{count}} liga",
+      "leaguesCount_few": "{{count}} ligy",
+      "leaguesCount_other": "{{count}} lig",
+      "seriesCount_one": "{{count}} série",
+      "seriesCount_few": "{{count}} série",
+      "seriesCount_other": "{{count}} sérií",
+      "teamsCount_one": "{{count}} tým",
+      "teamsCount_few": "{{count}} týmy",
+      "teamsCount_other": "{{count}} týmů",
+      "managesFilter": {
+        "league": "Ligu",
+        "series": "Sérii turnajů",
+        "team": "Tým",
+        "any": "Cokoli",
+        "none": "Nic"
+      },
+      "tabs": {
+        "plans": "Plány a předplatné",
+        "payments": "Platby a doklady",
+        "billing": "Fakturační údaje",
+        "manages": "Co spravuje"
+      },
+      "plansPending": "Plány přibudou s placenými turnaji (celek B): roční plán Organizátor s datem od–do, plány turnajů, jejich stav a konec platnosti.",
+      "paymentsPending": "Platby přibudou s celkem B: platby uživatele s variabilním symbolem a doklady ke stažení.",
+      "billingPending": "Fakturační údaje přibudou s celkem B, včetně ověření DIČ.",
+      "search": "Hledat uživatele",
+      "searchPlaceholder": "Jméno nebo e-mail…",
+      "empty": "Těmto filtrům neodpovídá žádný uživatel.",
+      "created": "Uživatel vytvořen",
+      "saved": "Uživatel uložen",
+      "deleted": "Uživatel smazán",
+      "activate": "Aktivovat",
+      "deactivate": "Deaktivovat",
+      "activated_one": "Účet aktivován",
+      "activated_few": "Aktivovány {{count}} účty",
+      "activated_other": "Aktivováno {{count}} účtů",
+      "deactivated_one": "Účet deaktivován",
+      "deactivated_few": "Deaktivovány {{count}} účty",
+      "deactivated_other": "Deaktivováno {{count}} účtů",
+      "deactivateTitle_one": "Deaktivovat účet?",
+      "deactivateTitle_few": "Deaktivovat {{count}} účty?",
+      "deactivateTitle_other": "Deaktivovat {{count}} účtů?",
+      "deactivateHint_one": "{{name}} bude hned odhlášen a nepřihlásí se, dokud účet admin znovu neaktivuje.",
+      "deactivateHint_few": "Budou hned odhlášeni a nepřihlásí se, dokud jim admin účty znovu neaktivuje.",
+      "deactivateHint_other": "Budou hned odhlášeni a nepřihlásí se, dokud jim admin účty znovu neaktivuje.",
+      "activateTitle": "Aktivovat účet?",
+      "activateHint": "{{name}} se bude moci znovu přihlásit.",
+      "deleteTitle": "Smazat uživatele?",
+      "deleteHint": "{{name}} bude smazán natrvalo. Ligy, týmy a série, které spravuje, zůstanou bez správce.",
+      "notYourself": "Vlastní účet deaktivovat nemůžete."
+    },
+    "overview": {
+      "waiting": "Čeká na vás",
+      "payments": "Platby k potvrzení",
+      "paymentsPending": "Přibude s placenými turnaji (celek B).",
+      "tickets": "Zprávy podpoře",
+      "ticketsHint": "Nové nebo rozpracované.",
+      "registrations": "Přihlášky bez reakce",
+      "registrationsHint": "Čekají déle než 7 dní.",
+      "last30Days": "Posledních 30 dní",
+      "newUsers": "Noví uživatelé",
+      "activeLeagues": "Aktivní ligy",
+      "activeTournaments": "Aktivní turnaje",
+      "activeHint": "Aktivní znamená, že měla zápas s datem v posledních 30 dnech."
+    },
+    "pricing": {
+      "readOnly": "Můžete se dívat, ale ne měnit. Ceny, sazby DPH, limity a OSS mění jen účet správce ceníku.",
+      "products": "Produkty",
+      "leaguePlansLater": "Plány lig přibudou později",
+      "product": "Produkt",
+      "czk": "CZK s DPH",
+      "eur": "EUR s DPH",
+      "validFromShort": "Platí od",
+      "scheduled": "Naplánováno",
+      "changePrice": "Změnit cenu",
+      "from": "od {{when}}",
+      "now": "od teď",
+      "withdraw": "Zrušit {{label}}",
+      "withdrawn": "Naplánovaná změna zrušena",
+      "withdrawTitle": "Zrušit naplánovanou změnu?",
+      "withdrawHint": "{{label}} nezačne platit. Zatím na ní nic vystaveného nezávisí.",
+      "withdrawConfirm": "Zrušit změnu",
+      "vatRates": "Sazby DPH podle země",
+      "addRate": "+ Přidat sazbu",
+      "country": "Země",
+      "rate": "Základní sazba",
+      "appliesWhen": "Použije se",
+      "appliesCz": "Vždy u českých zákazníků; u ostatních z EU, když je OSS vypnuté",
+      "appliesOss": "Jen se zapnutým OSS, zákazník bez DIČ",
+      "ratesNote": "Každou sazbu před použitím ověřte s účetní.",
+      "side": "Úpravy",
+      "newPrice": "Nová cena",
+      "validFrom": "Platí od",
+      "validFromHint": "Prázdné znamená hned. Datum platí od půlnoci pražského času.",
+      "split": "{{country}} {{rate}}: základ {{base}}, DPH {{vat}}",
+      "ossOn": "(OSS je zapnuté)",
+      "ossOff": "(jen při zapnutém OSS)",
+      "priceScope": "Platí pro platby vytvořené {{when}}. Už vytvořené platby si nechají svou cenu a vystavené doklady se nikdy nemění.",
+      "schedule": "Naplánovat změnu",
+      "priceSaved": "Změna ceny naplánována",
+      "saveError": "Uložení se nepovedlo. Zkuste to znovu.",
+      "confirmPriceTitle": "Nová cena pro {{name}}?",
+      "confirmPrice": "{{czk}} / {{eur}} s DPH pro platby vytvořené {{when}}. Změna se zapíše do auditního logu.",
+      "ratePercent": "Sazba (%)",
+      "rateSaved": "Sazba DPH naplánována",
+      "confirmRateTitle": "Nová sazba DPH?",
+      "confirmRate": "{{country}} {{rate}} {{when}}, pro platby vytvořené od té chvíle. Změna se zapíše do auditního logu.",
+      "limits": "Limity plánů",
+      "changeLimits": "Změnit limity",
+      "limit": "Limit",
+      "unlimited": "bez limitu",
+      "plans": {
+        "FREE": "Zdarma",
+        "TOURNAMENT": "Turnaj",
+        "TOURNAMENT_PLUS": "Turnaj Plus",
+        "ORGANIZER": "Organizátor"
+      },
+      "limitKeys": {
+        "TEAMS_PER_TOURNAMENT": "Týmů na turnaj",
+        "SPONSOR_LOGOS": "Loga sponzorů",
+        "DOCUMENTS": "Dokumenty (PDF)",
+        "DOCUMENT_MAX_MB": "Velikost dokumentu (MB)",
+        "LOGO_MAX_MB": "Logo týmu (MB)"
+      },
+      "limitsHint": "Prázdné pole znamená bez limitu, 0 že plán to nemá. Uloží se jen změněná pole.",
+      "limitsSaved": "Změna limitů naplánována",
+      "confirmLimitsTitle_one": "Změnit {{count}} limit?",
+      "confirmLimitsTitle_few": "Změnit {{count}} limity?",
+      "confirmLimitsTitle_other": "Změnit {{count}} limitů?",
+      "confirmLimits": "Platí {{when}}: {{list}}. Změna se zapíše do auditního logu.",
+      "oss": "Režim OSS",
+      "on": "Zapnuto",
+      "off": "Vypnuto",
+      "ossOffHint": "Vypnuto: zákazníci z jiných zemí EU bez DIČ platí českou DPH. Zapnout při překročení limitu, po dohodě s účetní.",
+      "ossOnHint": "Zapnuto: zákazníci z jiných zemí EU bez DIČ platí sazbu své země, přiznanou přes OSS.",
+      "ossCounter": "Prodeje do EU bez DIČ, {{year}}",
+      "ossOf": "{{total}} z {{limit}}",
+      "ossAlerts": "Upozornění e-mailem při 80 % (8 000 €) a při překročení.",
+      "ossNotTracked": "Počítá se z plateb, které přibudou s celkem B; do té doby zůstává nula.",
+      "ossOnTitle": "Zapnout OSS?",
+      "ossOffTitle": "Vypnout OSS?",
+      "ossOnConfirm": "Platby vytvořené od teď účtují zákazníkům z EU bez DIČ sazbu jejich země. Každá taková země musí mít sazbu v tabulce.",
+      "ossOffConfirm": "Platby vytvořené od teď účtují zákazníkům z EU bez DIČ českou DPH.",
+      "switchOn": "Zapnout",
+      "switchOff": "Vypnout",
+      "ossSwitchedOn": "OSS zapnuto",
+      "ossSwitchedOff": "OSS vypnuto",
+      "lookup": "Ověřit DIČ nebo IČO",
+      "lookupHint": "DIČ se ověří ve VIES, IČO v ARES — stejně jako ve formuláři fakturačních údajů.",
+      "lookupRun": "Ověřit",
+      "lookupErrors": {
+        "VAT_ID_FORMAT": "DIČ začíná dvoupísmenným kódem země.",
+        "ICO_FORMAT": "Tohle není platné IČO.",
+        "ICO_UNKNOWN": "ARES toto IČO nezná.",
+        "ARES_UNAVAILABLE": "ARES neodpovídá. Zkuste to později.",
+        "failed": "Ověření se nepovedlo."
+      },
+      "vatStatus": {
+        "VALID": "Platné",
+        "INVALID": "Neplatné",
+        "UNAVAILABLE": "VIES neodpověděl; zkusí se znovu"
+      },
+      "checkedAt": "Ověřeno {{when}}",
+      "consultation": "číslo dotazu {{id}}",
+      "ico": "IČO {{ico}}",
+      "dic": "DIČ {{dic}}"
     }
   },
   "files": {

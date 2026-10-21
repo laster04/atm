@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Loader2, Edit } from 'lucide-react';
+import { ArrowLeft, ArrowRightLeft, Loader2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
-import { playerApi, gameStatisticApi, teamApi } from '@/services/api';
+import { playerApi, gameStatisticApi, teamApi, seasonApi } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 import PlayerAccountCard from './PlayerAccountCard';
+import MovePlayerModal from '@/pages/Admin/components/players/MovePlayerModal';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@components/base/card.tsx";
 import { Button } from "@components/base/button.tsx";
@@ -13,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@components/ba
 import { Input } from "@components/base/input.tsx";
 import { Label } from "@components/base/label.tsx";
 import { Textarea } from "@components/base/textarea.tsx";
-import type { Player, PlayerPosition, Team, PlayerGameStatistic, SportType } from "@types";
+import type { Player, PlayerPosition, Team, PlayerGameStatistic, Season, SportType } from "@types";
 import { APP_TIME_ZONE } from '@/utils/date';
 import PositionSelect from '@components/PositionSelect';
 import { positionLabel, positionsForSports, teamSports } from '@/utils/playerPositions';
@@ -35,6 +37,10 @@ export default function PlayerDetailPage() {
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [statistics, setStatistics] = useState<PlayerGameStatistic[]>([]);
 	const [showEditModal, setShowEditModal] = useState(isNew);
+	// A season manager moves players between the teams of their leagues.
+	const { isAdmin, isSeasonManager } = useAuth();
+	const canMove = !isNew && (isAdmin() || isSeasonManager());
+	const [moveSeasons, setMoveSeasons] = useState<Season[] | null>(null);
 	const [formData, setFormData] = useState({
 		name: '',
 		number: '',
@@ -119,6 +125,31 @@ export default function PlayerDetailPage() {
 			toast.error(t('teamManagement.playerDetail.deleteError'));
 		}
 	};
+
+	const openMove = async () => {
+		try {
+			const res = isAdmin() ? await seasonApi.getAll() : await seasonApi.getMySeasons();
+			if (res.data.length === 0) toast.error(t('admin.modal.noAvailableTeams'));
+			else setMoveSeasons(res.data);
+		} catch {
+			toast.error(t('admin.errors.movePlayer'));
+		}
+	};
+
+	const handleMove = async (id: string, targetTeamId: string) => {
+		try {
+			await playerApi.move(id, targetTeamId);
+			setMoveSeasons(null);
+			toast.success(t('teamManagement.playerDetail.moved'));
+			navigate(`/team-management/${targetTeamId}/player/${id}`, { replace: true });
+		} catch (error) {
+			const message = (error as { response?: { data?: { error?: string } } }).response?.data?.error;
+			toast.error(message ?? t('admin.errors.movePlayer'));
+		}
+	};
+
+	const teamSeasonIds = team?.seasonTeams?.map((entry) => entry.seasonId) ?? [];
+	const moveFrom = moveSeasons?.find((season) => teamSeasonIds.includes(season.id)) ?? moveSeasons?.[0];
 
 	const positions = positionsForSports(teamSports(team));
 
@@ -263,15 +294,34 @@ export default function PlayerDetailPage() {
 					<ArrowLeft className="h-4 w-4 mr-1" />
 					{t('common.back')}
 				</Button>
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => setShowEditModal(true)}
-				>
-					<Edit className="h-4 w-4 mr-1" />
-					{t('common.edit')}
-				</Button>
+				<div className="flex gap-2">
+					{canMove && (
+						<Button variant="outline" size="sm" onClick={openMove}>
+							<ArrowRightLeft className="h-4 w-4 mr-1" />
+							{t('admin.modal.movePlayer')}
+						</Button>
+					)}
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setShowEditModal(true)}
+					>
+						<Edit className="h-4 w-4 mr-1" />
+						{t('common.edit')}
+					</Button>
+				</div>
 			</div>
+
+			{player && moveSeasons && moveFrom && (
+				<MovePlayerModal
+					player={player}
+					teams={[]}
+					seasons={moveSeasons}
+					currentSeasonId={moveFrom.id}
+					onSubmit={handleMove}
+					onClose={() => setMoveSeasons(null)}
+				/>
+			)}
 
 			{/* Player Info Card */}
 			<div

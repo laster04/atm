@@ -839,6 +839,128 @@ export interface SearchResults {
     league: LeagueRef;
   })[];
   leagues: (Pick<League, 'id' | 'name' | 'sportType' | 'logo'> & { _count: { seasons: number } })[];
+  /** Admin only; empty for everyone else. */
+  users?: Pick<User, 'id' | 'name' | 'email' | 'role' | 'active'>[];
+  /** Admin only; empty for everyone else. */
+  tournaments?: (Pick<Tournament, 'id' | 'name' | 'status' | 'startDate'> & {
+    series: Pick<TournamentSeries, 'id' | 'name' | 'sportType'>;
+  })[];
+}
+
+// ============================================================
+// ADMINISTRATION
+// ============================================================
+
+/** One page of an admin list. `estimated` totals come from the planner. */
+export interface ListPage<T> {
+  rows: T[];
+  total: number;
+  estimated: boolean;
+  page: number;
+  pageSize: number;
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  active: boolean;
+  emailVerified: boolean;
+  lastLoggedInAt: string | null;
+  createdAt: string;
+  _count: { managedLeagues: number; managedTeams: number; managedTournamentSeries: number };
+}
+
+export interface AdminUserDetail extends Omit<AdminUserRow, '_count'> {
+  emailVerifiedAt: string | null;
+  emailDigest: boolean;
+  managedLeagues: (Pick<League, 'id' | 'name' | 'sportType'> & {
+    seasons: Pick<Season, 'id' | 'name' | 'status'>[];
+  })[];
+  managedTournamentSeries: (Pick<TournamentSeries, 'id' | 'name' | 'sportType'> & {
+    tournaments: Pick<Tournament, 'id' | 'name' | 'status'>[];
+  })[];
+  managedTeams: Pick<Team, 'id' | 'name' | 'primaryColor'>[];
+  _count: AdminUserRow['_count'] & { playerProfiles: number; supportTickets: number; registrations: number };
+}
+
+/** A dated version of a price, rate or limit; nothing is edited in place. */
+interface Versioned {
+  id: string;
+  validFrom: string;
+  createdAt: string;
+}
+
+export interface PriceVersion extends Versioned {
+  /** Minor units (haléře / cents), VAT included. */
+  priceCzk: number;
+  priceEur: number;
+}
+
+export interface VatRateVersion extends Versioned {
+  country: string;
+  /** Hundredths of a percent: 2100 = 21 %. */
+  rateBp: number;
+}
+
+export interface PlanLimitVersion extends Versioned {
+  plan: string;
+  key: string;
+  /** null = unlimited, 0 = not included. */
+  value: number | null;
+}
+
+export interface VersionSplit<T> {
+  current: T | null;
+  scheduled: T[];
+  history: T[];
+}
+
+export interface PricingOverview {
+  /** Only the account flagged for pricing may change anything here. */
+  canEdit: boolean;
+  products: ({ id: string; code: string; nameCs: string; nameEn: string } & VersionSplit<PriceVersion>)[];
+  vatRates: ({ country: string } & VersionSplit<VatRateVersion>)[];
+  euCountries: string[];
+  limits: {
+    plans: string[];
+    keys: string[];
+    cells: ({ plan: string; key: string } & VersionSplit<PlanLimitVersion>)[];
+  };
+  oss: {
+    enabled: boolean;
+    year: number;
+    totalEurCents: number;
+    limitEurCents: number;
+    level: 'OK' | 'WARNING' | 'EXCEEDED';
+    /** False until payments (celek B) feed the counter. */
+    tracked: boolean;
+  };
+}
+
+export interface VatCheckResult {
+  id: string;
+  countryCode: string;
+  vatNumber: string;
+  status: 'VALID' | 'INVALID' | 'UNAVAILABLE';
+  name: string | null;
+  address: string | null;
+  requestIdentifier: string | null;
+  checkedAt: string;
+}
+
+export interface CompanyLookup {
+  ico: string;
+  name: string;
+  vatId: string | null;
+  address: { street: string | null; city: string | null; postalCode: string | null; country: string; text: string | null };
+}
+
+export interface AdminOverview {
+  /** `payments` stays null until celek B adds payments. */
+  queues: { payments: number | null; openTickets: number; staleRegistrations: number };
+  last30Days: { newUsers: number; activeLeagues: number; activeTournaments: number };
 }
 
 // ============================================================
