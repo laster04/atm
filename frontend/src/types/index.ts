@@ -657,11 +657,80 @@ export interface TournamentSeries {
   registrationOpen?: boolean;
 }
 
+export type TournamentPlan = 'FREE' | 'TOURNAMENT' | 'TOURNAMENT_PLUS';
+/** The plan a tournament's limits come from: its own, or the series manager's Organizer plan. */
+export type PlanName = TournamentPlan | 'ORGANIZER';
+
+export interface TeamAllowance {
+  plan: PlanName;
+  ownPlan: TournamentPlan;
+  /** Teams the plan allows; null is unlimited. */
+  limit: number | null;
+  teams: number;
+  /** When the series manager's Organizer plan ends, while one runs. */
+  organizerUntil: string | null;
+  /** A plan paid for and waiting for ATM to confirm the transfer. */
+  pending: { paymentId: string; plan: PlanName; limit: number | null } | null;
+}
+
+export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED';
+export type PaymentCurrency = 'CZK' | 'EUR';
+export type OfferPlan = 'TOURNAMENT' | 'TOURNAMENT_PLUS' | 'ORGANIZER';
+
+export interface PlanPayment {
+  id: string;
+  variableSymbol: number;
+  status: PaymentStatus;
+  productCode: string;
+  plan: PlanName | null;
+  productName: { cs: string; en: string };
+  currency: PaymentCurrency;
+  /** Minor units, VAT included. */
+  amount: number;
+  base: number;
+  vat: number;
+  vatRateBp: number;
+  upgradeFrom: TournamentPlan | null;
+  tournament: { id: string; name: string } | null;
+  payer: { id: string; name: string; email: string } | null;
+  confirmedBy: { id: string; name: string; email: string } | null;
+  createdAt: string;
+  confirmedAt: string | null;
+  cancelledAt: string | null;
+  /** The tax document issued on confirmation. */
+  document: { id: string; number: string; kind: 'SIMPLIFIED' | 'FULL'; issuedAt: string; emailedAt: string | null } | null;
+  account: { local: string; iban: string; bic: string | null; recipient: string } | null;
+  /** The QR payment string while the payment waits. */
+  qr: string | null;
+}
+
+/** One tournament plan on the public price list. Minor units, VAT included; a null limit is unlimited. */
+export interface PublicPlanPrice {
+  plan: PlanName;
+  prices: Record<PaymentCurrency, number>;
+  limits: { teams: number | null; sponsorLogos: number | null; documents: number | null };
+}
+
+export interface PlanStatus extends TeamAllowance {
+  payment: PlanPayment | null;
+}
+
+export interface PlanOffer {
+  plan: OfferPlan;
+  productCode: string;
+  limit: number | null;
+  prices: Partial<Record<PaymentCurrency, number>>;
+  upgradeFrom: TournamentPlan | null;
+  /** A renewal of a running Organizer year: when the new one starts. */
+  startsAt: string | null;
+}
+
 export interface Tournament {
   id: string;
   name: string;
   year?: number | null;
   status: TournamentStatus;
+  plan?: TournamentPlan;
   startDate?: string | null;
   endDate?: string | null;
   location?: string | null;
@@ -958,8 +1027,7 @@ export interface CompanyLookup {
 }
 
 export interface AdminOverview {
-  /** `payments` stays null until celek B adds payments. */
-  queues: { payments: number | null; openTickets: number; staleRegistrations: number };
+  queues: { payments: number; openTickets: number; staleRegistrations: number };
   last30Days: { newUsers: number; activeLeagues: number; activeTournaments: number };
 }
 
@@ -1030,6 +1098,8 @@ export interface RegistrationSettings {
   closedAt: string | null;
   lifecycle: RegistrationLifecycle;
   capacity: RegistrationCapacity;
+  /** A tournament's plan and team limit; null for a season. */
+  plan: TeamAllowance | null;
   competitionName: string;
 }
 

@@ -9,7 +9,7 @@ const PERIOD_DAYS = 30;
 
 /**
  * GET /api/admin/overview — what waits for an admin, and a few numbers for the
- * last 30 days. Payments join the queues with celek B.
+ * last 30 days.
  */
 export const getOverview = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -18,7 +18,8 @@ export const getOverview = async (_req: AuthRequest, res: Response): Promise<voi
     const staleBefore = new Date(now.getTime() - STALE_REGISTRATION_DAYS * DAY_MS);
     const playedRecently = { date: { gte: since, lte: now } };
 
-    const [openTickets, staleRegistrations, newUsers, activeLeagues, activeTournaments] = await Promise.all([
+    const [payments, openTickets, staleRegistrations, newUsers, activeLeagues, activeTournaments] = await Promise.all([
+      prisma.payment.count({ where: { status: 'PENDING' } }),
       // WAITING_FOR_USER is the sender's move, not ours.
       prisma.supportTicket.count({ where: { status: { in: ['NEW', 'IN_PROGRESS'] } } }),
       prisma.registration.count({ where: { status: 'PENDING', createdAt: { lt: staleBefore } } }),
@@ -28,7 +29,7 @@ export const getOverview = async (_req: AuthRequest, res: Response): Promise<voi
     ]);
 
     res.json({
-      queues: { payments: null, openTickets, staleRegistrations },
+      queues: { payments, openTickets, staleRegistrations },
       last30Days: { newUsers, activeLeagues, activeTournaments },
     });
   } catch (error) {

@@ -26,6 +26,7 @@ import {
   deleteTournament,
   getTournamentStandings,
 } from '../controllers/tournamentController.js';
+import { getOffers, getPlan, startPayment } from '../controllers/paymentController.js';
 
 import {
   getTeamsByTournament,
@@ -86,6 +87,9 @@ router.get('/:id', optionalAuth, requireVisible('tournament'), getTournamentById
 router.put('/:id', authenticate, requireTournamentAccess(), updateTournament);
 router.delete('/:id', authenticate, requireTournamentAccess(), deleteTournament);
 router.get('/:id/standings', optionalAuth, requireVisible('tournament'), getTournamentStandings);
+router.get('/:id/plan', authenticate, requireTournamentAccess(), getPlan);
+router.get('/:id/plan/offers', authenticate, requireTournamentAccess(), getOffers);
+router.post('/:id/payments', authenticate, requireTournamentAccess(), startPayment);
 router.get('/:tournamentId/scorers', optionalAuth, requireVisible('tournament', 'tournamentId'), getTopScorersByTournament);
 
 // ── Teams ──────────────────────────────────────────────────

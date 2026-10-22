@@ -6,6 +6,14 @@ import { AuthRequest } from '../types/index.js';
 import { canManageSeason, canManageTournament } from '../services/access.js';
 import emailService from '../services/emailService.js';
 import { registrationFormState } from '../services/registrationState.js';
+import {
+  capacityLimit,
+  lockCompetition,
+  PlanLimitError,
+  planLimitBody,
+  teamAllowance,
+  type TeamAllowance,
+} from '../services/plans/tournamentPlan.js';
 
 type Kind = 'season' | 'tournament';
 
@@ -56,6 +64,8 @@ interface Competition {
   /** Who hears about new applications: the league or series manager. */
   managerEmails: string[];
   window: Prisma.RegistrationWindowGetPayload<object> | null;
+  /** A tournament's plan and team limit; null for a season. */
+  allowance: TeamAllowance | null;
 }
 
 /** Everything the rules need about one season or tournament, or null if it does not exist. */
@@ -80,6 +90,7 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
       teamCount: season._count.seasonTeams,
       managerEmails: season.league.manager ? [season.league.manager.email] : [],
       window: season.registrationWindow,
+      allowance: null,
     };
   }
   const tournament = await prisma.tournament.findUnique({
@@ -101,6 +112,7 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
     teamCount: tournament._count.teams,
     managerEmails: tournament.series.manager ? [tournament.series.manager.email] : [],
     window: tournament.registrationWindow,
+    allowance: await teamAllowance(id),
   };
 }
 
@@ -129,6 +141,25 @@ export interface Capacity {
   free: number | null;
 }
 
+/**
+ * The most teams the competition takes: the form's maximum, or the plan's
+ * limit when that is lower. Past it, applications join the waiting list.
+ */
+const maxOf = (competition: Competition): number | null => {
+  const formMax = competition.window?.maxTeams ?? null;
+  const planLimit = capacityLimit(competition.allowance);
+  if (formMax === null) return planLimit;
+  return planLimit === null ? formMax : Math.min(formMax, planLimit);
+};
+
+const capacityFrom = (approved: number, pending: number, waitlisted: number, max: number | null): Capacity => ({
+  approved,
+  pending,
+  waitlisted,
+  max,
+  free: max === null ? null : Math.max(0, max - approved - pending),
+});
+
 const capacityOf = async (competition: Competition, db: Pick<typeof prisma, 'registration'> = prisma): Promise<Capacity> => {
   const window = competition.window;
   const counts = window
@@ -139,15 +170,7 @@ const capacityOf = async (competition: Competition, db: Pick<typeof prisma, 'reg
       })
     : [];
   const count = (status: RegistrationStatus) => counts.find((row) => row.status === status)?._count._all ?? 0;
-  const pending = count('PENDING');
-  const max = window?.maxTeams ?? null;
-  return {
-    approved: competition.teamCount,
-    pending,
-    waitlisted: count('WAITLISTED'),
-    max,
-    free: max === null ? null : Math.max(0, max - competition.teamCount - pending),
-  };
+  return capacityFrom(competition.teamCount, count('PENDING'), count('WAITLISTED'), maxOf(competition));
 };
 
 /**
@@ -615,6 +638,9 @@ const settingsView = async (competition: Competition) => {
     }),
     lifecycle: lifecycleOf(competition, capacity),
     capacity,
+    // A tournament's plan and its team limit, so the form can say why the
+    // maximum stops where it does; null for a season.
+    plan: competition.allowance,
     // For the publish confirmation and the ready-made share messages.
     competitionName: competition.name,
   };
@@ -685,6 +711,12 @@ export const updateSettings = async (req: AuthRequest, res: Response): Promise<v
     }
     if (Object.keys(fields).length > 0) {
       res.status(400).json({ error: 'Invalid settings', fields });
+      return;
+    }
+    // A plan waiting for payment already counts: the organiser may open its places.
+    const planLimit = capacityLimit(competition.allowance);
+    if (typeof data.maxTeams === 'number' && planLimit !== null && data.maxTeams > planLimit) {
+      res.status(409).json(planLimitBody(new PlanLimitError(competition.allowance!)));
       return;
     }
 
@@ -809,17 +841,22 @@ export const approve = async (req: AuthRequest, res: Response): Promise<void> =>
     }
 
     const updated = await prisma.$transaction(async (tx) => {
-      const max = competition.window?.maxTeams;
-      if (max != null) {
-        const teams = competition.kind === 'season'
-          ? await tx.seasonTeam.count({ where: { seasonId: competition.id } })
-          : await tx.tournamentTeam.count({ where: { tournamentId: competition.id } });
-        if (teams >= max) throw new Full(FULL_ERROR);
-        if (registration.status === 'WAITLISTED') {
-          const pending = await tx.registration.count({ where: { windowId: registration.windowId, status: 'PENDING' } });
-          if (teams + pending >= max) throw new Full(HELD_ERROR);
-        }
+      // Approvals of one competition run one at a time, so each counts the
+      // teams the one before it added.
+      await lockCompetition(tx, competition.kind, competition.id);
+      const teams = competition.kind === 'season'
+        ? await tx.seasonTeam.count({ where: { seasonId: competition.id } })
+        : await tx.tournamentTeam.count({ where: { tournamentId: competition.id } });
+      const allowance = competition.kind === 'tournament' ? await teamAllowance(competition.id, tx) : null;
+      const formMax = competition.window?.maxTeams ?? null;
+      if (formMax !== null && teams >= formMax) throw new Full(FULL_ERROR);
+      if (registration.status === 'WAITLISTED') {
+        const max = maxOf({ ...competition, allowance });
+        const pending = await tx.registration.count({ where: { windowId: registration.windowId, status: 'PENDING' } });
+        if (max !== null && teams + pending >= max) throw new Full(HELD_ERROR);
       }
+      // Places a plan waiting for payment opened can be applied for, not filled yet.
+      if (allowance && allowance.limit !== null && teams >= allowance.limit) throw new PlanLimitError({ ...allowance, teams });
 
       if (competition.kind === 'season') {
         let teamId = registration.existingTeamId;
@@ -858,6 +895,10 @@ export const approve = async (req: AuthRequest, res: Response): Promise<void> =>
     notifyDecision(updated, competition, 'APPROVED');
     res.json(view(updated));
   } catch (error) {
+    if (error instanceof PlanLimitError) {
+      res.status(409).json(planLimitBody(error));
+      return;
+    }
     if (error instanceof Full) {
       res.status(409).json({ error: error.message });
       return;
@@ -937,6 +978,7 @@ export const promote = async (req: AuthRequest, res: Response): Promise<void> =>
     }
 
     const updated = await prisma.$transaction(async (tx) => {
+      await lockCompetition(tx, competition.kind, competition.id);
       const capacity = await capacityOf(competition, tx);
       if (capacity.free === 0) throw new Full('No place is free. Decide a pending application or raise the maximum first.');
       const oldest = await tx.registration.findFirst({
@@ -1051,8 +1093,9 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
         teamCount: season._count.seasonTeams,
         managerEmails: [],
         window: season.registrationWindow,
+        allowance: null,
       })),
-      ...tournaments.map((tournament): Competition => ({
+      ...(await Promise.all(tournaments.map(async (tournament): Promise<Competition> => ({
         kind: 'tournament',
         id: tournament.id,
         name: tournament.name,
@@ -1062,7 +1105,8 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
         teamCount: tournament._count.teams,
         managerEmails: [],
         window: tournament.registrationWindow,
-      })),
+        allowance: await teamAllowance(tournament.id),
+      })))),
     ];
     const windowIds = competitions.flatMap((competition) => (competition.window ? [competition.window.id] : []));
     const counts = windowIds.length > 0
@@ -1078,14 +1122,7 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
     const rows = competitions.map((competition) => {
       const pending = count(competition.window?.id, 'PENDING');
       const waitlisted = count(competition.window?.id, 'WAITLISTED');
-      const max = competition.window?.maxTeams ?? null;
-      const capacity: Capacity = {
-        approved: competition.teamCount,
-        pending,
-        waitlisted,
-        max,
-        free: max === null ? null : Math.max(0, max - competition.teamCount - pending),
-      };
+      const capacity = capacityFrom(competition.teamCount, pending, waitlisted, maxOf(competition));
       return {
         kind: competition.kind,
         id: competition.id,

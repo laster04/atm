@@ -138,48 +138,6 @@
         "description": "Kontrolujte přístup s rolemi admin, manažer a diváka pro různé uživatele."
       }
     },
-    "pricing": {
-      "title": "Jednoduché a transparentní ceny",
-      "description": "Zvolte si plán, který je pro vaši ligu nejlepší. Žádné skryté poplatky, zrušit lze kdykoliv.",
-      "mostPopular": "Nejoblíbenější",
-      "tiers": {
-        "free": {
-          "name": "Zdarma",
-          "price": "0 Kč/měsíc",
-          "description": "Ideální pro malé ligy a začátek",
-          "cta": "Začít",
-          "feature1": "Až 2 sezóny",
-          "feature2": "Až 20 týmů celkem",
-          "feature3": "Základní plánování",
-          "feature4": "Podpora komunity"
-        },
-        "pro": {
-          "name": "Profesionál",
-          "price": "299 Kč/měsíc",
-          "description": "Pro rostoucí ligy a aktivní manažery",
-          "cta": "Zkušební verze zdarma",
-          "feature1": "Neomezené sezóny",
-          "feature2": "Neomezené týmy",
-          "feature3": "Pokročilé plánování s automatickou generací",
-          "feature4": "Komplexní analýzy",
-          "feature5": "Přednostní podpora e-mailem",
-          "feature6": "Možnosti vlastního značení"
-        },
-        "enterprise": {
-          "name": "Podnikatelský",
-          "price": "Individuální",
-          "description": "Pro velké organizace a federace",
-          "cta": "Kontaktovat obchod",
-          "feature1": "Vše z Profesionálního plánu",
-          "feature2": "Dedikovaný správce účtu",
-          "feature3": "Přístup k API",
-          "feature4": "Vlastní integrace",
-          "feature5": "Pokročilé hlášení",
-          "feature6": "Telefonická a e-mailová podpora",
-          "feature7": "Možnosti white-label"
-        }
-      }
-    },
     "myEvents": {
       "title": "Vaše nejbližší akce",
       "loadError": "Vaše akce se nepodařilo načíst",
@@ -2058,6 +2016,60 @@
           "waiting": "Čekací listina",
           "approved": "Schválená"
         }
+      },
+      "pricing": {
+        "kicker": "Ceník turnajů",
+        "title": "Malé turnaje zdarma, větší za jednorázový poplatek",
+        "text": "Turnaj do {{teams}} týmů je zdarma a pořádat jich můžete, kolik chcete. Platíte jen za víc týmů nebo funkce navíc: jednou za turnaj, nebo ročně za všechny.",
+        "per": {
+          "free": "za turnaj, napořád",
+          "tournament": "za turnaj · {{eur}}",
+          "year": "ročně · {{eur}}"
+        },
+        "plans": {
+          "FREE": {
+            "name": "Zdarma",
+            "for": "Klubové a školní turnaje",
+            "points": [
+              "Až {{teams}} týmů",
+              "Skupiny, pavouk, výsledky a veřejná stránka",
+              "Přihlášky týmů s čekací listinou",
+              "Loga týmů nahraná do ATM"
+            ]
+          },
+          "TOURNAMENT": {
+            "name": "Turnaj",
+            "for": "Větší jednorázové turnaje",
+            "points": [
+              "Až {{teams}} týmů",
+              "Vše z plánu Zdarma"
+            ]
+          },
+          "TOURNAMENT_PLUS": {
+            "name": "Turnaj Plus",
+            "for": "Turnaje se sponzory",
+            "points": [
+              "Bez limitu týmů",
+              "Vše z plánu Turnaj"
+            ]
+          },
+          "ORGANIZER": {
+            "name": "Organizátor",
+            "for": "Kdo pořádá víc turnajů ročně",
+            "points": [
+              "Všechny turnaje ve vašich sériích v úrovni Plus",
+              "Pro jednoho organizátora na rok"
+            ]
+          }
+        },
+        "coming": {
+          "sponsors": "Až {{sponsorLogos}} log sponzorů",
+          "documents": "Až {{documents}} dokumentů ke stažení",
+          "branding": "Bez výrazné značky ATM"
+        },
+        "soon": "Brzy",
+        "note": "Ceny jsou s DPH. Ligy a sezóny jsou zatím zdarma.",
+        "cta": "Založit turnaj"
       }
     },
     "leagues": {
@@ -2912,7 +2924,9 @@
         "ProductPrice": "Ceny",
         "VatRate": "Sazby DPH",
         "PlanLimit": "Limity plánů",
-        "Setting": "Nastavení"
+        "Setting": "Nastavení",
+        "Tournament": "Turnaje",
+        "Payment": "Platby"
       }
     },
     "users": {
@@ -2987,7 +3001,6 @@
     "overview": {
       "waiting": "Čeká na vás",
       "payments": "Platby k potvrzení",
-      "paymentsPending": "Přibude s placenými turnaji (celek B).",
       "tickets": "Zprávy podpoře",
       "ticketsHint": "Nové nebo rozpracované.",
       "registrations": "Přihlášky bez reakce",
@@ -2996,7 +3009,8 @@
       "newUsers": "Noví uživatelé",
       "activeLeagues": "Aktivní ligy",
       "activeTournaments": "Aktivní turnaje",
-      "activeHint": "Aktivní znamená, že měla zápas s datem v posledních 30 dnech."
+      "activeHint": "Aktivní znamená, že měla zápas s datem v posledních 30 dnech.",
+      "paymentsHint": "QR převody čekající na potvrzení."
     },
     "pricing": {
       "readOnly": "Můžete se dívat, ale ne měnit. Ceny, sazby DPH, limity a OSS mění jen účet správce ceníku.",
@@ -3099,6 +3113,72 @@
       "consultation": "číslo dotazu {{id}}",
       "ico": "IČO {{ico}}",
       "dic": "DIČ {{dic}}"
+    },
+    "payments": {
+      "kicker": "Platba",
+      "variableSymbol": "VS",
+      "customer": "Zákazník",
+      "payer": "Plátce",
+      "tournament": "Turnaj",
+      "product": "Produkt",
+      "amount": "Cena s DPH",
+      "base": "Základ",
+      "vat": "DPH",
+      "vatRate": "DPH {{rate}} %",
+      "currency": "Měna",
+      "statusLabel": "Stav",
+      "status": {
+        "PENDING": "Čeká",
+        "PAID": "Zaplaceno",
+        "CANCELLED": "Zrušeno"
+      },
+      "products": {
+        "TOURNAMENT": "Turnaj",
+        "TOURNAMENT_PLUS": "Turnaj Plus",
+        "ORGANIZER_YEAR": "Organizátor (rok)"
+      },
+      "upgradeFrom": "Doplatek z plánu",
+      "account": "Účet",
+      "created": "Vytvořeno",
+      "confirmedAt": "Potvrzeno",
+      "cancelledAt": "Zrušeno",
+      "period": "Období",
+      "search": "Hledat platby",
+      "searchPlaceholder": "Variabilní symbol, číslo dokladu, e-mail, turnaj…",
+      "empty": "Žádná platba neodpovídá.",
+      "confirm": "Označit jako zaplacené",
+      "cancel": "Zrušit platbu",
+      "confirmTitle_one": "Označit platbu jako zaplacenou?",
+      "confirmTitle_few": "Označit {{count}} platby jako zaplacené?",
+      "confirmTitle_other": "Označit {{count}} plateb jako zaplacené?",
+      "confirmHint_one": "Ověřte, že převod s tímto variabilním symbolem dorazil. Plán začne platit hned a plátci přijde daňový doklad e-mailem.",
+      "confirmHint_few": "Ověřte, že všechny převody s jejich variabilními symboly dorazily. Plány začnou platit hned a plátcům přijdou daňové doklady e-mailem.",
+      "confirmHint_other": "Ověřte, že všechny převody s jejich variabilními symboly dorazily. Plány začnou platit hned a plátcům přijdou daňové doklady e-mailem.",
+      "cancelTitle_one": "Zrušit platbu?",
+      "cancelTitle_few": "Zrušit {{count}} platby?",
+      "cancelTitle_other": "Zrušit {{count}} plateb?",
+      "cancelHint_one": "Organizátor pak může zvolit plán znovu.",
+      "cancelHint_few": "Organizátoři pak mohou zvolit plán znovu.",
+      "cancelHint_other": "Organizátoři pak mohou zvolit plán znovu.",
+      "confirmed_one": "Platba označena jako zaplacená",
+      "confirmed_few": "{{count}} platby označeny jako zaplacené",
+      "confirmed_other": "{{count}} plateb označeno jako zaplacené",
+      "canceled_one": "Platba zrušena",
+      "canceled_few": "{{count}} platby zrušeny",
+      "canceled_other": "{{count}} plateb zrušeno",
+      "skipped_one": "Jedna platba už byla vyřízená",
+      "skipped_few": "{{count}} platby už byly vyřízené",
+      "skipped_other": "{{count}} plateb už bylo vyřízeno",
+      "decideError": "Platby se nepodařilo upravit.",
+      "document": "Daňový doklad",
+      "documentKind": {
+        "SIMPLIFIED": "Zjednodušený",
+        "FULL": "Úplný"
+      },
+      "documentEmailed": "Odesláno plátci {{when}}",
+      "documentNotEmailed": "Zatím neodesláno",
+      "downloadDocument": "Stáhnout PDF",
+      "documentError": "Doklad se nepodařilo otevřít."
     }
   },
   "files": {
@@ -3112,5 +3192,66 @@
       "FILE_TYPE_NOT_ALLOWED": "Logo musí být obrázek PNG, JPG nebo WebP.",
       "failed": "Logo se nepodařilo nahrát. Zkuste to znovu."
     }
+  },
+  "plans": {
+    "label": "Plán",
+    "names": {
+      "FREE": "Zdarma",
+      "TOURNAMENT": "Turnaj",
+      "TOURNAMENT_PLUS": "Turnaj Plus",
+      "ORGANIZER": "Organizátor"
+    },
+    "usage": "{{plan}} · {{teams}}/{{limit}} týmů",
+    "usageUnlimited_one": "{{plan}} · {{count}} tým, bez limitu",
+    "usageUnlimited_few": "{{plan}} · {{count}} týmy, bez limitu",
+    "usageUnlimited_other": "{{plan}} · {{count}} týmů, bez limitu",
+    "limitReached": "Plán {{plan}} bere nejvýš {{limit}} týmů. Pro víc týmů zvolte vyšší plán.",
+    "maxHint": "Plán {{plan}} bere nejvýš {{limit}} týmů.",
+    "organizerNote": "Na turnaj se vztahuje roční plán Organizátor správce série.",
+    "change": "Změnit plán",
+    "changeTitle": "Plán turnaje",
+    "reason": "Důvod (uloží se do auditního logu)",
+    "changeHint": "Nižší plán žádný tým neodebere; jen nepustí další nad limit.",
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "changeError": "Plán se nepodařilo změnit.",
+    "upgrade": "Navýšit plán",
+    "awaitingPayment": "Čeká na platbu: {{plan}}",
+    "limitPending": "Plán {{plan}} čeká na potvrzení platby. Další týmy půjde schválit, jakmile ji potvrdíme.",
+    "offersError": "Plány se nepodařilo načíst.",
+    "startError": "Platbu se nepodařilo založit.",
+    "cancelError": "Platbu se nepodařilo zrušit.",
+    "offers": {
+      "title": "Zvolte plán",
+      "intro": "Platí se QR převodem. Plán začne platit, jakmile platbu potvrdíme. Do té doby můžete turnaj dál připravovat a přijímat přihlášky.",
+      "currency": "Měna",
+      "unavailable": "Platba zatím není k dispozici. Ozvěte se nám prosím.",
+      "none": "Turnaj už má nejvyšší plán.",
+      "perTournament": "za turnaj",
+      "perYear": "ročně",
+      "upgrade": "doplatek z plánu {{plan}}",
+      "choose": "Zvolit",
+      "vatIncluded": "Ceny jsou s DPH.",
+      "points": {
+        "TOURNAMENT": "Až {{limit}} týmů.",
+        "TOURNAMENT_PLUS": "Bez limitu týmů, loga sponzorů, dokumenty ke stažení, bez výrazné značky ATM.",
+        "ORGANIZER": "Všechny turnaje ve vašich sériích v úrovni Plus po celý rok."
+      },
+      "renewalFrom": "navazuje od {{date}}"
+    },
+    "payment": {
+      "title": "QR platba",
+      "waiting": "Čeká na potvrzení platby",
+      "plan": "Plán",
+      "amount": "Částka",
+      "variableSymbol": "Variabilní symbol",
+      "account": "Účet",
+      "recipient": "Příjemce",
+      "qrAlt": "QR kód pro platbu",
+      "hint": "Naskenujte kód v bankovní aplikaci, nebo zadejte údaje ručně i s variabilním symbolem. Plán začne platit, jakmile platbu potvrdíme.",
+      "cancel": "Zrušit platbu"
+    },
+    "organizerUntil": "Organizátor do {{date}}",
+    "renew": "Prodloužit Organizátora"
   }
 }

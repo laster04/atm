@@ -25,6 +25,8 @@ import { APP_TIME_ZONE } from '@/utils/date';
 import PositionSelect from '@components/PositionSelect';
 import { positionsForSports } from '@/utils/playerPositions';
 import LogoUpload from '@components/LogoUpload';
+import PlanChip from '../components/PlanChip';
+import { isPlanLimit, planLimitMessage } from '@/utils/planLimit';
 
 // ── helpers ─────────────────────────────────────────────────
 
@@ -139,6 +141,8 @@ export default function TournamentManagePage() {
   });
 
   const [saving, setSaving] = useState(false);
+  // Raised whenever something hits the plan's limit, to open the offer.
+  const [planOffer, setPlanOffer] = useState(0);
 
   // ── load ───────────────────────────────────────────────────
   const load = async () => {
@@ -204,7 +208,10 @@ export default function TournamentManagePage() {
         setTeams(prev => [...prev, res.data]);
       }
       setTeamModal(false);
-    } catch { setError(t('tm.tournament.teams.errors.save')); }
+    } catch (err) {
+      setError(planLimitMessage(err, t) ?? t('tm.tournament.teams.errors.save'));
+      if (isPlanLimit(err)) { setTeamModal(false); setPlanOffer((n) => n + 1); }
+    }
     finally { setSaving(false); }
   };
 
@@ -509,6 +516,7 @@ export default function TournamentManagePage() {
               >
                 {STATUS_OPTIONS.map(s => <option key={s} value={s}>{t(`tm.tournamentStatus.${s}`, s)}</option>)}
               </select>
+              <PlanChip tournamentId={tournament.id} teams={teams.length} offerSignal={planOffer} />
             </div>
           </div>
         </div>
@@ -578,6 +586,7 @@ export default function TournamentManagePage() {
             accent="#7c3aed"
             onTeamsChanged={() => void load()}
             onLifecycleChanged={loadRegistrations}
+            onPlanLimit={() => setPlanOffer((n) => n + 1)}
           />
         </TabsContent>
 

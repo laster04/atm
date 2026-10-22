@@ -9,6 +9,7 @@ import { formatDateShort, formatGameTime } from '@/utils/date';
 import { GameStatus, type Game } from '@types';
 import { PublicFooter, PublicHeader, TeamCrest } from '@/components/public';
 import { heroImage } from '@/components/public/hero';
+import PricingSection from './components/PricingSection';
 
 export default function LandingScreen() {
 	const { user } = useAuth();
@@ -362,6 +363,8 @@ export default function LandingScreen() {
 					</div>
 				</div>
 			</section>
+
+			<PricingSection signedIn={!!user} />
 
 			{/* TOURNAMENT CTA */}
 			<section className="mx-auto w-full max-w-[1600px] px-4 py-14 sm:px-8">

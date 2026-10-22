@@ -24,6 +24,8 @@ async function buildTournament(label: string, groupSizes: number[]): Promise<Bui
   const tournament = await request(app).post(`/api/tournaments/series/${series.body.id}/tournaments`).set(auth())
     .send({ name: `Playoff Cup ${label} ${stamp}` });
   const tournamentId = tournament.body.id as string;
+  // Brackets here need more teams than the free plan takes.
+  await prisma.tournament.update({ where: { id: tournamentId }, data: { plan: 'TOURNAMENT_PLUS' } });
 
   const groups: string[][] = [];
   for (let g = 0; g < groupSizes.length; g++) {

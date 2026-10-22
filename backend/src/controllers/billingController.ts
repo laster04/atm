@@ -2,6 +2,47 @@ import { Response } from 'express';
 import { AuthRequest } from '../types/index.js';
 import { checkVatId, VatIdFormatError } from '../services/billing/vies.js';
 import { AresUnavailableError, isValidIco, lookupCompany } from '../services/billing/ares.js';
+import { limitsAt, priceAt, type Plan } from '../services/pricing/catalog.js';
+
+/** The tournament plans the public price list shows, cheapest first, with the product each one sells. */
+const PUBLIC_PLANS: { plan: Plan; productCode: string | null }[] = [
+  { plan: 'FREE', productCode: null },
+  { plan: 'TOURNAMENT', productCode: 'TOURNAMENT' },
+  { plan: 'TOURNAMENT_PLUS', productCode: 'TOURNAMENT_PLUS' },
+  { plan: 'ORGANIZER', productCode: 'ORGANIZER_YEAR' },
+];
+
+/**
+ * GET /api/billing/prices — public: what each tournament plan costs and
+ * allows today, straight from the versioned price list, so the website never
+ * shows a price the admin has since changed. Minor units, VAT included;
+ * a null limit is unlimited.
+ */
+export const getPublicPrices = async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const now = new Date();
+    const limits = await limitsAt(now);
+    const limit = (plan: Plan, key: string) => limits.find((row) => row.plan === plan && row.key === key)?.value ?? null;
+    const plans = await Promise.all(PUBLIC_PLANS.map(async ({ plan, productCode }) => {
+      const price = productCode ? await priceAt(productCode, now) : null;
+      return {
+        plan,
+        prices: productCode ? (price ? { CZK: price.priceCzk, EUR: price.priceEur } : null) : { CZK: 0, EUR: 0 },
+        limits: {
+          teams: limit(plan, 'TEAMS_PER_TOURNAMENT'),
+          sponsorLogos: limit(plan, 'SPONSOR_LOGOS'),
+          documents: limit(plan, 'DOCUMENTS'),
+        },
+      };
+    }));
+    // Prices change rarely; a short cache spares the database on the landing page.
+    res.set('Cache-Control', 'public, max-age=300');
+    res.json({ plans: plans.filter((row) => row.prices !== null) });
+  } catch (error) {
+    console.error('Public prices error:', error);
+    res.status(500).json({ error: 'Failed to load prices' });
+  }
+};
 
 /** Both services are free and public; a per-user cap keeps ATM a polite client. */
 const RATE_LIMIT = 20;

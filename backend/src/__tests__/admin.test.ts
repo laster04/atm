@@ -222,7 +222,7 @@ describe('GET /api/admin/overview', () => {
     await prisma.supportTicket.delete({ where: { id: ticket.id } });
 
     expect(res.status).toBe(200);
-    expect(res.body.queues.payments).toBeNull();
+    expect(res.body.queues.payments).toEqual(expect.any(Number));
     expect(res.body.queues.openTickets).toBeGreaterThanOrEqual(1);
     expect(res.body.queues.staleRegistrations).toEqual(expect.any(Number));
     // admin and member signed up just now; manager's date is in 2020.

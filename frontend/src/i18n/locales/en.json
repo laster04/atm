@@ -138,48 +138,6 @@
         "description": "Control access with admin, manager, and viewer roles for different users."
       }
     },
-    "pricing": {
-      "title": "Simple, Transparent Pricing",
-      "description": "Choose the plan that works best for your league. No hidden fees, cancel anytime.",
-      "mostPopular": "Most Popular",
-      "tiers": {
-        "free": {
-          "name": "Free",
-          "price": "$0/month",
-          "description": "Perfect for small leagues and getting started",
-          "cta": "Get Started",
-          "feature1": "Up to 2 seasons",
-          "feature2": "Up to 20 teams total",
-          "feature3": "Basic scheduling",
-          "feature4": "Community support"
-        },
-        "pro": {
-          "name": "Professional",
-          "price": "$29/month",
-          "description": "For growing leagues and active managers",
-          "cta": "Start Free Trial",
-          "feature1": "Unlimited seasons",
-          "feature2": "Unlimited teams",
-          "feature3": "Advanced scheduling with auto-generation",
-          "feature4": "Comprehensive analytics",
-          "feature5": "Priority email support",
-          "feature6": "Custom branding options"
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "price": "Custom",
-          "description": "For large organizations and federations",
-          "cta": "Contact Sales",
-          "feature1": "Everything in Pro",
-          "feature2": "Dedicated account manager",
-          "feature3": "API access",
-          "feature4": "Custom integrations",
-          "feature5": "Advanced reporting",
-          "feature6": "Phone & email support",
-          "feature7": "White-label options"
-        }
-      }
-    },
     "myEvents": {
       "title": "Your next events",
       "loadError": "Failed to load your events",
@@ -2035,6 +1993,60 @@
           "waiting": "Waiting list",
           "approved": "Approved"
         }
+      },
+      "pricing": {
+        "kicker": "Tournament pricing",
+        "title": "Small tournaments are free. Bigger ones cost a one-off fee.",
+        "text": "A tournament with up to {{teams}} teams is free, and you can run as many as you like. You pay only for more teams or extra features: once per tournament, or yearly for all of them.",
+        "per": {
+          "free": "per tournament, for ever",
+          "tournament": "per tournament · {{eur}}",
+          "year": "per year · {{eur}}"
+        },
+        "plans": {
+          "FREE": {
+            "name": "Free",
+            "for": "Club and school tournaments",
+            "points": [
+              "Up to {{teams}} teams",
+              "Groups, bracket, results and a public page",
+              "Team applications with a waiting list",
+              "Team logos uploaded to ATM"
+            ]
+          },
+          "TOURNAMENT": {
+            "name": "Tournament",
+            "for": "Bigger one-off tournaments",
+            "points": [
+              "Up to {{teams}} teams",
+              "Everything in Free"
+            ]
+          },
+          "TOURNAMENT_PLUS": {
+            "name": "Tournament Plus",
+            "for": "Tournaments with sponsors",
+            "points": [
+              "No team limit",
+              "Everything in Tournament"
+            ]
+          },
+          "ORGANIZER": {
+            "name": "Organiser",
+            "for": "Organisers of several tournaments a year",
+            "points": [
+              "Every tournament in your series at Plus level",
+              "For one organiser, for a year"
+            ]
+          }
+        },
+        "coming": {
+          "sponsors": "Up to {{sponsorLogos}} sponsor logos",
+          "documents": "Up to {{documents}} documents to download",
+          "branding": "No prominent ATM branding"
+        },
+        "soon": "Soon",
+        "note": "Prices include VAT. Leagues and seasons are free for now.",
+        "cta": "Start a tournament"
       }
     },
     "leagues": {
@@ -2856,7 +2868,9 @@
         "ProductPrice": "Prices",
         "VatRate": "VAT rates",
         "PlanLimit": "Plan limits",
-        "Setting": "Settings"
+        "Setting": "Settings",
+        "Tournament": "Tournaments",
+        "Payment": "Payments"
       }
     },
     "users": {
@@ -2924,7 +2938,6 @@
     "overview": {
       "waiting": "Waiting for you",
       "payments": "Payments to confirm",
-      "paymentsPending": "Arrives with paid tournaments (part B).",
       "tickets": "Support messages",
       "ticketsHint": "New or in progress.",
       "registrations": "Applications without an answer",
@@ -2933,7 +2946,8 @@
       "newUsers": "New users",
       "activeLeagues": "Active leagues",
       "activeTournaments": "Active tournaments",
-      "activeHint": "Active means a game was dated in the last 30 days."
+      "activeHint": "Active means a game was dated in the last 30 days.",
+      "paymentsHint": "QR transfers waiting to be confirmed."
     },
     "pricing": {
       "readOnly": "You can look but not change. Only the pricing manager account changes prices, VAT rates, limits and OSS.",
@@ -3035,6 +3049,65 @@
       "consultation": "consultation number {{id}}",
       "ico": "IČO {{ico}}",
       "dic": "VAT ID {{dic}}"
+    },
+    "payments": {
+      "kicker": "Payment",
+      "variableSymbol": "VS",
+      "customer": "Customer",
+      "payer": "Payer",
+      "tournament": "Tournament",
+      "product": "Product",
+      "amount": "Price incl. VAT",
+      "base": "Base",
+      "vat": "VAT",
+      "vatRate": "VAT {{rate}} %",
+      "currency": "Currency",
+      "statusLabel": "Status",
+      "status": {
+        "PENDING": "Waiting",
+        "PAID": "Paid",
+        "CANCELLED": "Cancelled"
+      },
+      "products": {
+        "TOURNAMENT": "Tournament",
+        "TOURNAMENT_PLUS": "Tournament Plus",
+        "ORGANIZER_YEAR": "Organiser (year)"
+      },
+      "upgradeFrom": "Upgrade from",
+      "account": "Account",
+      "created": "Created",
+      "confirmedAt": "Confirmed",
+      "cancelledAt": "Cancelled",
+      "period": "Period",
+      "search": "Search payments",
+      "searchPlaceholder": "Variable symbol, document no., email, tournament…",
+      "empty": "No payments match.",
+      "confirm": "Mark as paid",
+      "cancel": "Cancel payment",
+      "confirmTitle_one": "Mark the payment as paid?",
+      "confirmTitle_other": "Mark {{count}} payments as paid?",
+      "confirmHint_one": "Check the transfer arrived with this variable symbol. The plan applies at once and the payer gets the tax document by email.",
+      "confirmHint_other": "Check every transfer arrived with its variable symbol. The plans apply at once and each payer gets the tax document by email.",
+      "cancelTitle_one": "Cancel the payment?",
+      "cancelTitle_other": "Cancel {{count}} payments?",
+      "cancelHint_one": "The organiser can then choose a plan again.",
+      "cancelHint_other": "The organisers can then choose a plan again.",
+      "confirmed_one": "Payment marked as paid",
+      "confirmed_other": "{{count}} payments marked as paid",
+      "canceled_one": "Payment cancelled",
+      "canceled_other": "{{count}} payments cancelled",
+      "skipped_one": "One payment had already been decided",
+      "skipped_other": "{{count}} payments had already been decided",
+      "decideError": "The payments could not be updated.",
+      "document": "Tax document",
+      "documentKind": {
+        "SIMPLIFIED": "Simplified",
+        "FULL": "Full"
+      },
+      "documentEmailed": "E-mailed to the payer {{when}}",
+      "documentNotEmailed": "Not e-mailed yet",
+      "downloadDocument": "Download PDF",
+      "documentError": "The document could not be opened."
     }
   },
   "files": {
@@ -3048,5 +3121,65 @@
       "FILE_TYPE_NOT_ALLOWED": "The logo must be a PNG, JPG or WebP image.",
       "failed": "The logo could not be uploaded. Please try again."
     }
+  },
+  "plans": {
+    "label": "Plan",
+    "names": {
+      "FREE": "Free",
+      "TOURNAMENT": "Tournament",
+      "TOURNAMENT_PLUS": "Tournament Plus",
+      "ORGANIZER": "Organiser"
+    },
+    "usage": "{{plan}} · {{teams}}/{{limit}} teams",
+    "usageUnlimited_one": "{{plan}} · {{count}} team, no limit",
+    "usageUnlimited_other": "{{plan}} · {{count}} teams, no limit",
+    "limitReached": "The {{plan}} plan takes at most {{limit}} teams. Choose a bigger plan for more.",
+    "maxHint": "The {{plan}} plan takes at most {{limit}} teams.",
+    "organizerNote": "The series manager's yearly Organiser plan applies to this tournament.",
+    "change": "Change plan",
+    "changeTitle": "Tournament plan",
+    "reason": "Reason (goes to the audit log)",
+    "changeHint": "A lower plan removes no team; it only stops new ones above the limit.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "changeError": "The plan could not be changed.",
+    "upgrade": "Upgrade plan",
+    "awaitingPayment": "Awaiting payment: {{plan}}",
+    "limitPending": "The {{plan}} plan is waiting for its payment to be confirmed. More teams can be approved once it is.",
+    "offersError": "The plans could not be loaded.",
+    "startError": "The payment could not be started.",
+    "cancelError": "The payment could not be cancelled.",
+    "offers": {
+      "title": "Choose a plan",
+      "intro": "Pay by QR transfer. The plan applies as soon as we confirm the payment. Until then you can keep preparing the tournament and taking applications.",
+      "currency": "Currency",
+      "unavailable": "Payment is not available yet. Please contact us.",
+      "none": "The tournament already has the best plan.",
+      "perTournament": "per tournament",
+      "perYear": "per year",
+      "upgrade": "the difference from {{plan}}",
+      "choose": "Choose",
+      "vatIncluded": "Prices include VAT.",
+      "points": {
+        "TOURNAMENT": "Up to {{limit}} teams.",
+        "TOURNAMENT_PLUS": "No team limit, sponsor logos, documents to download, no prominent ATM branding.",
+        "ORGANIZER": "Every tournament in your series at Plus level for a year."
+      },
+      "renewalFrom": "follows on from {{date}}"
+    },
+    "payment": {
+      "title": "QR payment",
+      "waiting": "Awaiting payment confirmation",
+      "plan": "Plan",
+      "amount": "Amount",
+      "variableSymbol": "Variable symbol",
+      "account": "Account",
+      "recipient": "Recipient",
+      "qrAlt": "QR code for the payment",
+      "hint": "Scan the code in your banking app, or enter the details by hand with the variable symbol. The plan applies as soon as we confirm the payment.",
+      "cancel": "Cancel payment"
+    },
+    "organizerUntil": "Organiser until {{date}}",
+    "renew": "Renew Organiser"
   }
 }
