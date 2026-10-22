@@ -10,9 +10,6 @@ import emailService from '../services/emailService.js';
 import { resetRegistrationRateLimit } from '../controllers/registrationController.js';
 import { czechIban, paymentAccount, spdString } from '../services/payments/account.js';
 
-process.env.PAYMENT_ACCOUNT_CZK = '3573655016/3030';
-process.env.PAYMENT_ACCOUNT_EUR = '3573655032/3030';
-process.env.PAYMENT_BIC = 'AIRACZPP';
 // Confirming a payment renders its tax document; keep those out of the project's uploads.
 process.env.STORAGE_LOCAL_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'atm-pay-'));
 
@@ -93,7 +90,7 @@ describe('the account and the QR code', () => {
   });
 
   it('writes the Short Payment Descriptor', () => {
-    const account = paymentAccount('CZK')!;
+    const account = paymentAccount('CZK');
     expect(spdString(account, 69000, 2026000001, 'ATM TOURNAMENT 2026000001')).toBe(
       'SPD*1.0*ACC:CZ0930300000003573655016+AIRACZPP*AM:690.00*CC:CZK*X-VS:2026000001*RN:Conesoft s.r.o.*MSG:ATM TOURNAMENT 2026000001'
     );
@@ -190,18 +187,6 @@ describe('paying for a plan', () => {
     expect(cancelled.body.status).toBe('CANCELLED');
     expect((await buy(id, 'TOURNAMENT_PLUS', 'EUR')).body).toMatchObject({ amount: 5900, currency: 'EUR' });
     expect((await confirm([paid.body.id])).body.skipped[0].code).toBe('NOT_PENDING');
-  });
-
-  it('refuses a currency without an account', async () => {
-    const id = await tournament('no-eur');
-    const saved = process.env.PAYMENT_ACCOUNT_EUR;
-    delete process.env.PAYMENT_ACCOUNT_EUR;
-    try {
-      expect((await offers(id)).body.currencies).toEqual(['CZK']);
-      expect((await buy(id, 'TOURNAMENT', 'EUR')).body.code).toBe('NO_ACCOUNT');
-    } finally {
-      process.env.PAYMENT_ACCOUNT_EUR = saved;
-    }
   });
 });
 

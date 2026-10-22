@@ -1,9 +1,8 @@
 import type { Currency } from '../pricing/catalog.js';
 
 /**
- * The accounts organisers pay ATM's plans to, one per currency, from the
- * environment in the Czech form (`prefix-number/bank`). A currency without an
- * account is not offered.
+ * The accounts organisers pay ATM's plans to, one per currency: Conesoft
+ * s.r.o. at Air Bank. Fixed company data, like the issuer on the tax document.
  */
 
 export interface PaymentAccount {
@@ -11,7 +10,7 @@ export interface PaymentAccount {
   /** As Czech banks print it, e.g. 3573655016/3030. */
   local: string;
   iban: string;
-  bic: string | null;
+  bic: string;
   recipient: string;
 }
 
@@ -28,28 +27,21 @@ export function czechIban(local: string): string | null {
   return `CZ${String(check).padStart(2, '0')}${bban}`;
 }
 
-const ENV_KEY: Record<Currency, string> = { CZK: 'PAYMENT_ACCOUNT_CZK', EUR: 'PAYMENT_ACCOUNT_EUR' };
+const RECIPIENT = 'Conesoft s.r.o.';
+// Air Bank; goes into the QR code for payers from abroad. Verify with the bank before launch.
+const BIC = 'AIRACZPP';
+const LOCAL: Record<Currency, string> = { CZK: '3573655016/3030', EUR: '3573655032/3030' };
 
-export function paymentAccount(currency: Currency): PaymentAccount | null {
-  const local = process.env[ENV_KEY[currency]]?.trim();
-  if (!local) return null;
-  const iban = czechIban(local);
-  if (!iban) {
-    console.error(`${ENV_KEY[currency]} is not a Czech account number: ${local}`);
-    return null;
-  }
-  return {
-    currency,
-    local,
-    iban,
-    bic: process.env.PAYMENT_BIC?.trim() || null,
-    recipient: process.env.PAYMENT_RECIPIENT?.trim() || 'Conesoft s.r.o.',
-  };
-}
+export const paymentAccount = (currency: Currency): PaymentAccount => ({
+  currency,
+  local: LOCAL[currency],
+  iban: czechIban(LOCAL[currency])!,
+  bic: BIC,
+  recipient: RECIPIENT,
+});
 
-/** Currencies an organiser can pay in now. */
-export const payableCurrencies = (): Currency[] =>
-  (['CZK', 'EUR'] as const).filter((currency) => paymentAccount(currency) !== null);
+/** Currencies an organiser can pay in. */
+export const payableCurrencies = (): Currency[] => ['CZK', 'EUR'];
 
 /**
  * The QR payment string (Short Payment Descriptor, the Czech banks' standard).
@@ -60,7 +52,7 @@ export function spdString(account: PaymentAccount, amount: number, variableSymbo
   const fields = [
     'SPD',
     '1.0',
-    `ACC:${account.iban}${account.bic ? `+${account.bic}` : ''}`,
+    `ACC:${account.iban}+${account.bic}`,
     `AM:${(amount / 100).toFixed(2)}`,
     `CC:${account.currency}`,
     `X-VS:${variableSymbol}`,

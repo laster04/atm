@@ -94,7 +94,7 @@ export async function issueTaxDocument(
     }],
     totals: { gross: snapshot.gross, base: snapshot.base, vat: snapshot.vat },
     vatMode: snapshot.vatMode,
-    payment: { variableSymbol: payment.variableSymbol, account: account ? `${account.local} · IBAN ${account.iban}` : null },
+    payment: { variableSymbol: payment.variableSymbol, account: `${account.local} · IBAN ${account.iban}` },
   };
 
   return tx.taxDocument.create({

@@ -87,22 +87,6 @@ Logos are uploaded files, so production needs storage that outlives a deploy. Ho
 
 The server deletes logos nothing references every six hours. `npm run files:sweep` does the same by hand.
 
-### Step 6: Plan Payments
-
-Organisers pay for tournament plans by QR transfer to Conesoft's account; an admin confirms each payment in **Administrace → Platby a doklady**, which issues the tax document (PDF, stored in the private bucket) and e-mails it to the payer.
-
-Set on the backend service only:
-
-```
-PAYMENT_ACCOUNT_CZK=3573655016/3030
-PAYMENT_ACCOUNT_EUR=3573655032/3030
-PAYMENT_BIC=AIRACZPP
-PAYMENT_RECIPIENT=Conesoft s.r.o.
-VIES_REQUESTER_VAT=CZ24359114
-```
-
-A currency without an account is not offered. Verify the BIC with the bank before going live; it goes into the QR code for payers from abroad.
-
 ---
 
 ## Part 2: Frontend Deployment (FTP)

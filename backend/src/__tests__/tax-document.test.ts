@@ -10,8 +10,6 @@ import emailService from '../services/emailService.js';
 import { zonedParts } from '../utils/time.js';
 import { documentNumber } from '../services/invoices/documents.js';
 
-process.env.PAYMENT_ACCOUNT_CZK = '3573655016/3030';
-process.env.PAYMENT_ACCOUNT_EUR = '3573655032/3030';
 // Rendered documents land in a throwaway folder, not the project's uploads.
 process.env.STORAGE_LOCAL_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'atm-tax-'));
 

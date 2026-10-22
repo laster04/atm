@@ -44,7 +44,7 @@ export type PaymentSnapshot = PriceSnapshot & { upgradeFrom?: TournamentPlan; fu
 
 export class PaymentError extends Error {
   constructor(
-    public readonly code: 'NOT_FOUND' | 'NOT_OFFERED' | 'NO_ACCOUNT' | 'PAYMENT_PENDING' | 'NOT_PENDING' | 'NOT_ALLOWED',
+    public readonly code: 'NOT_FOUND' | 'NOT_OFFERED' | 'PAYMENT_PENDING' | 'NOT_PENDING' | 'NOT_ALLOWED',
     message: string,
     public readonly status: number,
   ) {
@@ -133,8 +133,8 @@ export function paymentView(payment: PaymentWithRelations) {
     confirmedAt: payment.confirmedAt,
     cancelledAt: payment.cancelledAt,
     document: payment.taxDocument,
-    account: account && { local: account.local, iban: account.iban, bic: account.bic, recipient: account.recipient },
-    qr: account && payment.status === 'PENDING'
+    account: { local: account.local, iban: account.iban, bic: account.bic, recipient: account.recipient },
+    qr: payment.status === 'PENDING'
       ? spdString(account, payment.amount, payment.variableSymbol, `ATM ${payment.productCode} ${payment.variableSymbol}`)
       : null,
   };
@@ -159,8 +159,6 @@ export async function createPayment(input: {
   plan: OfferPlan;
   currency: Currency;
 }): Promise<PaymentWithRelations> {
-  if (!paymentAccount(input.currency)) throw new PaymentError('NO_ACCOUNT', `No account for ${input.currency}`, 400);
-
   return prisma.$transaction(async (tx) => {
     await lockCompetition(tx, 'tournament', input.tournamentId);
     if (await tx.payment.count({ where: { tournamentId: input.tournamentId, status: 'PENDING' } })) {
