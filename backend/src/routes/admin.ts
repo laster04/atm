@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { getUserDetail, listUsers, setUsersActive } from '../controllers/adminUserController.js';
 import { listAudit, listAuditTypes } from '../controllers/adminAuditController.js';
 import { getOverview } from '../controllers/adminOverviewController.js';
+import { setTournamentPlan } from '../controllers/adminTournamentController.js';
+import { cancelPayments, confirmPayments, getPaymentDocument, listPayments } from '../controllers/adminPaymentController.js';
 import {
   cancelPrice,
   cancelVatRate,
@@ -26,6 +28,11 @@ router.post('/users/active', setUsersActive);
 router.get('/users/:id', getUserDetail);
 router.get('/audit', listAudit);
 router.get('/audit/types', listAuditTypes);
+router.put('/tournaments/:id/plan', setTournamentPlan);
+router.get('/payments', listPayments);
+router.post('/payments/confirm', confirmPayments);
+router.post('/payments/cancel', cancelPayments);
+router.get('/payments/:id/document', getPaymentDocument);
 
 // Every admin sees pricing; only the account flagged canManagePricing changes it.
 router.get('/pricing', getPricing);

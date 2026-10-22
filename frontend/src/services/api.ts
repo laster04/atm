@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type {
+  OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
@@ -306,6 +307,12 @@ export const tournamentApi = {
   getBySeries: (seriesId: string | number) =>
     api.get<Tournament[]>(`/tournaments/series/${seriesId}/tournaments`),
   getById: (id: string | number) => api.get<Tournament>(`/tournaments/${id}`),
+  getPlan: (id: string) => api.get<PlanStatus>(`/tournaments/${id}/plan`),
+  getOffers: (id: string) =>
+    api.get<{ offers: PlanOffer[]; currencies: PaymentCurrency[] }>(`/tournaments/${id}/plan/offers`),
+  startPayment: (id: string, plan: OfferPlan, currency: PaymentCurrency) =>
+    api.post<PlanPayment>(`/tournaments/${id}/payments`, { plan, currency }),
+  cancelPayment: (paymentId: string) => api.post<PlanPayment>(`/billing/payments/${paymentId}/cancel`),
   create: (seriesId: string | number, data: Partial<Tournament>) =>
     api.post<Tournament>(`/tournaments/series/${seriesId}/tournaments`, data),
   update: (id: string | number, data: Partial<Tournament>) =>
@@ -422,6 +429,8 @@ async function downloadCsv(path: string, params: ListQuery): Promise<void> {
 /** The administration's own endpoints; the server lets only the Admin role in. */
 export const adminApi = {
   overview: () => api.get<AdminOverview>('/admin/overview'),
+  setTournamentPlan: (id: string, plan: TournamentPlan, reason: string) =>
+    api.put<TeamAllowance>(`/admin/tournaments/${id}/plan`, { plan, reason }),
   users: (params: ListQuery) => api.get<ListPage<AdminUserRow>>('/admin/users', { params }),
   exportUsers: (params: ListQuery) => downloadCsv('/admin/users', params),
   user: (id: string) => api.get<AdminUserDetail>(`/admin/users/${id}`),
@@ -430,6 +439,13 @@ export const adminApi = {
   audit: (params: ListQuery) => api.get<ListPage<AuditEntry>>('/admin/audit', { params }),
   exportAudit: (params: ListQuery) => downloadCsv('/admin/audit', params),
   auditTypes: () => api.get<string[]>('/admin/audit/types'),
+  payments: (params: ListQuery) => api.get<ListPage<PlanPayment>>('/admin/payments', { params }),
+  exportPayments: (params: ListQuery) => downloadCsv('/admin/payments', params),
+  paymentDocument: (id: string) => api.get<{ url: string; number: string }>(`/admin/payments/${id}/document`),
+  confirmPayments: (ids: string[], reason?: string) =>
+    api.post<{ done: string[]; skipped: { id: string; code: string }[] }>('/admin/payments/confirm', { ids, reason }),
+  cancelPayments: (ids: string[], reason?: string) =>
+    api.post<{ done: string[]; skipped: { id: string; code: string }[] }>('/admin/payments/cancel', { ids, reason }),
   pricing: () => api.get<PricingOverview>('/admin/pricing'),
   createPrice: (code: string, data: { priceCzk: number; priceEur: number; validFrom: string | null }) =>
     api.post<PriceVersion>(`/admin/pricing/products/${code}/prices`, data),
@@ -446,6 +462,7 @@ export const adminApi = {
 export const billingApi = {
   vatCheck: (vatId: string) => api.post<VatCheckResult>('/billing/vat-check', { vatId }),
   company: (ico: string) => api.get<CompanyLookup>(`/billing/company/${encodeURIComponent(ico)}`),
+  prices: () => api.get<{ plans: PublicPlanPrice[] }>('/billing/prices'),
 };
 
 export const contactApi = {

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AxiosError } from 'axios';
 import { AlertTriangle, ArrowUp, Check, CheckCircle2, Eye, Hourglass, Mail, Phone, X } from 'lucide-react';
 import { registrationApi } from '@/services/api';
+import { isPlanLimit, planLimitMessage } from '@/utils/planLimit';
 import type { Registration, RegistrationInbox, RegistrationKind, RegistrationLifecycle, RegistrationSettings, RegistrationStatus } from '@types';
 import { formatDateShort, formatDeadline, fromZonedInput, toZonedInput } from '@/utils/date';
 import SharePanel, { REGISTRATION_SLUG, registrationLink } from './SharePanel';
@@ -30,6 +31,8 @@ interface RegistrationsPanelProps {
 	onTeamsChanged?: () => void;
 	/** The form was published or closed, for callers that show its state elsewhere. */
 	onLifecycleChanged?: (lifecycle: RegistrationLifecycle) => void;
+	/** A tournament's plan had no place left, so the caller offers a bigger one. */
+	onPlanLimit?: () => void;
 }
 
 type Draft = { deadline: string; maxTeams: string; rules: string; fee: string };
@@ -47,7 +50,7 @@ const draftOf = (settings: RegistrationSettings): Draft => ({
  * published deliberately, shared, and closed again. Below that, every
  * application with its decision, and where the places stand.
  */
-export default function RegistrationsPanel({ kind, id, accent, onTeamsChanged, onLifecycleChanged }: RegistrationsPanelProps) {
+export default function RegistrationsPanel({ kind, id, accent, onTeamsChanged, onLifecycleChanged, onPlanLimit }: RegistrationsPanelProps) {
 	const { t, i18n } = useTranslation();
 	const [settings, setSettings] = useState<RegistrationSettings | null>(null);
 	const [draft, setDraft] = useState<Draft>({ deadline: '', maxTeams: '', rules: '', fee: '' });
@@ -76,7 +79,8 @@ export default function RegistrationsPanel({ kind, id, accent, onTeamsChanged, o
 
 	const fail = (err: unknown, fallback: string) => {
 		const axiosError = err as AxiosError<{ error: string }>;
-		setError(axiosError.response?.data?.error || t(fallback));
+		setError(planLimitMessage(err, t) ?? (axiosError.response?.data?.error || t(fallback)));
+		if (isPlanLimit(err)) onPlanLimit?.();
 	};
 
 	const terms = () => ({
@@ -351,7 +355,10 @@ export default function RegistrationsPanel({ kind, id, accent, onTeamsChanged, o
 					</label>
 					<label className="flex flex-col gap-1.5 text-[12.5px] font-medium text-muted-foreground">
 						{t('registrations.maxTeams')}
-						<input type="number" min={2} max={200} inputMode="numeric" value={draft.maxTeams} onChange={(e) => setDraft({ ...draft, maxTeams: e.target.value })} className={field} />
+						<input type="number" min={2} max={settings.plan?.limit ?? 200} inputMode="numeric" value={draft.maxTeams} onChange={(e) => setDraft({ ...draft, maxTeams: e.target.value })} className={field} />
+						{settings.plan?.limit != null && (
+							<span className="font-normal">{t('plans.maxHint', { plan: t(`plans.names.${settings.plan.plan}`), limit: settings.plan.limit })}</span>
+						)}
 					</label>
 				</div>
 				<label className="flex flex-col gap-1.5 text-[12.5px] font-medium text-muted-foreground">

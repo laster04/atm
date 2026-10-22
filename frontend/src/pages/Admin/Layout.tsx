@@ -31,7 +31,7 @@ interface Section {
  */
 const SECTIONS: Section[] = [
 	{ key: 'overview', icon: LayoutDashboard, to: '/admin' },
-	{ key: 'payments', icon: Receipt, comingIn: 'B' },
+	{ key: 'payments', icon: Receipt, to: '/admin/payments' },
 	{ key: 'pricing', icon: BadgePercent, to: '/admin/pricing' },
 	{ key: 'users', icon: Users, to: '/admin/users' },
 	{ key: 'leagues', icon: Trophy, to: '/admin/leagues' },

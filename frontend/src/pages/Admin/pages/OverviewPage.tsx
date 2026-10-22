@@ -34,8 +34,9 @@ export default function OverviewPage() {
 					<Queue
 						icon={<Receipt className="size-5" aria-hidden />}
 						title={t('adminShell.overview.payments')}
-						value={null}
-						hint={t('adminShell.overview.paymentsPending')}
+						value={overview ? number(overview.queues.payments) : '…'}
+						hint={t('adminShell.overview.paymentsHint')}
+						to="/admin/payments?status=PENDING"
 					/>
 					<Queue
 						icon={<LifeBuoy className="size-5" aria-hidden />}

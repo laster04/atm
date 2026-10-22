@@ -122,6 +122,9 @@ model User {
   planLimitVersions       PlanLimit[]        @relation("PlanLimitAuthor")
   vatChecks               VatCheck[]         @relation("VatCheckRequester")
   uploadedFiles           StoredFile[]       @relation("FileUploader")
+  organizerPlans          OrganizerPlan[]    @relation("OrganizerPlanHolder")
+  payments                Payment[]          @relation("PaymentPayer")
+  confirmedPayments       Payment[]          @relation("PaymentConfirmer")
 
   // The admin user list sorts and filters on these.
   @@index([createdAt])
@@ -130,17 +133,17 @@ model User {
 }
 
 model League {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
-  sportType   SportType @default(OTHER) @map("sport_type")
+  sportType   SportType  @default(OTHER) @map("sport_type")
   logo        String?
   description String?
   // Scoring override for every season of this league. Null falls back to the
   // sport default in services/scoring/policy.ts. A season may override again.
   scoring     Json?
   visibility  Visibility @default(PUBLIC)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
   managerId String? @map("manager_id")
   manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
@@ -249,11 +252,11 @@ model Team {
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
   managerInvites      ManagerInvite[]
-  playoffHome         PlayoffSeries[] @relation("PlayoffSeriesHome")
-  playoffAway         PlayoffSeries[] @relation("PlayoffSeriesAway")
-  playoffWins         PlayoffSeries[] @relation("PlayoffSeriesWinner")
-  registrations       Registration[]  @relation("RegistrationTeam")
-  applications        Registration[]  @relation("RegistrationExistingTeam")
+  playoffHome         PlayoffSeries[]           @relation("PlayoffSeriesHome")
+  playoffAway         PlayoffSeries[]           @relation("PlayoffSeriesAway")
+  playoffWins         PlayoffSeries[]           @relation("PlayoffSeriesWinner")
+  registrations       Registration[]            @relation("RegistrationTeam")
+  applications        Registration[]            @relation("RegistrationExistingTeam")
 
   @@map("teams")
 }
@@ -292,14 +295,14 @@ model ManagerInvite {
 }
 
 model Player {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   name      String
   number    Int?
   position  PlayerPosition?
-  bornYear  Int?     @map("born_year")
+  bornYear  Int?            @map("born_year")
   note      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
 
   teamId    String                @map("team_id")
   team      Team                  @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -313,11 +316,11 @@ model Player {
 
   archivedStats SeasonArchivePlayerStat[]
 
-  matchEvents          MatchEvent[] @relation("MatchEventPlayer")
-  matchEventAssists    MatchEvent[] @relation("MatchEventAssist")
-  matchEventAssists2nd  MatchEvent[] @relation("MatchEventSecondaryAssist")
-  attendances           Attendance[]
-  invites               ManagerInvite[]
+  matchEvents          MatchEvent[]    @relation("MatchEventPlayer")
+  matchEventAssists    MatchEvent[]    @relation("MatchEventAssist")
+  matchEventAssists2nd MatchEvent[]    @relation("MatchEventSecondaryAssist")
+  attendances          Attendance[]
+  invites              ManagerInvite[]
 
   // One person may hold a roster spot in several teams, but only one per team.
   @@unique([teamId, userId])
@@ -326,29 +329,29 @@ model Player {
 }
 
 model Game {
-  id               String     @id @default(uuid())
-  date             DateTime?
-  location         String?
-  homeScore        Int?       @map("home_score")
-  awayScore        Int?       @map("away_score")
+  id                  String     @id @default(uuid())
+  date                DateTime?
+  location            String?
+  homeScore           Int?       @map("home_score")
+  awayScore           Int?       @map("away_score")
   // The score of each part of the game, in order: periods, halves, quarters or
   // sets, as the sport has them (services/sports/profile.ts), with overtime as
   // an extra entry. A list of { home, away }; null until anything is entered.
   // For volleyball homeScore/awayScore are the sets won, worked out from these.
-  periodScores     Json?      @map("period_scores")
-  status           GameStatus @default(SCHEDULED)
-  round            Int?
+  periodScores        Json?      @map("period_scores")
+  status              GameStatus @default(SCHEDULED)
+  round               Int?
   // True once this game has an event log. Its scores and player statistics are
   // then derived from that log and must not be edited directly. Games recorded
   // before the log existed stay false and keep their hand-entered figures.
-  eventsAuthoritative Boolean @default(false) @map("events_authoritative")
+  eventsAuthoritative Boolean    @default(false) @map("events_authoritative")
   // A confirmed game is a closed record: its report cannot be changed until
   // someone with season access reopens it and says why.
-  confirmedAt   DateTime? @map("confirmed_at")
-  confirmedById String?   @map("confirmed_by_id")
-  confirmedBy   User?     @relation("GameConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
-  createdAt        DateTime   @default(now()) @map("created_at")
-  updatedAt        DateTime   @updatedAt @map("updated_at")
+  confirmedAt         DateTime?  @map("confirmed_at")
+  confirmedById       String?    @map("confirmed_by_id")
+  confirmedBy         User?      @relation("GameConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
 
   seasonId String @map("season_id")
   season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
@@ -520,9 +523,9 @@ model Attendance {
 // outlive the row it is about, so deleting a game must not take the record of
 // its deletion with it.
 model AuditLog {
-  id         String   @id @default(uuid())
-  entityType String   @map("entity_type")
-  entityId   String   @map("entity_id")
+  id         String  @id @default(uuid())
+  entityType String  @map("entity_type")
+  entityId   String  @map("entity_id")
   action     String
   before     Json?
   after      Json?
@@ -708,9 +711,9 @@ enum TournamentGamePhase {
 }
 
 model TournamentSeries {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
-  sportType   SportType @default(OTHER) @map("sport_type")
+  sportType   SportType  @default(OTHER) @map("sport_type")
   logo        String?
   description String?
   // Scoring override inherited by every tournament in the series; null falls
@@ -718,8 +721,8 @@ model TournamentSeries {
   scoring     Json?
   // Carried by the series, like its manager: every edition inherits it.
   visibility  Visibility @default(PUBLIC)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
   managerId String? @map("manager_id")
   manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
@@ -751,6 +754,11 @@ model Tournament {
 
   registrationWindow RegistrationWindow?
 
+  // What the organiser paid for. A series manager's Organizer plan, while it
+  // runs, lifts every tournament of theirs above this; see tournamentPlan.ts.
+  plan     TournamentPlan @default(FREE)
+  payments Payment[]
+
   @@map("tournaments")
 }
 
@@ -777,14 +785,14 @@ model TournamentTeam {
 }
 
 model TournamentPlayer {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   name      String
   number    Int?
   position  PlayerPosition?
-  bornYear  Int?     @map("born_year")
+  bornYear  Int?            @map("born_year")
   note      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
 
   teamId String         @map("team_id")
   team   TournamentTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -886,7 +894,7 @@ enum SupportTicketStatus {
 
 // A message sent through /contact. Anyone may send one, signed in or not.
 model SupportTicket {
-  id       String          @id @default(uuid())
+  id       String              @id @default(uuid())
   category SupportCategory
   subject  String
   message  String
@@ -928,20 +936,20 @@ model RegistrationWindow {
   tournamentId String?     @unique @map("tournament_id")
   tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
 
-  open     Boolean   @default(false)
-  deadline DateTime?
+  open         Boolean   @default(false)
+  deadline     DateTime?
   // Teams the competition takes; past it, new applications join the waiting list.
-  maxTeams Int?      @map("max_teams")
+  maxTeams     Int?      @map("max_teams")
   // Rules the applicant must accept. The version goes up whenever the text
   // changes, so each application records which text was accepted.
   rules        String?
-  rulesVersion Int     @default(1) @map("rules_version")
+  rulesVersion Int       @default(1) @map("rules_version")
   // Entry fee as plain text ("1 500 Kč per team, pay by 30 June").
-  fee String?
+  fee          String?
   // First time the manager opened the form, and the last time they closed it.
   // A window never published is still a draft.
-  publishedAt DateTime? @map("published_at")
-  closedAt    DateTime? @map("closed_at")
+  publishedAt  DateTime? @map("published_at")
+  closedAt     DateTime? @map("closed_at")
 
   registrations Registration[]
 
@@ -1000,7 +1008,7 @@ model Registration {
   tournamentTeam   TournamentTeam? @relation(fields: [tournamentTeamId], references: [id], onDelete: SetNull)
 
   // A retried submit returns the application that already arrived.
-  clientToken String @unique @map("client_token")
+  clientToken     String  @unique @map("client_token")
   // The applicant's status link, for a tournament applicant with no account.
   // Only its hash is stored, as with manager invites.
   statusTokenHash String? @unique @map("status_token_hash")
@@ -1186,4 +1194,114 @@ model StoredFile {
   @@index([ownerType, ownerId])
   @@index([createdAt])
   @@map("files")
+}
+
+// ============================================================================
+// TOURNAMENT PLANS AND PAYMENTS (celek B)
+// ============================================================================
+
+enum TournamentPlan {
+  FREE
+  TOURNAMENT
+  TOURNAMENT_PLUS
+}
+
+/// The yearly Organizer plan: while it runs, every tournament in a series its
+/// holder manages has no team limit. Nothing is deleted when it ends.
+model OrganizerPlan {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation("OrganizerPlanHolder", fields: [userId], references: [id], onDelete: Cascade)
+  validFrom  DateTime @map("valid_from")
+  validUntil DateTime @map("valid_until")
+
+  paymentId String?  @unique @map("payment_id")
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, validUntil])
+  @@map("organizer_plans")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+/// One QR transfer to ATM. `snapshot` is the PriceSnapshot quote() returned
+/// when the payment was created, so later price or VAT changes never touch it.
+model Payment {
+  id             String        @id @default(uuid())
+  // Ten digits from a sequence that starts at 2026000001.
+  variableSymbol Int           @unique @default(autoincrement()) @map("variable_symbol")
+  productCode    String        @map("product_code")
+  status         PaymentStatus @default(PENDING)
+  currency       String
+  // Minor units, VAT included; the same as snapshot.gross.
+  amount         Int
+  snapshot       Json
+
+  payerId      String?     @map("payer_id")
+  payer        User?       @relation("PaymentPayer", fields: [payerId], references: [id], onDelete: SetNull)
+  tournamentId String?     @map("tournament_id")
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: SetNull)
+
+  confirmedAt   DateTime? @map("confirmed_at")
+  confirmedById String?   @map("confirmed_by_id")
+  confirmedBy   User?     @relation("PaymentConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
+  cancelledAt   DateTime? @map("cancelled_at")
+
+  organizerPlan OrganizerPlan?
+  taxDocument   TaxDocument?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([payerId])
+  @@index([tournamentId])
+  @@map("payments")
+}
+
+enum TaxDocumentKind {
+  // Without the customer's details; allowed up to 10 000 Kč.
+  SIMPLIFIED
+  // With the customer's name, address and IČO or DIČ (celek B6).
+  FULL
+}
+
+/// A tax document Conesoft issues for a confirmed payment. `content` holds
+/// everything printed on it, so the PDF can be rendered again at any time and
+/// comes out the same; nothing in it is looked up again later.
+model TaxDocument {
+  id         String          @id @default(uuid())
+  // ATM + the year's last two digits + the sequence, e.g. ATM26-0001; no gaps within a year.
+  number     String          @unique
+  year       Int
+  sequence   Int
+  kind       TaxDocumentKind
+  paymentId  String          @unique @map("payment_id")
+  payment    Payment         @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  issuedAt   DateTime        @map("issued_at")
+  // Datum uskutečnění zdanitelného plnění.
+  taxPointAt DateTime        @map("tax_point_at")
+  content    Json
+  // The rendered PDF in private storage, once it has been written.
+  fileKey    String?         @map("file_key")
+  emailedAt  DateTime?       @map("emailed_at")
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  @@unique([year, sequence])
+  @@map("tax_documents")
+}
+
+/// The last tax document number used in a year. Taken inside the transaction
+/// that confirms the payment, so a rolled-back confirmation leaves no gap.
+model DocumentCounter {
+  year Int @id
+  last Int @default(0)
+
+  @@map("document_counters")
 }

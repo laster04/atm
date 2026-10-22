@@ -1,14 +1,12 @@
 import { getLocale } from '@/utils/date';
 
+export { formatMoney } from '@/utils/money';
+
 /**
  * Display helpers for the pricing screen. The server computes every amount a
  * payment stores; `splitGross` here only previews a price being typed, with
  * the same § 37 formula as backend/src/services/pricing/vat.ts.
  */
-
-export const formatMoney = (minor: number, currency: 'CZK' | 'EUR', language: string): string =>
-	new Intl.NumberFormat(getLocale(language), { style: 'currency', currency, minimumFractionDigits: minor % 100 === 0 ? 0 : 2 })
-		.format(minor / 100);
 
 export const formatRate = (rateBp: number, language: string): string =>
 	`${new Intl.NumberFormat(getLocale(language), { maximumFractionDigits: 2 }).format(rateBp / 100)} %`;

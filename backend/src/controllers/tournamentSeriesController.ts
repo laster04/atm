@@ -72,7 +72,7 @@ export const createSeries = async (req: AuthRequest, res: Response): Promise<voi
     if (visibility !== undefined && !isVisibility(visibility)) { res.status(400).json({ error: 'Invalid visibility' }); return; }
 
     // The creator owns the series; only an admin may hand it to someone else.
-    // TODO(free-tier): cap how many series a non-admin may own once quotas land.
+    // Series and tournaments are unlimited; plans limit teams per tournament.
     const ownerId = isAdmin(req.user!) ? (managerId ?? null) : req.user!.id;
 
     const storedLogo = await prepareLogo(logo, null, req.user!.id);

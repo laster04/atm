@@ -11,6 +11,7 @@ import {
 import { checkPosition } from '../utils/playerPositions.js';
 import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
 import { releaseFiles } from '../services/storage/files.js';
+import { assertTeamSlot, PlanLimitError, planLimitBody } from '../services/plans/tournamentPlan.js';
 
 // ── Teams ──────────────────────────────────────────────────
 
@@ -58,12 +59,19 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
     if (!name) { res.status(400).json({ error: 'Name is required' }); return; }
     const storedLogo = await prepareLogo(logo, null, req.user!.id);
 
-    const team = await prisma.tournamentTeam.create({
-      data: { name, logo: storedLogo, primaryColor, country, tournamentId: tournamentId },
+    const team = await prisma.$transaction(async (tx) => {
+      await assertTeamSlot(tx, tournamentId);
+      return tx.tournamentTeam.create({
+        data: { name, logo: storedLogo, primaryColor, country, tournamentId: tournamentId },
+      });
     });
     await settleLogo({ type: 'TOURNAMENT_TEAM', id: team.id }, storedLogo);
     res.status(201).json(team);
   } catch (error) {
+    if (error instanceof PlanLimitError) {
+      res.status(409).json(planLimitBody(error));
+      return;
+    }
     console.error('Create tournament team error:', error);
     res.status(500).json({ error: 'Failed to create team' });
   }

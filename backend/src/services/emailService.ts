@@ -5,6 +5,7 @@ interface EmailOptions {
   subject: string;
   html: string;
   replyTo?: string;
+  attachments?: { filename: string; content: Buffer }[];
 }
 
 const COLORS = {
@@ -169,6 +170,7 @@ class EmailService {
         subject: options.subject,
         html: options.html,
         ...(options.replyTo ? { replyTo: options.replyTo } : {}),
+        ...(options.attachments ? { attachments: options.attachments } : {}),
       });
 
       if (error) {
@@ -613,6 +615,70 @@ class EmailService {
       to,
       subject: `[ATM support] ${ticket.subject.slice(0, 120)}`,
       html: this.buildEmailHtml(accent, 'mail-check', 'New support message', body),
+    });
+  }
+
+  /** Tells the payer their transfer arrived, with the tax document attached. */
+  async sendTaxDocumentEmail(params: {
+    to: string;
+    name: string;
+    locale: 'cs' | 'en';
+    number: string;
+    item: { cs: string; en: string };
+    amount: string;
+    pdf: Buffer;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const isCs = params.locale === 'cs';
+    const t = isCs
+      ? {
+          subject: `Platba přijata – doklad ${params.number}`,
+          header: 'Platba přijata',
+          greeting: `Dobrý den, <strong>${escapeHtml(params.name)}</strong>,`,
+          body: `vaše platba <strong>${escapeHtml(params.amount)}</strong> dorazila a plán platí: ${escapeHtml(params.item.cs)}.`,
+          attached: `V příloze je daňový doklad č. ${escapeHtml(params.number)}.`,
+          file: `doklad-${params.number}.pdf`,
+        }
+      : {
+          subject: `Payment received – document ${params.number}`,
+          header: 'Payment received',
+          greeting: `Hello <strong>${escapeHtml(params.name)}</strong>,`,
+          body: `your payment of <strong>${escapeHtml(params.amount)}</strong> has arrived and the plan is active: ${escapeHtml(params.item.en)}.`,
+          attached: `Tax document no. ${escapeHtml(params.number)} is attached.`,
+          file: `document-${params.number}.pdf`,
+        };
+    const body = [this.p(t.greeting), this.p(t.body), this.p(t.attached, { mb: 0, size: 14, color: COLORS.muted })].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: t.subject,
+      html: this.buildEmailHtml(accent, 'badge-check', t.header, body),
+      attachments: [{ filename: t.file, content: params.pdf }],
+    });
+  }
+
+  /** Tells an admin a plan payment was started, so they watch the account for the transfer. */
+  async sendPaymentNoticeEmail(params: {
+    to: string;
+    variableSymbol: number;
+    productName: string;
+    tournamentName: string | null;
+    payerEmail: string | null;
+    amount: number;
+    currency: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const amount = `${(params.amount / 100).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${params.currency === 'CZK' ? 'Kč' : '€'}`;
+    const body = [
+      this.p(`Organizátor zvolil plán <strong>${escapeHtml(params.productName)}</strong>${params.tournamentName ? ` pro turnaj <strong>${escapeHtml(params.tournamentName)}</strong>` : ''} a dostal QR platbu.`),
+      this.p(`Částka: <strong>${amount}</strong> &middot; variabilní symbol <strong>${params.variableSymbol}</strong>`, { size: 14 }),
+      params.payerEmail ? this.p(`Plátce: ${escapeHtml(params.payerEmail)}`, { size: 14, color: COLORS.muted }) : '',
+      this.p('Až platba dorazí na účet, potvrďte ji v administraci; plán se tím odemkne.', { size: 14, color: COLORS.muted }),
+      this.button('Otevřít platby', `${this.getAppUrl()}/admin/payments?status=PENDING`, accent),
+    ].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: `Čeká platba ${params.variableSymbol}: ${params.productName}`,
+      html: this.buildEmailHtml(accent, 'badge-check', 'Nová platba k potvrzení', body),
     });
   }
 
