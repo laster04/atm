@@ -1,0 +1,74 @@
+/*
+ * The embedded widget's own small stylesheet: no Tailwind, no web fonts, so
+ * it loads fast inside other websites and makes no third-party requests.
+ */
+:root {
+	--bg: #ffffff;
+	--fg: #0f172a;
+	--muted: #475569;
+	--line: #e2e8f0;
+	--row: #f8fafc;
+	--accent: #0f172a;
+	--accent-ink: #ffffff;
+	color-scheme: light;
+}
+:root[data-theme='dark'] {
+	--bg: #0f172a;
+	--fg: #f1f5f9;
+	--muted: #94a3b8;
+	--line: #1e293b;
+	--row: #111c33;
+	color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); }
+body {
+	font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	min-width: 280px;
+}
+.w { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.w h1 { margin: 0; font-size: 15px; font-weight: 700; }
+.w h1 small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
+.w h2 { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+caption { text-align: left; font-size: 13px; font-weight: 700; padding-bottom: 6px; }
+th { font-size: 11.5px; font-weight: 600; color: var(--muted); text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+th.team { text-align: left; }
+td { padding: 6px; text-align: right; border-bottom: 1px solid var(--line); }
+td.rank { width: 28px; color: var(--muted); }
+/* The team cell is the row's header, for screen readers; it looks like a cell. */
+tbody th.team { text-align: left; font-size: inherit; font-weight: 600; color: inherit; padding: 6px; max-width: 0; width: 100%; }
+td.points { font-weight: 700; }
+tr.mine td { background: var(--row); }
+tr.mine td.rank { box-shadow: inset 3px 0 0 var(--accent); }
+abbr { text-decoration: none; }
+
+.name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crest { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; object-fit: cover; background: var(--line); }
+
+.games { list-style: none; margin: 0; padding: 0; }
+.games li { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+/* The home team reads towards the score: name, then crest, right-aligned. */
+.games .home .name { flex-direction: row-reverse; text-align: right; }
+.games .mid { text-align: center; min-width: 64px; }
+.games .score { font-weight: 800; font-size: 15px; }
+.games .when { font-size: 12px; color: var(--muted); }
+.games .meta { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); text-align: center; margin-top: -4px; }
+.games li.mine .score, .games li.mine .when { color: var(--fg); }
+
+.note { color: var(--muted); font-size: 13px; padding: 8px 0; }
+.brand { display: flex; justify-content: flex-end; font-size: 11.5px; }
+.brand a { color: var(--muted); text-decoration: none; }
+.brand a:hover, .brand a:focus-visible { color: var(--fg); text-decoration: underline; }
+.brand b { color: var(--accent); }
+:root[data-theme='dark'] .brand b { color: var(--fg); }
+
+/* Narrow placements (sidebars from 280 px): only what a table cannot do without. */
+@media (max-width: 420px) {
+	.wide { display: none; }
+}
+@media (max-width: 340px) {
+	.mid-col { display: none; }
+}

@@ -3010,7 +3010,13 @@
       "activeLeagues": "Aktivní ligy",
       "activeTournaments": "Aktivní turnaje",
       "activeHint": "Aktivní znamená, že měla zápas s datem v posledních 30 dnech.",
-      "paymentsHint": "QR převody čekající na potvrzení."
+      "paymentsHint": "QR převody čekající na potvrzení.",
+      "embeds": "Widget na webech",
+      "embedsHint": "Weby, které za posledních 30 dní ukazovaly tabulku nebo zápasy z ATM.",
+      "embedsViews_one": "{{count}} zobrazení",
+      "embedsViews_few": "{{count}} zobrazení",
+      "embedsViews_other": "{{count}} zobrazení",
+      "embedsNone": "Zatím ho nikdo nevložil."
     },
     "pricing": {
       "readOnly": "Můžete se dívat, ale ne měnit. Ceny, sazby DPH, limity a OSS mění jen účet správce ceníku.",
@@ -3253,5 +3259,82 @@
     },
     "organizerUntil": "Organizátor do {{date}}",
     "renew": "Prodloužit Organizátora"
+  },
+  "embed": {
+    "standings": "Tabulka",
+    "upcoming": "Nadcházející zápasy",
+    "recent": "Poslední výsledky",
+    "noTable": "Tabulka zatím není.",
+    "noUpcoming": "Žádné naplánované zápasy.",
+    "noRecent": "Zatím žádné výsledky.",
+    "unavailable": "Není k dispozici.",
+    "dateTbd": "Termín bude upřesněn",
+    "tbd": "Bude upřesněno",
+    "round": "{{n}}. kolo",
+    "postponed": "Odloženo",
+    "live": "Hraje se",
+    "brand": {
+      "before": "Výsledky z "
+    },
+    "columns": {
+      "rankLong": "Pořadí",
+      "team": "Tým",
+      "played": "Z",
+      "playedLong": "Zápasy",
+      "wins": "V",
+      "winsLong": "Výhry",
+      "draws": "R",
+      "drawsLong": "Remízy",
+      "losses": "P",
+      "lossesLong": "Prohry",
+      "score": "Skóre",
+      "scoreLong": "Vstřelené a obdržené",
+      "points": "B",
+      "pointsLong": "Body"
+    },
+    "phases": {
+      "ROUND_OF_16": "Osmifinále",
+      "QUARTER_FINAL": "Čtvrtfinále",
+      "SEMI_FINAL": "Semifinále",
+      "BRONZE": "O 3. místo",
+      "FINAL": "Finále"
+    }
+  },
+  "embedPanel": {
+    "title": "Vložit na web",
+    "hint": "Tabulka nebo zápasy na webu ligy či klubu",
+    "teamHint": "Tabulka s vaším týmem nebo jeho zápasy na webu klubu.",
+    "open": "Vytvořit kód",
+    "intro": "Vyberte, co se má na webu ukazovat. Kód vložte do stránky jako HTML; tabulka a zápasy se pak aktualizují samy.",
+    "unavailable": "Soutěž je soukromá, widget by ukázal jen „Není k dispozici“. Nastavte jí viditelnost Veřejná nebo Neveřejná (přes odkaz).",
+    "widget": "Co ukázat",
+    "views": {
+      "standings": "Tabulka pořadí",
+      "games": "Zápasy"
+    },
+    "team": "Tým",
+    "allTeams": "Všechny týmy",
+    "division": "Divize",
+    "group": "Skupina",
+    "allDivisions": "Všechny divize",
+    "allGroups": "Všechny skupiny",
+    "wholeSeason": "Celá sezóna dohromady",
+    "rowsTable": "Počet řádků",
+    "rowsGames": "Počet zápasů",
+    "rowsAll": "vše",
+    "results": "Ukázat i poslední výsledky",
+    "theme": "Vzhled",
+    "light": "Světlý",
+    "dark": "Tmavý",
+    "language": "Jazyk",
+    "accent": "Barva zvýraznění",
+    "logos": "Loga týmů",
+    "hideBrand": "Skrýt odkaz „Výsledky z ATM“",
+    "hideBrandPaid": "Jen v plánech Turnaj Plus a Organizátor.",
+    "preview": "Náhled",
+    "code": "Kód ke vložení",
+    "copy": "Kopírovat kód",
+    "copied": "Zkopírováno",
+    "help": "Jak vložit tabulku na web"
   }
 }

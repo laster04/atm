@@ -6,8 +6,26 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
 
+  # The embedded widget is its own page (celek I)
+  RewriteRule ^embed/ embed.html [QSA,L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
   # Otherwise, redirect all requests to index.html (SPA routing)
   RewriteRule ^ index.html [QSA,L]
+</IfModule>
+
+# Only the widget may be shown inside other websites; every other page refuses
+# to be framed (clickjacking). frontend/server.mjs does the same on Railway.
+<IfModule mod_headers.c>
+  <If "%{THE_REQUEST} =~ m#^\S+\s/embed[/.]#">
+    Header always set Content-Security-Policy "frame-ancestors *"
+  </If>
+  <Else>
+    Header always set Content-Security-Policy "frame-ancestors 'self'"
+    Header always set X-Frame-Options "SAMEORIGIN"
+  </Else>
 </IfModule>
 
 # Enable GZIP compression
@@ -27,3 +45,11 @@
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
+
+# embed.js keeps its name on club websites, so it must not be cached for a
+# year like the fingerprinted assets: an hour lets fixes reach them.
+<Files "embed.js">
+  <IfModule mod_expires.c>
+    ExpiresByType application/javascript "access plus 1 hour"
+  </IfModule>
+</Files>

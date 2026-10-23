@@ -1,8 +1,42 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import path from 'path'
+import fs from 'fs'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { sitemap } from './sitemap'
+
+/**
+ * The embedded widget (celek I) is a second page with its own small bundle.
+ * In development /embed/... is served embed.html, as server.mjs and .htaccess
+ * do in production; and the build keeps the service worker's registration out
+ * of it, since it runs inside other websites.
+ */
+function embedPage(): Plugin {
+  let outDir = 'dist'
+  return {
+    name: 'atm-embed-page',
+    enforce: 'post',
+    configResolved(config) {
+      outDir = path.resolve(config.root, config.build.outDir)
+    },
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (req.url && /^\/embed\/(season|tournament)\//.test(req.url)) req.url = '/embed.html'
+        next()
+      })
+    },
+    // VitePWA writes its registration into every HTML page once the bundle is
+    // closed, so it is taken out of the widget's page at that point too.
+    closeBundle() {
+      const file = path.join(outDir, 'embed.html')
+      if (!fs.existsSync(file)) return
+      const html = fs.readFileSync(file, 'utf8')
+        .replace(/<link rel="manifest"[^>]*>/g, '')
+        .replace(/<script[^>]*registerSW\.js[^>]*><\/script>/g, '')
+      fs.writeFileSync(file, html)
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -37,7 +71,8 @@ export default defineConfig({
         navigateFallback: '/index.html',
         // The sitemaps and robots.txt are for crawlers; a browser opening one
         // should get the file, not the app shell.
-        navigateFallbackDenylist: [/^\/api\//, /^\/sitemap[\w-]*\.xml$/, /^\/robots\.txt$/],
+        // The widget runs inside other websites and must never be answered with the app shell.
+        navigateFallbackDenylist: [/^\/api\//, /^\/sitemap[\w-]*\.xml$/, /^\/robots\.txt$/, /^\/embed[/.]/],
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
@@ -51,7 +86,17 @@ export default defineConfig({
         ],
       },
     }),
+    // After VitePWA: it takes back out of the widget's page what VitePWA added.
+    embedPage(),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        embed: path.resolve(__dirname, 'embed.html'),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

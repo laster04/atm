@@ -8,6 +8,11 @@ import handler from 'serve-handler'
  * dist/serve.json, every unknown path falling back to index.html - plus one
  * route `serve` cannot do: /sitemap-data.xml, fetched from the backend so the
  * data sitemap lives on this domain, as Search Console requires.
+ *
+ * Only the embedded widget (/embed/...) may be shown inside other websites;
+ * every other page refuses to be framed, so no one can lay the app under a
+ * fake page and trick a signed-in user into clicking (clickjacking).
+ * public/.htaccess does the same on Apache hosting; keep the two in step.
  */
 
 const PUBLIC = 'dist'
@@ -36,12 +41,28 @@ async function dataSitemap(res) {
   }
 }
 
+// The widget's own page. serve-handler would hand a rewrite to embed.html on
+// to the '**' fallback as well, so widget paths are answered here directly.
+const embedHtml = readFileSync(`${PUBLIC}/embed.html`)
+
 const compress = compression()
 
 http
   .createServer((req, res) => {
     compress(req, res, () => {
-      if (new URL(req.url ?? '/', 'http://localhost').pathname === '/sitemap-data.xml') {
+      const pathname = new URL(req.url ?? '/', 'http://localhost').pathname
+      if (/^\/embed[/.]/.test(pathname)) {
+        res.setHeader('Content-Security-Policy', 'frame-ancestors *')
+        if (pathname.startsWith('/embed/')) {
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' })
+          res.end(embedHtml)
+          return
+        }
+      } else {
+        res.setHeader('Content-Security-Policy', "frame-ancestors 'self'")
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN')
+      }
+      if (pathname === '/sitemap-data.xml') {
         void dataSitemap(res)
         return
       }
