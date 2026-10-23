@@ -13,6 +13,8 @@ export interface AuthUser {
   onboardingCompletedAt?: Date | null;
   teamTourCompletedAt?: Date | null;
   updatesSeenAt?: Date | null;
+  /** Language of the e-mails; see i18n. */
+  locale?: string;
   /** Counts of the manager relations this user holds; see services/access. */
   manages?: { leagues: number; teams: number; series: number };
 }
@@ -83,6 +85,8 @@ export interface RegisterRequest {
   name: string;
   /** A path in the app to return to after activation. */
   next?: string;
+  /** The app's language when the form was sent. */
+  locale?: string;
 }
 
 export interface LoginRequest {

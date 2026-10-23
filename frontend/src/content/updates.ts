@@ -1,3 +1,4 @@
+import { languageOf } from '../i18n/languages';
 /**
  * What changed in ATM and what is coming. Kept in the repository and added in
  * the same change as the feature it describes, so a release note never runs
@@ -32,8 +33,9 @@ export interface RoadmapItem {
 	content: Record<UpdatesLocale, { title: string; summary: string }>;
 }
 
+/** Release notes exist in Czech and English; a Slovak reader gets the Czech ones. */
 export const updatesLocale = (language: string | undefined): UpdatesLocale =>
-	language?.toLowerCase().startsWith('cs') ? 'cs' : 'en';
+	languageOf(language)?.content ?? 'en';
 
 export const RELEASES: ReleaseNote[] = [
 	{

@@ -177,7 +177,7 @@ export default function ResultsEmailSheet({ season, onClose }: ResultsEmailSheet
 		setError('');
 		setResult('');
 		try {
-			const res = await seasonApi.sendResultsEmail(season.id, selectedIds, i18n.language);
+			const res = await seasonApi.sendResultsEmail(season.id, selectedIds);
 			setResult(
 				t('seasonManagement.resultsEmail.sentResult', {
 					games: res.data.games,

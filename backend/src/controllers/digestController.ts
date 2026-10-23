@@ -9,6 +9,7 @@ import {
 import { emailService } from '../services/emailService.js';
 import { recordAudit } from '../services/audit/record.js';
 import { renderResultsImage } from '../services/digest/resultsImage.js';
+import { localeOf, type Locale } from '../i18n/index.js';
 
 const parseRound = (raw: string): number | null => {
   const round = Number(raw);
@@ -94,7 +95,7 @@ export const sendRoundSummary = async (req: AuthRequest, res: Response): Promise
         recipient.email,
         recipient.name,
         summary,
-        parseLocale(req.body)
+        recipient.locale
       );
       if (sent) delivered++;
     }
@@ -156,13 +157,12 @@ const parseGameIds = (body: unknown): string[] | null => {
   return [...new Set(raw as string[])];
 };
 
-/** Language of the email: the sender's UI language, since recipients store none. */
-const parseLocale = (body: unknown): string | undefined => {
-  const raw = (body as { locale?: unknown } | undefined)?.locale;
-  if (typeof raw !== 'string') return undefined;
-  // A browser may report a region too, e.g. "cs-CZ".
-  return raw.toLowerCase().startsWith('cs') ? 'cs' : 'en';
-};
+/**
+ * The sender's UI language, for what they see themselves: the test email and
+ * the results image. Everyone else gets the summary in their own language.
+ */
+const parseLocale = (body: unknown): Locale =>
+  localeOf((body as { locale?: unknown } | undefined)?.locale);
 
 class AlreadyClaimed extends Error {}
 
@@ -305,7 +305,7 @@ export const sendResultsEmail = async (req: AuthRequest, res: Response): Promise
         recipient.email,
         recipient.name,
         summary!,
-        parseLocale(req.body)
+        recipient.locale
       );
       if (sent) delivered++;
     }
@@ -357,7 +357,7 @@ export const resultsImage = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    const png = await renderResultsImage(summary, parseLocale(req.body) === 'en' ? 'en' : 'cs');
+    const png = await renderResultsImage(summary, parseLocale(req.body));
     res.type('image/png').set('Cache-Control', 'no-store').send(png);
   } catch (error) {
     console.error('Results image error:', error);

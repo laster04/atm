@@ -5,6 +5,7 @@ import { AxiosError } from 'axios';
 import { leagueApi, playerApi, teamApi } from '@/services/api';
 import type { InviteKind, ManagerInviteSent } from '@types';
 import { APP_TIME_ZONE } from '@/utils/date';
+import { menuLanguages, serverLocale } from '@/i18n/languages';
 
 export interface InviteTarget {
 	kind: InviteKind;
@@ -58,7 +59,10 @@ export default function InviteManagerSheet({
 
 	const [name, setName] = useState(defaultName);
 	const [email, setEmail] = useState('');
-	const [locale, setLocale] = useState<'cs' | 'en'>(i18n.language === 'en' ? 'en' : 'cs');
+	// The invitee may read another language than the sender; a language still
+	// being checked is offered only to someone already using it.
+	const languages = menuLanguages(i18n.language);
+	const [locale, setLocale] = useState(serverLocale(i18n.language));
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState('');
 	const [sent, setSent] = useState<ManagerInviteSent | null>(initialSent);
@@ -271,18 +275,22 @@ export default function InviteManagerSheet({
 
 				<fieldset className="flex flex-col gap-1.5">
 					<legend className="mb-1.5 text-[13px] font-semibold">{t('invites.sheet.languageLabel')}</legend>
-					<div className="grid grid-cols-2 gap-1 rounded-[10px] border border-border bg-muted p-1">
-						{(['cs', 'en'] as const).map((code) => (
+					<div
+						className="grid gap-1 rounded-[10px] border border-border bg-muted p-1"
+						style={{ gridTemplateColumns: `repeat(${languages.length}, minmax(0, 1fr))` }}
+					>
+						{languages.map(({ code, label }) => (
 							<button
 								key={code}
 								type="button"
+								lang={code}
 								aria-pressed={locale === code}
 								onClick={() => setLocale(code)}
 								className={`h-10 rounded-lg text-[14px] ${
 									locale === code ? 'bg-card font-semibold shadow-sm' : 'font-medium text-muted-foreground'
 								}`}
 							>
-								{t(code === 'cs' ? 'invites.sheet.languageCs' : 'invites.sheet.languageEn')}
+								{label}
 							</button>
 						))}
 					</div>

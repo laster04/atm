@@ -9,6 +9,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { PublicHero } from '@/components/public';
 import type { Registration, RegistrationForm, RegistrationKind, RosterEntry, Team } from '@types';
 import { formatDeadline } from '@/utils/date';
+import { serverLocale } from '@/i18n/languages';
 
 const newToken = () =>
 	typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -123,7 +124,7 @@ export default function RegistrationScreen() {
 					roster: roster.map((row): RosterEntry => ({ name: row.name.trim(), number: row.number === '' ? null : Number(row.number) })),
 				}),
 				acceptRules: form.rules ? acceptRules : undefined,
-				locale: i18n.language.startsWith('en') ? 'en' : 'cs',
+				locale: serverLocale(i18n.language),
 				website,
 			});
 			setSent(res.data);

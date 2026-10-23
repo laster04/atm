@@ -292,6 +292,8 @@ export const accept = async (req: AuthRequest, res: Response): Promise<void> => 
           email: invite.email,
           password: hashedPassword,
           name: name?.trim() || invite.name,
+          // The language the inviter wrote to them in.
+          locale: invite.locale,
           active: true,
           emailVerified: true,
           emailVerifiedAt: new Date(),

@@ -6,6 +6,7 @@ import { zonedParts } from '../../utils/time.js';
 import { paymentAccount } from '../payments/account.js';
 import type { PaymentSnapshot } from '../payments/payments.js';
 import { formatAmount, ISSUER, renderTaxDocument, type DocumentContent } from './template.js';
+import { localeOf } from '../../i18n/index.js';
 
 /**
  * Tax documents for confirmed payments (celek B4). The number is taken and
@@ -139,7 +140,7 @@ export async function documentLink(document: TaxDocument): Promise<string> {
 export async function deliverTaxDocument(paymentId: string): Promise<void> {
   const document = await prisma.taxDocument.findUnique({
     where: { paymentId },
-    include: { payment: { include: { payer: { select: { email: true, name: true } }, tournament: { select: { name: true } } } } },
+    include: { payment: { include: { payer: { select: { email: true, name: true, locale: true } }, tournament: { select: { name: true } } } } },
   });
   if (!document) return;
   const pdf = await documentPdf(document);
@@ -151,7 +152,7 @@ export async function deliverTaxDocument(paymentId: string): Promise<void> {
     to: payer.email,
     name: payer.name,
     // No language is stored per user; a payment in euros comes from abroad.
-    locale: content.currency === 'EUR' ? 'en' : 'cs',
+    locale: localeOf(payer.locale),
     number: document.number,
     item: content.lines[0].description,
     amount: formatAmount(content.totals.gross, content.currency),

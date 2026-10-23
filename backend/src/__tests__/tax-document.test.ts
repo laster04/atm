@@ -116,14 +116,15 @@ describe('issuing a tax document on confirmation', () => {
     expect(found.body.rows[0].document).toMatchObject({ number: link.body.number, kind: 'SIMPLIFIED' });
   });
 
-  it('writes the year an Organizer plan covers, and English for a payment in euros', async () => {
+  it('writes the year an Organizer plan covers, and mails it in the payer\'s language', async () => {
     const { id, owner } = await paidFor('organizer', 'ORGANIZER', 'EUR');
+    await prisma.user.update({ where: { email: owner.email }, data: { locale: 'sk' } });
     documents.mockClear();
     await confirm([id]);
     const document = await delivered(id);
     const line = (document.content as { lines: { description: { cs: string } }[] }).lines[0];
     expect(line.description.cs).toMatch(/^Organizátor \(rok\), \d+\. \d+\. \d{4} – \d+\. \d+\. \d{4}/);
-    expect(documents).toHaveBeenCalledWith(expect.objectContaining({ to: owner.email, locale: 'en', amount: expect.stringContaining('€') }));
+    expect(documents).toHaveBeenCalledWith(expect.objectContaining({ to: owner.email, locale: 'sk', amount: expect.stringContaining('€') }));
   });
 
   it('never skips a number, also when confirmations run at the same time or are refused', async () => {

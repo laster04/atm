@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { menuLanguages } from '@/i18n/languages';
 import { ArrowLeft, Menu, LogOut, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/components/utils';
@@ -50,10 +51,6 @@ export default function ManagerHeader({
 		navigate('/');
 	};
 
-	const toggleLanguage = () => {
-		const newLang = i18n.language === 'en' ? 'cs' : 'en';
-		i18n.changeLanguage(newLang);
-	};
 
 	const dark = ink === 'dark';
 	const inkClass = dark ? 'text-[#252525]' : 'text-white';
@@ -110,10 +107,12 @@ export default function ManagerHeader({
 								<Link to="/seasons">{t('nav.seasons')}</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem onClick={toggleLanguage}>
-								<Globe className="size-4 mr-2" />
-								{i18n.language === 'en' ? t('language.cs') : t('language.en')}
-							</DropdownMenuItem>
+							{menuLanguages(i18n.language).filter((language) => language.code !== i18n.language).map((language) => (
+								<DropdownMenuItem key={language.code} onClick={() => i18n.changeLanguage(language.code)} lang={language.code}>
+									<Globe className="size-4 mr-2" />
+									{language.label}
+								</DropdownMenuItem>
+							))}
 							<DropdownMenuSeparator />
 							{user && (
 								<DropdownMenuItem onClick={handleLogout}>

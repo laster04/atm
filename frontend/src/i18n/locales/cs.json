@@ -1309,7 +1309,8 @@
   },
   "language": {
     "en": "EN",
-    "cs": "CZ"
+    "cs": "CZ",
+    "choose": "Jazyk"
   },
   "sports": {
     "FOOTBALL": "Fotbal",
@@ -2143,8 +2144,6 @@
       "emailPlaceholder": "jmeno@example.cz",
       "emailHint": "Už ATM používá? Zadejte e-mail, kterým se přihlašuje.",
       "languageLabel": "Jazyk e-mailu",
-      "languageCs": "Čeština",
-      "languageEn": "English",
       "canTitle": "Co bude moci dělat",
       "canTeam": [
         "Upravovat soupisku, barvy a logo týmu",

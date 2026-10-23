@@ -118,6 +118,14 @@ describe('who it goes to', () => {
     expect(emails).toContain(playerUser.email);
   });
 
+  it('gives each recipient their own language', async () => {
+    await prisma.user.update({ where: { email: playerUser.email }, data: { locale: 'sk' } });
+    const recipients = await summaryRecipients(seasonId);
+    expect(recipients.find((r) => r.email === playerUser.email)?.locale).toBe('sk');
+    expect(recipients.find((r) => r.email === manager.email)?.locale).toBe('cs');
+    await prisma.user.update({ where: { email: playerUser.email }, data: { locale: 'cs' } });
+  });
+
   it('leaves out anyone who turned the summary off', async () => {
     const emails = (await summaryRecipients(seasonId)).map((r) => r.email);
     expect(emails).not.toContain(optedOut.email);
@@ -349,21 +357,25 @@ describe('the email language', () => {
     topScorers: [],
   };
 
-  it('writes Czech when the sender works in Czech', async () => {
+  const mailFor = async (locale?: 'cs' | 'en' | 'sk', round: number | null = null) => {
     const send = jest.spyOn(emailService, 'sendEmail').mockResolvedValue(true);
-    await emailService.sendRoundSummaryEmail('a@test.com', 'Anna', summary, 'cs');
+    await emailService.sendRoundSummaryEmail('a@test.com', 'Anna', { ...summary, round }, locale);
     const mail = send.mock.calls[0][0];
     send.mockRestore();
+    return mail;
+  };
+
+  it('writes Czech unless told otherwise', async () => {
+    const mail = await mailFor();
     expect(mail.subject).toBe('Zimní liga - nové výsledky');
     expect(mail.html).toContain('Výsledky');
     expect(mail.html).toContain('nepotvrzeno');
   });
 
-  it('falls back to English', async () => {
-    const send = jest.spyOn(emailService, 'sendEmail').mockResolvedValue(true);
-    await emailService.sendRoundSummaryEmail('a@test.com', 'Anna', { ...summary, round: 3 });
-    const mail = send.mock.calls[0][0];
-    send.mockRestore();
-    expect(mail.subject).toBe('Zimní liga - round 3 summary');
+  it('writes the recipient\'s language', async () => {
+    expect((await mailFor('en', 3)).subject).toBe('Zimní liga - round 3 summary');
+    const slovak = await mailFor('sk', 3);
+    expect(slovak.subject).toBe('Zimní liga - súhrn 3. kola');
+    expect(slovak.html).toContain('nepotvrdené');
   });
 });

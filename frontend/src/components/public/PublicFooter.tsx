@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { menuLanguages } from '@/i18n/languages';
 import logoImage from '@/assets/logo-full.png';
 
 const COLUMNS = [
@@ -64,13 +65,19 @@ export default function PublicFooter() {
 				</div>
 				<div className="flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/45 sm:flex-row sm:items-center">
 					<span className="flex-1">© {new Date().getFullYear()} {t('landing.footer')}</span>
-					<button
-						type="button"
-						onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'cs' : 'en')}
-						className="self-start hover:text-white/80"
-					>
-						{i18n.language === 'en' ? t('language.cs') : t('language.en')}
-					</button>
+					<span className="flex flex-wrap gap-3">
+						{menuLanguages(i18n.language).filter((language) => language.code !== i18n.language).map((language) => (
+							<button
+								key={language.code}
+								type="button"
+								lang={language.code}
+								onClick={() => i18n.changeLanguage(language.code)}
+								className="self-start hover:text-white/80"
+							>
+								{language.label}
+							</button>
+						))}
+					</span>
 				</div>
 			</div>
 		</footer>

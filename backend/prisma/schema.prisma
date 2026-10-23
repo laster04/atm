@@ -91,6 +91,9 @@ model User {
   // Opt-out for the round summary. Transactional mail (activation, password
   // reset, invitations) ignores it - that is post the account asked for.
   emailDigest                 Boolean   @default(true) @map("email_digest")
+  // Language of the e-mails the user gets; follows the language they last
+  // picked in the app. One of backend/src/i18n LOCALES.
+  locale                      String    @default("cs")
   onboardingCompletedAt       DateTime? @map("onboarding_completed_at")
   teamTourCompletedAt         DateTime? @map("team_tour_completed_at")
   lastLoggedInAt              DateTime? @map("last_logged_in_at")

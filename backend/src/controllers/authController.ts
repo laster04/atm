@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
+import { isLocale, localeOf, type Locale } from '../i18n/index.js';
 import { normalizeEmail } from '../utils/email.js';
 import { getManagedCounts } from '../services/access.js';
 import { auditSnapshot, recordAudit } from '../services/audit/record.js';
@@ -35,6 +36,7 @@ export const startSession = async (userId: string) => {
       email: user.email,
       name: user.name,
       role: user.role,
+      locale: user.locale,
       onboardingCompletedAt: user.onboardingCompletedAt,
       teamTourCompletedAt: user.teamTourCompletedAt,
       updatesSeenAt: user.updatesSeenAt,
@@ -65,6 +67,8 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
   try {
     const { email: rawEmail, password, name } = req.body as RegisterRequest;
     const next = safeNextPath((req.body as RegisterRequest).next);
+    // The language the form was filled in; later mail follows it.
+    const locale = localeOf((req.body as RegisterRequest).locale);
 
     if (!rawEmail || !password || !name) {
       res.status(400).json({ error: 'Email, password, and name are required' });
@@ -94,6 +98,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
         password: hashedPassword,
         name,
         role,
+        locale,
         emailVerified: false,
         activationToken,
         activationTokenExpiresAt: getActivationTokenExpiry(),
@@ -102,7 +107,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     });
 
     // Send activation email (don't wait for it to complete)
-    emailService.sendActivationEmail(email, name, activationToken, next).catch((err) => {
+    emailService.sendActivationEmail(email, name, activationToken, next, locale).catch((err) => {
       console.error('Failed to send activation email:', err);
     });
 
@@ -195,7 +200,7 @@ export const activateAccount = async (req: AuthRequest, res: Response): Promise<
     });
 
     // Send welcome email
-    emailService.sendWelcomeEmail(user.email, user.name).catch((err) => {
+    emailService.sendWelcomeEmail(user.email, user.name, localeOf(user.locale)).catch((err) => {
       console.error('Failed to send welcome email:', err);
     });
 
@@ -241,7 +246,7 @@ export const resendActivationEmail = async (req: AuthRequest, res: Response): Pr
       }
     });
 
-    await emailService.sendActivationEmail(email, user.name, activationToken, next);
+    await emailService.sendActivationEmail(email, user.name, activationToken, next, localeOf(req.body?.locale, localeOf(user.locale)));
 
     res.json({ message: 'If an account exists with this email, an activation link will be sent.' });
   } catch (error) {
@@ -289,7 +294,8 @@ export const requestPasswordReset = async (req: AuthRequest, res: Response): Pro
       }
     });
 
-    await emailService.sendPasswordResetEmail(email, user.name, resetToken);
+    // The language on screen when asking, else the one the account last used.
+    await emailService.sendPasswordResetEmail(email, user.name, resetToken, localeOf(req.body?.locale, localeOf(user.locale)));
 
     res.json({ message: 'If an account exists with this email, a password reset link will be sent.' });
   } catch (error) {
@@ -344,7 +350,7 @@ export const resetPassword = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     // Send confirmation email
-    emailService.sendPasswordChangedEmail(user.email, user.name).catch((err) => {
+    emailService.sendPasswordChangedEmail(user.email, user.name, localeOf(user.locale)).catch((err) => {
       console.error('Failed to send password changed email:', err);
     });
 
@@ -364,7 +370,7 @@ export const completeOnboarding = async (req: AuthRequest, res: Response): Promi
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: { onboardingCompletedAt: new Date() },
-      select: { id: true, email: true, name: true, role: true, emailDigest: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
+      select: { id: true, email: true, name: true, role: true, emailDigest: true, locale: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
     res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
@@ -394,7 +400,7 @@ export const completeTeamTour = async (req: AuthRequest, res: Response): Promise
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: { teamTourCompletedAt: new Date() },
-      select: { id: true, email: true, name: true, role: true, emailDigest: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
+      select: { id: true, email: true, name: true, role: true, emailDigest: true, locale: true, onboardingCompletedAt: true, teamTourCompletedAt: true }
     });
 
     res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
@@ -406,21 +412,24 @@ export const completeTeamTour = async (req: AuthRequest, res: Response): Promise
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, password, emailDigest } = req.body as UpdateProfileRequest & {
+    const { name, password, emailDigest, locale } = req.body as UpdateProfileRequest & {
       emailDigest?: boolean;
+      locale?: string;
     };
-    const updateData: { name?: string; password?: string; emailDigest?: boolean } = {};
+    const updateData: { name?: string; password?: string; emailDigest?: boolean; locale?: Locale } = {};
 
     if (name) updateData.name = name;
     if (password) updateData.password = await bcrypt.hash(password, 10);
     // Turning the round summary off is a plain false, so it cannot be tested for
     // truthiness the way the others are.
     if (typeof emailDigest === 'boolean') updateData.emailDigest = emailDigest;
+    // The app sends the language the user switched to; an unknown one is ignored.
+    if (typeof locale === 'string' && isLocale(locale)) updateData.locale = locale;
 
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: updateData,
-      select: { id: true, email: true, name: true, role: true, emailDigest: true }
+      select: { id: true, email: true, name: true, role: true, emailDigest: true, locale: true }
     });
 
     res.json({ user: { ...user, manages: await getManagedCounts(user.id) } });
