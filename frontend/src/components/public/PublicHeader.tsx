@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { languageOf, menuLanguages } from '@/i18n/languages';
 import { ChevronDown, LogOut, Menu, UserCircle, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -51,7 +52,6 @@ export default function PublicHeader({ variant = 'solid' }: PublicHeaderProps) {
 		navigate('/');
 	};
 
-	const toggleLanguage = () => i18n.changeLanguage(i18n.language === 'en' ? 'cs' : 'en');
 
 	const linkClass = ({ isActive }: { isActive: boolean }) =>
 		[
@@ -104,16 +104,24 @@ export default function PublicHeader({ variant = 'solid' }: PublicHeaderProps) {
 				<SearchBox tone={overlay ? 'dark' : 'light'} className="ml-auto hidden w-64 xl:block" />
 
 				<div className="ml-auto flex items-center gap-2 xl:ml-0">
-					<button
-						type="button"
-						onClick={toggleLanguage}
-						className={[
-							'hidden h-10 items-center rounded-lg px-3 text-sm font-semibold transition-colors sm:flex',
-							overlay ? 'text-white/85 hover:text-white' : 'text-subtle-foreground hover:text-foreground',
-						].join(' ')}
-					>
-						{i18n.language === 'en' ? 'EN' : 'CZ'}
-					</button>
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							aria-label={t('language.choose')}
+							className={[
+								'hidden h-10 items-center rounded-lg px-3 text-sm font-semibold outline-none transition-colors sm:flex',
+								overlay ? 'text-white/85 hover:text-white' : 'text-subtle-foreground hover:text-foreground',
+							].join(' ')}
+						>
+							{languageOf(i18n.language)?.short ?? 'EN'}
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							{menuLanguages(i18n.language).map((language) => (
+								<DropdownMenuItem key={language.code} onClick={() => i18n.changeLanguage(language.code)} lang={language.code}>
+									{language.label}
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
 
 					{user ? (
 						<DropdownMenu>

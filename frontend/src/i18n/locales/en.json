@@ -1293,7 +1293,8 @@
   },
   "language": {
     "en": "EN",
-    "cs": "CZ"
+    "cs": "CZ",
+    "choose": "Language"
   },
   "sports": {
     "FOOTBALL": "Football",
@@ -2112,8 +2113,6 @@
       "emailPlaceholder": "name@example.com",
       "emailHint": "Already using ATM? Use the email they sign in with.",
       "languageLabel": "Email language",
-      "languageCs": "Čeština",
-      "languageEn": "English",
       "canTitle": "What they will be able to do",
       "canTeam": [
         "Edit the roster, team colours and logo",

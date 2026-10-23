@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
 import emailService from './emailService.js';
 import { normalizeEmail } from '../utils/email.js';
+import { localeOf } from '../i18n/index.js';
 
 /**
  * Inviting someone to manage a team or a league, or a player to take their
@@ -118,7 +119,7 @@ const sendInviteEmail = async (invite: InviteRow, token: string): Promise<void> 
     link: inviteLink(token),
     expiresAt: invite.expiresAt,
     hasAccount,
-    locale: invite.locale,
+    locale: localeOf(invite.locale),
   });
 };
 
@@ -150,7 +151,7 @@ export const createInvite = async (params: {
         ...targetWhere,
         email: normalizeEmail(params.email),
         name: params.name.trim(),
-        locale: params.locale === 'en' ? 'en' : 'cs',
+        locale: localeOf(params.locale),
         tokenHash,
         expiresAt: expiryFromNow(),
         invitedById: params.invitedById,

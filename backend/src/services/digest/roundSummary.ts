@@ -1,5 +1,6 @@
 import { profileFor } from '../sports/profile.js';
 import prisma from '../../config/database.js';
+import { localeOf, type Locale } from '../../i18n/index.js';
 import { computeTable } from '../standings/compute.js';
 import { policyFromRows } from '../scoring/resolve.js';
 import { COUNTS_TOWARD_TABLE } from '../standings/filters.js';
@@ -60,6 +61,8 @@ export interface Recipient {
   id: string;
   name: string;
   email: string;
+  /** Each recipient reads the summary in their own language. */
+  locale: Locale;
 }
 
 const TOP_SCORER_LIMIT = 5;
@@ -230,8 +233,8 @@ export const summaryRecipients = async (seasonId: string): Promise<Recipient[]> 
         { playerProfiles: { some: { teamId: { in: teamIds } } } },
       ],
     },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, locale: true },
   });
 
-  return users;
+  return users.map((user) => ({ ...user, locale: localeOf(user.locale) }));
 };

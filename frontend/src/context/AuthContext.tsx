@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authApi } from '../services/api';
+import i18n from 'i18next';
+import { serverLocale } from '@/i18n/languages';
 import { Role } from '@types';
 import type { User, AuthContextType } from '@types';
 
@@ -38,6 +40,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
     }
   }, []);
+
+  // The server writes e-mails in the language the user last picked in the app,
+  // so a switch (or a first sign-in in another language) is passed on.
+  useEffect(() => {
+    if (!user) return;
+    const sync = () => {
+      const locale = serverLocale(i18n.language);
+      if (user.locale === locale) return;
+      authApi.updateProfile({ locale })
+        .then(() => {
+          const next = { ...user, locale };
+          localStorage.setItem('user', JSON.stringify(next));
+          setUser(next);
+        })
+        .catch(() => {
+          // Not worth bothering the user; the next switch or sign-in tries again.
+        });
+    };
+    sync();
+    i18n.on('languageChanged', sync);
+    return () => i18n.off('languageChanged', sync);
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     const res = await authApi.login({ email, password });

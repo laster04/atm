@@ -3,6 +3,7 @@ import path from 'node:path';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import type { RoundSummary } from './roundSummary.js';
+import { emailTexts, fillText as fill, intlLocale, type Locale } from '../../i18n/index.js';
 
 /**
  * The results as a picture, for a league manager to drop into a team chat.
@@ -67,37 +68,15 @@ const h = (style: Style, ...children: Child[]): Node => ({
   props: { style: { display: 'flex', ...style }, children: children.filter((c) => c !== null && c !== false) },
 });
 
-const TEXTS = {
-  cs: {
-    results: 'Výsledky',
-    table: 'Tabulka',
-    topScorers: 'Nejlepší střelci',
-    notConfirmed: 'nepotvrzeno',
-    round: (n: number) => `${n}. kolo`,
-    more: (n: number) => `a ${n} dalších`,
-    played: 'Z',
-    points: 'B',
-  },
-  en: {
-    results: 'Results',
-    table: 'Table',
-    topScorers: 'Top scorers',
-    notConfirmed: 'not confirmed',
-    round: (n: number) => `Round ${n}`,
-    more: (n: number) => `and ${n} more`,
-    played: 'P',
-    points: 'Pts',
-  },
-};
-
 /** "19. 9." or "19. 9. – 21. 9.", in the app's zone, from the games' dates. */
-const dateRange = (dates: Date[], locale: 'cs' | 'en'): string | null => {
+const dateRange = (dates: Date[], locale: Locale): string | null => {
   if (dates.length === 0) return null;
   const sorted = [...dates].sort((a, b) => a.getTime() - b.getTime());
   const format = (date: Date) =>
-    new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+    new Intl.DateTimeFormat(intlLocale(locale), {
       day: 'numeric',
-      month: locale === 'cs' ? 'numeric' : 'short',
+      // "19. 9." where that is how dates are written, "19 Sept" in English.
+      month: locale === 'en' ? 'short' : 'numeric',
       timeZone: 'Europe/Prague',
     }).format(date);
   const first = format(sorted[0]);
@@ -130,9 +109,9 @@ const card = (...rows: Child[]): Node =>
 
 export const renderResultsImage = async (
   summary: RoundSummary,
-  locale: 'cs' | 'en' = 'cs'
+  locale: Locale = 'cs'
 ): Promise<Buffer> => {
-  const t = TEXTS[locale];
+  const t = emailTexts(locale).resultsImage;
 
   const results = summary.results.slice(0, MAX_RESULTS);
   const hiddenResults = summary.results.length - results.length;
@@ -140,7 +119,7 @@ export const renderResultsImage = async (
   const scorers = summary.topScorers.slice(0, MAX_SCORERS);
 
   const subtitle = [
-    summary.round !== null ? t.round(summary.round) : t.results,
+    summary.round !== null ? fill(t.round, { n: summary.round }) : t.results,
     dateRange(
       summary.results.flatMap((r) => (r.playedOn ? [new Date(r.playedOn)] : [])),
       locale
@@ -246,7 +225,7 @@ export const renderResultsImage = async (
     sectionLabel(t.results),
     card(...results.map(resultRow)),
     hiddenResults > 0 &&
-      h({ height: MORE_H, alignItems: 'center', justifyContent: 'center', fontSize: 24, color: MUTED }, t.more(hiddenResults)),
+      h({ height: MORE_H, alignItems: 'center', justifyContent: 'center', fontSize: 24, color: MUTED }, fill(t.more, { n: hiddenResults })),
     h({ height: SECTION_GAP }),
     sectionLabel(t.table),
     card(tableHead, ...table.map(tableRow)),

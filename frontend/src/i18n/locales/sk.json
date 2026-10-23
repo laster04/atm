@@ -1,0 +1,3256 @@
+{
+  "common": {
+    "back": "Späť",
+    "loading": "Načítavam…",
+    "cancel": "Zrušiť",
+    "delete": "Vymazať",
+    "create": "Vytvoriť",
+    "edit": "Upraviť",
+    "save": "Uložiť",
+    "vs": "vs",
+    "teams": "tímov",
+    "games": "zápasov",
+    "players": "hráčov",
+    "seasons": "sezón",
+    "all": "Všetko",
+    "close": "Zavrieť",
+    "name": "Meno",
+    "unknown": "Neznámy",
+    "yes": "Áno",
+    "no": "Nie"
+  },
+  "errorBoundary": {
+    "title": "Niečo sa pokazilo",
+    "description": "Túto stránku sa nepodarilo zobraziť. Skúste to znova alebo sa vráťte na nástenku.",
+    "retry": "Skúsiť znova",
+    "backToDashboard": "Späť na nástenku"
+  },
+  "nav": {
+    "brand": "Amateur Team Manager",
+    "tagline": "Správa sezón a tímov",
+    "leagues": "Ligy",
+    "seasons": "Sezóny",
+    "login": "Prihlásiť sa",
+    "register": "Registrovať sa",
+    "logout": "Odhlásiť sa",
+    "menu": "Menu",
+    "toggleMenu": "Prepnúť menu",
+    "loggedInAs": "Prihlásený ako"
+  },
+  "onboarding": {
+    "stepCounter": "Krok {{current}} z {{total}}",
+    "skip": "Preskočiť",
+    "back": "Späť",
+    "next": "Ďalej",
+    "finish": "Rozumiem",
+    "steps": {
+      "welcome": {
+        "title": "Vitajte v ATM!",
+        "body": "Poďme sa rýchlo pozrieť, kde čo nájdete."
+      },
+      "myTeams": {
+        "title": "Vaše tímy",
+        "body": "Tímy, ktoré spravujete, sa zobrazujú tu. Kliknite na tím a spravujte jeho súpisku, rozpis a nastavenia."
+      },
+      "workspaces": {
+        "title": "Vaša správa",
+        "body": "Odtiaľto otvoríte sezóny, tímy a turnaje, ktoré spravujete. Ešte nemáte ligu? Založíte ju jedným tlačidlom."
+      },
+      "openCompetitions": {
+        "title": "Súťaže s otvorenými prihláškami",
+        "body": "Sezóny a turnaje, ktoré práve prijímajú tímy, a sezóny, ktoré sa hrajú."
+      }
+    }
+  },
+  "home": {
+    "features": {
+      "leagueManagement": {
+        "title": "Správa ligy",
+        "description": "Vytvárajte a spravujte viac sezón s tímami, hráčmi a rozpismi."
+      },
+      "autoScheduling": {
+        "title": "Automatické plánovanie",
+        "description": "Generujte rozpisy každý s každým automaticky na pár kliknutí."
+      },
+      "liveStandings": {
+        "title": "Živé tabuľky",
+        "description": "Sledujte tabuľky v reálnom čase, ako pribúdajú výsledky zápasov."
+      }
+    },
+    "viewAllSeasons": "Zobraziť všetky sezóny",
+    "viewAllLeagues": "Zobraziť všetky ligy",
+    "myTeams": "Tímy, ktoré spravujem",
+    "appInfo": {
+      "title": "Prečo si vybrať Amateur Team Manager?",
+      "description": "Komplexná platforma, ktorá zjednodušuje správu športových líg. Od nastavenia ligy cez plánovanie zápasov až po sledovanie výkonu – máme všetko, čo potrebujete.",
+      "features": {
+        "leagueManagement": {
+          "title": "Správa ligy",
+          "description": "Bez námahy vytvárajte a spravujte viac sezón s tímami, hráčmi a rozpismi."
+        },
+        "autoScheduling": {
+          "title": "Automatické plánovanie",
+          "description": "Generujte rozpisy každý s každým automaticky na pár kliknutí. Ušetrite hodiny plánovania."
+        },
+        "liveStandings": {
+          "title": "Živé tabuľky",
+          "description": "Sledujte tabuľky v reálnom čase, ako pribúdajú výsledky zápasov."
+        },
+        "teamManagement": {
+          "title": "Správa tímov",
+          "description": "Spravujte súpisky tímov, prideľujte manažérov a sledujte výkon tímov."
+        },
+        "playerTracking": {
+          "title": "Sledovanie hráčov",
+          "description": "Zaznamenávajte štatistiky jednotlivých hráčov, góly, asistencie a históriu výkonov."
+        },
+        "performance": {
+          "title": "Analýza výkonu",
+          "description": "Komplexné analýzy a prehľady pre tímy aj jednotlivých hráčov."
+        }
+      }
+    },
+    "setupOptions": {
+      "title": "Začnite ešte dnes",
+      "description": "Nastavte si ligu presne tak, ako chcete. Flexibilné možnosti nastavenia vám dávajú úplnú kontrolu.",
+      "leagueConfiguration": {
+        "title": "Nastavenie ligy",
+        "description": "Nastavte pravidlá ligy, bodovací systém a formát súťaže, ktoré zodpovedajú vášmu športu."
+      },
+      "teamManagement": {
+        "title": "Správa tímov",
+        "description": "Pridávajte tímy, prideľujte manažérov a nastavte vlastnosti tímov pre vašu sezónu."
+      },
+      "gameScheduling": {
+        "title": "Plánovanie zápasov",
+        "description": "Vytvárajte vlastné rozpisy alebo automaticky generujte rozpisy každý s každým."
+      },
+      "playerManagement": {
+        "title": "Správa hráčov",
+        "description": "Spravujte súpisky hráčov, sledujte štatistiky a veďte úplnú evidenciu hráčov."
+      },
+      "reporting": {
+        "title": "Prehľady a analýzy",
+        "description": "Generujte podrobné prehľady tabuliek, štatistík a výkonu tímov."
+      },
+      "permissions": {
+        "title": "Roly a oprávnenia používateľov",
+        "description": "Riaďte prístup pomocou rolí admin, manažér a divák pre rôznych používateľov."
+      }
+    },
+    "myEvents": {
+      "title": "Vaše najbližšie akcie",
+      "loadError": "Vaše akcie sa nepodarilo načítať",
+      "answerError": "Odpoveď sa nepodarilo uložiť",
+      "status": {
+        "ATTENDING": "Prídem",
+        "NOT_ATTENDING": "Neprídem",
+        "MAYBE": "Možno",
+        "NO_RESPONSE": "Bez odpovede"
+      }
+    },
+    "emailPrefs": {
+      "title": "E-maily so súhrnom kola",
+      "hint": "Výsledky, tabuľka a najlepší strelci po každom kole. E-maily k účtu chodia vždy.",
+      "error": "Nastavenie sa nepodarilo uložiť"
+    },
+    "installApp": {
+      "title": "Nainštalujte si ATM ako aplikáciu",
+      "hint": "Otvoríte ju z plochy, na celú obrazovku a bez prehliadača.",
+      "iosBefore": "V Safari ťuknite na",
+      "iosAfter": "a potom na Pridať na plochu.",
+      "share": "Zdieľať",
+      "install": "Nainštalovať",
+      "dismiss": "Skryť"
+    },
+    "myPlayerTeams": {
+      "title": "Tímy, za ktoré hrám",
+      "number": "č. {{number}}",
+      "teamPage": "Stránka tímu",
+      "openChat": "Otvoriť chat tímu",
+      "noChat": "Manažér zatiaľ nepridal tímový chat"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Prihlásenie",
+      "description": "Prihláste sa a spravujte svoju športovú sezónu",
+      "email": "E-mail",
+      "password": "Heslo",
+      "submit": "Prihlásiť sa",
+      "submitting": "Prihlasujem…",
+      "noAccount": "Nemáte účet?",
+      "registerLink": "Registrovať sa",
+      "forgotPassword": "Zabudnuté heslo?",
+      "failed": "Prihlásenie zlyhalo"
+    },
+    "forgotPassword": {
+      "title": "Zabudnuté heslo",
+      "description": "Zadajte svoj e-mail a pošleme vám odkaz na obnovenie",
+      "email": "E-mail",
+      "submit": "Poslať odkaz",
+      "sending": "Odosielam…",
+      "emailSent": "Skontrolujte e-mail",
+      "emailSentTo": "Ak účet existuje, poslali sme odkaz na:",
+      "checkSpam": "Nevidíte e-mail? Skontrolujte priečinok so spamom.",
+      "backToLogin": "Späť na prihlásenie",
+      "failed": "Požiadavku sa nepodarilo spracovať"
+    },
+    "resetPassword": {
+      "title": "Obnovenie hesla",
+      "description": "Zadajte svoje nové heslo",
+      "newPassword": "Nové heslo",
+      "confirmPassword": "Potvrdiť heslo",
+      "submit": "Obnoviť heslo",
+      "resetting": "Obnovujem…",
+      "successTitle": "Heslo obnovené!",
+      "successMessage": "Vaše heslo bolo úspešne obnovené. Teraz sa môžete prihlásiť novým heslom.",
+      "goToLogin": "Prejsť na prihlásenie",
+      "invalidLink": "Neplatný odkaz",
+      "invalidLinkMessage": "Tento odkaz na obnovenie hesla je neplatný alebo vypršal.",
+      "requestNew": "Požiadať o nový odkaz",
+      "passwordMismatch": "Heslá sa nezhodujú",
+      "passwordTooShort": "Heslo musí mať aspoň 6 znakov",
+      "failed": "Heslo sa nepodarilo obnoviť"
+    },
+    "register": {
+      "title": "Registrácia",
+      "name": "Meno",
+      "email": "E-mail",
+      "password": "Heslo",
+      "confirmPassword": "Potvrdenie hesla",
+      "submit": "Registrovať sa",
+      "submitting": "Registrujem…",
+      "hasAccount": "Už máte účet?",
+      "loginLink": "Prihlásiť sa",
+      "passwordMismatch": "Heslá sa nezhodujú",
+      "passwordTooShort": "Heslo musí mať aspoň 6 znakov",
+      "failed": "Registrácia zlyhala",
+      "success": "Registrácia prebehla úspešne!",
+      "checkEmail": "Poslali sme aktivačný odkaz na:",
+      "activationNote": "Skontrolujte svoj e-mail a kliknite na aktivačný odkaz, aby ste dokončili registráciu.",
+      "forApplication": "Na prihlášku tímu si založte účet. Po aktivácii sa vrátite rovno k prihláške.",
+      "returnNote": "Aktivačný odkaz vás vráti k formuláru prihlášky."
+    },
+    "activate": {
+      "title": "Aktivácia účtu",
+      "activating": "Aktivujem váš účet…",
+      "success": "Účet aktivovaný!",
+      "successMessage": "Váš účet bol úspešne aktivovaný. Teraz sa môžete prihlásiť.",
+      "error": "Aktivácia zlyhala",
+      "invalidToken": "Neplatný aktivačný odkaz",
+      "failed": "Aktivácia účtu zlyhala",
+      "goToLogin": "Prejsť na prihlásenie",
+      "registerAgain": "Registrovať sa znova"
+    }
+  },
+  "activate": {
+    "title": "Aktivácia účtu",
+    "activating": "Aktivujem váš účet…",
+    "success": "Účet aktivovaný!",
+    "successMessage": "Váš účet bol aktivovaný. Teraz sa môžete prihlásiť.",
+    "goToLogin": "Prejsť na prihlásenie",
+    "error": "Aktivácia zlyhala",
+    "failed": "Aktivácia účtu zlyhala",
+    "invalidToken": "Neplatný aktivačný odkaz",
+    "registerAgain": "Zaregistrovať sa znova"
+  },
+  "leagues": {
+    "title": "Ligy",
+    "loading": "Načítavam ligy…",
+    "noLeagues": "Nenašli sa žiadne ligy.",
+    "filter": {
+      "all": "Všetky športy"
+    }
+  },
+  "leagueDetail": {
+    "loading": "Načítavam ligu…",
+    "notFound": "Liga sa nenašla.",
+    "seasons": "Sezóny",
+    "noSeasons": "V tejto lige zatiaľ nie sú žiadne sezóny.",
+    "seasonsCount": "Sezón celkom"
+  },
+  "seasons": {
+    "title": "Sezóny",
+    "loading": "Načítavam sezóny…",
+    "noSeasons": "Nenašli sa žiadne sezóny.",
+    "filter": {
+      "all": "Všetky"
+    },
+    "status": {
+      "DRAFT": "KONCEPT",
+      "ACTIVE": "AKTÍVNA",
+      "COMPLETED": "UKONČENÁ"
+    },
+    "archived": "Archivovaná"
+  },
+  "seasonDetail": {
+    "loading": "Načítavam sezónu…",
+    "notFound": "Sezóna sa nenašla.",
+    "backToSeasons": "Späť na sezóny",
+    "archivedNotice": "Táto sezóna je archivovaná. K dispozícii je len konečná tabuľka a celkové štatistiky hráčov – rozpis zápasov a podrobnosti jednotlivých zápasov boli natrvalo odstránené.",
+    "tabs": {
+      "overview": "Prehľad",
+      "standings": "Tabuľka",
+      "schedule": "Rozpis",
+      "teams": "Tímy",
+      "players": "Hráči"
+    },
+    "overview": {
+      "gamePlayed": "Odohraných zápasov",
+      "outOfTotal": "Z celkového počtu {{count}}",
+      "leader": "Vedúci tím",
+      "leaderPoints": "{{points}} bodov",
+      "scoredTotal": "Strelených gólov",
+      "leagueWide": "Celá liga",
+      "avgGoalsPerGame": "Priemer gólov na zápas",
+      "thisSeason": "Táto sezóna",
+      "upcomingGames": "Nadchádzajúce zápasy",
+      "topScorers": "Najlepší strelci",
+      "leagueLeadersDescription": "Lídri ligy v bodoch",
+      "noTopScorers": "Zatiaľ nie sú zaznamenané žiadne štatistiky.",
+      "goalsShort": "G",
+      "assistsShort": "A",
+      "pointsShort": "B",
+      "viewFullSchedule": "Celý rozpis →"
+    },
+    "playersStats": {
+      "title": "Štatistiky hráčov",
+      "noStats": "Zatiaľ žiadne štatistiky hráčov.",
+      "rank": "#",
+      "player": "Hráč",
+      "team": "Tím",
+      "gamesPlayed": "Z",
+      "goals": "G",
+      "assists": "A",
+      "points": "B",
+      "penaltyMinutes": "TM"
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Tím",
+      "played": "Z",
+      "wins": "V",
+      "draws": "R",
+      "losses": "P",
+      "goalsFor": "SG",
+      "goalsAgainst": "IG",
+      "goalDifference": "RG",
+      "points": "B",
+      "noData": "V tabuľke zatiaľ nie sú žiadne údaje.",
+      "tableTitle": "Tabuľka po {{count}} zápasoch",
+      "liveHint": "Niektoré výsledky sa zatiaľ nezapočítavajú. Šípky ukazujú, kde by tím stál po dohraní a potvrdení všetkých výsledkov.",
+      "liveTag": "Naživo",
+      "playingNow": "Práve hrá",
+      "wouldClimb": "Posunul by sa o {{places}} na {{rank}}. miesto",
+      "wouldDrop": "Klesol by o {{places}} na {{rank}}. miesto",
+      "unplaced": "Nezaradené",
+      "pendingTag": "Čaká",
+      "awaitingConfirmation": "Odohrané, čaká na potvrdenie"
+    },
+    "schedule": {
+      "noGames": "Zatiaľ nie sú naplánované žiadne zápasy.",
+      "round": "{{round}}. kolo",
+      "recent": "Uplynulé",
+      "today": "Dnes",
+      "upcoming": "Nadchádzajúce",
+      "recentGames": "Posledné zápasy",
+      "recentGamesDescription": "Konečné výsledky z minulosti",
+      "todaysSchedule": "Dnešný program",
+      "todaysGamesDescription": "Zápasy naplánované na dnes",
+      "upcomingGames": "Nadchádzajúce zápasy",
+      "upcomingGamesDescription": "Program na najbližšie dni",
+      "pastGames": "Odohrané zápasy",
+      "empty": {
+        "upcoming": "Žiadny nadchádzajúci zápas.",
+        "today": "Dnes sa nehrá.",
+        "recent": "Zatiaľ sa neodohral žiadny zápas."
+      }
+    },
+    "teams": {
+      "noTeams": "V tejto sezóne zatiaľ nie sú žiadne tímy.",
+      "manager": "Manažér: {{name}}"
+    }
+  },
+  "teamDetail": {
+    "loading": "Načítavam tím…",
+    "notFound": "Tím sa nenašiel.",
+    "backTo": "Späť na {{name}}",
+    "manager": "Manažér: {{name}}",
+    "roster": "Súpiska ({{count}} hráčov)",
+    "noPlayers": "Zatiaľ žiadni hráči.",
+    "addPlayer": "+ Pridať hráča",
+    "playerTable": {
+      "number": "#",
+      "name": "Meno",
+      "position": "Pozícia",
+      "actions": "Akcie"
+    },
+    "games": {
+      "title": "Zápasy",
+      "upcoming": "NADCHÁDZAJÚCE",
+      "recentResults": "POSLEDNÉ VÝSLEDKY",
+      "noGames": "Žiadne naplánované zápasy.",
+      "win": "V",
+      "loss": "P",
+      "draw": "R",
+      "home": "vs",
+      "away": "na",
+      "none": "Zatiaľ žiadne zápasy.",
+      "result": {
+        "W": "VÝHRA",
+        "D": "REMÍZA",
+        "L": "PREHRA"
+      }
+    },
+    "confirm": {
+      "deletePlayer": "Naozaj chcete vymazať tohto hráča?"
+    },
+    "modal": {
+      "addPlayer": "Pridať hráča",
+      "editPlayer": "Upraviť hráča",
+      "name": "Meno",
+      "number": "Číslo",
+      "position": "Pozícia"
+    },
+    "noPosition": "Pozícia neuvedená",
+    "figures": {
+      "rank": "Poradie",
+      "points": "Bodov",
+      "record": "Skóre"
+    },
+    "form": {
+      "title": "Forma – posledných {{count}} zápasov",
+      "none": "Zatiaľ sa neodohral žiadny zápas."
+    },
+    "manageTeam": "Spravovať tím"
+  },
+  "playerDetail": {
+    "loading": "Načítavam hráča…",
+    "notFound": "Hráč sa nenašiel.",
+    "backTo": "Späť na {{name}}",
+    "info": {
+      "title": "Informácie o hráčovi",
+      "name": "Meno",
+      "number": "Číslo",
+      "position": "Pozícia",
+      "bornYear": "Ročník narodenia",
+      "note": "Poznámka"
+    },
+    "statistics": {
+      "title": "Štatistiky",
+      "gamesPlayed": "Odohraných zápasov",
+      "goals": "Góly",
+      "assists": "Asistencie",
+      "gameByGame": "Po zápasoch",
+      "date": "Dátum",
+      "game": "Zápas",
+      "noStatistics": "Zatiaľ nie sú zaznamenané žiadne štatistiky.",
+      "penaltyMinutes": "Trestné minúty",
+      "penaltyMinutesShort": "TM"
+    },
+    "team": {
+      "title": "Aktuálny tím"
+    },
+    "teamGames": {
+      "title": "Zápasy tímu",
+      "noGames": "Tento tím nemá naplánované žiadne zápasy."
+    }
+  },
+  "myTeams": {
+    "title": "Moje tímy",
+    "accessDenied": "Prístup zamietnutý",
+    "noPrivileges": "Na prístup k tejto stránke musíte byť manažér tímu.",
+    "noTeams": "Zatiaľ nespravujete žiadne tímy."
+  },
+  "teamManagement": {
+    "title": "Správa tímov",
+    "tabs": {
+      "title": "Správa tímov",
+      "myTeams": "Moje tímy"
+    },
+    "back": "Späť",
+    "pwa": {
+      "wins": "Výhry",
+      "losses": "Prehry",
+      "points": "Body",
+      "win": "V",
+      "draw": "R",
+      "loss": "P",
+      "upcomingGames": "Nadchádzajúce zápasy",
+      "pastGames": "Odohrané zápasy",
+      "viewAll": "Zobraziť všetko",
+      "home": "Doma",
+      "away": "Vonku",
+      "quickActions": "Rýchle akcie",
+      "addPlayer": "Pridať hráča",
+      "manageRoster": "Spravovať súpisku",
+      "teamRoster": "Súpiska tímu",
+      "add": "Pridať",
+      "teamSettings": "Nastavenia tímu",
+      "customizeBranding": "Prispôsobiť vzhľad tímu",
+      "teamInfo": "Informácie o tíme",
+      "teamName": "Názov tímu",
+      "season": "Sezóna",
+      "manager": "Manažér",
+      "seasonRecord": "Bilancia sezóny",
+      "totalPoints": "Bodov celkom",
+      "tabs": {
+        "overview": "Prehľad",
+        "roster": "Súpiska",
+        "schedule": "Rozpis",
+        "settings": "Nastavenia",
+        "events": "Kalendár"
+      },
+      "sortNumber": "Číslo",
+      "searchPlayers": "Hľadať hráčov",
+      "noPosition": "Pozícia neuvedená",
+      "noPlayersFound": "Hľadaniu nezodpovedá žiadny hráč",
+      "pointsShort": "b.",
+      "playerCount_one": "{{count}} hráč",
+      "playerCount_few": "{{count}} hráči",
+      "playerCount_other": "{{count}} hráčov",
+      "otherGames": "Ostatné",
+      "notScheduledYet": "Zatiaľ bez termínu",
+      "tbd": "Bez dátumu",
+      "homeShort": "D",
+      "awayShort": "V",
+      "newDateTbd": "nový termín bude upresnený",
+      "unknownOpponent": "Súper",
+      "draws": "Remízy",
+      "nextGame": "Ďalší zápas",
+      "setLineup": "Zapísať zostavu",
+      "noScheduledGame": "Zatiaľ nie je naplánovaný žiadny zápas",
+      "then": "Ďalej",
+      "today": "dnes",
+      "tomorrow": "zajtra",
+      "inDays_one": "o {{count}} deň",
+      "inDays_few": "o {{count}} dni",
+      "inDays_other": "o {{count}} dní"
+    },
+    "gameStats": {
+      "playerStats": "Štatistiky hráčov",
+      "goals": "Góly",
+      "assists": "Asistencie",
+      "noPlayers": "V tomto tíme nie sú žiadni hráči",
+      "fetchError": "Údaje zápasu sa nepodarilo načítať",
+      "saveSuccess": "Štatistiky boli úspešne uložené",
+      "saveError": "Štatistiky sa nepodarilo uložiť",
+      "notFound": "Zápas sa nenašiel",
+      "notYourGame": "Tento zápas nepatrí vášmu tímu",
+      "lineup": "Zostava",
+      "allSaved": "Všetko uložené",
+      "unsavedChanges_one": "{{count}} neuložená zmena",
+      "unsavedChanges_few": "{{count}} neuložené zmeny",
+      "unsavedChanges_other": "{{count}} neuložených zmien",
+      "penaltyMinutes": "Trest",
+      "penaltyMinutesShort": "TM"
+    },
+    "playerDetail": {
+      "addPlayer": "Pridať hráča",
+      "editPlayer": "Upraviť hráča",
+      "name": "Meno",
+      "number": "Číslo",
+      "position": "Pozícia",
+      "bornYear": "Rok narodenia",
+      "note": "Poznámka",
+      "born": "Narodený",
+      "goals": "Góly",
+      "assists": "Asistencie",
+      "gamesPlayed": "Zápasy",
+      "gameHistory": "História zápasov",
+      "noGames": "Zatiaľ žiadne odohrané zápasy",
+      "notFound": "Hráč sa nenašiel",
+      "fetchError": "Údaje hráča sa nepodarilo načítať",
+      "createSuccess": "Hráč bol úspešne vytvorený",
+      "saveSuccess": "Hráč bol úspešne uložený",
+      "saveError": "Hráča sa nepodarilo uložiť",
+      "deleteSuccess": "Hráč bol úspešne vymazaný",
+      "deleteError": "Hráča sa nepodarilo vymazať",
+      "confirmDelete": "Naozaj chcete vymazať tohto hráča?",
+      "goalsShort_one": "{{count}} gól",
+      "goalsShort_few": "{{count}} góly",
+      "goalsShort_other": "{{count}} gólov",
+      "assistsShort_one": "{{count}} asistencia",
+      "assistsShort_few": "{{count}} asistencie",
+      "assistsShort_other": "{{count}} asistencií",
+      "noPoints": "Bez bodov",
+      "moved": "Hráč presunutý"
+    },
+    "toast": {
+      "colorUpdated": "Farba pre {{name}} bola aktualizovaná!"
+    },
+    "stats": {
+      "teamRecord": "Bilancia tímu",
+      "totalPoints": "Bodov celkom",
+      "leagueRank": "Pozícia v lige"
+    },
+    "branding": {
+      "title": "Vzhľad a farby tímu",
+      "description": "Prispôsobte primárnu farbu pre {{name}} – zobrazuje sa v tabuľkách a rozpisoch",
+      "primaryColor": "Primárna farba tímu",
+      "colorUsageExplanation": "Táto farba sa použije na označenie {{name}} vo verejných tabuľkách a rozpisoch zápasov",
+      "quickPresets": "Rýchle predvoľby farieb",
+      "livePreview": "Živý náhľad",
+      "standingsRow": "Riadok tabuľky",
+      "gameCard": "Karta zápasu",
+      "vsOpponent": "vs Súper",
+      "colors": {
+        "blue": "Modrá",
+        "red": "Červená",
+        "gold": "Zlatá",
+        "green": "Zelená",
+        "purple": "Fialová",
+        "orange": "Oranžová",
+        "navy": "Námornícka modrá",
+        "teal": "Tyrkysová"
+      }
+    },
+    "account": {
+      "title": "Účet",
+      "hint": "Pozvite hráča do ATM. Keď pozvánku prijme, uvidí kalendár tímu a bude odpovedať, či príde.",
+      "unlink": "Zrušiť prepojenie",
+      "linked": "Prepojený účet",
+      "error": "Prepojenie účtu sa nepodarilo zmeniť",
+      "invite": "Pozvať do ATM"
+    },
+    "events": {
+      "add": "Nová akcia",
+      "newEvent": "Nová akcia",
+      "titlePlaceholder": "O čo ide?",
+      "locationPlaceholder": "Kde? (nepovinné)",
+      "upcoming": "Nadchádzajúce",
+      "past": "Uplynulé",
+      "empty": "Zatiaľ žiadne akcie. Pridajte tréning alebo stretnutie.",
+      "emptyRoster": "Na súpiske zatiaľ nie je koho sa opýtať.",
+      "delete": "Vymazať akciu",
+      "loadError": "Kalendár sa nepodarilo načítať",
+      "saveError": "Akciu sa nepodarilo uložiť",
+      "deleteError": "Akciu sa nepodarilo vymazať",
+      "answerError": "Odpoveď sa nepodarilo uložiť",
+      "type": {
+        "MATCH": "Zápas",
+        "TRAINING": "Tréning",
+        "MEETING": "Stretnutie",
+        "OTHER": "Iné"
+      },
+      "status": {
+        "ATTENDING": "Prídem",
+        "NOT_ATTENDING": "Neprídem",
+        "MAYBE": "Možno",
+        "NO_RESPONSE": "Bez odpovede"
+      }
+    },
+    "chat": {
+      "title": "Tímový chat",
+      "description": "Prepojte skupinový chat tímu (WhatsApp, Messenger, Discord…). Hráči k nemu dostanú tlačidlo na svojom prehľade.",
+      "label": "Odkaz s pozvánkou do chatu",
+      "privacy": "Odkaz uvidí len manažér tímu a hráči na súpiske.",
+      "save": "Uložiť odkaz",
+      "remove": "Odobrať",
+      "saved": "Odkaz na chat uložený",
+      "removed": "Odkaz na chat odobratý",
+      "invalid": "Vložte celý odkaz s pozvánkou, ktorý začína https://",
+      "saveError": "Odkaz na chat sa nepodarilo uložiť"
+    },
+    "logo": {
+      "title": "Logo tímu",
+      "description": "Zobrazí sa pri tíme v tabuľkách, rozpise a na verejných stránkach.",
+      "saved": "Logo uložené",
+      "removed": "Logo odobraté",
+      "saveError": "Logo sa nepodarilo uložiť"
+    }
+  },
+  "seasonManagement": {
+    "title": "Správa sezóny",
+    "subtitle": "Moje sezóny",
+    "accessDenied": "Prístup zamietnutý",
+    "noPrivileges": "Potrebujete oprávnenie manažéra sezóny.",
+    "noSeasons": "Zatiaľ nespravujete žiadnu sezónu.",
+    "newSeason": "Nová sezóna",
+    "createError": "Sezónu sa nepodarilo vytvoriť",
+    "notFound": "Sezóna sa nenašla",
+    "tabs": {
+      "season": "Sezóna",
+      "games": "Zápasy",
+      "teams": "Tímy",
+      "table": "Tabuľka",
+      "more": "Viac"
+    },
+    "status": {
+      "DRAFT": "Koncept",
+      "ACTIVE": "Aktívna",
+      "COMPLETED": "Ukončená"
+    },
+    "stats": {
+      "teams": "Tímy",
+      "games": "Zápasy",
+      "played": "Odohraté"
+    },
+    "attention": {
+      "allClear": "Všetko je nastavené",
+      "allClearHint": "Každý zápas má termín. Zapisujte výsledky, ako prichádzajú."
+    },
+    "nextUp": {
+      "label": "Najbližšie zápasy",
+      "all": "Všetkých {{count}}",
+      "empty": "Zatiaľ žiadny zápas s termínom"
+    },
+    "publish": {
+      "title": "Sezóna sa pripravuje",
+      "hint": "Aktivujte ju, keď sa začne hrať",
+      "action": "Aktivovať",
+      "liveTitle": "Sezóna beží",
+      "liveHint": "Hrajú sa zápasy",
+      "complete": "Ukončiť",
+      "completedTitle": "Sezóna ukončená",
+      "completedHint": "Výsledky sú konečné",
+      "error": "Stav sezóny sa nepodarilo zmeniť"
+    },
+    "games": {
+      "fixtures_one": "{{count}} zápas",
+      "fixtures_few": "{{count}} zápasy",
+      "fixtures_other": "{{count}} zápasov",
+      "filters": {
+        "noDate": "Bez termínu {{count}}",
+        "dated": "S termínom {{count}}",
+        "played": "Odohraté {{count}}"
+      },
+      "allRounds": "Všetky kolá",
+      "roundShort": "K{{n}}",
+      "round": "{{n}}. kolo",
+      "noRound": "Bez kola",
+      "noDate": "Termín nenastavený",
+      "result": "Výsledok",
+      "setDate": "Nastaviť termín",
+      "edit": "Upraviť",
+      "empty": "V tomto výbere nie sú žiadne zápasy"
+    },
+    "dates": {
+      "title": "Termíny {{n}}. kola",
+      "subtitle": "{{count}} z {{total}} stále bez termínu",
+      "roundDefault": "Predvolený pre kolo",
+      "applyToAll": "Použiť na všetkých {{count}}",
+      "fixtures": "Zápasy",
+      "set": "Nastaviť",
+      "change": "Zmeniť",
+      "clear": "Zrušiť",
+      "notSet": "Bez termínu",
+      "toSave_one": "{{count}} termín na uloženie",
+      "toSave_few": "{{count}} termíny na uloženie",
+      "toSave_other": "{{count}} termínov na uloženie",
+      "nothingToSave": "Žiadne zmeny",
+      "nextRound": "Ďalšie je {{n}}. kolo",
+      "lastRound": "Posledné kolo",
+      "save": "Uložiť kolo",
+      "saveError": "Termíny sa nepodarilo uložiť"
+    },
+    "result": {
+      "title": "Zapísať výsledok",
+      "finalScore": "Konečné skóre",
+      "home": "Domáci",
+      "away": "Hostia",
+      "periods": "Tretiny",
+      "optional": "nepovinné",
+      "period": "T{{n}}",
+      "status": "Stav",
+      "save": "Uložiť výsledok",
+      "saveError": "Výsledok sa nepodarilo uložiť",
+      "derivedNote": "Toto skóre sa počíta zo zápisu o stretnutí. Zmeníte ho úpravou zápisu.",
+      "openReport": "Zápis o stretnutí",
+      "fromReport": "zo zápisu",
+      "saveStatus": "Uložiť stav",
+      "saveAndConfirm": "Uložiť a potvrdiť",
+      "confirmedNote": "Zápas je potvrdený a nedá sa meniť. Najprv otvorte zápis o stretnutí a odomknite ho."
+    },
+    "teams": {
+      "count_one": "{{count}} v tejto sezóne",
+      "count_few": "{{count}} v tejto sezóne",
+      "count_other": "{{count}} v tejto sezóne",
+      "noManager": "Zatiaľ bez manažéra",
+      "players": "Hráči",
+      "add": "Pridať tím",
+      "empty": "V tejto sezóne zatiaľ nie sú žiadne tímy",
+      "createError": "Tím sa nepodarilo vytvoriť"
+    },
+    "table": {
+      "teams_one": "{{count}} tím",
+      "teams_few": "{{count}} tímy",
+      "teams_other": "{{count}} tímov",
+      "team": "Tím",
+      "played": "Z",
+      "points": "B",
+      "empty": "Zatiaľ sa nehralo – poradie je abecedné, kým neprídu výsledky.",
+      "liveHint": "Niektoré výsledky sa zatiaľ nezapočítavajú. Šípky ukazujú, kde by tím stál po dohraní a potvrdení všetkých výsledkov.",
+      "liveTag": "Naživo",
+      "playingNow": "Práve hrá",
+      "wouldClimb": "Posunul by sa o {{places}} na {{rank}}. miesto",
+      "wouldDrop": "Klesol by o {{places}} na {{rank}}. miesto",
+      "unplaced": "Nezaradené",
+      "pendingTag": "Čaká",
+      "awaitingConfirmation": "Odohrané, čaká na potvrdenie"
+    },
+    "more": {
+      "seasonInfo": "O sezóne",
+      "league": "Liga",
+      "starts": "Začiatok",
+      "ends": "Koniec",
+      "actions": "Akcie",
+      "generateSchedule": "Vygenerovať rozpis",
+      "generateHint": "Vytvorí zápasy pre všetky kolá",
+      "regenerateHint": "Nahradí existujúce zápasy",
+      "generateError": "Rozpis sa nepodarilo vygenerovať",
+      "publicPage": "Zobraziť verejnú stránku",
+      "scoring": "Bodovanie",
+      "scoringInherited": "Používa predvolené nastavenie pre tento šport",
+      "scoringCustom": "{{win}} za výhru, {{draw}} za remízu",
+      "resultsEmail": "Rozoslať výsledky",
+      "resultsEmailHint": "Vyberte odohraté zápasy a pošlite výsledky a tabuľku všetkým v sezóne",
+      "divisions": "Skupiny",
+      "divisionsHint": "Rozdelí sezónu do skupín, každú s vlastnou tabuľkou",
+      "playoffHint": "Pavúk pre najlepšie tímy tabuľky"
+    },
+    "report": {
+      "title": "Zápis o stretnutí",
+      "derivedNote": "Skóre, skóre po tretinách aj štatistiky hráčov sa počítajú z toho, čo sem zapíšete.",
+      "empty": "Zatiaľ nič nezapísané. Začnite pridaním gólu alebo trestu.",
+      "loadError": "Zápis o stretnutí sa nepodarilo načítať",
+      "saveError": "Záznam sa nepodarilo uložiť",
+      "deleteError": "Záznam sa nepodarilo odstrániť",
+      "period": "{{n}}. tretina",
+      "periodLabel": "Tretina",
+      "atMinute": "{{n}}'",
+      "minutes": "{{n}} min",
+      "minute": "Minúta",
+      "unattributed": "Bez hráča",
+      "addGoal": "Gól",
+      "addPenalty": "Trest",
+      "newGoal": "Nový gól",
+      "newPenalty": "Nový trest",
+      "scorer": "Strelec",
+      "penalised": "Hráč",
+      "assist": "Asistencia",
+      "secondAssist": "Druhá asistencia",
+      "noAssist": "Žiadna",
+      "penaltyMinutes": "Trestné minúty",
+      "add": "Pridať",
+      "confirmedTitle": "Zápis potvrdený",
+      "confirmedNote": "Výsledok je konečný. Na opravu treba zápis znova otvoriť.",
+      "confirm": "Potvrdiť zápis",
+      "confirmError": "Zápis sa nepodarilo potvrdiť",
+      "reopen": "Znova otvoriť",
+      "reopenTitle": "Znova otvoriť zápis",
+      "reopenHint": "Výsledok už bol zverejnený. Uveďte, prečo sa mení.",
+      "reasonPlaceholder": "Dôvod opravy",
+      "reopenError": "Zápis sa nepodarilo znova otvoriť",
+      "showHistory": "Zobraziť históriu",
+      "hideHistory": "Skryť históriu",
+      "noHistory": "Zatiaľ nič nezaznamenané",
+      "auditError": "Históriu sa nepodarilo načítať",
+      "audit": {
+        "CREATE": "Pridané do zápisu",
+        "UPDATE": "Opravené v zápise",
+        "DELETE": "Odobraté zo zápisu",
+        "CONFIRM": "Zápis potvrdený",
+        "REOPEN": "Zápis znova otvorený",
+        "unknownActor": "Vymazaný účet"
+      },
+      "newCard": "Nová karta",
+      "addCard": "Karta",
+      "card": {
+        "YELLOW": "Žltá karta",
+        "RED": "Červená karta"
+      }
+    },
+    "scoring": {
+      "title": "Bodovanie",
+      "inheritedNote": "Sezóna používa predvolené bodovanie. Akoukoľvek zmenou nižšie jej nastavíte vlastné pravidlá.",
+      "customNote": "Sezóna má vlastné pravidlá bodovania.",
+      "points": "Body",
+      "win": "Výhra",
+      "draw": "Remíza",
+      "loss": "Prehra",
+      "allowDraws": "Povoliť remízy",
+      "allowDrawsHint": "Vypnite pri športoch, kde remíza nie je možná",
+      "tiebreakers": "Rozhodovanie pri rovnosti bodov",
+      "inOrder": "v tomto poradí",
+      "noTiebreakers": "Tímy s rovnakým počtom bodov zostanú v súčasnom poradí",
+      "moveUp": "Posunúť vyššie",
+      "moveDown": "Posunúť nižšie",
+      "reset": "Vrátiť predvolené nastavenie",
+      "save": "Uložiť pravidlá",
+      "saveError": "Pravidlá bodovania sa nepodarilo uložiť",
+      "tb": {
+        "GOAL_DIFF": "Rozdiel skóre",
+        "GOALS_FOR": "Strelené góly",
+        "HEAD_TO_HEAD": "Vzájomný zápas",
+        "WINS": "Počet výhier",
+        "PLAYED": "Menej odohraných zápasov"
+      },
+      "sets": {
+        "toggle": "Body podľa výsledku na sety",
+        "hint": "Výhra 3:2 a prehra 2:3 majú vlastné body",
+        "win": "Výhra 3:0 alebo 3:1",
+        "closeWin": "Výhra 3:2",
+        "closeLoss": "Prehra 2:3",
+        "loss": "Prehra 0:3 alebo 1:3"
+      }
+    },
+    "resultsEmail": {
+      "title": "E-mail s výsledkami",
+      "intro": "Vyberte odohraté zápasy, ktoré chcete rozoslať. Všetci v sezóne dostanú výsledky, aktuálnu tabuľku a najlepších strelcov. Už odoslané zápasy sa znova neponúkajú.",
+      "recipients_one": "Pôjde {{count}} človeku",
+      "recipients_few": "Pôjde {{count}} ľuďom",
+      "recipients_other": "Pôjde {{count}} ľuďom",
+      "lastSent": "naposledy odoslané {{when}}",
+      "loadError": "Zápasy sa nepodarilo načítať",
+      "nothingToSend": "Všetky odohraté zápasy už boli rozoslané.",
+      "unsentGames": "Zatiaľ neodoslané · vybrané {{selected}} z {{total}}",
+      "selectAll": "Vybrať všetko",
+      "selectNone": "Zrušiť výber",
+      "round": "{{round}}. kolo",
+      "unconfirmed": "nepotvrdené",
+      "preview": "Náhľad e-mailu",
+      "table": "Tabuľka",
+      "topScorers": "Najlepší strelci",
+      "history": "Odoslané e-maily",
+      "gameCount_one": "{{count}} zápas",
+      "gameCount_few": "{{count}} zápasy",
+      "gameCount_other": "{{count}} zápasov",
+      "delivered": "{{count}} ×",
+      "sendTest": "Test mne",
+      "testSent": "Testovací e-mail odoslaný na {{email}}.",
+      "testError": "Testovací e-mail sa nepodarilo odoslať",
+      "send_one": "Odoslať {{count}} zápas",
+      "send_few": "Odoslať {{count}} zápasy",
+      "send_other": "Odoslať {{count}} zápasov",
+      "sentResult": "Zápasy ({{games}}) odoslané {{delivered}} z {{attempted}} príjemcov.",
+      "alreadySent": "Niektoré z týchto zápasov medzitým niekto rozoslal. Zoznam bol obnovený.",
+      "sendError": "E-mail sa nepodarilo odoslať",
+      "shareTitle": "Obrázok na zdieľanie",
+      "shareHint": "Pošlite výsledky do skupiny na WhatsAppe alebo do iného chatu. Zdieľanie zápasy neoznačí ako odoslané.",
+      "shareImage": "Zdieľať obrázok",
+      "downloadImage": "Stiahnuť obrázok",
+      "imageLoading": "Pripravujem obrázok…",
+      "shareError": "Obrázok sa nepodarilo zdieľať",
+      "imageFile": "vysledky"
+    },
+    "divisions": {
+      "title": "Skupiny",
+      "intro": "Tímy hrajú len s ostatnými vo svojej skupine a každá skupina má vlastnú tabuľku. Sezóna bez skupín má jednu tabuľku.",
+      "namePlaceholder": "Názov skupiny",
+      "empty": "Žiadne skupiny. Celá sezóna má jednu tabuľku.",
+      "noTeams": "Zatiaľ sem nie je zaradený žiadny tím",
+      "unplaced": "Zatiaľ nezaradené",
+      "placeIn": "Zaradiť do…",
+      "remove": "Vyradiť",
+      "loadError": "Skupiny sa nepodarilo načítať",
+      "createError": "Skupinu sa nepodarilo vytvoriť",
+      "deleteError": "Skupinu sa nepodarilo vymazať",
+      "placeError": "Tím sa nepodarilo zaradiť"
+    },
+    "visibility": {
+      "label": "Viditeľnosť",
+      "PUBLIC": {
+        "title": "Zverejnená",
+        "hint": "Sezónu nájde ktokoľvek."
+      },
+      "UNLISTED": {
+        "title": "Zatiaľ nezverejnená",
+        "hint": "Kluby, ktorým pošlete odkaz, ju otvoria. V zoznamoch ani vo vyhľadávaní nie je."
+      },
+      "PRIVATE": {
+        "title": "Skrytá",
+        "hint": "Sezónu vidia len tí, ktorí spravujú ligu."
+      },
+      "publish": "Zverejniť",
+      "change": "Zmeniť",
+      "done": "Hotovo",
+      "leagueUNLISTED": "Liga je neverejná, takže ani táto sezóna nie je v zoznamoch, nech je nastavená akokoľvek.",
+      "leaguePRIVATE": "Liga je skrytá, takže túto sezónu nikto iný neuvidí, nech je nastavená akokoľvek.",
+      "error": "Nepodarilo sa zmeniť, kto sezónu uvidí"
+    },
+    "playoff": {
+      "intro": "Postúpia najlepšie tímy celkovej tabuľky. Každé kolo sa hrá ako séria; pri nepárnom počte majú najlepšie tímy voľný postup. Zápasy play-off sa do tabuľky nezapočítavajú.",
+      "qualifiers": "Počet postupujúcich tímov",
+      "format": "Série v jednotlivých kolách",
+      "singleGame": "Jeden zápas",
+      "bronze": "Hrať o 3. miesto",
+      "preview": "Prvé kolo podľa aktuálnej tabuľky",
+      "byeFor": "{{seed}}. {{name}} – voľný postup do ďalšieho kola",
+      "create": "Založiť play-off",
+      "delete": "Vymazať play-off",
+      "deleteHint": "Play-off sa dá vymazať len dovtedy, kým niektorý jeho zápas nemá výsledok.",
+      "howToPlay": "Zápasy play-off nastavíte a zapíšete v Zápasoch ako ostatné. Zápas musí mať víťaza, preto do skóre započítajte góly z predĺženia aj nájazdov; po potvrdení zápasu pavúk posunie víťaza ďalej.",
+      "loadError": "Play-off sa nepodarilo načítať",
+      "createError": "Play-off sa nepodarilo založiť",
+      "deleteError": "Play-off sa nepodarilo vymazať"
+    },
+    "leagues": {
+      "title": "Moje ligy",
+      "new": "Nová liga",
+      "empty": "Zatiaľ nespravujete žiadnu ligu.",
+      "seasons_one": "{{count}} sezóna",
+      "seasons_few": "{{count}} sezóny",
+      "seasons_other": "{{count}} sezón",
+      "edit": "Upraviť {{name}}",
+      "delete": "Vymazať {{name}}",
+      "saved": "Liga uložená",
+      "deleted": "Liga vymazaná",
+      "seasonsTitle": "Sezóny"
+    }
+  },
+  "admin": {
+    "support": {
+      "filter": "Stav",
+      "all": "Všetky",
+      "empty": "V tomto stave nie sú žiadne správy.",
+      "loadError": "Správy sa nepodarilo načítať",
+      "updateError": "Stav sa nepodarilo zmeniť",
+      "anonymous": "anonymne",
+      "replyTo": "Odpovedať na",
+      "statusFor": "Stav správy {{subject}}",
+      "status": {
+        "NEW": "Nová",
+        "IN_PROGRESS": "Rieši sa",
+        "WAITING_FOR_USER": "Čaká na odosielateľa",
+        "RESOLVED": "Vyriešené",
+        "CLOSED": "Uzavreté"
+      },
+      "category": {
+        "QUESTION": "Otázka",
+        "PROBLEM": "Problém",
+        "COMPLAINT": "Sťažnosť",
+        "IDEA": "Nápad"
+      }
+    },
+    "accessDenied": "Prístup zamietnutý",
+    "noPrivileges": "Na prístup k tejto stránke potrebujete administrátorské oprávnenia.",
+    "tabs": {
+      "league": {
+        "title": "Ligy",
+        "addLeague": "Pridať ligu",
+        "th-name": "Názov",
+        "th-sportType": "Šport",
+        "th-logo": "Logo",
+        "th-description": "Popis",
+        "th-manager": "Manažér",
+        "th-seasons-c": "Sezón",
+        "th-actions": "Akcie",
+        "goToSeasons": "Zobraziť sezóny"
+      },
+      "user": {
+        "addUser": "Pridať používateľa",
+        "neverLoggedIn": "Nikdy",
+        "active": "Aktívny",
+        "inactive": "Neaktívny",
+        "unverified": "Neoverený",
+        "resendVerification": "Znova poslať overovací e-mail",
+        "verificationSent": "Overovací e-mail odoslaný",
+        "verificationFailed": "Overovací e-mail sa nepodarilo odoslať"
+      },
+      "season": {
+        "title": "Sezóny",
+        "addSeason": "Pridať sezónu",
+        "th-name": "Názov",
+        "th-league": "Liga",
+        "th-startDate": "Začiatok",
+        "th-endDate": "Koniec",
+        "th-status": "Stav",
+        "th-created": "Vytvorené",
+        "th-manager": "Manažér",
+        "th-teams-c": "Počet tímov",
+        "th-actions": "Akcie",
+        "goToTeams": "Zobraziť tímy",
+        "goToGames": "Zobraziť zápasy",
+        "archiveSeason": "Archivovať sezónu"
+      },
+      "team": {
+        "title": "Tímy",
+        "addTeam": "Pridať tím",
+        "filterBySeason": "Vyberte sezónu",
+        "selectSeasonFirst": "Vyberte sezónu, aby sa zobrazili tímy",
+        "noTeams": "V tejto sezóne zatiaľ nie sú žiadne tímy.",
+        "th-name": "Názov",
+        "th-manager": "Manažér",
+        "th-players": "Hráči",
+        "th-actions": "Akcie",
+        "goToDetail": "Prejsť na detail"
+      },
+      "player": {
+        "title": "Hráči",
+        "addPlayer": "Pridať hráča",
+        "filterBySeason": "Vyberte sezónu",
+        "filterByTeam": "Vyberte tím",
+        "selectSeasonFirst": "Najprv vyberte sezónu",
+        "selectTeamFirst": "Vyberte tím, aby sa zobrazili hráči",
+        "noPlayers": "V tomto tíme zatiaľ nie sú žiadni hráči.",
+        "th-name": "Meno",
+        "th-number": "Číslo",
+        "th-position": "Pozícia",
+        "th-bornYear": "Ročník",
+        "th-note": "Poznámka",
+        "th-actions": "Akcie"
+      },
+      "game": {
+        "title": "Zápasy",
+        "addGame": "Pridať zápas",
+        "generateSchedule": "Vygenerovať rozpis",
+        "filterBySeason": "Vyberte sezónu",
+        "selectSeasonFirst": "Vyberte sezónu, aby sa zobrazili zápasy",
+        "needMoreTeams": "Na vytvorenie zápasov pridajte aspoň 2 tímy",
+        "noGames": "Zatiaľ nie sú naplánované žiadne zápasy.",
+        "noDate": "Dátum bude upresnený",
+        "round": "{{round}}. kolo",
+        "th-date": "Dátum",
+        "th-homeTeam": "Domáci",
+        "th-awayTeam": "Hostia",
+        "th-score": "Skóre",
+        "th-location": "Miesto",
+        "th-status": "Stav",
+        "th-actions": "Akcie",
+        "confirm": "Potvrdiť výsledok",
+        "confirmed": "Výsledok potvrdený",
+        "status": {
+          "SCHEDULED": "Naplánovaný",
+          "IN_PROGRESS": "Prebieha",
+          "COMPLETED": "Odohraný",
+          "POSTPONED": "Odložený",
+          "CANCELLED": "Zrušený"
+        },
+        "toasts": {
+          "generatedGamesSuccessTitle": "Zápasy vygenerované",
+          "generatedGamesSuccessDescription": "Vygenerovaných zápasov: {{count}}"
+        }
+      },
+      "statistics": {
+        "title": "Štatistiky zápasu",
+        "th-player": "Hráč",
+        "th-team": "Tím",
+        "th-goals": "Góly",
+        "th-assists": "Asistencie",
+        "th-actions": "Akcie",
+        "noStatistics": "Pre tento zápas zatiaľ nie sú zaznamenané žiadne štatistiky.",
+        "addStatistic": "Pridať štatistiky hráča",
+        "selectPlayer": "Vyberte hráča",
+        "allPlayersHaveStats": "Všetci hráči majú zaznamenané štatistiky.",
+        "loadError": "Štatistiky sa nepodarilo načítať",
+        "createError": "Štatistiku sa nepodarilo vytvoriť",
+        "updateError": "Štatistiku sa nepodarilo aktualizovať",
+        "deleteError": "Štatistiku sa nepodarilo vymazať",
+        "th-penaltyMinutes": "TM"
+      }
+    },
+    "seasons": {
+      "title": "Sezóny",
+      "new": "+ Nová",
+      "noSeasons": "Zatiaľ žiadne sezóny",
+      "teamsIn": "Tímy v {{name}}",
+      "selectSeason": "Vyberte sezónu na správu tímov",
+      "allLeagues": "Všetky ligy",
+      "empty": "V tomto výbere nie sú žiadne sezóny",
+      "rowActions": "Akcie sezóny"
+    },
+    "teams": {
+      "addTeam": "+ Pridať tím",
+      "generateSchedule": "Vygenerovať rozpis",
+      "noTeams": "Zatiaľ žiadne tímy",
+      "managedBy": "Manažér: {{name}}"
+    },
+    "modal": {
+      "createLeague": "Vytvoriť ligu",
+      "editLeague": "Upraviť ligu",
+      "createLeagueDesc": "Vytvorte novú ligu, v ktorej budete organizovať svoje sezóny",
+      "editLeagueDesc": "Upravte podrobnosti ligy",
+      "leagueName": "Názov ligy",
+      "leagueLogo": "Logo",
+      "leagueDescription": "Popis",
+      "createSeason": "Vytvoriť sezónu",
+      "editSeason": "Upraviť sezónu",
+      "createSeasonDesc": "Vytvorte novú sezónu pre vašu ligu",
+      "editSeasonDesc": "Upravte podrobnosti sezóny",
+      "league": "Liga",
+      "addTeam": "Pridať tím",
+      "editTeam": "Upraviť tím",
+      "addTeamDesc": "Pridajte nový tím do tejto sezóny",
+      "editTeamDesc": "Upravte podrobnosti tímu",
+      "addPlayer": "Pridať hráča",
+      "editPlayer": "Upraviť hráča",
+      "addPlayerDesc": "Pridajte nového hráča do tohto tímu",
+      "editPlayerDesc": "Upravte podrobnosti hráča",
+      "createUser": "Vytvoriť používateľa",
+      "editUser": "Upraviť používateľa",
+      "name": "Názov",
+      "sportType": "Šport",
+      "sportTypePlaceholder": "napr. futbal, basketbal",
+      "startDate": "Dátum začiatku",
+      "endDate": "Dátum konca",
+      "status": "Stav",
+      "copyTeamsFrom": "Skopírovať tímy z predchádzajúcej sezóny (voliteľné)",
+      "copyTeamsFromSeason": "Zdrojová sezóna",
+      "copyTeamsNone": "Žiadna",
+      "copyTeamsEmpty": "Táto sezóna nemá žiadne tímy na skopírovanie.",
+      "teamName": "Názov tímu",
+      "manager": "Manažér tímu",
+      "noManager": "Bez manažéra",
+      "playerName": "Meno hráča",
+      "playerNumber": "Číslo",
+      "playerPosition": "Pozícia",
+      "playerBornYear": "Ročník narodenia",
+      "playerNote": "Poznámka",
+      "addGame": "Pridať zápas",
+      "editGame": "Upraviť zápas",
+      "addGameDesc": "Naplánovať nový zápas",
+      "editGameDesc": "Upraviť podrobnosti zápasu a skóre",
+      "homeTeam": "Domáci tím",
+      "awayTeam": "Hosťujúci tím",
+      "gameDate": "Dátum a čas",
+      "clearGameDate": "Vymazať dátum",
+      "gameDateTbdHint": "Dátum sa zobrazí ako „bude upresnený“, kým nenastavíte nový.",
+      "gameRound": "Kolo",
+      "gameLocation": "Miesto",
+      "gameLocationPlaceholder": "napr. názov štadióna",
+      "gameStatus": "Stav",
+      "homeScore": "Skóre domácich",
+      "awayScore": "Skóre hostí",
+      "totalScore": "Celkom",
+      "period1": "1. tretina",
+      "period2": "2. tretina",
+      "period3": "3. tretina",
+      "generateSchedule": "Vygenerovať rozpis",
+      "generateScheduleDesc": "Automaticky vytvoriť rozpis každý s každým pre všetky tímy. Dátumy pridáte neskôr.",
+      "numberOfRounds": "Počet kôl",
+      "teamsInSeason": "Tímov v sezóne: {{count}}",
+      "roundInfo": "Každé kolo je úplný rozpis každý s každým: {{gamesPerRound}} zápasov",
+      "totalGamesInfo": "Zápasov na vygenerovanie celkom: {{total}}",
+      "generateWarning": "Toto vymaže všetky existujúce zápasy v tejto sezóne a vytvorí nové bez dátumov. Dátumy môžete jednotlivým zápasom pridať neskôr.",
+      "generate": "Vygenerovať",
+      "userName": "Meno",
+      "userEmail": "E-mail",
+      "userPassword": "Heslo",
+      "userRole": "Rola",
+      "userActive": "Aktívny",
+      "leaveBlankToKeep": "nechajte prázdne, ak sa nemá meniť",
+      "movePlayer": "Presunúť hráča",
+      "movePlayerDesc": "Presunúť {{playerName}} do iného tímu",
+      "currentTeam": "Aktuálny tím",
+      "targetSeason": "Cieľová sezóna",
+      "targetTeam": "Cieľový tím",
+      "noAvailableTeams": "V tejto sezóne nie sú k dispozícii žiadne iné tímy",
+      "movePlayerBtn": "Presunúť hráča",
+      "withinGroups": "Losovať len vnútri skupín",
+      "withinGroupsHint": "Tímy hrajú len s ostatnými vo svojej skupine (skupín: {{count}})",
+      "teamLogo": "Logo tímu"
+    },
+    "roles": {
+      "ADMIN": "Administrátor",
+      "USER": "Používateľ"
+    },
+    "confirm": {
+      "deleteLeague": "Naozaj chcete vymazať túto ligu?",
+      "deleteSeason": "Ste si istí? Týmto sa vymažú všetky tímy a zápasy v tejto sezóne.",
+      "deleteTeam": "Ste si istí? Týmto sa vymažú všetci hráči a údaje zápasov tohto tímu.",
+      "deletePlayer": "Naozaj chcete vymazať tohto hráča?",
+      "deleteGame": "Naozaj chcete vymazať tento zápas?",
+      "deleteUser": "Naozaj chcete vymazať tohto používateľa?",
+      "deleteStatistic": "Naozaj chcete vymazať túto štatistiku?",
+      "archiveSeason": "Archivovať túto sezónu? Zachová sa len konečná tabuľka a celkové štatistiky hráčov – podrobnosti jednotlivých zápasov (štatistiky zo zápasov) budú natrvalo vymazané, vrátane nedohraných zápasov. Túto akciu nie je možné vrátiť späť."
+    },
+    "errors": {
+      "createLeague": "Ligu sa nepodarilo vytvoriť",
+      "updateLeague": "Ligu sa nepodarilo aktualizovať",
+      "deleteLeague": "Ligu sa nepodarilo vymazať",
+      "createSeason": "Sezónu sa nepodarilo vytvoriť",
+      "updateSeason": "Sezónu sa nepodarilo aktualizovať",
+      "createTeam": "Tím sa nepodarilo vytvoriť",
+      "updateTeam": "Tím sa nepodarilo aktualizovať",
+      "createPlayer": "Hráča sa nepodarilo vytvoriť",
+      "updatePlayer": "Hráča sa nepodarilo aktualizovať",
+      "deletePlayer": "Hráča sa nepodarilo vymazať",
+      "createGame": "Zápas sa nepodarilo vytvoriť",
+      "updateGame": "Zápas sa nepodarilo aktualizovať",
+      "deleteGame": "Zápas sa nepodarilo vymazať",
+      "confirmGame": "Výsledok sa nepodarilo potvrdiť",
+      "createUser": "Používateľa sa nepodarilo vytvoriť",
+      "updateUser": "Používateľa sa nepodarilo aktualizovať",
+      "deleteUser": "Používateľa sa nepodarilo vymazať",
+      "generateSchedule": "Rozpis sa nepodarilo vygenerovať",
+      "deleteSeason": "Sezónu sa nepodarilo vymazať",
+      "deleteTeam": "Tím sa nepodarilo vymazať",
+      "movePlayer": "Hráča sa nepodarilo presunúť",
+      "archiveSeason": "Sezónu sa nepodarilo archivovať",
+      "copyTeams": "Sezóna bola vytvorená, ale tímy sa nepodarilo skopírovať"
+    },
+    "funnel": {
+      "title": "Prihlášky tímov",
+      "conversion": "Zverejnené formuláre s prihláškou",
+      "conversionHint": "{{with}} z {{published}} zverejnených formulárov",
+      "adoption": "Súťaže so zverejneným formulárom",
+      "adoptionHint": "{{published}} z {{total}} sezón a turnajov",
+      "toPublish": "Od vytvorenia po zverejnenie (medián)",
+      "toFirst": "Od zverejnenia po prvú prihlášku (medián)",
+      "approval": "Schválené prihlášky",
+      "applications_one": "Celkom {{count}} prihláška",
+      "applications_few": "Celkom {{count}} prihlášky",
+      "applications_other": "Celkom {{count}} prihlášok",
+      "hours_one": "{{count}} hodina",
+      "hours_few": "{{count}} hodiny",
+      "hours_other": "{{count}} hodín",
+      "days_one": "{{count}} deň",
+      "days_few": "{{count}} dni",
+      "days_other": "{{count}} dní"
+    }
+  },
+  "hats": {
+    "none": "Zatiaľ žiadne tímy",
+    "leagueManager": "Manažér sezóny",
+    "teamManager": "Manažér tímu",
+    "tournamentManager": "Manažér turnaja"
+  },
+  "language": {
+    "en": "EN",
+    "cs": "CZ",
+    "choose": "Jazyk"
+  },
+  "sports": {
+    "FOOTBALL": "Futbal",
+    "BASKETBALL": "Basketbal",
+    "VOLLEYBALL": "Volejbal",
+    "HOCKEY": "Hokej",
+    "TENNIS": "Tenis",
+    "HANDBALL": "Hádzaná",
+    "FLOORBALL": "Florbal",
+    "OTHER": "Ostatné",
+    "parts": {
+      "PERIOD": "{{n}}. tretina",
+      "HALF": "{{n}}. polčas",
+      "QUARTER": "{{n}}. štvrtina",
+      "SET": "{{n}}. set",
+      "overtime": "{{n}}. predĺženie",
+      "addOvertime": "Pridať predĺženie",
+      "addSet": "Pridať set",
+      "remove": "Odobrať",
+      "setsDecide": "Výsledok sa vypočíta zo setov"
+    },
+    "partsTitle": {
+      "PERIOD": "Tretiny",
+      "HALF": "Polčasy",
+      "QUARTER": "Štvrtiny",
+      "SET": "Sety"
+    },
+    "side": {
+      "home": "domáci",
+      "away": "hostia"
+    }
+  },
+  "playerPositions": {
+    "none": "Bez pozície",
+    "GOALIE": "Brankár",
+    "DEFENDER": "Obranca",
+    "MIDFIELDER": "Záložník",
+    "FORWARD": "Útočník",
+    "WING": "Krídlo",
+    "BACK": "Spojka",
+    "PIVOT": "Pivot",
+    "GUARD": "Rozohrávač",
+    "CENTER": "Pivot",
+    "SETTER": "Nahrávač",
+    "OUTSIDE_HITTER": "Smečiar",
+    "OPPOSITE": "Univerzál",
+    "MIDDLE_BLOCKER": "Blokár",
+    "LIBERO": "Libero"
+  },
+  "landing": {
+    "tagline": "Správa amatérskeho športu jednoducho",
+    "nav": {
+      "tournaments": "Turnaje",
+      "seasons": "Sezóny",
+      "signIn": "Prihlásiť sa",
+      "getStarted": "Začať",
+      "dashboard": "Nástenka"
+    },
+    "hero": {
+      "title": "Spravujte ligu.\nOrganizujte turnaj.",
+      "subtitle": "Kompletná platforma pre amatérske športové organizácie. Vytvárajte sezóny, spravujte tímy, plánujte zápasy, sledujte štatistiky a organizujte turnaje – všetko na jednom mieste.",
+      "ctaStarted": "Začať zadarmo",
+      "ctaDashboard": "Prejsť na nástenku",
+      "ctaSignIn": "Prihlásiť sa",
+      "ctaTournaments": "Prezerať turnaje"
+    },
+    "stats": {
+      "teams": "Tímy",
+      "teamsLabel": "jednoducho spravované",
+      "schedules": "Rozpisy",
+      "schedulesLabel": "automaticky generované",
+      "stats": "Štatistiky",
+      "statsLabel": "sledované v reálnom čase"
+    },
+    "tournamentCta": {
+      "title": "Organizujete turnaj?",
+      "description": "Vytvárajte skupiny, generujte rozpisy, spravujte play-off a sledujte strelcov – všetko pre plnohodnotný turnaj.",
+      "explore": "Prezerať turnaje",
+      "register": "Registrovať sa ako manažér turnaja",
+      "createAccount": "Vytvoriť účet"
+    },
+    "footer": "Amateur Team Manager. Všetky práva vyhradené."
+  },
+  "tm": {
+    "title": "Správa turnajov",
+    "accessDenied": "Prístup zamietnutý",
+    "noPrivileges": "Potrebujete oprávnenie manažéra turnaja.",
+    "common": {
+      "loading": "Načítavam…",
+      "cancel": "Zrušiť",
+      "save": "Uložiť",
+      "saving": "Ukladám…",
+      "assign": "Priradiť",
+      "tbd": "Neurčené",
+      "seed": "Nasadenie {{n}}",
+      "home": "Domáci",
+      "away": "Hostia",
+      "viewPublic": "Zobraziť verejnú stránku",
+      "editions": "ročníkov",
+      "series": "Série"
+    },
+    "status": {
+      "SCHEDULED": "Naplánovaný",
+      "IN_PROGRESS": "Prebieha",
+      "COMPLETED": "Odohraný",
+      "POSTPONED": "Odložený",
+      "CANCELLED": "Zrušený"
+    },
+    "tournamentStatus": {
+      "DRAFT": "Koncept",
+      "REGISTRATION": "Registrácia",
+      "GROUP_STAGE": "Skupinová fáza",
+      "PLAYOFF": "Play-off",
+      "COMPLETED": "Ukončený"
+    },
+    "fields": {
+      "name": "Názov",
+      "year": "Rok",
+      "status": "Stav",
+      "location": "Miesto",
+      "startDate": "Dátum začiatku",
+      "endDate": "Dátum konca",
+      "sportType": "Šport",
+      "description": "Popis",
+      "country": "Krajina",
+      "primaryColor": "Primárna farba",
+      "number": "Číslo dresu",
+      "bornYear": "Rok narodenia",
+      "position": "Pozícia",
+      "phase": "Fáza",
+      "bracketSlot": "Pozícia v pavúku",
+      "homeTeam": "Domáci tím",
+      "homeTeam_TENNIS": "Domáci hráč",
+      "awayTeam": "Hosťujúci tím",
+      "awayTeam_TENNIS": "Hosťujúci hráč",
+      "homeScore": "Skóre domácich",
+      "awayScore": "Skóre hostí",
+      "date": "Dátum",
+      "team": "Tím",
+      "team_TENNIS": "Hráč",
+      "groupName": "Názov skupiny",
+      "logo": "Logo"
+    },
+    "series": {
+      "title": "Série turnajov",
+      "newButton": "Nová séria",
+      "empty": "Zatiaľ žiadne série. Vytvorte prvú turnajovú sériu.",
+      "deleteConfirm": "Vymazať túto sériu? Vymažú sa všetky turnaje v nej.",
+      "modal": {
+        "createTitle": "Nová turnajová séria",
+        "editTitle": "Upraviť sériu"
+      },
+      "form": {
+        "namePlaceholder": "napr. Mestský hokejový pohár",
+        "sportType": {
+          "HOCKEY": "Hokej",
+          "TENNIS": "Tenis",
+          "OTHER": "Iné"
+        }
+      },
+      "errors": {
+        "load": "Série sa nepodarilo načítať",
+        "save": "Sériu sa nepodarilo uložiť",
+        "delete": "Sériu sa nepodarilo vymazať"
+      }
+    },
+    "seriesDetail": {
+      "notFound": "Séria sa nenašla.",
+      "editions": "Ročníky",
+      "newEdition": "Nový ročník",
+      "empty": "Zatiaľ žiadne ročníky. Vytvorte prvý.",
+      "modal": {
+        "createTitle": "Nový ročník turnaja",
+        "editTitle": "Upraviť ročník"
+      },
+      "form": {
+        "locationPlaceholder": "Mesto, krajina"
+      },
+      "errors": {
+        "load": "Nepodarilo sa načítať",
+        "save": "Turnaj sa nepodarilo uložiť"
+      }
+    },
+    "tournament": {
+      "notFound": "Turnaj sa nenašiel.",
+      "tabs": {
+        "teams": "Tímy",
+        "teams_TENNIS": "Hráči",
+        "groups": "Skupiny",
+        "results": "Výsledky",
+        "playoff": "Play-off"
+      },
+      "teams": {
+        "addButton": "Pridať tím",
+        "addButton_TENNIS": "Pridať hráča",
+        "empty": "Zatiaľ žiadne tímy.",
+        "empty_TENNIS": "Zatiaľ žiadni hráči.",
+        "noPlayers": "Žiadni hráči. Kliknite na + a pridajte ich.",
+        "addPlayerTitle": "Pridať hráča",
+        "deleteConfirm": "Vymazať tento tím a všetkých jeho hráčov?",
+        "deleteConfirm_TENNIS": "Vymazať tohto hráča?",
+        "table": {
+          "number": "#",
+          "name": "Meno",
+          "position": "Pozícia",
+          "born": "Narodený"
+        },
+        "modal": {
+          "createTitle": "Pridať tím",
+          "createTitle_TENNIS": "Pridať hráča",
+          "editTitle": "Upraviť tím",
+          "editTitle_TENNIS": "Upraviť hráča"
+        },
+        "errors": {
+          "save": "Tím sa nepodarilo uložiť",
+          "delete": "Tím sa nepodarilo vymazať"
+        }
+      },
+      "players": {
+        "deleteConfirm": "Vymazať tohto hráča?",
+        "modal": {
+          "createTitle": "Pridať hráča",
+          "editTitle": "Upraviť hráča"
+        },
+        "errors": {
+          "save": "Hráča sa nepodarilo uložiť",
+          "delete": "Hráča sa nepodarilo vymazať"
+        }
+      },
+      "groups": {
+        "addButton": "Pridať skupinu",
+        "empty": "Zatiaľ žiadne skupiny.",
+        "noTeams": "Žiadne priradené tímy.",
+        "noTeams_TENNIS": "Žiadni priradení hráči.",
+        "assignTeam": "Priradiť tím",
+        "assignTeam_TENNIS": "Priradiť hráča",
+        "noAvailableTeams": "Všetky tímy sú už priradené do niektorej skupiny.",
+        "generateSchedule": "Vygenerovať rozpis",
+        "deleteSchedule": "Vymazať rozpis",
+        "deleteScheduleConfirm": "Vymazať celý vygenerovaný rozpis skupinovej fázy tohto turnaja? Túto akciu nie je možné vrátiť späť.",
+        "deleteConfirm": "Vymazať túto skupinu?",
+        "schedule": {
+          "startDate": "Dátum začiatku",
+          "startTime": "Denný čas začiatku",
+          "endTime": "Denný čas konca",
+          "slotDuration": "Dĺžka slotu (minúty)",
+          "minRestGames": "Min. počet zápasov medzi zápasmi tímu",
+          "locations": "Miesta konania",
+          "locationsPlaceholder": "napr. Aréna A, Aréna B"
+        },
+        "modal": {
+          "createTitle": "Pridať skupinu",
+          "editTitle": "Upraviť skupinu",
+          "assignTitle": "Priradiť tímy do skupiny",
+          "scheduleTitle": "Vygenerovať rozpis turnaja"
+        },
+        "errors": {
+          "save": "Skupinu sa nepodarilo uložiť",
+          "delete": "Skupinu sa nepodarilo vymazať",
+          "generate": "Rozpis sa nepodarilo vygenerovať",
+          "deleteSchedule": "Rozpis sa nepodarilo vymazať",
+          "assign": "Tím sa nepodarilo priradiť",
+          "remove": "Tím sa nepodarilo odobrať zo skupiny"
+        }
+      },
+      "results": {
+        "empty": "Zatiaľ žiadne skupinové zápasy. Vygenerujte rozpis na karte Skupiny.",
+        "modal": {
+          "title": "Zadať výsledok"
+        },
+        "errors": {
+          "save": "Výsledok sa nepodarilo uložiť"
+        }
+      },
+      "playoff": {
+        "addButton": "Pridať zápas",
+        "empty": "Zatiaľ žiadne zápasy play-off.",
+        "deleteConfirm": "Vymazať tento zápas play-off?",
+        "generatePlayoffs": "Vygenerovať play-off",
+        "deletePlayoffs": "Vymazať play-off",
+        "deletePlayoffsConfirm": "Vymazať celý vygenerovaný pavúk play-off pre tento turnaj? Túto akciu nie je možné vrátiť späť.",
+        "teamsUnknownHint": "Pred zapísaním výsledku musia byť známe oba tímy.",
+        "form": {
+          "qualifiersPerGroup": "Postupujúcich zo skupiny",
+          "startTime": "Denný čas začiatku",
+          "slotDuration": "Dĺžka slotu (minúty)",
+          "location": "Miesto konania (voliteľné)"
+        },
+        "modal": {
+          "createTitle": "Pridať zápas play-off",
+          "editTitle": "Upraviť zápas play-off",
+          "generateTitle": "Vygenerovať pavúk play-off"
+        },
+        "errors": {
+          "save": "Zápas play-off sa nepodarilo uložiť",
+          "delete": "Zápas sa nepodarilo vymazať",
+          "updateStatus": "Stav sa nepodarilo aktualizovať",
+          "generate": "Play-off sa nepodarilo vygenerovať",
+          "deletePlayoffs": "Play-off sa nepodarilo vymazať"
+        }
+      },
+      "errors": {
+        "load": "Údaje turnaja sa nepodarilo načítať"
+      }
+    }
+  },
+  "tournamentDetail": {
+    "loading": "Načítavam…",
+    "notFound": "Turnaj sa nenašiel.",
+    "breadcrumb": "Turnaje",
+    "teamsCount": "{{count}} tímov",
+    "teamsCount_TENNIS": "{{count}} hráčov",
+    "tabs": {
+      "groups": "Skupiny",
+      "schedule": "Rozpis skupiny",
+      "playoff": "Play-off",
+      "teams": "Tímy",
+      "teams_TENNIS": "Hráči"
+    },
+    "groups": {
+      "empty": "Zatiaľ žiadne skupiny.",
+      "groupLabel": "Skupina {{name}}",
+      "view": {
+        "matrix": "Matica výsledkov",
+        "table": "Tabuľka"
+      },
+      "matrixHint": "Vzájomné zápasy – výsledky",
+      "matrixHint_TENNIS": "Vzájomné zápasy – výsledky (sety)",
+      "standingsTitle": "Poradie skupiny",
+      "qualified": "Zvýraznení postúpili do play-off."
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Tím",
+      "team_TENNIS": "Hráč",
+      "played": "Z",
+      "won": "V",
+      "drawn": "R",
+      "lost": "P",
+      "goalsFor": "SG",
+      "goalsAgainst": "IG",
+      "goalDiff": "+/-",
+      "points": "B",
+      "record": "V–P",
+      "record_DRAWS": "V–R–P",
+      "score": "Skóre",
+      "score_TENNIS": "Gemy"
+    },
+    "schedule": {
+      "empty": "Zatiaľ žiadne skupinové zápasy.",
+      "undated": "Zatiaľ bez termínu",
+      "vs": "vs"
+    },
+    "playoff": {
+      "title": "Pavúk play-off",
+      "empty": "Zatiaľ žiadne zápasy play-off.",
+      "phases": {
+        "ROUND_OF_16": "Osemfinále",
+        "QUARTER_FINAL": "Štvrťfinále",
+        "SEMI_FINAL": "Semifinále",
+        "BRONZE": "O 3. miesto",
+        "FINAL": "Finále"
+      },
+      "champion": "Víťaz turnaja"
+    },
+    "teams": {
+      "empty": "Zatiaľ žiadne tímy.",
+      "empty_TENNIS": "Zatiaľ žiadni hráči.",
+      "ungrouped": "Bez skupiny"
+    },
+    "summary": {
+      "title": "Zhrnutie skupiny",
+      "entrants": "tímov",
+      "entrants_TENNIS": "hráčov",
+      "played": "odohraných z {{total}}",
+      "leader": "vedie skupinu",
+      "leader_TENNIS": "vedie skupinu"
+    }
+  },
+  "gameStatistic": {
+    "penaltyMinutes": "TM",
+    "title": "Štatistiky zápasu",
+    "score": "Skóre",
+    "total": "Celkom",
+    "period1": "1. tr.",
+    "period2": "2. tr.",
+    "period3": "3. tr.",
+    "home": "Domáci",
+    "away": "Hostia",
+    "goals": "Góly",
+    "assists": "Asistencie",
+    "lineup": "Zostava",
+    "viewOnly": "Len na čítanie",
+    "noPlayers": "V tomto tíme nie sú žiadni hráči",
+    "notFound": "Zápas sa nenašiel",
+    "unauthorized": "K tejto stránke nemáte oprávnenie",
+    "fetchError": "Údaje zápasu sa nepodarilo načítať",
+    "saveSuccess": "Štatistiky boli úspešne uložené",
+    "saveError": "Štatistiky sa nepodarilo uložiť",
+    "saveAndConfirm": "Uložiť a potvrdiť",
+    "confirmedNote": "Zápas je potvrdený a nedá sa meniť. Najprv otvorte zápis o stretnutí a odomknite ho.",
+    "confirmedAdminNote": "Zápas je potvrdený. Ako administrátor ho tu napriek tomu môžete opraviť; zostane potvrdený a zmena sa zapíše do histórie.",
+    "allSaved": "Všetko uložené",
+    "unsavedChanges_one": "{{count}} neuložená zmena",
+    "unsavedChanges_few": "{{count}} neuložené zmeny",
+    "unsavedChanges_other": "{{count}} neuložených zmien"
+  },
+  "public": {
+    "docs": {
+      "title": "Pomocník",
+      "subtitle": "Návody na správu ligy, tímu, hráčov a zápasov. Vyberte, čo spravujete, a nájdite postup, ktorý potrebujete.",
+      "searchPlaceholder": "Hľadať v pomocníkovi…",
+      "noResults": "Pre tento výraz sme nenašli žiadny návod.",
+      "noResultsHint": "Skúste všeobecnejší pojem alebo zobrazte všetky články.",
+      "showAll": "Zobraziť všetky články",
+      "contents": "Obsah pomocníka",
+      "navLabel": "Obsah pomocníka",
+      "forYou": "Pre vás",
+      "related": "Súvisiace návody",
+      "updated": "Aktualizované {{date}}",
+      "notFound": "Tento návod neexistuje alebo už nie je dostupný.",
+      "backToDocs": "Späť na pomocníka",
+      "noteTip": "Tip",
+      "noteImportant": "Dôležité",
+      "categories": {
+        "start": "Začíname",
+        "league": "Manažér sezóny",
+        "team": "Manažér tímu",
+        "more": "Turnaje a podpora"
+      },
+      "audience": {
+        "ALL": "Pre všetkých",
+        "LEAGUE": "Pre manažéra sezóny",
+        "TEAM": "Pre manažéra tímu",
+        "TOURNAMENT": "Pre manažéra turnaja"
+      }
+    },
+    "updates": {
+      "title": "Novinky v ATM",
+      "subtitle": "Čo sa v ATM naozaj zmenilo a na čom práve pracujeme. Termín zverejníme až vtedy, keď je zmena pripravená na vydanie.",
+      "released": "Vydané",
+      "roadmap": "Pripravujeme",
+      "releasedLabel": "Vydané",
+      "unread": "Nové vydanie",
+      "roadmapNote": "Poradie a rozsah sa môžu zmeniť. Dátum zverejníme až vtedy, keď je funkcia pripravená na vydanie.",
+      "areas": {
+        "all": "Všetko",
+        "league": "Správa ligy",
+        "team": "Správa tímu",
+        "tournaments": "Turnaje",
+        "public": "Verejný web",
+        "fixes": "Opravy"
+      },
+      "status": {
+        "IN_DEVELOPMENT": "Vo vývoji",
+        "DESIGNING": "Navrhujeme",
+        "CONSIDERING": "Zvažujeme"
+      },
+      "statusHint": {
+        "IN_DEVELOPMENT": "Funkcia sa aktívne implementuje.",
+        "DESIGNING": "Existuje schválený návrh, práca sa ešte nemusela začať.",
+        "CONSIDERING": "Nápad sa vyhodnocuje a nie je sľúbený."
+      },
+      "readGuide": "Prečítať návod"
+    },
+    "contact": {
+      "title": "Napíšte nám",
+      "subtitle": "Otázky, problémy, sťažnosti aj nápady na jednom mieste. Odpovieme e-mailom, ak ho uvediete.",
+      "categoryLegend": "Čoho sa správa týka?",
+      "categories": {
+        "QUESTION": {
+          "title": "Otázka",
+          "hint": "Neviete si rady s ovládaním."
+        },
+        "PROBLEM": {
+          "title": "Nahlásiť problém",
+          "hint": "Niečo nefunguje, ako má."
+        },
+        "COMPLAINT": {
+          "title": "Sťažnosť",
+          "hint": "Nie ste spokojní s niečím v ATM."
+        },
+        "IDEA": {
+          "title": "Nápad",
+          "hint": "Čo by vám v ATM pomohlo."
+        }
+      },
+      "subject": "Predmet",
+      "message": "Popis",
+      "messageHint": "Čo ste chceli urobiť, čo sa naozaj stalo a či sa to opakuje.",
+      "email": "E-mail na odpoveď",
+      "emailHint": "Nepovinné. Bez e-mailu vám nemôžeme odpovedať.",
+      "contextLabel": "Priložiť technické údaje",
+      "contextHint": "Odošle sa len adresa stránky bez parametrov, veľkosť okna, typ prehliadača a či ste prihlásení. Nikdy heslo ani obsah prehliadača.",
+      "send": "Odoslať správu",
+      "sending": "Odosielam…",
+      "noPasswords": "Neposielajte heslo ani iné prihlasovacie údaje.",
+      "sentTitle": "Ďakujeme za správu",
+      "sentWithEmail": "Odpoveď vám príde na uvedený e-mail.",
+      "sentWithoutEmail": "Správu sme prijali. Bez e-mailu vám nemôžeme odpovedať.",
+      "sendAnother": "Poslať ďalšiu správu",
+      "helpsTitle": "Čo nám pomôže",
+      "helps": {
+        "what": {
+          "title": "Čo ste chceli urobiť",
+          "hint": "Napríklad uložiť zostavu alebo zapísať výsledok."
+        },
+        "happened": {
+          "title": "Čo sa naozaj stalo",
+          "hint": "Chybové hlásenie alebo nečakané správanie."
+        },
+        "where": {
+          "title": "Kde sa to stalo",
+          "hint": "Telefón alebo počítač a konkrétna stránka."
+        }
+      },
+      "seeUpdates": "Pozrite sa, čo je v ATM nové →",
+      "errors": {
+        "category": "Vyberte, čoho sa správa týka.",
+        "subject": "Predmet musí mať aspoň 3 znaky.",
+        "message": "Popis musí mať aspoň 10 znakov.",
+        "email": "Zadajte platný e-mail alebo pole nechajte prázdne.",
+        "send": "Správu sa nepodarilo odoslať. Text zostal vo formulári, skúste to znova.",
+        "tooMany": "Za krátky čas ste poslali veľa správ. Skúste to, prosím, o chvíľu."
+      }
+    },
+    "hero": {
+      "kicker": "Amatérsky šport. Skutočné príbehy."
+    },
+    "loadMore": "Načítať ďalšie",
+    "nav": {
+      "home": "Domov",
+      "competitions": "Súťaže",
+      "leagues": "Ligy",
+      "seasons": "Sezóny",
+      "tournaments": "Turnaje",
+      "teams": "Tímy",
+      "players": "Hráči",
+      "games": "Zápasy",
+      "stats": "Štatistiky",
+      "docs": "Pomocník",
+      "updates": "Novinky",
+      "contact": "Kontakt",
+      "about": "O projekte",
+      "signIn": "Prihlásiť sa",
+      "dashboard": "Nástenka"
+    },
+    "search": {
+      "placeholder": "Hľadať tím, hráča, zápas…",
+      "tooShort": "Zadajte aspoň dva znaky.",
+      "noResults": "Pre „{{query}}“ sa nič nenašlo.",
+      "teams": "Tímy",
+      "players": "Hráči",
+      "seasons": "Sezóny",
+      "leagues": "Ligy"
+    },
+    "footer": {
+      "competitions": "Súťaže",
+      "statistics": "Štatistiky",
+      "project": "Projekt",
+      "blurb": "Amatérsky šport pokope: ligy, turnaje a tímy, ktoré ich hrajú."
+    },
+    "seasons": {
+      "title": "Sezóny",
+      "subtitle": "Prezerajte všetky sezóny, sledujte ich priebeh a výsledky. Amatérsky šport má svoju históriu.",
+      "view": "Zobraziť",
+      "searchPlaceholder": "Hľadať sezónu…",
+      "emptyHint": "Skúste iný filter alebo hľadajte podľa názvu ligy.",
+      "filterApplications": "Prijíma prihlášky"
+    },
+    "teams": {
+      "title": "Tímy",
+      "subtitle": "Všetky tímy v aplikácii – súpiska, farby a sezóna, ktorú hrajú.",
+      "view": "Zobraziť",
+      "searchPlaceholder": "Hľadať tím…",
+      "leagueFilter": "Liga",
+      "allLeagues": "Všetky ligy",
+      "empty": "Žiadny tím nezodpovedá",
+      "emptyHint": "Skúste kratší názov alebo zrušte filter ligy.",
+      "noLeague": "Zatiaľ bez ligy",
+      "noSeason": "Zatiaľ bez sezóny",
+      "count_one": "{{count}} tím",
+      "count_few": "{{count}} tímy",
+      "count_many": "{{count}} tímu",
+      "count_other": "{{count}} tímov"
+    },
+    "players": {
+      "title": "Hráči",
+      "subtitle": "Góly, asistencie a body všetkých hráčov na súpiskách naprieč sezónami.",
+      "searchPlaceholder": "Hľadať hráča…",
+      "sortPoints": "Podľa bodov",
+      "sortName": "Podľa mena",
+      "tableTitle": "Štatistiky hráčov",
+      "player": "Hráč",
+      "team": "Tím",
+      "empty": "Žiadny hráč nezodpovedá",
+      "emptyHint": "Skúste kratšie meno alebo zrušte filter ligy.",
+      "count_one": "{{count}} hráč",
+      "count_few": "{{count}} hráči",
+      "count_many": "{{count}} hráča",
+      "count_other": "{{count}} hráčov"
+    },
+    "games": {
+      "title": "Zápasy",
+      "subtitle": "Čo sa práve hrá, čo je na programe a ako dopadlo minulé kolo.",
+      "round": "{{round}}. kolo",
+      "noTime": "Bude určený",
+      "undated": "Termín bude určený",
+      "emptyHint": "Skúste inú ligu alebo iné zobrazenie.",
+      "scope": {
+        "upcoming": "Nadchádzajúce",
+        "live": "Naživo",
+        "results": "Výsledky"
+      },
+      "empty": {
+        "upcoming": "Žiadny naplánovaný zápas",
+        "live": "Práve sa nič nehrá",
+        "results": "Zatiaľ sa neskončil žiadny zápas",
+        "all": "Nenašiel sa žiadny zápas"
+      },
+      "status": {
+        "SCHEDULED": "NAPLÁNOVANÝ",
+        "IN_PROGRESS": "NAŽIVO",
+        "COMPLETED": "ODOHRANÝ",
+        "POSTPONED": "ODLOŽENÝ",
+        "CANCELLED": "ZRUŠENÝ"
+      },
+      "count_one": "{{count}} zápas",
+      "count_few": "{{count}} zápasy",
+      "count_many": "{{count}} zápasu",
+      "count_other": "{{count}} zápasov"
+    },
+    "stats": {
+      "title": "Štatistiky",
+      "subtitle": "Kanadské bodovanie naprieč všetkými ligami a sezónami.",
+      "seasonFilter": "Sezóna",
+      "allSeasons": "Všetky sezóny",
+      "scope": "Top 50 podľa bodov",
+      "tableTitle": "Kanadské bodovanie",
+      "empty": "Zatiaľ žiadne štatistiky",
+      "emptyHint": "Čísla sa objavia po odohraní prvých zápasov.",
+      "sportFilter": "Šport"
+    },
+    "about": {
+      "title": "O projekte",
+      "subtitle": "Miesto, kde amatérska liga, jej tímy a jej čísla držia pokope.",
+      "ctaTitle": "Veďte svoju ligu tu",
+      "ctaText": "Založte sezónu, pridajte tímy a rozpis, tabuľku aj štatistiky hráčov nechajte na aplikáciu."
+    },
+    "landing": {
+      "browse": "Prezerať súťaže",
+      "todayTitle": "Práve sa hrá",
+      "allGames": "Všetky zápasy →",
+      "exploreTitle": "Kam ďalej",
+      "exploreSubtitle": "Verejné výsledky bez registrácie.",
+      "cards": {
+        "seasons": {
+          "title": "Sezóny a ligy",
+          "text": "Tabuľky, rozpisy a výsledky každého kola – od okresných súťaží po hobby ligu.",
+          "action": "Prezerať sezóny"
+        },
+        "tournaments": {
+          "title": "Turnaje",
+          "text": "Skupiny, pavúk play-off a priebežné výsledky počas jedného víkendu.",
+          "action": "Prezerať turnaje"
+        },
+        "teams": {
+          "title": "Tímy a hráči",
+          "text": "Súpiska, forma a osobné štatistiky – profil, ktorý môžete poslať ďalej.",
+          "action": "Nájsť tím"
+        }
+      },
+      "organisers": {
+        "kicker": "Pre organizátorov",
+        "title": "Rozpis vygenerujete za minútu. Zvyšok dopočíta aplikácia.",
+        "text": "Založte sezónu, pridajte tímy a nechajte si vygenerovať rozpis. Tabuľka, štatistiky hráčov aj história sa počítajú samy z výsledkov, ktoré zadáte pri zápase.",
+        "points": {
+          "schedule": "Automatický rozpis kôl a odviet",
+          "liveTable": "Živá tabuľka počas rozohraných zápasov",
+          "playerStats": "Góly, asistencie a trestné minúty pri každom hráčovi"
+        },
+        "cta": "Založiť sezónu",
+        "secondary": "Ako to funguje",
+        "previewUrl": "atm.cz/sezony/2026-2027",
+        "previewTitle": "Tabuľka po 12 zápasoch",
+        "previewNote": "Ukážka verejnej stránky sezóny."
+      },
+      "nextTitle": "Najbližšie zápasy",
+      "registrations": {
+        "kicker": "Prihlášky tímov",
+        "title": "Otvorte prihlášky do ďalšej sezóny alebo turnaja.",
+        "text": "Nastavte uzávierku, kapacitu, pravidlá a štartovné. Zdieľajte jeden verejný odkaz a všetky prihlášky vybavujte na jednom mieste.",
+        "steps": {
+          "setup": "Pripravte formulár prihlášky.",
+          "share": "Zdieľajte verejný odkaz alebo QR kód.",
+          "approve": "Schváľte tímy a zostavte súťaž."
+        },
+        "cta": "Otvoriť prihlášky",
+        "secondary": "Ako to funguje",
+        "previewTitle": "Prihlášky · Jarný pohár",
+        "previewPlaces": "3 z 8 miest",
+        "status": {
+          "new": "Nová",
+          "waiting": "Čakacia listina",
+          "approved": "Schválená"
+        }
+      },
+      "pricing": {
+        "kicker": "Cenník turnajov",
+        "title": "Malé turnaje zadarmo, väčšie za jednorazový poplatok",
+        "text": "Turnaj do {{teams}} tímov je zadarmo a organizovať ich môžete, koľko chcete. Platíte len za viac tímov alebo funkcie navyše: raz za turnaj alebo ročne za všetky.",
+        "per": {
+          "free": "za turnaj, natrvalo",
+          "tournament": "za turnaj · {{eur}}",
+          "year": "ročne · {{eur}}"
+        },
+        "plans": {
+          "FREE": {
+            "name": "Zadarmo",
+            "for": "Klubové a školské turnaje",
+            "points": [
+              "Až {{teams}} tímov",
+              "Skupiny, pavúk, výsledky a verejná stránka",
+              "Prihlášky tímov s čakacou listinou",
+              "Logá tímov nahraté do ATM"
+            ]
+          },
+          "TOURNAMENT": {
+            "name": "Turnaj",
+            "for": "Väčšie jednorazové turnaje",
+            "points": [
+              "Až {{teams}} tímov",
+              "Všetko z plánu Zadarmo"
+            ]
+          },
+          "TOURNAMENT_PLUS": {
+            "name": "Turnaj Plus",
+            "for": "Turnaje so sponzormi",
+            "points": [
+              "Bez limitu tímov",
+              "Všetko z plánu Turnaj"
+            ]
+          },
+          "ORGANIZER": {
+            "name": "Organizátor",
+            "for": "Kto organizuje viac turnajov ročne",
+            "points": [
+              "Všetky turnaje vo vašich sériách v úrovni Plus",
+              "Pre jedného organizátora na rok"
+            ]
+          }
+        },
+        "coming": {
+          "sponsors": "Až {{sponsorLogos}} lôg sponzorov",
+          "documents": "Až {{documents}} dokumentov na stiahnutie",
+          "branding": "Bez výraznej značky ATM"
+        },
+        "soon": "Čoskoro",
+        "note": "Ceny sú s DPH. Ligy a sezóny sú zatiaľ zadarmo.",
+        "cta": "Založiť turnaj"
+      }
+    },
+    "leagues": {
+      "title": "Ligy",
+      "subtitle": "Všetky súťaže vedené v aplikácii a sezóny, ktoré odohrali.",
+      "view": "Zobraziť",
+      "searchPlaceholder": "Hľadať ligu…",
+      "emptyHint": "Skúste iný šport alebo zrušte hľadanie.",
+      "activeCount_one": "{{count}} rozohraná sezóna",
+      "activeCount_few": "{{count}} rozohrané sezóny",
+      "activeCount_many": "{{count}} rozohranej sezóny",
+      "activeCount_other": "{{count}} rozohraných sezón",
+      "seasonCount_one": "{{count}} sezóna",
+      "seasonCount_few": "{{count}} sezóny",
+      "seasonCount_many": "{{count}} sezóny",
+      "seasonCount_other": "{{count}} sezón"
+    },
+    "tournaments": {
+      "title": "Turnaje",
+      "subtitle": "Skupiny, pavúk play-off a výsledky – celý turnaj na jednom mieste.",
+      "view": "Zobraziť",
+      "searchPlaceholder": "Hľadať turnaj…",
+      "count_one": "{{count}} turnaj",
+      "count_few": "{{count}} turnaje",
+      "count_many": "{{count}} turnaja",
+      "count_other": "{{count}} turnajov",
+      "editions_one": "{{count}} ročník",
+      "editions_few": "{{count}} ročníky",
+      "editions_many": "{{count}} ročníka",
+      "editions_other": "{{count}} ročníkov",
+      "editionsTitle": "Ročníky",
+      "noEditions": "Zatiaľ žiadny ročník.",
+      "empty": "Zatiaľ žiadny turnaj",
+      "emptyHint": "Turnaje sa tu objavia, hneď ako ich organizátor založí.",
+      "status": {
+        "DRAFT": "KONCEPT",
+        "REGISTRATION": "PRIHLÁŠKY",
+        "GROUP_STAGE": "SKUPINY",
+        "PLAYOFF": "PLAY-OFF",
+        "COMPLETED": "UKONČENÝ"
+      }
+    }
+  },
+  "visibility": {
+    "label": "Kto to uvidí",
+    "levels": {
+      "PUBLIC": "Verejné",
+      "UNLISTED": "Neverejné",
+      "PRIVATE": "Skryté"
+    },
+    "options": {
+      "PUBLIC": "Ktokoľvek to nájde",
+      "UNLISTED": "Len tí, ktorí majú odkaz",
+      "PRIVATE": "Len tí, ktorí to spravujú"
+    },
+    "hints": {
+      "PUBLIC": "Zobrazí sa na webe aj vo vyhľadávaní",
+      "UNLISTED": "Otvorí sa z odkazu, ktorý pošlete; v zoznamoch ani vo vyhľadávaní nie je",
+      "PRIVATE": "Nikto iný to neuvidí, ani s odkazom"
+    }
+  },
+  "invites": {
+    "sheet": {
+      "titleTeam": "Pozvať manažéra tímu",
+      "titleLeague": "Pozvať manažéra sezóny",
+      "changeTitleTeam": "Zmeniť manažéra tímu",
+      "changeTitleLeague": "Zmeniť manažéra sezóny",
+      "nameLabel": "Meno",
+      "namePlaceholder": "napr. Tomáš Kráľ",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "meno@example.sk",
+      "emailHint": "Už používa ATM? Zadajte e-mail, ktorým sa prihlasuje.",
+      "languageLabel": "Jazyk e-mailu",
+      "canTitle": "Čo bude môcť robiť",
+      "canTeam": [
+        "Upravovať súpisku, farby a logo tímu",
+        "Plánovať tréningy a sledovať dochádzku",
+        "Dopĺňať štatistiky svojich hráčov po zápase"
+      ],
+      "canLeague": [
+        "Zakladať sezóny a pridávať tímy",
+        "Pozývať manažérov tímov",
+        "Generovať rozpis a zapisovať výsledky",
+        "Zverejniť sezónu a rozosielať výsledky"
+      ],
+      "keepNote": "Termíny, skóre a rozpis zostávajú u vás.",
+      "replaceTeam": "Tím teraz spravuje {{name}}. Hneď ako nový manažér pozvánku prijme, o prístup príde.",
+      "replaceLeague": "Ligu teraz spravuje {{name}}. Hneď ako nový manažér pozvánku prijme, o prístup príde.",
+      "validity": "Pozvánku pošleme e-mailom. Odkaz platí 7 dní.",
+      "submit": "Poslať pozvánku",
+      "sending": "Odosielam…",
+      "error": "Pozvánku sa nepodarilo odoslať.",
+      "titlePlayer": "Pozvať hráča",
+      "canTitlePlayer": "Čo uvidí",
+      "canPlayer": [
+        "Kalendár tímu: tréningy, zápasy a zrazy",
+        "Pri každej akcii rýchlo odpovie, či príde"
+      ]
+    },
+    "sent": {
+      "title": "Pozvánka odoslaná",
+      "body": "Poslali sme e-mail pre {{name}} na {{email}}.",
+      "spamHint": "E-maily niekedy skončia v spame. Pošlite odkaz aj sami, napríklad cez WhatsApp.",
+      "share": "Zdieľať odkaz",
+      "copy": "Kopírovať odkaz",
+      "copied": "Skopírované",
+      "copyError": "Odkaz sa nepodarilo skopírovať.",
+      "shareText": "{{name}}, tu je pozvánka na správu {{target}} v ATM: {{link}}",
+      "nextTitle": "Čo bude ďalej",
+      "next1": "{{name}} otvorí odkaz a nastaví si heslo, alebo sa prihlási, ak už účet má.",
+      "next2Team": "Tím sa otvorí s krátkym zoznamom úloh: farby, súpiska, najbližší zápas.",
+      "next2League": "Liga sa otvorí so zoznamom krokov na založenie prvej sezóny.",
+      "next3Team": "Na karte Tímy uvidíte pri tíme jeho meno.",
+      "next3League": "V zozname líg uvidíte pri lige jeho meno.",
+      "until": "Odkaz platí do {{date}}. Kedykoľvek ho môžete poslať znova.",
+      "inviteNext": "Pozvať ďalšieho: {{team}}",
+      "done": "Hotovo",
+      "shareTextPlayer": "{{name}}, tu je pozvánka do tímu {{target}} v ATM: {{link}}",
+      "next2Player": "Dostane sa na svoju úvodnú stránku s kalendárom tímu.",
+      "next3Player": "Na karte hráča uvidíte účet, s ktorým sa pripojil(-a)."
+    },
+    "status": {
+      "invited": "Pozvaný(-á) {{when}} · {{email}}",
+      "invitedShort": "Pozvaný(-á): {{email}}",
+      "expired": "Pozvánka vypršala · {{email}}",
+      "noManager": "Zatiaľ bez manažéra",
+      "invitedLabel": "Pozvaný(-á)",
+      "expiredLabel": "Vypršala"
+    },
+    "actions": {
+      "invite": "Pozvať",
+      "inviteManager": "Pozvať manažéra",
+      "resend": "Poslať znova",
+      "cancel": "Zrušiť pozvánku",
+      "menuLabel": "Pozvánka pre {{team}}",
+      "resendError": "Pozvánku sa nepodarilo poslať znova.",
+      "cancelError": "Pozvánku sa nepodarilo zrušiť."
+    },
+    "summary": {
+      "title": "Manažéri tímov",
+      "activeOf": "{{active}} z {{total}} aktívnych",
+      "active": "{{count}} aktívni",
+      "invited": "{{count}} pozvaných",
+      "none": "{{count}} bez manažéra"
+    },
+    "teamCard": {
+      "title": "Manažér tímu",
+      "current": "Tím spravuje {{name}} ({{email}}).",
+      "change": "Zmeniť manažéra"
+    }
+  },
+  "invitePage": {
+    "documentTitle": "Pozvánka",
+    "roleTeam": "Pozvánka pre manažéra tímu",
+    "roleLeague": "Pozvánka pre manažéra sezóny",
+    "email": "E-mail",
+    "showPassword": "Zobraziť heslo",
+    "hidePassword": "Skryť heslo",
+    "submitTeam": "Prijať a otvoriť tím",
+    "submitLeague": "Prijať a otvoriť ligu",
+    "notYou": "Nie ste {{name}}? Nepokračujte a požiadajte o novú pozvánku.",
+    "help": "Pomocník",
+    "goHome": "Prejsť do ATM",
+    "new": {
+      "title": "Vitajte, {{name}}",
+      "introTeam": "{{name}} vás pozýva na správu tohto tímu. Zvoľte si heslo a môžete začať.",
+      "introLeague": "{{name}} vás pozýva na správu tejto ligy. Zvoľte si heslo a môžete začať.",
+      "introTeamAnonymous": "Boli ste pozvaní na správu tohto tímu. Zvoľte si heslo a môžete začať.",
+      "introLeagueAnonymous": "Boli ste pozvaní na správu tejto ligy. Zvoľte si heslo a môžete začať.",
+      "name": "Vaše meno",
+      "password": "Zvoľte heslo",
+      "passwordHint": "Aspoň {{min}} znakov. Budete sa prihlasovať týmto e-mailom a heslom.",
+      "introPlayer": "{{name}} vás pozýva do tohto tímu. Zvoľte si heslo a môžete začať.",
+      "introPlayerAnonymous": "Boli ste pozvaní do tohto tímu. Zvoľte si heslo a môžete začať."
+    },
+    "existing": {
+      "title": "Prihláste sa a prijmite",
+      "intro": "ATM už používate. Po prihlásení pribudne {{target}} k tomu, čo už spravujete.",
+      "password": "Heslo",
+      "forgot": "Zabudli ste?",
+      "submit": "Prihlásiť a prijať",
+      "signedIn": "Ste prihlásení ako {{email}}."
+    },
+    "wrongAccount": {
+      "body": "Ste prihlásení ako {{current}}, ale pozvánka je pre {{email}}.",
+      "signOut": "Odhlásiť sa a pokračovať"
+    },
+    "expired": {
+      "title": "Platnosť pozvánky vypršala",
+      "body": "Pozvánky do {{target}} platia 7 dní. Táto skončila {{date}}.",
+      "howTitle": "Ako získať novú",
+      "how1": "Napíšte osobe, ktorá vás pozvala: {{name}}.",
+      "how1Anonymous": "Obráťte sa na toho, kto vás pozval.",
+      "how2Team": "Pri vašom tíme ťukne na Poslať znova a nový odkaz príde do minúty.",
+      "how2League": "Pošle pozvánku znova zo zoznamu líg a nový odkaz príde do minúty.",
+      "how2Player": "Na vašej karte hráča ťukne na Poslať znova a nový odkaz príde do minúty."
+    },
+    "revoked": {
+      "title": "Pozvánka bola zrušená",
+      "body": "Bola zrušená alebo nahradená novšou. Otvorte najnovší e-mail alebo sa obráťte na toho, kto vás pozval."
+    },
+    "accepted": {
+      "title": "Pozvánka už bola prijatá",
+      "body": "Táto pozvánka už bola použitá. Pokračujte prihlásením.",
+      "signIn": "Prihlásiť sa"
+    },
+    "notFound": {
+      "title": "Pozvánka sa nenašla",
+      "body": "Odkaz môže byť neúplný alebo nahradený novším. Otvorte najnovší e-mail alebo požiadajte o novú pozvánku."
+    },
+    "errors": {
+      "weakPassword": "Heslo musí mať aspoň {{min}} znakov.",
+      "wrongAccount": "Pozvánka je pre iný účet.",
+      "generic": "Niečo sa pokazilo. Skúste to, prosím, znova.",
+      "playerTaken": "Toto miesto na súpiske je už prepojené s iným účtom. Obráťte sa na toho, kto vás pozval.",
+      "alreadyOnTeam": "Váš účet už má v tomto tíme iné miesto na súpiske. Obráťte sa na toho, kto vás pozval."
+    },
+    "rolePlayer": "Pozvánka pre hráča",
+    "submitPlayer": "Prijať a pripojiť sa k tímu"
+  },
+  "setupChecklist": {
+    "nextLabel": "Ďalší krok · {{current}} z {{total}}",
+    "progress": "{{done}} z {{total}}",
+    "done": "Hotovo"
+  },
+  "seasonChecklist": {
+    "title": "Spustenie sezóny",
+    "guide": "Prečítajte si sprievodcu pre manažéra sezóny",
+    "steps": {
+      "teams": {
+        "title": "Pridajte tímy",
+        "status_one": "{{count}} tím",
+        "status_few": "{{count}} tímy",
+        "status_other": "{{count}} tímov",
+        "none": "Zatiaľ žiadne tímy",
+        "body": "Pridajte všetky tímy, ktoré hrajú sezónu. Môžete ich prevziať z predchádzajúcej sezóny.",
+        "action": "Pridať tímy"
+      },
+      "managers": {
+        "title": "Pozvite manažérov tímov",
+        "status": "{{active}} aktívni · {{invited}} pozvaní · {{missing}} zostáva",
+        "body": "Každý tím dostane niekoho, kto udržiava súpisku. Pozvánka príde e-mailom a odkaz môžete poslať aj cez WhatsApp.",
+        "action_one": "Pozvať zostávajúci tím",
+        "action_few": "Pozvať zostávajúce {{count}}",
+        "action_other": "Pozvať zostávajúcich {{count}}",
+        "skip": "Tímy budem spravovať sám/sama"
+      },
+      "schedule": {
+        "title": "Vygenerujte rozpis",
+        "status_one": "{{count}} zápas",
+        "status_few": "{{count}} zápasy",
+        "status_other": "{{count}} zápasov",
+        "none": "Zatiaľ nevygenerovaný",
+        "body": "Zvoľte formát a ATM zostaví dvojice. Zápasy môžete aj potom upraviť.",
+        "action": "Vygenerovať rozpis"
+      },
+      "dates": {
+        "title": "Nastavte termíny",
+        "status": "{{undated}} z {{total}} bez termínu",
+        "body": "Tímy uvidia zápas vo svojom rozpise, až keď má termín.",
+        "action": "Nastaviť termíny"
+      },
+      "publish": {
+        "title": "Zverejnite sezónu",
+        "draft": "Koncept",
+        "live": "Zverejnená",
+        "body": "Zverejnením sa rozpis a tabuľka objavia vo verejnej časti.",
+        "action": "Zverejniť sezónu"
+      },
+      "registrations": {
+        "title": "Nechajte tímy, nech sa prihlásia",
+        "none": "Zatiaľ bez formulára",
+        "body": "Otvorte formulár prihlášky a pošlite odkaz: tímy sa prihlásia samy a vy ich len schválite, namiesto toho, aby ste každý tím pridávali sami.",
+        "action": "Otvoriť prihlášky",
+        "skip": "Tímy pridám ručne"
+      }
+    },
+    "new": "Nové"
+  },
+  "teamChecklist": {
+    "title": "Pripravte svoj tím",
+    "guide": "Prečítajte si sprievodcu pre manažéra tímu",
+    "steps": {
+      "look": {
+        "title": "Nastavte farby tímu",
+        "set": "Farby nastavené",
+        "default": "Predvolené farby",
+        "body": "Vaša farba sa prenesie na túto obrazovku, do rozpisu aj na verejný profil tímu. Ak máte logo, pridajte ho tiež.",
+        "action": "Vybrať farby",
+        "skip": "Ponechať predvolené farby"
+      },
+      "roster": {
+        "title": "Pridajte hráčov",
+        "status_one": "{{count}} hráč",
+        "status_few": "{{count}} hráči",
+        "status_other": "{{count}} hráčov",
+        "none": "Zatiaľ žiadni hráči",
+        "body": "Na začiatok stačí meno, číslo a post doplníte neskôr. Z tohto zoznamu potom vyberáte zostavu na každý zápas.",
+        "action": "Pridať hráčov"
+      },
+      "accounts": {
+        "title": "Pozvite hráčov",
+        "status": "{{joined}} pripojení · {{invited}} pozvaní · {{missing}} zostáva",
+        "body": "Hráči, ktorí sa pripoja, vidia kalendár tímu na svojej úvodnej stránke a odpovedajú, či prídu. Každý dostane e-mail s odkazom, ktorý môžete poslať aj cez WhatsApp.",
+        "action": "Pozvať: {{name}}",
+        "actionAny": "Pridať hráča",
+        "skip": "Moji hráči sa prihlasovať nebudú",
+        "skipRest": "Viac hráčov ATM nepoužíva"
+      },
+      "training": {
+        "title": "Naplánujte tréning",
+        "status_one": "{{count}} udalosť v kalendári",
+        "status_few": "{{count}} udalosti v kalendári",
+        "status_other": "{{count}} udalostí v kalendári",
+        "none": "Zatiaľ nič naplánované",
+        "body": "Zapíšte najbližší tréning do kalendára. Hráči s účtom odpovedia, či prídu, a vy viete, s kým rátať.",
+        "action": "Naplánovať tréning",
+        "skip": "Spoločne netrénujeme"
+      }
+    }
+  },
+  "playoff": {
+    "title": "Play-off",
+    "bye": "Voľný postup",
+    "seed": "{{n}}. v tabuľke",
+    "tbd": "Zatiaľ neurčené",
+    "bestOf_one": "Na {{count}} víťazstvo",
+    "bestOf_few": "Na {{count}} víťazstvá",
+    "bestOf_other": "Na {{count}} víťazstiev",
+    "rounds": {
+      "ROUND_OF_16": "Osemfinále",
+      "QUARTER_FINAL": "Štvrťfinále",
+      "SEMI_FINAL": "Semifinále",
+      "FINAL": "Finále",
+      "BRONZE": "O 3. miesto"
+    },
+    "champion": "Víťaz sezóny",
+    "seedsPending": "Tímy sa doplnia podľa tabuľky, keď budú potvrdené všetky zápasy základnej časti.",
+    "gameLabel": "Play-off · {{round}}"
+  },
+  "stats": {
+    "short": {
+      "goals": "G",
+      "assists": "A",
+      "penaltyMinutes": "TM",
+      "yellowCards": "ŽK",
+      "redCards": "ČK",
+      "points": "B",
+      "fouls": "F",
+      "rankTotal": "B"
+    },
+    "long": {
+      "goals": "Góly",
+      "assists": "Asistencie",
+      "penaltyMinutes": "Trestné minúty",
+      "yellowCards": "Žlté karty",
+      "redCards": "Červené karty",
+      "points": "Body",
+      "fouls": "Fauly",
+      "rankTotal": "Body (G+A)"
+    },
+    "none": "Tento šport nevedie štatistiky hráčov"
+  },
+  "registration": {
+    "title": "Prihláška",
+    "notFound": "Prihláška sa nenašla.",
+    "heading": "Prihláška: {{name}}",
+    "seasonIntro": "Prihláste svoj tím do sezóny. Po schválení budete jeho manažérom.",
+    "tournamentIntro": "Prihláste tím do turnaja. Účet nepotrebujete, stačí e-mail.",
+    "applyButton": "Prihlásiť tím",
+    "playerName": "Meno hráča",
+    "teamName": "Názov tímu",
+    "color": "Farba",
+    "contactName": "Kontaktná osoba",
+    "email": "E-mail",
+    "phone": "Telefón (nepovinné)",
+    "note": "Poznámka pre organizátora (nepovinné)",
+    "roster": "Súpiska (nepovinné)",
+    "rosterHint": "Hráčov môžete doplniť aj neskôr cez organizátora.",
+    "rosterName": "Meno hráča {{n}}",
+    "rosterNumber": "Číslo hráča {{n}}",
+    "rosterNamePlaceholder": "Meno a priezvisko",
+    "rosterRemove": "Odobrať hráča",
+    "rosterAdd": "Pridať hráča",
+    "rules": "Pravidlá súťaže",
+    "acceptRules": "Prečítal(-a) som si pravidlá a súhlasím s nimi.",
+    "submit": "Odoslať prihlášku",
+    "sending": "Odosielam…",
+    "sentTitle": "Prihláška odoslaná",
+    "sentWaitlisted": "Prihláška je na čakacej listine",
+    "sentText": "Potvrdenie sme poslali na {{email}}. O rozhodnutí organizátora vám dáme vedieť e-mailom.",
+    "backToCompetition": "Späť na súťaž",
+    "toDashboard": "Moje prihlášky na prehľade",
+    "pastDeadline": "Termín na prihlášky už vypršal.",
+    "closed": "Prihlášky do tejto súťaže nie sú otvorené.",
+    "signInTitle": "Prihláste sa",
+    "signInText": "Do sezóny sa tím hlási z účtu v ATM – po schválení sa stanete manažérom tímu. Prihláste sa alebo si založte účet.",
+    "signIn": "Prihlásiť sa",
+    "createAccount": "Založiť účet",
+    "fullNote": "Súťaž je plná. Prihláška pôjde na čakaciu listinu.",
+    "whichTeam": "Ktorý tím prihlasujete?",
+    "newTeam": "Nový tím",
+    "factsTitle": "Podmienky",
+    "noFacts": "Organizátor neuviedol termín, kapacitu ani štartovné.",
+    "deadline": "Prihlášky do {{date}}",
+    "fee": "Štartovné: {{fee}}",
+    "seasonAfter": "Po schválení vznikne tím v sezóne a vy budete jeho manažérom.",
+    "tournamentAfter": "Po schválení organizátor zaradí tím do turnaja.",
+    "errors": {
+      "teamName": "Vyplňte názov.",
+      "contactName": "Vyplňte kontaktnú osobu.",
+      "email": "Zadajte platný e-mail.",
+      "acceptRules": "Bez súhlasu s pravidlami prihlášku nemožno odoslať.",
+      "roster": "Každý hráč potrebuje meno; číslo len číslicami.",
+      "send": "Prihlášku sa nepodarilo odoslať."
+    },
+    "mine": {
+      "title": "Moje prihlášky",
+      "withdraw": "Stiahnuť",
+      "withdrawError": "Prihlášku sa nepodarilo stiahnuť."
+    },
+    "checkStatus": "Stav prihlášky",
+    "freePlaces_one": "Voľné {{count}} z {{max}} miest",
+    "freePlaces_few": "Voľné {{count}} z {{max}} miest",
+    "freePlaces_other": "Voľných {{count}} z {{max}} miest",
+    "noFreePlaces": "Všetkých {{max}} miest je obsadených – nové prihlášky idú na čakaciu listinu (čaká {{waiting}})",
+    "waitlistOnly": "Plno – len čakacia listina",
+    "openBadge": "Prijíma prihlášky",
+    "placeNote_one": "Voľné je ešte {{count}} miesto. Prihláška počká na rozhodnutie organizátora.",
+    "placeNote_few": "Voľné sú ešte {{count}} miesta. Prihláška počká na rozhodnutie organizátora.",
+    "placeNote_other": "Voľných je ešte {{count}} miest. Prihláška počká na rozhodnutie organizátora.",
+    "previewOpen": "Náhľad – takto formulár vidia tímy. Odtiaľto sa nič neodošle.",
+    "previewClosed": "Náhľad – formulár zatiaľ nie je pre tímy otvorený. Odtiaľto sa nič neodošle.",
+    "requiredNote": "Polia označené * sú povinné.",
+    "sentStatusText": "V e-maile je aj odkaz na vašu prihlášku, kde uvidíte jej stav a môžete ju stiahnuť.",
+    "signInReturn": "Váš účet bude po schválení tím spravovať. Po prihlásení alebo založení účtu sa vrátite k tomuto formuláru.",
+    "status": {
+      "PENDING": "Čaká na rozhodnutie",
+      "WAITLISTED": "Čakacia listina",
+      "APPROVED": "Schválená",
+      "REJECTED": "Zamietnutá",
+      "WITHDRAWN": "Stiahnutá"
+    },
+    "statusPage": {
+      "title": "Stav prihlášky",
+      "sentOn": "Odoslané {{date}}",
+      "sent": "Čo ste odoslali",
+      "text": {
+        "PENDING": "Prihláška prišla a čaká na rozhodnutie organizátora. Keď rozhodne, pošleme vám e-mail.",
+        "WAITLISTED": "Súťaž je plná, preto je prihláška na čakacej listine. Ak sa miesto uvoľní, organizátor ju môže posunúť.",
+        "WAITLISTED_position": "Súťaž je plná, preto je prihláška na čakacej listine, {{position}}. v poradí. Ak sa miesto uvoľní, organizátor ju môže posunúť.",
+        "APPROVED": "Organizátor prihlášku schválil. Tím je v súťaži.",
+        "REJECTED": "Organizátor prihlášku neprijal.",
+        "WITHDRAWN": "Túto prihlášku ste stiahli."
+      },
+      "withdraw": "Stiahnuť prihlášku",
+      "withdrawConfirm": "Stiahnuť prihlášku? Organizátor ju už nebude posudzovať a museli by ste sa prihlásiť znova.",
+      "keepPrivate": "Ktokoľvek s týmto odkazom prihlášku uvidí a môže ju stiahnuť, preto ho nikomu nepreposielajte.",
+      "notFound": "Odkaz na prihlášku nefunguje. Skontrolujte, či ste z e-mailu skopírovali celý odkaz.",
+      "expired": "Platnosť odkazu na prihlášku vypršala. O prihláške bolo rozhodnuté pred viac ako 30 dňami."
+    }
+  },
+  "registrations": {
+    "title": "Prihlášky",
+    "hint": "Formulár pre tímy a schránka prihlášok",
+    "loadError": "Prihlášky sa nepodarilo načítať.",
+    "saveError": "Nastavenia sa nepodarilo uložiť.",
+    "decideError": "Rozhodnutie sa nepodarilo uložiť.",
+    "returningTeam": "Vracajúci sa tím",
+    "newTeam": "Nový tím",
+    "status": {
+      "PENDING": "Nová",
+      "WAITLISTED": "Čakacia listina",
+      "APPROVED": "Schválená",
+      "REJECTED": "Zamietnutá",
+      "WITHDRAWN": "Stiahnutá"
+    },
+    "roster_one": "Súpiska: {{count}} hráč",
+    "roster_few": "Súpiska: {{count}} hráči",
+    "roster_other": "Súpiska: {{count}} hráčov",
+    "reason": "Dôvod: {{reason}}",
+    "reasonPlaceholder": "Dôvod (nepovinné, uvidí ho žiadateľ)",
+    "confirmReject": "Zamietnuť prihlášku",
+    "approve": "Schváliť",
+    "waitlist": "Čakacia listina",
+    "reject": "Zamietnuť",
+    "deadline": "Termín (nepovinné)",
+    "maxTeams": "Maximum tímov (nepovinné)",
+    "fee": "Štartovné (nepovinné)",
+    "feePlaceholder": "napr. 50 € za tím, zaplatiť do 30. 6.",
+    "rules": "Pravidlá na odsúhlasenie (nepovinné)",
+    "save": "Uložiť podmienky",
+    "link": "Odkaz na formulár",
+    "copy": "Kopírovať",
+    "copied": "Skopírované",
+    "linkHintClosed": "Formulár je zatvorený; po otvorení začne odkaz fungovať.",
+    "inbox": "Schránka prihlášok",
+    "empty": "Zatiaľ žiadne prihlášky.",
+    "decided_one": "Vybavená: {{count}}",
+    "decided_few": "Vybavené: {{count}}",
+    "decided_other": "Vybavených: {{count}}",
+    "terms": "Podmienky",
+    "publish": "Zverejniť prihlášky",
+    "reopen": "Znova otvoriť prihlášky",
+    "close": "Uzavrieť prihlášky",
+    "preview": "Náhľad formulára",
+    "previewSaveFirst": "Na náhľad podmienky najprv uložte.",
+    "published": "Prihlášky sú otvorené",
+    "publishedHint": "Pošlite formulár tímom.",
+    "lifecycle": {
+      "DRAFT": "Nezverejnené",
+      "OPEN": "Prihlášky otvorené",
+      "FULL": "Plno",
+      "PAST_DEADLINE": "Po uzávierke",
+      "CLOSED": "Uzavreté"
+    },
+    "lifecycleHint": {
+      "DRAFT": "Pripravte podmienky, pozrite si formulár v náhľade a potom ho zverejnite.",
+      "OPEN": "Tímy sa môžu hlásiť cez verejný formulár.",
+      "FULL": "Všetky miesta sú obsadené. Nové prihlášky idú na čakaciu listinu.",
+      "PAST_DEADLINE": "Uzávierka uplynula, formulár už prihlášky neprijíma. Pre ďalšie prihlášky posuňte uzávierku.",
+      "CLOSED": "Formulár neprijíma prihlášky. Kto ho otvorí, uvidí, že je uzavretý."
+    },
+    "checklist": {
+      "deadline": "Uzávierka",
+      "capacity": "Kapacita",
+      "rules": "Pravidlá",
+      "fee": "Štartovné"
+    },
+    "checklistWarn": {
+      "deadline": "Bez uzávierky zostane formulár otvorený, kým ho neuzavriete.",
+      "capacity": "Bez kapacity ide každá prihláška rovno na rozhodnutie, bez čakacej listiny."
+    },
+    "confirm": {
+      "publishTitle": "Zverejniť formulár prihlášky?",
+      "competition": "Súťaž",
+      "deadline": "Uzávierka",
+      "noDeadline": "Žiadna – otvorené, kým neuzavriete",
+      "capacity": "Kapacita",
+      "teams_one": "{{count}} tím",
+      "teams_few": "{{count}} tímy",
+      "teams_other": "{{count}} tímov",
+      "noLimit": "Bez obmedzenia",
+      "fee": "Štartovné",
+      "noFee": "Žiadne",
+      "link": "Verejný odkaz",
+      "publish": "Zverejniť",
+      "closeTitle": "Uzavrieť prihlášky?",
+      "closeText": "Formulár prestane prijímať prihlášky. Tie, ktoré prišli, zostanú v schránke a formulár môžete kedykoľvek znova otvoriť."
+    },
+    "capacity": {
+      "approved": "Schválené",
+      "pending": "Nové",
+      "waitlisted": "Čakacia listina",
+      "max": "Kapacita",
+      "noLimit": "Maximum nie je nastavené, takže nikto na miesto nečaká."
+    },
+    "freePlaces_one": "Voľné je {{count}} miesto a čaká {{waiting}}. Nikto nepostupuje sám.",
+    "freePlaces_few": "Voľné sú {{count}} miesta a čaká {{waiting}}. Nikto nepostupuje sám.",
+    "freePlaces_other": "Voľných je {{count}} miest a čaká {{waiting}}. Nikto nepostupuje sám.",
+    "promote": "Posunúť",
+    "promoteNext": "Posunúť ďalšieho v poradí: {{team}}",
+    "promotedOutOfOrder": "Posunuté mimo poradia, {{name}}, {{date}}",
+    "someone": "manažér",
+    "waitlistPosition": "Čaká, {{position}}.",
+    "manage": "Spravovať",
+    "overviewHint": "Nové: {{pending}} · na čakacej listine: {{waiting}}",
+    "setup": {
+      "title": "Nechajte tímy, nech sa prihlásia",
+      "body": "Otvorte formulár prihlášky: tímy sa prihlásia samy a vy ich len schválite, namiesto toho, aby ste každý tím zadávali ručne.",
+      "action": "Otvoriť prihlášky",
+      "dismiss": "Teraz nie"
+    },
+    "share": {
+      "title": "Pošlite formulár tímom",
+      "native": "Zdieľať",
+      "whatsapp": "WhatsApp",
+      "email": "E-mail",
+      "poster": "Plagát na tlač",
+      "qrAlt": "QR kód formulára prihlášky: {{name}}",
+      "qrHint": "Tímy ho naskenujú a otvorí sa im formulár. Dajte ho na plagát alebo do prezentácie.",
+      "qrDownload": "Stiahnuť QR kód",
+      "qrFile": "prihlaska-qr",
+      "chatLabel": "Správa do chatu alebo e-mailu",
+      "postLabel": "Príspevok na sociálne siete",
+      "copyMessage": "Kopírovať: {{label}}",
+      "emailSubject": "Prihlášky sú otvorené: {{name}}",
+      "message": "Prihlášky do súťaže {{name}} sú otvorené. Prihláste tím do {{deadline}}: {{link}}",
+      "messageNoDeadline": "Prihlášky do súťaže {{name}} sú otvorené. Prihláste tím: {{link}}",
+      "post": "Spúšťame prihlášky tímov do súťaže {{name}}! Počet miest je obmedzený – prihláste sa do {{deadline}}: {{link}}",
+      "postNoDeadline": "Spúšťame prihlášky tímov do súťaže {{name}}! Prihláste tím tu: {{link}}"
+    },
+    "poster": {
+      "title": "Plagát",
+      "print": "Vytlačiť",
+      "headline": "Prihlášky tímov sú otvorené",
+      "scan": "Naskenujte kód a prihláste svoj tím",
+      "places_one": "{{count}} miesto",
+      "places_few": "{{count}} miesta",
+      "places_other": "{{count}} miest"
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "title": "Ahoj, {{name}}",
+      "managerText": "Všetko, čo spravujete, a čo tam na vás čaká.",
+      "newText": "Založte ligu alebo turnaj, alebo nájdite súťaž, ktorá práve prijíma tímy.",
+      "pending_one": "{{count}} prihláška na rozhodnutie",
+      "pending_few": "{{count}} prihlášky na rozhodnutie",
+      "pending_other": "{{count}} prihlášok na rozhodnutie"
+    },
+    "workspaces": {
+      "title": "Vaša správa",
+      "text": "Otvorte oblasť, v ktorej chcete pracovať.",
+      "emptyText": "Zatiaľ nič nespravujete. Založte ligu alebo turnaj, zaberie to minútu.",
+      "pending_one": "{{count}} nová prihláška",
+      "pending_few": "{{count}} nové prihlášky",
+      "pending_other": "{{count}} nových prihlášok",
+      "season": {
+        "title": "Sezóny",
+        "count_one": "{{count}} liga",
+        "count_few": "{{count}} ligy",
+        "count_other": "{{count}} líg"
+      },
+      "team": {
+        "title": "Tímy",
+        "count_one": "Spravujete {{count}} tím",
+        "count_few": "Spravujete {{count}} tímy",
+        "count_other": "Spravujete {{count}} tímov"
+      },
+      "tournament": {
+        "title": "Turnaje",
+        "count_one": "{{count}} séria turnajov",
+        "count_few": "{{count}} série turnajov",
+        "count_other": "{{count}} sérií turnajov"
+      },
+      "admin": {
+        "title": "Administrácia",
+        "text": "Používatelia, ligy a tikety podpory"
+      }
+    },
+    "start": {
+      "sport": "Šport",
+      "creating": "Zakladám…",
+      "error": "Nepodarilo sa to založiť. Skúste to znova.",
+      "league": {
+        "title": "Založiť ligu",
+        "text": "Sezóny, rozpis, tabuľky a prihlášky tímov",
+        "dialogTitle": "Založiť ligu",
+        "dialogText": "Liga drží vaše sezóny. Budete ju spravovať a hneď potom pridáte sezónu a tímy.",
+        "name": "Názov ligy",
+        "namePlaceholder": "napr. Bratislavská hobby hokejová liga",
+        "next": "Potom založíte prvú sezónu a pozvete tímy alebo otvoríte prihlášky.",
+        "create": "Založiť ligu"
+      },
+      "series": {
+        "title": "Založiť turnaj",
+        "text": "Skupiny, play-off a prihlášky bez účtu",
+        "dialogTitle": "Založiť turnaj",
+        "dialogText": "Séria turnajov drží vaše turnaje, napríklad jeden každý rok. Budete ju spravovať.",
+        "name": "Názov série",
+        "namePlaceholder": "napr. Letný florbalový pohár",
+        "next": "Potom pridáte prvý turnaj a jeho tímy alebo otvoríte prihlášky.",
+        "create": "Založiť sériu"
+      }
+    },
+    "managed": {
+      "title": "Prihlášky tímov vo vašich súťažiach",
+      "text": "Nové prihlášky čakajú na vaše rozhodnutie. Prihlášky môže prijímať aj súťaž, ktorá formulár ešte nezverejnila.",
+      "guide": "Ako prihlášky fungujú",
+      "open": "Otvoriť schránku prihlášok",
+      "publish": "Otvoriť prihlášky",
+      "pending_one": "{{count}} nová",
+      "pending_few": "{{count}} nové",
+      "pending_other": "{{count}} nových",
+      "waitlisted_one": "{{count}} na čakacej listine",
+      "waitlisted_few": "{{count}} na čakacej listine",
+      "waitlisted_other": "{{count}} na čakacej listine",
+      "kind": {
+        "season": "Sezóna",
+        "tournament": "Turnaj"
+      }
+    },
+    "open": {
+      "title": "Prihlášky otvorené",
+      "text": "Súťaže, ktoré práve prijímajú tímy.",
+      "all": "Všetky sezóny",
+      "empty": "Teraz žiadna súťaž neprijíma prihlášky."
+    },
+    "playing": {
+      "title": "Práve sa hrá",
+      "teams_one": "{{count}} tím",
+      "teams_few": "{{count}} tímy",
+      "teams_other": "{{count}} tímov",
+      "games_one": "{{count}} zápas",
+      "games_few": "{{count}} zápasy",
+      "games_other": "{{count}} zápasov"
+    },
+    "whatsNew": {
+      "title": "Novinky",
+      "new": "Nové",
+      "all": "Všetky novinky"
+    },
+    "help": {
+      "title": "Pomocník",
+      "quickStart": "Rýchly štart",
+      "registrations": "Návod na prihlášky tímov",
+      "all": "Centrum pomoci",
+      "contact": "Napíšte nám"
+    }
+  },
+  "adminShell": {
+    "title": "Administrácia",
+    "menuLabel": "Sekcie administrácie",
+    "openMenu": "Otvoriť menu",
+    "toDashboard": "Späť na nástenku",
+    "soon": "Čoskoro",
+    "comingIn": "Pribudne s celkom {{celek}}",
+    "badge_one": "{{count}} čaká",
+    "badge_few": "{{count}} čakajú",
+    "badge_other": "{{count}} čaká",
+    "sections": {
+      "overview": {
+        "label": "Prehľad",
+        "hint": "Čo na vás čaká a posledných 30 dní v číslach."
+      },
+      "payments": {
+        "label": "Platby a doklady",
+        "hint": "QR prevody a daňové doklady."
+      },
+      "pricing": {
+        "label": "Cenník a DPH",
+        "hint": "Ceny sú s DPH. Každá zmena platí od zvoleného dátumu; vystavené platby a doklady sa nemenia. Všetko sa zapisuje do auditného logu."
+      },
+      "users": {
+        "label": "Používatelia",
+        "hint": "Účty, čo spravujú, a ich história."
+      },
+      "leagues": {
+        "label": "Ligy",
+        "hint": "Všetky ligy; odtiaľto sa otvárajú sezóny."
+      },
+      "seasons": {
+        "label": "Sezóny",
+        "hint": "Všetky sezóny, filter podľa ligy."
+      },
+      "tournaments": {
+        "label": "Turnaje a série",
+        "hint": "Otvorí správu turnajov."
+      },
+      "players": {
+        "label": "Hráči",
+        "hint": "Hráči naprieč sezónami."
+      },
+      "games": {
+        "label": "Zápasy",
+        "hint": "Zápasy naprieč sezónami."
+      },
+      "registrations": {
+        "label": "Prihlášky",
+        "hint": "Prihlášky do sezón a turnajov."
+      },
+      "files": {
+        "label": "Súbory",
+        "hint": "Nahraté logá a dokumenty."
+      },
+      "support": {
+        "label": "Podpora",
+        "hint": "Správy z kontaktného formulára."
+      },
+      "audit": {
+        "label": "Audit log",
+        "hint": "Kto čo zmenil a kedy."
+      }
+    },
+    "search": {
+      "label": "Hľadať v celej administrácii",
+      "placeholder": "E-mail, liga, tím, turnaj…",
+      "users": "Používatelia",
+      "tournaments": "Turnaje"
+    },
+    "list": {
+      "export": "Export CSV",
+      "exportError": "Export sa nepodaril. Skúste to znova.",
+      "loadError": "Nepodarilo sa načítať. Skúste to znova.",
+      "filtersInUrl": "Filtre sú v adrese stránky, odkaz sa dá poslať ďalej.",
+      "bulkActions": "Akcie pre vybrané riadky",
+      "selected_one": "{{count}} vybraný",
+      "selected_few": "{{count}} vybrané",
+      "selected_other": "{{count}} vybraných",
+      "clearSelection": "Zrušiť výber",
+      "selectAll": "Vybrať všetko na stránke",
+      "selectRow": "Vybrať {{name}}",
+      "pages": "Stránky",
+      "range": "{{from}}–{{to}} z {{total}}",
+      "rangeEstimated": "{{from}}–{{to}} z približne {{total}}",
+      "perPage_one": "{{count}} na stránku",
+      "perPage_few": "{{count}} na stránku",
+      "perPage_other": "{{count}} na stránku",
+      "previous": "Predchádzajúca",
+      "next": "Ďalšia",
+      "addFilter": "Pridať filter",
+      "removeFilter": "Odobrať filter {{label}}",
+      "from": "Od",
+      "to": "Do",
+      "apply": "Použiť",
+      "any": "akýkoľvek"
+    },
+    "panel": {
+      "close": "Zavrieť detail",
+      "overview": "Prehľad",
+      "history": "História"
+    },
+    "confirm": {
+      "reasonRequired": "Dôvod (povinný)",
+      "reasonOptional": "Dôvod (nepovinný)",
+      "reasonHint": "Uloží sa do auditného logu s vaším menom."
+    },
+    "audit": {
+      "when": "Kedy",
+      "who": "Kto",
+      "section": "Sekcia",
+      "record": "Záznam",
+      "recordId": "ID záznamu",
+      "action": "Akcia",
+      "reason": "Dôvod",
+      "period": "Obdobie",
+      "field": "Pole",
+      "before": "Predtým",
+      "after": "Potom",
+      "system": "Systém",
+      "noChanges": "Žiadne pole sa nezmenilo.",
+      "emptyRecord": "Zatiaľ nič nezapísané.",
+      "empty": "Týmto filtrom nezodpovedá žiadny záznam.",
+      "search": "Hľadať v logu",
+      "searchPlaceholder": "Dôvod alebo ID záznamu…",
+      "actorPlaceholder": "Meno alebo e-mail",
+      "actions": {
+        "CREATE": "Vytvorené",
+        "UPDATE": "Zmenené",
+        "DELETE": "Vymazané",
+        "CONFIRM": "Potvrdené",
+        "REOPEN": "Znova otvorené"
+      },
+      "types": {
+        "User": "Používatelia",
+        "Game": "Zápasy",
+        "Season": "Sezóny",
+        "SupportTicket": "Podpora",
+        "ProductPrice": "Ceny",
+        "VatRate": "Sadzby DPH",
+        "PlanLimit": "Limity plánov",
+        "Setting": "Nastavenia",
+        "Tournament": "Turnaje",
+        "Payment": "Platby"
+      }
+    },
+    "users": {
+      "kicker": "Používateľ",
+      "name": "Meno",
+      "email": "E-mail",
+      "role": "Rola",
+      "account": "Účet",
+      "activation": "E-mail overený",
+      "verifiedOn": "Áno, {{date}}",
+      "registered": "Registrácia",
+      "lastLogin": "Posledné prihlásenie",
+      "digest": "Súhrny kôl",
+      "activity": "Aktivita",
+      "activityValue": "{{players}} miest na súpiskách · {{tickets}} správ podpore · {{registrations}} prihlášok",
+      "manages": "Spravuje",
+      "managesNothing": "Nespravuje žiadnu ligu, sériu turnajov ani tím.",
+      "leagues": "Ligy a sezóny",
+      "series": "Série turnajov",
+      "teams": "Tímy",
+      "leaguesCount_one": "{{count}} liga",
+      "leaguesCount_few": "{{count}} ligy",
+      "leaguesCount_other": "{{count}} líg",
+      "seriesCount_one": "{{count}} séria",
+      "seriesCount_few": "{{count}} série",
+      "seriesCount_other": "{{count}} sérií",
+      "teamsCount_one": "{{count}} tím",
+      "teamsCount_few": "{{count}} tímy",
+      "teamsCount_other": "{{count}} tímov",
+      "managesFilter": {
+        "league": "Ligu",
+        "series": "Sériu turnajov",
+        "team": "Tím",
+        "any": "Čokoľvek",
+        "none": "Nič"
+      },
+      "tabs": {
+        "plans": "Plány a predplatné",
+        "payments": "Platby a doklady",
+        "billing": "Fakturačné údaje",
+        "manages": "Čo spravuje"
+      },
+      "plansPending": "Plány pribudnú s platenými turnajmi (celok B): ročný plán Organizátor s dátumom od – do, plány turnajov, ich stav a koniec platnosti.",
+      "paymentsPending": "Platby pribudnú s celkom B: platby používateľa s variabilným symbolom a doklady na stiahnutie.",
+      "billingPending": "Fakturačné údaje pribudnú s celkom B vrátane overenia IČ DPH.",
+      "search": "Hľadať používateľov",
+      "searchPlaceholder": "Meno alebo e-mail…",
+      "empty": "Týmto filtrom nezodpovedá žiadny používateľ.",
+      "created": "Používateľ vytvorený",
+      "saved": "Používateľ uložený",
+      "deleted": "Používateľ vymazaný",
+      "activate": "Aktivovať",
+      "deactivate": "Deaktivovať",
+      "activated_one": "Účet aktivovaný",
+      "activated_few": "Aktivované {{count}} účty",
+      "activated_other": "Aktivovaných {{count}} účtov",
+      "deactivated_one": "Účet deaktivovaný",
+      "deactivated_few": "Deaktivované {{count}} účty",
+      "deactivated_other": "Deaktivovaných {{count}} účtov",
+      "deactivateTitle_one": "Deaktivovať účet?",
+      "deactivateTitle_few": "Deaktivovať {{count}} účty?",
+      "deactivateTitle_other": "Deaktivovať {{count}} účtov?",
+      "deactivateHint_one": "{{name}} bude hneď odhlásený a neprihlási sa, kým účet admin znova neaktivuje.",
+      "deactivateHint_few": "Budú hneď odhlásení a neprihlásia sa, kým im admin účty znova neaktivuje.",
+      "deactivateHint_other": "Budú hneď odhlásení a neprihlásia sa, kým im admin účty znova neaktivuje.",
+      "activateTitle": "Aktivovať účet?",
+      "activateHint": "{{name}} sa bude môcť znova prihlásiť.",
+      "deleteTitle": "Vymazať používateľa?",
+      "deleteHint": "{{name}} bude natrvalo vymazaný. Ligy, tímy a série, ktoré spravuje, zostanú bez správcu.",
+      "notYourself": "Vlastný účet deaktivovať nemôžete."
+    },
+    "overview": {
+      "waiting": "Čaká na vás",
+      "payments": "Platby na potvrdenie",
+      "tickets": "Správy podpore",
+      "ticketsHint": "Nové alebo rozpracované.",
+      "registrations": "Prihlášky bez reakcie",
+      "registrationsHint": "Čakajú dlhšie ako 7 dní.",
+      "last30Days": "Posledných 30 dní",
+      "newUsers": "Noví používatelia",
+      "activeLeagues": "Aktívne ligy",
+      "activeTournaments": "Aktívne turnaje",
+      "activeHint": "Aktívna znamená, že mala zápas s dátumom v posledných 30 dňoch.",
+      "paymentsHint": "QR prevody čakajúce na potvrdenie."
+    },
+    "pricing": {
+      "readOnly": "Môžete sa pozerať, ale nie meniť. Ceny, sadzby DPH, limity a OSS mení len účet správcu cenníka.",
+      "products": "Produkty",
+      "leaguePlansLater": "Plány líg pribudnú neskôr",
+      "product": "Produkt",
+      "czk": "CZK s DPH",
+      "eur": "EUR s DPH",
+      "validFromShort": "Platí od",
+      "scheduled": "Naplánované",
+      "changePrice": "Zmeniť cenu",
+      "from": "od {{when}}",
+      "now": "odteraz",
+      "withdraw": "Zrušiť {{label}}",
+      "withdrawn": "Naplánovaná zmena zrušená",
+      "withdrawTitle": "Zrušiť naplánovanú zmenu?",
+      "withdrawHint": "{{label}} nezačne platiť. Zatiaľ od nej nič vystavené nezávisí.",
+      "withdrawConfirm": "Zrušiť zmenu",
+      "vatRates": "Sadzby DPH podľa krajiny",
+      "addRate": "+ Pridať sadzbu",
+      "country": "Krajina",
+      "rate": "Základná sadzba",
+      "appliesWhen": "Použije sa",
+      "appliesCz": "Vždy pri českých zákazníkoch; pri ostatných z EÚ, keď je OSS vypnuté",
+      "appliesOss": "Len so zapnutým OSS, zákazník bez IČ DPH",
+      "ratesNote": "Každú sadzbu pred použitím overte s účtovníčkou.",
+      "side": "Úpravy",
+      "newPrice": "Nová cena",
+      "validFrom": "Platí od",
+      "validFromHint": "Prázdne znamená hneď. Dátum platí od polnoci pražského času.",
+      "split": "{{country}} {{rate}}: základ {{base}}, DPH {{vat}}",
+      "ossOn": "(OSS je zapnuté)",
+      "ossOff": "(len pri zapnutom OSS)",
+      "priceScope": "Platí pre platby vytvorené {{when}}. Už vytvorené platby si nechajú svoju cenu a vystavené doklady sa nikdy nemenia.",
+      "schedule": "Naplánovať zmenu",
+      "priceSaved": "Zmena ceny naplánovaná",
+      "saveError": "Uloženie sa nepodarilo. Skúste to znova.",
+      "confirmPriceTitle": "Nová cena pre {{name}}?",
+      "confirmPrice": "{{czk}} / {{eur}} s DPH pre platby vytvorené {{when}}. Zmena sa zapíše do auditného logu.",
+      "ratePercent": "Sadzba (%)",
+      "rateSaved": "Sadzba DPH naplánovaná",
+      "confirmRateTitle": "Nová sadzba DPH?",
+      "confirmRate": "{{country}} {{rate}} {{when}}, pre platby vytvorené od tej chvíle. Zmena sa zapíše do auditného logu.",
+      "limits": "Limity plánov",
+      "changeLimits": "Zmeniť limity",
+      "limit": "Limit",
+      "unlimited": "bez limitu",
+      "plans": {
+        "FREE": "Zadarmo",
+        "TOURNAMENT": "Turnaj",
+        "TOURNAMENT_PLUS": "Turnaj Plus",
+        "ORGANIZER": "Organizátor"
+      },
+      "limitKeys": {
+        "TEAMS_PER_TOURNAMENT": "Tímov na turnaj",
+        "SPONSOR_LOGOS": "Logá sponzorov",
+        "DOCUMENTS": "Dokumenty (PDF)",
+        "DOCUMENT_MAX_MB": "Veľkosť dokumentu (MB)",
+        "LOGO_MAX_MB": "Logo tímu (MB)"
+      },
+      "limitsHint": "Prázdne pole znamená bez limitu, 0, že plán to nemá. Uložia sa len zmenené polia.",
+      "limitsSaved": "Zmena limitov naplánovaná",
+      "confirmLimitsTitle_one": "Zmeniť {{count}} limit?",
+      "confirmLimitsTitle_few": "Zmeniť {{count}} limity?",
+      "confirmLimitsTitle_other": "Zmeniť {{count}} limitov?",
+      "confirmLimits": "Platí {{when}}: {{list}}. Zmena sa zapíše do auditného logu.",
+      "oss": "Režim OSS",
+      "on": "Zapnuté",
+      "off": "Vypnuté",
+      "ossOffHint": "Vypnuté: zákazníci z iných krajín EÚ bez IČ DPH platia českú DPH. Zapnúť pri prekročení limitu, po dohode s účtovníčkou.",
+      "ossOnHint": "Zapnuté: zákazníci z iných krajín EÚ bez IČ DPH platia sadzbu svojej krajiny, priznanú cez OSS.",
+      "ossCounter": "Predaje do EÚ bez IČ DPH, {{year}}",
+      "ossOf": "{{total}} z {{limit}}",
+      "ossAlerts": "Upozornenie e-mailom pri 80 % (8 000 €) a pri prekročení.",
+      "ossNotTracked": "Počíta sa z platieb, ktoré pribudnú s celkom B; dovtedy zostáva nula.",
+      "ossOnTitle": "Zapnúť OSS?",
+      "ossOffTitle": "Vypnúť OSS?",
+      "ossOnConfirm": "Platby vytvorené odteraz účtujú zákazníkom z EÚ bez IČ DPH sadzbu ich krajiny. Každá taká krajina musí mať sadzbu v tabuľke.",
+      "ossOffConfirm": "Platby vytvorené odteraz účtujú zákazníkom z EÚ bez IČ DPH českú DPH.",
+      "switchOn": "Zapnúť",
+      "switchOff": "Vypnúť",
+      "ossSwitchedOn": "OSS zapnuté",
+      "ossSwitchedOff": "OSS vypnuté",
+      "lookup": "Overiť IČ DPH alebo IČO",
+      "lookupHint": "IČ DPH sa overí vo VIES, IČO v ARES – rovnako ako vo formulári fakturačných údajov.",
+      "lookupRun": "Overiť",
+      "lookupErrors": {
+        "VAT_ID_FORMAT": "IČ DPH sa začína dvojpísmenovým kódom krajiny.",
+        "ICO_FORMAT": "Toto nie je platné IČO.",
+        "ICO_UNKNOWN": "ARES toto IČO nepozná.",
+        "ARES_UNAVAILABLE": "ARES neodpovedá. Skúste to neskôr.",
+        "failed": "Overenie sa nepodarilo."
+      },
+      "vatStatus": {
+        "VALID": "Platné",
+        "INVALID": "Neplatné",
+        "UNAVAILABLE": "VIES neodpovedal; skúsi sa znova"
+      },
+      "checkedAt": "Overené {{when}}",
+      "consultation": "číslo dopytu {{id}}",
+      "ico": "IČO {{ico}}",
+      "dic": "IČ DPH {{dic}}"
+    },
+    "payments": {
+      "kicker": "Platba",
+      "variableSymbol": "VS",
+      "customer": "Zákazník",
+      "payer": "Platiteľ",
+      "tournament": "Turnaj",
+      "product": "Produkt",
+      "amount": "Cena s DPH",
+      "base": "Základ",
+      "vat": "DPH",
+      "vatRate": "DPH {{rate}} %",
+      "currency": "Mena",
+      "statusLabel": "Stav",
+      "status": {
+        "PENDING": "Čaká",
+        "PAID": "Zaplatené",
+        "CANCELLED": "Zrušené"
+      },
+      "products": {
+        "TOURNAMENT": "Turnaj",
+        "TOURNAMENT_PLUS": "Turnaj Plus",
+        "ORGANIZER_YEAR": "Organizátor (rok)"
+      },
+      "upgradeFrom": "Doplatok z plánu",
+      "account": "Účet",
+      "created": "Vytvorené",
+      "confirmedAt": "Potvrdené",
+      "cancelledAt": "Zrušené",
+      "period": "Obdobie",
+      "search": "Hľadať platby",
+      "searchPlaceholder": "Variabilný symbol, číslo dokladu, e-mail, turnaj…",
+      "empty": "Žiadna platba nezodpovedá.",
+      "confirm": "Označiť ako zaplatené",
+      "cancel": "Zrušiť platbu",
+      "confirmTitle_one": "Označiť platbu ako zaplatenú?",
+      "confirmTitle_few": "Označiť {{count}} platby ako zaplatené?",
+      "confirmTitle_other": "Označiť {{count}} platieb ako zaplatené?",
+      "confirmHint_one": "Overte, že prevod s týmto variabilným symbolom prišiel. Plán začne platiť hneď a platiteľovi príde daňový doklad e-mailom.",
+      "confirmHint_few": "Overte, že všetky prevody s ich variabilnými symbolmi prišli. Plány začnú platiť hneď a platiteľom prídu daňové doklady e-mailom.",
+      "confirmHint_other": "Overte, že všetky prevody s ich variabilnými symbolmi prišli. Plány začnú platiť hneď a platiteľom prídu daňové doklady e-mailom.",
+      "cancelTitle_one": "Zrušiť platbu?",
+      "cancelTitle_few": "Zrušiť {{count}} platby?",
+      "cancelTitle_other": "Zrušiť {{count}} platieb?",
+      "cancelHint_one": "Organizátor si potom môže zvoliť plán znova.",
+      "cancelHint_few": "Organizátori si potom môžu zvoliť plán znova.",
+      "cancelHint_other": "Organizátori si potom môžu zvoliť plán znova.",
+      "confirmed_one": "Platba označená ako zaplatená",
+      "confirmed_few": "{{count}} platby označené ako zaplatené",
+      "confirmed_other": "{{count}} platieb označených ako zaplatené",
+      "canceled_one": "Platba zrušená",
+      "canceled_few": "{{count}} platby zrušené",
+      "canceled_other": "{{count}} platieb zrušených",
+      "skipped_one": "Jedna platba už bola vybavená",
+      "skipped_few": "{{count}} platby už boli vybavené",
+      "skipped_other": "{{count}} platieb už bolo vybavených",
+      "decideError": "Platby sa nepodarilo upraviť.",
+      "document": "Daňový doklad",
+      "documentKind": {
+        "SIMPLIFIED": "Zjednodušený",
+        "FULL": "Úplný"
+      },
+      "documentEmailed": "Odoslané platiteľovi {{when}}",
+      "documentNotEmailed": "Zatiaľ neodoslané",
+      "downloadDocument": "Stiahnuť PDF",
+      "documentError": "Doklad sa nepodarilo otvoriť."
+    }
+  },
+  "files": {
+    "upload": "Nahrať logo",
+    "replace": "Vymeniť logo",
+    "remove": "Odobrať",
+    "uploading": "Nahrávam…",
+    "logoHint": "PNG, JPG alebo WebP do 1 MB. Môžete ho sem aj pretiahnuť.",
+    "errors": {
+      "FILE_TOO_LARGE": "Logo je väčšie ako 1 MB.",
+      "FILE_TYPE_NOT_ALLOWED": "Logo musí byť obrázok PNG, JPG alebo WebP.",
+      "failed": "Logo sa nepodarilo nahrať. Skúste to znova."
+    }
+  },
+  "plans": {
+    "label": "Plán",
+    "names": {
+      "FREE": "Zadarmo",
+      "TOURNAMENT": "Turnaj",
+      "TOURNAMENT_PLUS": "Turnaj Plus",
+      "ORGANIZER": "Organizátor"
+    },
+    "usage": "{{plan}} · {{teams}}/{{limit}} tímov",
+    "usageUnlimited_one": "{{plan}} · {{count}} tím, bez limitu",
+    "usageUnlimited_few": "{{plan}} · {{count}} tímy, bez limitu",
+    "usageUnlimited_other": "{{plan}} · {{count}} tímov, bez limitu",
+    "limitReached": "Plán {{plan}} pripúšťa najviac {{limit}} tímov. Pre viac tímov zvoľte vyšší plán.",
+    "maxHint": "Plán {{plan}} pripúšťa najviac {{limit}} tímov.",
+    "organizerNote": "Na turnaj sa vzťahuje ročný plán Organizátor správcu série.",
+    "change": "Zmeniť plán",
+    "changeTitle": "Plán turnaja",
+    "reason": "Dôvod (uloží sa do auditného logu)",
+    "changeHint": "Nižší plán žiadny tím neodoberie; len nepustí ďalšie nad limit.",
+    "save": "Uložiť",
+    "cancel": "Zrušiť",
+    "changeError": "Plán sa nepodarilo zmeniť.",
+    "upgrade": "Zvýšiť plán",
+    "awaitingPayment": "Čaká na platbu: {{plan}}",
+    "limitPending": "Plán {{plan}} čaká na potvrdenie platby. Ďalšie tímy bude možné schváliť, hneď ako ju potvrdíme.",
+    "offersError": "Plány sa nepodarilo načítať.",
+    "startError": "Platbu sa nepodarilo založiť.",
+    "cancelError": "Platbu sa nepodarilo zrušiť.",
+    "offers": {
+      "title": "Zvoľte plán",
+      "intro": "Platí sa QR prevodom. Plán začne platiť, hneď ako platbu potvrdíme. Dovtedy môžete turnaj ďalej pripravovať a prijímať prihlášky.",
+      "currency": "Mena",
+      "unavailable": "Platba zatiaľ nie je k dispozícii. Ozvite sa nám, prosím.",
+      "none": "Turnaj už má najvyšší plán.",
+      "perTournament": "za turnaj",
+      "perYear": "ročne",
+      "upgrade": "doplatok z plánu {{plan}}",
+      "choose": "Zvoliť",
+      "vatIncluded": "Ceny sú s DPH.",
+      "points": {
+        "TOURNAMENT": "Až {{limit}} tímov.",
+        "TOURNAMENT_PLUS": "Bez limitu tímov, logá sponzorov, dokumenty na stiahnutie, bez výraznej značky ATM.",
+        "ORGANIZER": "Všetky turnaje vo vašich sériách v úrovni Plus po celý rok."
+      },
+      "renewalFrom": "nadväzuje od {{date}}"
+    },
+    "payment": {
+      "title": "QR platba",
+      "waiting": "Čaká na potvrdenie platby",
+      "plan": "Plán",
+      "amount": "Suma",
+      "variableSymbol": "Variabilný symbol",
+      "account": "Účet",
+      "recipient": "Príjemca",
+      "qrAlt": "QR kód na platbu",
+      "hint": "Naskenujte kód v bankovej aplikácii alebo zadajte údaje ručne aj s variabilným symbolom. Plán začne platiť, hneď ako platbu potvrdíme.",
+      "cancel": "Zrušiť platbu"
+    },
+    "organizerUntil": "Organizátor do {{date}}",
+    "renew": "Predĺžiť Organizátora"
+  }
+}

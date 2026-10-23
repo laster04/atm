@@ -1,3 +1,4 @@
+import { languageOf } from '@/i18n/languages';
 /**
  * Date utility functions for consistent date formatting across the application.
  *
@@ -94,7 +95,7 @@ export function fromZonedInput(value: string | null | undefined): string | null 
  * missed — Czech pages then printed English dates.
  */
 export function getLocale(language: string): string {
-	return language?.toLowerCase().startsWith('cs') ? 'cs-CZ' : 'en-US';
+	return languageOf(language)?.locale ?? 'en-US';
 }
 
 /**

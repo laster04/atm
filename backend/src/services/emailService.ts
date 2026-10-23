@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { emailTexts, fill, fillText, intlLocale, type Locale } from '../i18n/index.js';
 
 interface EmailOptions {
   to: string;
@@ -40,13 +41,15 @@ interface PlacesSummary {
 }
 
 /** "6 v soutěži · 2 čeká na rozhodnutí · 3 na čekací listině · 8 míst" for the organiser. */
-const placesLine = (places: PlacesSummary): string =>
-  [
-    `${places.approved} v soutěži`,
-    `${places.pending} čeká na rozhodnutí`,
-    `${places.waitlisted} na čekací listině`,
-    places.max != null ? `${places.max} míst` : 'bez omezení počtu',
+const placesLine = (places: PlacesSummary, locale: Locale): string => {
+  const t = emailTexts(locale).places;
+  return [
+    fill(t.approved, { count: places.approved }),
+    fill(t.pending, { count: places.pending }),
+    fill(t.waitlisted, { count: places.waitlisted }),
+    places.max != null ? fill(t.max, { count: places.max }) : t.noLimit,
   ].join(' · ');
+};
 
 function escapeHtml(value: string): string {
   return value
@@ -139,7 +142,7 @@ class EmailService {
             </div>
 
             <div style="text-align:center;padding-top:28px;">
-              <p style="margin:0;font-size:12px;color:#a1a1aa;">ATM &mdash; Amateur Team Management</p>
+              <p style="margin:0;font-size:12px;color:#a1a1aa;">ATM &ndash; Amateur Team Management</p>
             </div>
 
           </div>
@@ -190,108 +193,77 @@ class EmailService {
     name: string,
     activationToken: string,
     /** A path in the app the activation page sends the user on to. */
-    next?: string | null
+    next?: string | null,
+    locale: Locale = 'cs'
   ): Promise<boolean> {
     const activationLink = `${this.getAppUrl()}/activate/${activationToken}${next ? `?next=${encodeURIComponent(next)}` : ''}`;
     const accent = '#2563eb';
-    const safeName = escapeHtml(name);
+    const all = emailTexts(locale);
+    const t = all.activation;
 
     const body = [
-      this.p(`Hello, <strong>${safeName}</strong>,`),
-      this.p('Thank you for registering at Amateur Team Management (ATM). To complete your registration and activate your account, please click the button below:', { mb: 0 }),
-      this.button('Activate My Account', activationLink, accent),
-      this.linkChip('Or copy and paste this link into your browser:', activationLink, accent),
-      this.p('This activation link will expire in <strong>24 hours</strong>.', { mb: 8, size: 13, color: COLORS.muted }),
-      this.p('If you did not create an account, you can safely ignore this email.', { mb: 0, size: 13, color: COLORS.muted }),
+      this.p(fill(all.greeting, { name })),
+      this.p(t.intro, { mb: 0 }),
+      this.button(t.button, activationLink, accent),
+      this.linkChip(all.copyLink, activationLink, accent),
+      this.p(t.expiry, { mb: 8, size: 13, color: COLORS.muted }),
+      this.p(t.ignore, { mb: 0, size: 13, color: COLORS.muted }),
     ].join('');
 
-    const html = this.buildEmailHtml(accent, 'mail-check', 'Welcome to ATM!', body);
-
-    return this.sendEmail({
-      to,
-      subject: 'Activate your ATM account',
-      html,
-    });
+    return this.sendEmail({ to, subject: t.subject, html: this.buildEmailHtml(accent, 'mail-check', t.header, body) });
   }
 
-  async sendPasswordResetEmail(
-    to: string,
-    name: string,
-    resetToken: string
-  ): Promise<boolean> {
+  async sendPasswordResetEmail(to: string, name: string, resetToken: string, locale: Locale = 'cs'): Promise<boolean> {
     const resetLink = `${this.getAppUrl()}/reset-password/${resetToken}`;
     const accent = '#d4183d';
-    const safeName = escapeHtml(name);
+    const all = emailTexts(locale);
+    const t = all.passwordReset;
 
     const body = [
-      this.p(`Hello, <strong>${safeName}</strong>,`),
-      this.p('We received a request to reset your password for your ATM account. Click the button below to set a new password:', { mb: 0 }),
-      this.button('Reset My Password', resetLink, accent),
-      this.linkChip('Or copy and paste this link into your browser:', resetLink, accent),
-      this.p('This link will expire in <strong>1 hour</strong>.', { mb: 0, size: 13, color: COLORS.muted }),
-      this.warningBox(
-        "Didn't request this?",
-        "If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged."
-      ),
+      this.p(fill(all.greeting, { name })),
+      this.p(t.intro, { mb: 0 }),
+      this.button(t.button, resetLink, accent),
+      this.linkChip(all.copyLink, resetLink, accent),
+      this.p(t.expiry, { mb: 0, size: 13, color: COLORS.muted }),
+      this.warningBox(t.warningTitle, t.warningText),
     ].join('');
 
-    const html = this.buildEmailHtml(accent, 'lock', 'Password Reset Request', body);
-
-    return this.sendEmail({
-      to,
-      subject: 'Reset your ATM password',
-      html,
-    });
+    return this.sendEmail({ to, subject: t.subject, html: this.buildEmailHtml(accent, 'lock', t.header, body) });
   }
 
-  async sendPasswordChangedEmail(to: string, name: string): Promise<boolean> {
+  async sendPasswordChangedEmail(to: string, name: string, locale: Locale = 'cs'): Promise<boolean> {
     const accent = '#16a34a';
-    const safeName = escapeHtml(name);
+    const all = emailTexts(locale);
+    const t = all.passwordChanged;
 
     const body = [
-      this.p(`Hello, <strong>${safeName}</strong>,`),
-      this.p('Your password has been successfully changed.', { mb: 8 }),
-      this.p('If you made this change, no further action is needed.', { mb: 0, size: 13, color: COLORS.muted }),
-      this.warningBox(
-        "Wasn't you?",
-        'If you didn\'t change your password, please contact us immediately as your account may be compromised.'
-      ),
+      this.p(fill(all.greeting, { name })),
+      this.p(t.done, { mb: 8 }),
+      this.p(t.noAction, { mb: 0, size: 13, color: COLORS.muted }),
+      this.warningBox(t.warningTitle, t.warningText),
     ].join('');
 
-    const html = this.buildEmailHtml(accent, 'shield-check', 'Password Changed', body);
-
-    return this.sendEmail({
-      to,
-      subject: 'Your ATM password has been changed',
-      html,
-    });
+    return this.sendEmail({ to, subject: t.subject, html: this.buildEmailHtml(accent, 'shield-check', t.header, body) });
   }
 
-  async sendWelcomeEmail(to: string, name: string): Promise<boolean> {
+  async sendWelcomeEmail(to: string, name: string, locale: Locale = 'cs'): Promise<boolean> {
     const loginLink = `${this.getAppUrl()}/login`;
     const accent = '#030213';
-    const safeName = escapeHtml(name);
+    const all = emailTexts(locale);
+    const t = all.welcome;
 
-    const bullets = ['Manage your teams and players', 'Track game schedules and results', 'View standings and statistics']
-      .map((t) => `<li style="margin:0 0 8px;">${t}</li>`)
-      .join('');
+    const bullets = t.can.map((item) => `<li style="margin:0 0 8px;">${item}</li>`).join('');
 
     const body = [
-      this.p(`Hello, <strong>${safeName}</strong>,`),
-      this.p('Your account has been successfully activated. You can now log in and start using ATM.', { mb: 0 }),
-      this.button('Log In Now', loginLink, accent),
-      this.p('With ATM you can:', { mb: 8 }),
+      this.p(fill(all.greeting, { name })),
+      this.p(t.intro, { mb: 0 }),
+      this.button(t.button, loginLink, accent),
+      this.p(t.canTitle, { mb: 8 }),
       `<ul style="margin:0 0 8px;padding-left:20px;font-size:15px;line-height:1.6;color:${COLORS.text};">${bullets}</ul>`,
-      this.p('If you have any questions, feel free to reach out to us.', { mb: 0, size: 13, color: COLORS.muted }),
+      this.p(t.questions, { mb: 0, size: 13, color: COLORS.muted }),
     ].join('');
 
-    const html = this.buildEmailHtml(accent, 'badge-check', 'Account Activated!', body);
-
-    return this.sendEmail({
-      to,
-      subject: 'Welcome to ATM - Account Activated',
-      html,
-    });
+    return this.sendEmail({ to, subject: t.subject, html: this.buildEmailHtml(accent, 'badge-check', t.header, body) });
   }
 
   /**
@@ -312,96 +284,28 @@ class EmailService {
     link: string;
     expiresAt: Date;
     hasAccount: boolean;
-    locale?: string;
+    locale: Locale;
   }): Promise<boolean> {
     const accent = '#0F172A';
-    const isCs = params.locale !== 'en';
-    const isTeam = params.kind === 'TEAM';
-    const isPlayer = params.kind === 'PLAYER';
-    const name = escapeHtml(params.inviteeName);
-    const target = escapeHtml(params.targetName);
-    const context = params.contextName ? escapeHtml(params.contextName) : null;
-    const inviter = params.inviterName ? escapeHtml(params.inviterName) : null;
-    const until = params.expiresAt.toLocaleDateString(isCs ? 'cs-CZ' : 'en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'Europe/Prague',
-    });
-
-    const t = isCs
-      ? {
-          subject: isPlayer
-            ? inviter
-              ? `${params.inviterName} vás zve do týmu ${params.targetName}`
-              : `Pozvánka do týmu ${params.targetName}`
-            : inviter
-              ? `${params.inviterName} vás zve ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`
-              : `Pozvánka ke správě ${isTeam ? 'týmu' : 'ligy'} ${params.targetName}`,
-          header: isPlayer ? 'Pozvánka pro hráče' : isTeam ? 'Pozvánka pro manažera týmu' : 'Pozvánka pro manažera sezóny',
-          greeting: `Dobrý den, <strong>${name}</strong>,`,
-          invited: isPlayer
-            ? `${inviter ? `<strong>${inviter}</strong> vás zve` : 'Jste zváni'} do týmu <strong>${target}</strong>${context ? ` (${context})` : ''} v ATM.`
-            : `${inviter ? `<strong>${inviter}</strong> vás zve` : 'Jste zváni'} ke správě ${isTeam ? 'týmu' : 'ligy'} <strong>${target}</strong>${context ? ` (${context})` : ''} v ATM.`,
-          next: params.hasAccount
-            ? 'Účet v ATM už máte. Otevřete pozvánku, přihlaste se svým heslem a pozvánku přijměte.'
-            : isPlayer
-              ? 'Otevřete pozvánku, zvolte si heslo a jste v týmu.'
-              : 'Otevřete pozvánku, zvolte si heslo a rovnou se dostanete do své správy.',
-          button: 'Přijmout pozvánku',
-          expiry: `Odkaz platí do <strong>${until}</strong>.`,
-          canTitle: isPlayer ? 'Co v ATM uvidíte' : 'Co budete moci dělat',
-          can: isPlayer
-            ? ['kalendář týmu – tréninky, zápasy a srazy', 'u každé akce odpovíte, zda přijdete']
-            : isTeam
-              ? ['spravovat soupisku a hráče', 'nastavit barvy a logo týmu', 'plánovat tréninky a sledovat docházku', 'doplnit statistiky svých hráčů po zápase']
-              : ['zakládat sezóny a přidávat do nich týmy', 'zvát manažery týmů', 'generovat rozpis a zapisovat výsledky', 'zveřejnit sezónu a rozesílat výsledky'],
-          keepTitle: inviter ? `${inviter} se dál stará o` : 'Manažer sezóny se dál stará o',
-          keep: ['rozpis a termíny zápasů', 'skóre a tabulku', 'potvrzování zápisů o utkání'],
-          copyLink: 'Tlačítko nefunguje? Vložte do prohlížeče tento odkaz:',
-          ignore: 'Pozvánku nečekáte? Ignorujte tento e-mail – dokud ji nepřijmete, nic se nezmění.',
-          reply: params.inviterEmail
-            ? isPlayer
-              ? 'Na otázky k týmu vám odpoví ten, kdo vás pozval – stačí odpovědět na tento e-mail.'
-              : 'Na otázky k soutěži vám odpoví ten, kdo vás pozval – stačí odpovědět na tento e-mail.'
-            : '',
-        }
-      : {
-          subject: isPlayer
-            ? inviter
-              ? `${params.inviterName} invited you to join ${params.targetName}`
-              : `You're invited to join ${params.targetName}`
-            : inviter
-              ? `${params.inviterName} invited you to manage ${params.targetName}`
-              : `You're invited to manage ${params.targetName}`,
-          header: isPlayer ? 'Player invitation' : isTeam ? 'Team manager invitation' : 'Season manager invitation',
-          greeting: `Hello <strong>${name}</strong>,`,
-          invited: isPlayer
-            ? `${inviter ? `<strong>${inviter}</strong> has invited you` : 'You have been invited'} to join <strong>${target}</strong>${context ? ` (${context})` : ''} in ATM.`
-            : `${inviter ? `<strong>${inviter}</strong> has invited you` : 'You have been invited'} to manage <strong>${target}</strong>${context ? ` (${context})` : ''} in ATM.`,
-          next: params.hasAccount
-            ? 'You already have an ATM account. Open the invitation, sign in with your usual password and accept it.'
-            : isPlayer
-              ? "Open the invitation, choose a password and you're on the team."
-              : `Open the invitation, choose a password and you go straight to your ${isTeam ? 'team' : 'league'}.`,
-          button: 'Accept invitation',
-          expiry: `The link works until <strong>${until}</strong>.`,
-          canTitle: isPlayer ? "In ATM you'll" : "You'll be able to",
-          can: isPlayer
-            ? ['see the team calendar: trainings, games and meetings', "say for each one whether you're coming"]
-            : isTeam
-              ? ['keep the roster up to date', 'set the team colours and logo', 'plan training and see who is coming', "add your players' stats after a game"]
-              : ['create seasons and add teams to them', 'invite team managers', 'generate the schedule and record results', 'publish the season and email the results'],
-          keepTitle: inviter ? `${inviter} takes care of` : 'The season manager takes care of',
-          keep: ['the schedule and game dates', 'scores and the table', 'confirming match reports'],
-          copyLink: 'Button not working? Paste this link into your browser:',
-          ignore: 'Not expecting this? Ignore this email. Nothing changes until you accept.',
-          reply: params.inviterEmail
-            ? isPlayer
-              ? 'Questions about the team? Reply to this email to reach the person who invited you.'
-              : 'Questions about the competition? Reply to this email to reach the person who invited you.'
-            : '',
-        };
+    const all = emailTexts(params.locale);
+    const t = all.invite;
+    const { kind } = params;
+    const isTeam = kind === 'TEAM';
+    const isPlayer = kind === 'PLAYER';
+    const by = params.inviterName ? 'byName' : 'anonymous';
+    const vars = {
+      inviter: params.inviterName,
+      target: params.targetName,
+      context: params.contextName ? fillText(t.context, { context: params.contextName }) : '',
+      date: params.expiresAt.toLocaleDateString(intlLocale(params.locale), {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'Europe/Prague',
+      }),
+    };
+    const role = isPlayer ? 'PLAYER' : 'manager';
+    const reply = params.inviterEmail ? t.reply[role] : '';
 
     const list = (title: string, items: string[]) => `
       <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:${COLORS.text};">${title}</p>
@@ -410,26 +314,26 @@ class EmailService {
       </ul>`;
 
     const body = [
-      this.p(t.greeting),
-      this.p(t.invited),
-      this.p(t.next, { mb: 0 }),
+      this.p(fill(all.greeting, { name: params.inviteeName })),
+      this.p(fill(t.invited[kind][by], vars)),
+      this.p(params.hasAccount ? t.next.hasAccount : t.next[role], { mb: 0 }),
       this.button(t.button, params.link, accent),
-      this.p(t.expiry, { mb: 24, size: 13, color: COLORS.muted }),
-      list(t.canTitle, t.can),
+      this.p(fill(t.expiry, vars), { mb: 24, size: 13, color: COLORS.muted }),
+      list(t.canTitle[role], t.can[kind]),
       // A season manager answers to an administrator, not to another season
       // manager, and a player keeps nothing, so the "who keeps what" split only
       // makes sense for a team manager.
-      isTeam ? list(t.keepTitle, t.keep) : '',
-      this.linkChip(t.copyLink, params.link, accent),
+      isTeam ? list(fill(t.keepTitle[by], vars), t.keep) : '',
+      this.linkChip(all.copyLink, params.link, accent),
       `<div style="height:20px"></div>`,
-      this.p(t.ignore, { mb: t.reply ? 8 : 0, size: 13, color: COLORS.muted }),
-      t.reply ? this.p(t.reply, { mb: 0, size: 13, color: COLORS.muted }) : '',
+      this.p(t.ignore, { mb: reply ? 8 : 0, size: 13, color: COLORS.muted }),
+      reply ? this.p(reply, { mb: 0, size: 13, color: COLORS.muted }) : '',
     ].join('');
 
     return this.sendEmail({
       to: params.to,
-      subject: t.subject,
-      html: this.buildEmailHtml(accent, isTeam || isPlayer ? 'user-plus' : 'trophy', t.header, body),
+      subject: fillText(t.subject[kind][by], vars),
+      html: this.buildEmailHtml(accent, isTeam || isPlayer ? 'user-plus' : 'trophy', t.header[kind], body),
       replyTo: params.inviterEmail ?? undefined,
     });
   }
@@ -437,7 +341,7 @@ class EmailService {
   /**
    * The round summary: what was played, the table it leaves behind, and who is
    * leading the scoring. Sent to everyone involved in a season who has not
-   * turned it off, so it is built once and mailed to each of them unchanged.
+   * turned it off, each in their own language.
    */
   async sendRoundSummaryEmail(
     to: string,
@@ -457,56 +361,15 @@ class EmailService {
       standings: { rank: number; team: string; played: number; points: number }[];
       topScorers: { name: string; team: string; goals: number; assists: number; points: number; detail: string | null }[];
     },
-    locale?: string
+    locale: Locale = 'cs'
   ): Promise<boolean> {
     const accent = '#003E7E';
     const seasonLink = `${this.getAppUrl()}/season-detail/${summary.seasonId}`;
-    const season = escapeHtml(summary.seasonName);
-    const league = escapeHtml(summary.leagueName);
+    const all = emailTexts(locale);
+    const texts = all.roundSummary;
     // An email of hand-picked games has no round to name.
-    const round = summary.round;
-
-    const texts = locale === 'cs' ? {
-      greeting: `Dobrý den, <strong>${escapeHtml(name)}</strong>,`,
-      intro: round !== null
-        ? `${round}. kolo sezóny ${season} je odehrané. Takhle dopadlo.`
-        : `Máme nové výsledky ze sezóny ${season}. Takhle dopadly.`,
-      notConfirmed: 'nepotvrzeno',
-      results: 'Výsledky',
-      table: 'Tabulka',
-      topScorers: 'Nejlepší střelci',
-      colTeam: 'Tým',
-      colPlayed: 'Z',
-      colPoints: 'B',
-      colPlayer: 'Hráč',
-      colGoalsAssists: 'G+A',
-      button: 'Otevřít sezónu',
-      optOut: 'Tyto souhrny můžete vypnout na své nástěnce v ATM.',
-      header: round !== null ? `${league} &mdash; ${round}. kolo` : `${league} &mdash; Výsledky`,
-      subject: round !== null
-        ? `${summary.seasonName} - souhrn ${round}. kola`
-        : `${summary.seasonName} - nové výsledky`,
-    } : {
-      greeting: `Hello, <strong>${escapeHtml(name)}</strong>,`,
-      intro: round !== null
-        ? `Round ${round} of ${season} is in. Here is how it went.`
-        : `New results from ${season} are in. Here is how it went.`,
-      notConfirmed: 'not confirmed',
-      results: 'Results',
-      table: 'Table',
-      topScorers: 'Top scorers',
-      colTeam: 'Team',
-      colPlayed: 'P',
-      colPoints: 'Pts',
-      colPlayer: 'Player',
-      colGoalsAssists: 'G+A',
-      button: 'Open the season',
-      optOut: 'You can turn these summaries off from your ATM dashboard.',
-      header: round !== null ? `${league} &mdash; Round ${round}` : `${league} &mdash; Results`,
-      subject: round !== null
-        ? `${summary.seasonName} - round ${round} summary`
-        : `${summary.seasonName} - latest results`,
-    };
+    const which = summary.round !== null ? 'round' : 'picked';
+    const vars = { round: summary.round, season: summary.seasonName, league: summary.leagueName };
 
     const cell = (content: string, opts: { align?: string; bold?: boolean; muted?: boolean } = {}) =>
       `<td style="padding:7px 8px;font-size:14px;text-align:${opts.align ?? 'left'};` +
@@ -559,8 +422,8 @@ class EmailService {
       .join('');
 
     const body = [
-      this.p(texts.greeting),
-      this.p(texts.intro, { mb: 24 }),
+      this.p(fill(all.greeting, { name })),
+      this.p(fill(texts.intro[which], vars), { mb: 24 }),
       `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">${texts.results}</p>`,
       table('', resultRows),
       `<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:${COLORS.text};">${texts.table}</p>`,
@@ -576,19 +439,13 @@ class EmailService {
           )
         : '',
       this.button(texts.button, seasonLink, accent),
-      this.p(texts.optOut, {
-        mb: 0,
-        size: 13,
-        color: COLORS.muted,
-      }),
+      this.p(texts.optOut, { mb: 0, size: 13, color: COLORS.muted }),
     ].join('');
-
-    const html = this.buildEmailHtml(accent, 'trophy', texts.header, body);
 
     return this.sendEmail({
       to,
-      subject: texts.subject,
-      html,
+      subject: fillText(texts.subject[which], vars),
+      html: this.buildEmailHtml(accent, 'trophy', fill(texts.header[which], vars), body),
     });
   }
 
@@ -622,37 +479,27 @@ class EmailService {
   async sendTaxDocumentEmail(params: {
     to: string;
     name: string;
-    locale: 'cs' | 'en';
+    locale: Locale;
     number: string;
+    /** The document's line; it exists in Czech and English, a Slovak payer reads the Czech one. */
     item: { cs: string; en: string };
     amount: string;
     pdf: Buffer;
   }): Promise<boolean> {
     const accent = '#0F172A';
-    const isCs = params.locale === 'cs';
-    const t = isCs
-      ? {
-          subject: `Platba přijata – doklad ${params.number}`,
-          header: 'Platba přijata',
-          greeting: `Dobrý den, <strong>${escapeHtml(params.name)}</strong>,`,
-          body: `vaše platba <strong>${escapeHtml(params.amount)}</strong> dorazila a plán platí: ${escapeHtml(params.item.cs)}.`,
-          attached: `V příloze je daňový doklad č. ${escapeHtml(params.number)}.`,
-          file: `doklad-${params.number}.pdf`,
-        }
-      : {
-          subject: `Payment received – document ${params.number}`,
-          header: 'Payment received',
-          greeting: `Hello <strong>${escapeHtml(params.name)}</strong>,`,
-          body: `your payment of <strong>${escapeHtml(params.amount)}</strong> has arrived and the plan is active: ${escapeHtml(params.item.en)}.`,
-          attached: `Tax document no. ${escapeHtml(params.number)} is attached.`,
-          file: `document-${params.number}.pdf`,
-        };
-    const body = [this.p(t.greeting), this.p(t.body), this.p(t.attached, { mb: 0, size: 14, color: COLORS.muted })].join('');
+    const all = emailTexts(params.locale);
+    const t = all.taxDocument;
+    const vars = { number: params.number, amount: params.amount, item: params.locale === 'en' ? params.item.en : params.item.cs };
+    const body = [
+      this.p(fill(all.greeting, { name: params.name })),
+      this.p(fill(t.body, vars)),
+      this.p(fill(t.attached, vars), { mb: 0, size: 14, color: COLORS.muted }),
+    ].join('');
     return this.sendEmail({
       to: params.to,
-      subject: t.subject,
+      subject: fillText(t.subject, vars),
       html: this.buildEmailHtml(accent, 'badge-check', t.header, body),
-      attachments: [{ filename: t.file, content: params.pdf }],
+      attachments: [{ filename: fillText(t.file, vars), content: params.pdf }],
     });
   }
 
@@ -692,47 +539,21 @@ class EmailService {
     link: string;
     /** A tournament applicant without an account follows this to see and withdraw the application. */
     statusLink?: string | null;
-    locale?: string;
+    locale: Locale;
   }): Promise<boolean> {
     const accent = '#0F172A';
-    const isCs = params.locale !== 'en';
-    const name = escapeHtml(params.contactName);
-    const team = escapeHtml(params.teamName);
-    const competition = escapeHtml(params.competitionName);
-    const t = isCs
-      ? {
-          subject: `Přihláška týmu ${params.teamName} – ${params.competitionName}`,
-          header: 'Přihláška přijata',
-          greeting: `Dobrý den, <strong>${name}</strong>,`,
-          received: `přihláška týmu <strong>${team}</strong> do soutěže <strong>${competition}</strong> dorazila.`,
-          next: params.waitlisted
-            ? 'Soutěž je teď plná, proto jste na čekací listině. Pokud se místo uvolní, organizátor vás může přijmout – dáme vám vědět e-mailem.'
-            : 'Organizátor ji teď posoudí. O jeho rozhodnutí vám dáme vědět e-mailem.',
-          button: 'Zobrazit soutěž',
-          status: 'Stav přihlášky',
-          statusHint: 'Na stránce přihlášky uvidíte, jak organizátor rozhodl, a přihlášku tam můžete i stáhnout. Odkaz nikomu nepřeposílejte.',
-        }
-      : {
-          subject: `Application for ${params.teamName} – ${params.competitionName}`,
-          header: 'Application received',
-          greeting: `Hello <strong>${name}</strong>,`,
-          received: `the application of <strong>${team}</strong> to <strong>${competition}</strong> has arrived.`,
-          next: params.waitlisted
-            ? "The competition is full right now, so you are on the waiting list. If a place frees up the organiser can accept you – we'll let you know by email."
-            : "The organiser will now review it. We'll email you their decision.",
-          button: 'View the competition',
-          status: 'Check application status',
-          statusHint: "The application page shows the organiser's decision, and you can withdraw the application there. Keep the link to yourself.",
-        };
+    const all = emailTexts(params.locale);
+    const t = all.registrationReceived;
+    const vars = { team: params.teamName, competition: params.competitionName };
     const body = [
-      this.p(t.greeting),
-      this.p(t.received),
-      this.p(t.next, { mb: 0 }),
+      this.p(fill(all.greeting, { name: params.contactName })),
+      this.p(fill(t.received, vars)),
+      this.p(params.waitlisted ? t.nextWaitlisted : t.next, { mb: 0 }),
       params.statusLink
         ? this.button(t.status, params.statusLink, accent) + this.p(t.statusHint, { mb: 0, size: 14, color: COLORS.muted })
         : this.button(t.button, params.link, accent),
     ].join('');
-    return this.sendEmail({ to: params.to, subject: t.subject, html: this.buildEmailHtml(accent, 'mail-check', t.header, body) });
+    return this.sendEmail({ to: params.to, subject: fillText(t.subject, vars), html: this.buildEmailHtml(accent, 'mail-check', t.header, body) });
   }
 
   /** Tells the organiser a team applied, with what they need to decide. */
@@ -745,19 +566,22 @@ class EmailService {
     waitlisted: boolean;
     capacity: PlacesSummary;
     link: string;
+    locale: Locale;
   }): Promise<boolean> {
     const accent = '#0F172A';
+    const t = emailTexts(params.locale).registrationNotice;
+    const vars = { team: params.teamName, competition: params.competitionName, name: params.contactName, email: params.contactEmail };
     const body = [
-      this.p(`Tým <strong>${escapeHtml(params.teamName)}</strong> se přihlásil do soutěže <strong>${escapeHtml(params.competitionName)}</strong>.`),
-      this.p(`Kontakt: ${escapeHtml(params.contactName)} &lt;${escapeHtml(params.contactEmail)}&gt;`, { size: 14, color: COLORS.muted }),
-      params.waitlisted ? this.p('Soutěž je plná, přihláška je proto na čekací listině.', { size: 14 }) : '',
-      this.p(placesLine(params.capacity), { size: 14, color: COLORS.muted }),
-      this.button('Otevřít přihlášky', params.link, accent),
+      this.p(fill(t.applied, vars)),
+      this.p(fill(t.contact, vars), { size: 14, color: COLORS.muted }),
+      params.waitlisted ? this.p(t.waitlisted, { size: 14 }) : '',
+      this.p(placesLine(params.capacity, params.locale), { size: 14, color: COLORS.muted }),
+      this.button(t.button, params.link, accent),
     ].join('');
     return this.sendEmail({
       to: params.to,
-      subject: `Nová přihláška: ${params.teamName} – ${params.competitionName}`,
-      html: this.buildEmailHtml(accent, 'user-plus', 'Nová přihláška týmu', body),
+      subject: fillText(t.subject, vars),
+      html: this.buildEmailHtml(accent, 'user-plus', t.header, body),
       replyTo: params.contactEmail,
     });
   }
@@ -771,59 +595,22 @@ class EmailService {
     decision: 'APPROVED' | 'REJECTED' | 'WAITLISTED' | 'PROMOTED';
     reason: string | null;
     link: string;
-    locale?: string;
+    locale: Locale;
   }): Promise<boolean> {
     const accent = params.decision === 'APPROVED' ? '#15803D' : '#0F172A';
-    const isCs = params.locale !== 'en';
-    const name = escapeHtml(params.contactName);
-    const team = escapeHtml(params.teamName);
-    const competition = escapeHtml(params.competitionName);
-    const reason = params.reason ? escapeHtml(params.reason) : null;
-    const t = isCs
-      ? {
-          subject: {
-            APPROVED: `${params.teamName} je v soutěži ${params.competitionName}`,
-            REJECTED: `Přihláška týmu ${params.teamName} nebyla přijata`,
-            WAITLISTED: `${params.teamName} je na čekací listině – ${params.competitionName}`,
-            PROMOTED: `Uvolnilo se místo pro ${params.teamName} – ${params.competitionName}`,
-          }[params.decision],
-          header: { APPROVED: 'Přihláška schválena', REJECTED: 'Přihláška zamítnuta', WAITLISTED: 'Čekací listina', PROMOTED: 'Uvolnilo se místo' }[params.decision],
-          text: {
-            APPROVED: `organizátor schválil přihlášku týmu <strong>${team}</strong> do soutěže <strong>${competition}</strong>. Tým je teď v soutěži.`,
-            REJECTED: `organizátor soutěže <strong>${competition}</strong> přihlášku týmu <strong>${team}</strong> nepřijal.`,
-            WAITLISTED: `přihláška týmu <strong>${team}</strong> do soutěže <strong>${competition}</strong> je na čekací listině. Pokud se místo uvolní, organizátor vás může přijmout.`,
-            PROMOTED: `v soutěži <strong>${competition}</strong> se uvolnilo místo a přihláška týmu <strong>${team}</strong> postoupila z čekací listiny. Teď čeká na rozhodnutí organizátora.`,
-          }[params.decision],
-          reason: reason ? `Zdůvodnění: ${reason}` : '',
-          button: params.decision === 'APPROVED' ? 'Otevřít ATM' : 'Zobrazit soutěž',
-        }
-      : {
-          subject: {
-            APPROVED: `${params.teamName} is in ${params.competitionName}`,
-            REJECTED: `The application of ${params.teamName} was not accepted`,
-            WAITLISTED: `${params.teamName} is on the waiting list – ${params.competitionName}`,
-            PROMOTED: `A place opened for ${params.teamName} – ${params.competitionName}`,
-          }[params.decision],
-          header: { APPROVED: 'Application approved', REJECTED: 'Application declined', WAITLISTED: 'Waiting list', PROMOTED: 'A place opened' }[params.decision],
-          text: {
-            APPROVED: `the organiser approved the application of <strong>${team}</strong> to <strong>${competition}</strong>. The team is now in the competition.`,
-            REJECTED: `the organiser of <strong>${competition}</strong> did not accept the application of <strong>${team}</strong>.`,
-            WAITLISTED: `the application of <strong>${team}</strong> to <strong>${competition}</strong> is on the waiting list. If a place frees up the organiser can accept you.`,
-            PROMOTED: `a place opened in <strong>${competition}</strong> and the application of <strong>${team}</strong> has moved up from the waiting list. It now waits for the organiser's decision.`,
-          }[params.decision],
-          reason: reason ? `Reason: ${reason}` : '',
-          button: params.decision === 'APPROVED' ? 'Open ATM' : 'View the competition',
-        };
+    const all = emailTexts(params.locale);
+    const t = all.registrationDecision;
+    const vars = { team: params.teamName, competition: params.competitionName, reason: params.reason };
     const body = [
-      this.p(isCs ? `Dobrý den, <strong>${name}</strong>,` : `Hello <strong>${name}</strong>,`),
-      this.p(t.text, { mb: t.reason ? 16 : 0 }),
-      t.reason ? this.p(t.reason, { mb: 0, size: 14, color: COLORS.muted }) : '',
-      this.button(t.button, params.link, accent),
+      this.p(fill(all.greeting, { name: params.contactName })),
+      this.p(fill(t.text[params.decision], vars), { mb: params.reason ? 16 : 0 }),
+      params.reason ? this.p(fill(t.reason, vars), { mb: 0, size: 14, color: COLORS.muted }) : '',
+      this.button(params.decision === 'APPROVED' ? t.buttonApproved : t.button, params.link, accent),
     ].join('');
     return this.sendEmail({
       to: params.to,
-      subject: t.subject,
-      html: this.buildEmailHtml(accent, params.decision === 'APPROVED' ? 'badge-check' : 'mail-check', t.header, body),
+      subject: fillText(t.subject[params.decision], vars),
+      html: this.buildEmailHtml(accent, params.decision === 'APPROVED' ? 'badge-check' : 'mail-check', t.header[params.decision], body),
     });
   }
 
@@ -834,18 +621,21 @@ class EmailService {
     competitionName: string;
     capacity: PlacesSummary;
     link: string;
+    locale: Locale;
   }): Promise<boolean> {
     const accent = '#0F172A';
+    const t = emailTexts(params.locale).registrationWithdrawn;
+    const vars = { team: params.teamName, competition: params.competitionName, count: params.capacity.waitlisted };
     const body = [
-      this.p(`Tým <strong>${escapeHtml(params.teamName)}</strong> stáhl přihlášku do soutěže <strong>${escapeHtml(params.competitionName)}</strong> a uvolnil tím místo.`),
-      this.p(`Na čekací listině je ${params.capacity.waitlisted}. Nikdo nepostupuje sám – v přihláškách můžete posunout dalšího v pořadí.`),
-      this.p(placesLine(params.capacity), { size: 14, color: COLORS.muted }),
-      this.button('Otevřít přihlášky', params.link, accent),
+      this.p(fill(t.withdrew, vars)),
+      this.p(fill(t.waiting, vars)),
+      this.p(placesLine(params.capacity, params.locale), { size: 14, color: COLORS.muted }),
+      this.button(t.button, params.link, accent),
     ].join('');
     return this.sendEmail({
       to: params.to,
-      subject: `Uvolnilo se místo: ${params.competitionName}`,
-      html: this.buildEmailHtml(accent, 'user-plus', 'Přihláška stažena', body),
+      subject: fillText(t.subject, vars),
+      html: this.buildEmailHtml(accent, 'user-plus', t.header, body),
     });
   }
 }

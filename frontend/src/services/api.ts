@@ -1,4 +1,6 @@
 import axios from 'axios';
+import i18next from 'i18next';
+import { serverLocale } from '@/i18n/languages';
 import type {
   EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
@@ -71,8 +73,9 @@ export const fileApi = {
 };
 
 export const authApi = {
+  // Both carry the language on screen: the e-mail they trigger is written in it.
   register: (data: { email: string; password: string; name: string; role?: string; next?: string }) =>
-    api.post<{ message: string; user: User; token: string }>('/auth/register', data),
+    api.post<{ message: string; user: User; token: string }>('/auth/register', { ...data, locale: serverLocale(i18next.language) }),
   login: (data: { email: string; password: string }) =>
     api.post<{ user: User; token: string }>('/auth/login', data),
   activateAccount: (token: string) =>
@@ -80,14 +83,14 @@ export const authApi = {
   resendActivationEmail: (email: string, next?: string) =>
     api.post<{ message: string }>('/auth/resend-activation', { email, next }),
   forgotPassword: (email: string) =>
-    api.post<{ message: string }>('/auth/forgot-password', { email }),
+    api.post<{ message: string }>('/auth/forgot-password', { email, locale: serverLocale(i18next.language) }),
   resetPassword: (token: string, password: string) =>
     api.post<{ message: string }>(`/auth/reset-password/${token}`, { password }),
   getMe: () => api.get<{ user: User }>('/auth/me'),
   completeOnboarding: () => api.post<{ user: User }>('/auth/complete-onboarding'),
   completeTeamTour: () => api.post<{ user: User }>('/auth/complete-team-tour'),
   markUpdatesSeen: () => api.post<{ updatesSeenAt: string }>('/auth/updates-seen'),
-  updateProfile: (data: { name?: string; password?: string; emailDigest?: boolean }) =>
+  updateProfile: (data: { name?: string; password?: string; emailDigest?: boolean; locale?: string }) =>
     api.put<{ user: User }>('/auth/profile', data),
   getUsers: (filters?: { role?: string; name?: string; active?: boolean }) =>
     api.get<User[]>('/auth/users', { params: filters }),
@@ -149,16 +152,17 @@ export const seasonApi = {
     api.get<ResultsEmailCandidates>(`/seasons/${id}/results-email`),
   previewResultsEmail: (id: string | number, gameIds: string[]) =>
     api.post<{ summary: RoundSummary }>(`/seasons/${id}/results-email/preview`, { gameIds }),
-  // `locale` picks the email's language; recipients have none of their own.
+  // `locale` is the manager's own language: the test copy and the image are for
+  // them. The email to everyone goes out in each recipient's language.
   sendTestResultsEmail: (id: string | number, gameIds: string[], locale?: string) =>
     api.post<{ to: string }>(`/seasons/${id}/results-email/test`, { gameIds, locale }),
   // The picked games drawn as a PNG card for sharing into a chat.
   getResultsImage: (id: string | number, gameIds: string[], locale?: string) =>
     api.post<Blob>(`/seasons/${id}/results-email/image`, { gameIds, locale }, { responseType: 'blob' }),
-  sendResultsEmail: (id: string | number, gameIds: string[], locale?: string) =>
+  sendResultsEmail: (id: string | number, gameIds: string[]) =>
     api.post<{ games: number; attempted: number; delivered: number; sentAt: string }>(
       `/seasons/${id}/results-email`,
-      { gameIds, locale }
+      { gameIds }
     )
 };
 

@@ -59,6 +59,8 @@ export interface User {
   teamTourCompletedAt?: string | null;
   /** When the user last opened /updates; drives the unread marker. */
   updatesSeenAt?: string | null;
+  /** Language of the e-mails the user gets; follows the language picked in the app. */
+  locale?: string;
   /** Admin user list only. Null if the user never logged in. */
   lastLoggedInAt?: string | null;
   /** Only present on the signed-in user, from /auth/me and /auth/login. */

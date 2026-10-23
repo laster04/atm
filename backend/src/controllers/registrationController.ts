@@ -5,6 +5,7 @@ import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { canManageSeason, canManageTournament } from '../services/access.js';
 import emailService from '../services/emailService.js';
+import { localeOf, type Locale } from '../i18n/index.js';
 import { registrationFormState } from '../services/registrationState.js';
 import {
   capacityLimit,
@@ -51,6 +52,14 @@ export const resetRegistrationRateLimit = (): void => recentByIp.clear();
 
 // --------------------------------------------------------------- competition
 
+/** Someone a notice goes to, in their own language. */
+interface Recipient {
+  email: string;
+  locale: Locale;
+}
+
+const recipient = (user: { email: string; locale: string }): Recipient => ({ email: user.email, locale: localeOf(user.locale) });
+
 interface Competition {
   kind: Kind;
   id: string;
@@ -62,7 +71,7 @@ interface Competition {
   /** Teams already in the competition. */
   teamCount: number;
   /** Who hears about new applications: the league or series manager. */
-  managerEmails: string[];
+  managers: Recipient[];
   window: Prisma.RegistrationWindowGetPayload<object> | null;
   /** A tournament's plan and team limit; null for a season. */
   allowance: TeamAllowance | null;
@@ -74,7 +83,7 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
     const season = await prisma.season.findUnique({
       where: { id },
       include: {
-        league: { select: { name: true, sportType: true, manager: { select: { email: true } } } },
+        league: { select: { name: true, sportType: true, manager: { select: { email: true, locale: true } } } },
         registrationWindow: true,
         _count: { select: { seasonTeams: true } },
       },
@@ -88,7 +97,7 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
       sport: season.league.sportType,
       archived: season.archivedAt !== null,
       teamCount: season._count.seasonTeams,
-      managerEmails: season.league.manager ? [season.league.manager.email] : [],
+      managers: season.league.manager ? [recipient(season.league.manager)] : [],
       window: season.registrationWindow,
       allowance: null,
     };
@@ -96,7 +105,7 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
   const tournament = await prisma.tournament.findUnique({
     where: { id },
     include: {
-      series: { select: { name: true, sportType: true, manager: { select: { email: true } } } },
+      series: { select: { name: true, sportType: true, manager: { select: { email: true, locale: true } } } },
       registrationWindow: true,
       _count: { select: { teams: true } },
     },
@@ -110,7 +119,7 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
     sport: tournament.series.sportType,
     archived: tournament.status === 'COMPLETED',
     teamCount: tournament._count.teams,
-    managerEmails: tournament.series.manager ? [tournament.series.manager.email] : [],
+    managers: tournament.series.manager ? [recipient(tournament.series.manager)] : [],
     window: tournament.registrationWindow,
     allowance: await teamAllowance(id),
   };
@@ -215,10 +224,10 @@ const inboxLink = (competition: Competition): string =>
     ? `${appUrl()}/season-management/${competition.id}?registrations=1`
     : `${appUrl()}/tournament-management/tournament/${competition.id}?registrations=1`;
 
-const managerEmailsOrAdmins = async (competition: Competition): Promise<string[]> =>
-  competition.managerEmails.length > 0
-    ? competition.managerEmails
-    : (await prisma.user.findMany({ where: { role: 'ADMIN', active: true }, select: { email: true } })).map((u) => u.email);
+const managersOrAdmins = async (competition: Competition): Promise<Recipient[]> =>
+  competition.managers.length > 0
+    ? competition.managers
+    : (await prisma.user.findMany({ where: { role: 'ADMIN', active: true }, select: { email: true, locale: true } })).map(recipient);
 
 const mayManage = (req: AuthRequest, kind: Kind, id: string): Promise<boolean> =>
   kind === 'season' ? canManageSeason(req.user!, id) : canManageTournament(req.user!, id);
@@ -341,7 +350,7 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
     if (note === false) fields.note = 'invalid';
     const primaryColor = optionalText(body.primaryColor, 7);
     if (primaryColor === false || (primaryColor && !COLOR_PATTERN.test(primaryColor))) fields.primaryColor = 'invalid';
-    const locale = body.locale === 'en' ? 'en' : 'cs';
+    const locale = localeOf(body.locale);
 
     // A season applicant either brings back a team they manage or names a new one.
     let existingTeamId: string | null = null;
@@ -446,9 +455,10 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
         locale,
       })
       .catch((error) => console.error('Registration receipt email error:', error));
-    void Promise.all([managerEmailsOrAdmins(competition), capacityOf(competition)])
-      .then(([recipients, capacity]) => Promise.all(recipients.map((to) => emailService.sendRegistrationNoticeEmail({
+    void Promise.all([managersOrAdmins(competition), capacityOf(competition)])
+      .then(([recipients, capacity]) => Promise.all(recipients.map(({ email: to, locale: managerLocale }) => emailService.sendRegistrationNoticeEmail({
         to,
+        locale: managerLocale,
         teamName: teamName!,
         contactName: contactName!,
         contactEmail: email,
@@ -520,9 +530,10 @@ async function withdrawRegistration(registration: Registration, res: Response): 
       if (!competition) return;
       const capacity = await capacityOf(competition);
       if (capacity.waitlisted === 0) return;
-      const recipients = await managerEmailsOrAdmins(competition);
-      await Promise.all(recipients.map((to) => emailService.sendRegistrationWithdrawnEmail({
+      const recipients = await managersOrAdmins(competition);
+      await Promise.all(recipients.map(({ email: to, locale }) => emailService.sendRegistrationWithdrawnEmail({
         to,
+        locale,
         teamName: registration.teamName,
         competitionName: competition.name,
         capacity,
@@ -809,7 +820,7 @@ const notifyDecision = (
       decision,
       reason: registration.reason,
       link: competitionLink(competition),
-      locale: registration.locale,
+      locale: localeOf(registration.locale),
     })
     .catch((error) => console.error('Registration decision email error:', error));
 };
@@ -1091,7 +1102,7 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
         sport: '',
         archived: false,
         teamCount: season._count.seasonTeams,
-        managerEmails: [],
+        managers: [],
         window: season.registrationWindow,
         allowance: null,
       })),
@@ -1103,7 +1114,7 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
         sport: '',
         archived: false,
         teamCount: tournament._count.teams,
-        managerEmails: [],
+        managers: [],
         window: tournament.registrationWindow,
         allowance: await teamAllowance(tournament.id),
       })))),

@@ -1,3 +1,4 @@
+import { languageOf } from '../../i18n/languages';
 import { ARTICLES } from './articles';
 import type { DocsArticle, DocsAudience, DocsBlock, DocsCategory, DocsLocale } from './types';
 
@@ -15,8 +16,9 @@ export const PUBLISHED = ARTICLES.filter((article) => article.published).sort(
 export const findArticle = (slug: string | undefined): DocsArticle | undefined =>
 	PUBLISHED.find((article) => article.slug === slug);
 
+/** Help exists in Czech and English; a Slovak reader gets the Czech articles. */
 export const docsLocale = (language: string | undefined): DocsLocale =>
-	language?.toLowerCase().startsWith('cs') ? 'cs' : 'en';
+	languageOf(language)?.content ?? 'en';
 
 /** Which audiences a signed-in user belongs to, from what they manage. */
 export function audiencesFor(manages: { leagues: number; teams: number; series: number } | undefined, isAdmin: boolean): DocsAudience[] {

@@ -1,0 +1,2688 @@
+{
+  "common": {
+    "back": "Back",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "edit": "Edit",
+    "save": "Save",
+    "vs": "vs",
+    "teams": "teams",
+    "games": "games",
+    "players": "players",
+    "seasons": "seasons",
+    "all": "All",
+    "close": "Close",
+    "name": "Name",
+    "unknown": "Unknown",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "This page could not be displayed. Try again, or go back to the dashboard.",
+    "retry": "Try again",
+    "backToDashboard": "Back to dashboard"
+  },
+  "nav": {
+    "brand": "Sport Scheduler",
+    "tagline": "Season & Team Management",
+    "leagues": "Leagues",
+    "seasons": "Seasons",
+    "myTeams": "My Teams",
+    "mySeasons": "My Seasons",
+    "admin": "Admin",
+    "manageTournaments": "Manage Tournaments",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "menu": "Menu",
+    "toggleMenu": "Toggle menu",
+    "loggedInAs": "Logged in as"
+  },
+  "onboarding": {
+    "stepCounter": "Step {{current}} of {{total}}",
+    "skip": "Skip tour",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Got it",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to ATM!",
+        "body": "Let's take a quick look at where things are."
+      },
+      "navMenu": {
+        "title": "Your account menu",
+        "body": "Open this menu anytime to reach your teams, seasons, and settings."
+      },
+      "myTeams": {
+        "title": "Your teams",
+        "body": "The teams you manage show up here. Click one to manage its roster, schedule, and settings."
+      },
+      "activeSeasons": {
+        "title": "Active seasons",
+        "body": "Currently active seasons appear here. Open one to see its teams, schedule, and standings."
+      }
+    }
+  },
+  "home": {
+    "title": "Amateur Team Manager",
+    "subtitle": "Manage your sports leagues with ease. Create seasons, track teams, schedule games, and view standings all in one place.",
+    "features": {
+      "leagueManagement": {
+        "title": "League Management",
+        "description": "Create and manage multiple seasons with teams, players, and schedules."
+      },
+      "autoScheduling": {
+        "title": "Auto Scheduling",
+        "description": "Generate round-robin schedules automatically with just a few clicks."
+      },
+      "liveStandings": {
+        "title": "Live Standings",
+        "description": "Track standings in real-time as game results are entered."
+      }
+    },
+    "activeSeasons": "Active Seasons",
+    "viewAllSeasons": "View all seasons",
+    "viewAllLeagues": "View all leagues",
+    "noActiveSeasons": "No active seasons yet.",
+    "myTeams": "My Teams",
+    "appInfo": {
+      "title": "Why choose Amateur Team Manager?",
+      "description": "A comprehensive platform designed to simplify sports league management. From league setup to game scheduling and performance tracking, we have everything you need.",
+      "features": {
+        "leagueManagement": {
+          "title": "League Management",
+          "description": "Create and manage multiple seasons with teams, players, and schedules effortlessly."
+        },
+        "autoScheduling": {
+          "title": "Auto Scheduling",
+          "description": "Generate round-robin schedules automatically with just a few clicks. Save hours of planning."
+        },
+        "liveStandings": {
+          "title": "Live Standings",
+          "description": "Track standings in real-time as game results are entered and updated."
+        },
+        "teamManagement": {
+          "title": "Team Management",
+          "description": "Manage team rosters, assign managers, and track team performance metrics."
+        },
+        "playerTracking": {
+          "title": "Player Tracking",
+          "description": "Record individual player statistics, goals, assists, and performance history."
+        },
+        "performance": {
+          "title": "Performance Analytics",
+          "description": "Comprehensive analytics and reports for teams and individual players."
+        }
+      }
+    },
+    "setupOptions": {
+      "title": "Get Started Today",
+      "description": "Configure your league exactly the way you want. Our flexible setup options give you complete control.",
+      "leagueConfiguration": {
+        "title": "League Configuration",
+        "description": "Set up league rules, scoring systems, and competition formats to match your sport."
+      },
+      "teamManagement": {
+        "title": "Team Management",
+        "description": "Add teams, assign managers, and configure team properties for your season."
+      },
+      "gameScheduling": {
+        "title": "Game Scheduling",
+        "description": "Create custom schedules or auto-generate round-robin schedules automatically."
+      },
+      "playerManagement": {
+        "title": "Player Management",
+        "description": "Manage player rosters, track statistics, and maintain comprehensive player records."
+      },
+      "reporting": {
+        "title": "Reporting & Analytics",
+        "description": "Generate detailed reports on standings, statistics, and team performance."
+      },
+      "permissions": {
+        "title": "User Roles & Permissions",
+        "description": "Control access with admin, manager, and viewer roles for different users."
+      }
+    },
+    "myEvents": {
+      "title": "Your next events",
+      "loadError": "Failed to load your events",
+      "answerError": "Failed to save your response",
+      "status": {
+        "ATTENDING": "Attending",
+        "NOT_ATTENDING": "Not attending",
+        "MAYBE": "Maybe",
+        "NO_RESPONSE": "No response"
+      }
+    },
+    "emailPrefs": {
+      "title": "Round summary emails",
+      "hint": "Results, the table and top scorers after each round. Account emails are always sent.",
+      "error": "Failed to save that"
+    },
+    "installApp": {
+      "title": "Install ATM as an app",
+      "hint": "Opens from your home screen, full screen, without the browser.",
+      "iosBefore": "In Safari tap",
+      "iosAfter": "and then Add to Home Screen.",
+      "share": "Share",
+      "install": "Install",
+      "dismiss": "Hide"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "description": "Sign in to manage your sports season",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register",
+      "forgotPassword": "Forgot password?",
+      "failed": "Login failed"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "description": "Enter your email and we'll send you a reset link",
+      "email": "Email",
+      "submit": "Send Reset Link",
+      "sending": "Sending...",
+      "emailSent": "Check Your Email",
+      "emailSentTo": "If an account exists, we sent a reset link to:",
+      "checkSpam": "Don't see the email? Check your spam folder.",
+      "backToLogin": "Back to Login",
+      "failed": "Failed to process request"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password below",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Reset Password",
+      "resetting": "Resetting...",
+      "successTitle": "Password Reset!",
+      "successMessage": "Your password has been successfully reset. You can now log in with your new password.",
+      "goToLogin": "Go to Login",
+      "invalidLink": "Invalid Reset Link",
+      "invalidLinkMessage": "This password reset link is invalid or has expired.",
+      "requestNew": "Request New Link",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "failed": "Failed to reset password"
+    },
+    "register": {
+      "title": "Register",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "submitting": "Registering...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "failed": "Registration failed",
+      "success": "Registration Successful!",
+      "checkEmail": "We have sent an activation link to:",
+      "activationNote": "Please check your email and click the activation link to complete your registration."
+    },
+    "activate": {
+      "title": "Account Activation",
+      "activating": "Activating your account...",
+      "success": "Account Activated!",
+      "successMessage": "Your account has been successfully activated. You can now log in.",
+      "error": "Activation Failed",
+      "invalidToken": "Invalid activation link",
+      "failed": "Account activation failed",
+      "goToLogin": "Go to Login",
+      "registerAgain": "Register Again"
+    }
+  },
+  "activate": {
+    "title": "Account activation",
+    "activating": "Activating your account…",
+    "success": "Account activated!",
+    "successMessage": "Your account has been activated. You can now log in.",
+    "goToLogin": "Go to login",
+    "error": "Activation failed",
+    "failed": "Account activation failed",
+    "invalidToken": "Invalid activation link",
+    "registerAgain": "Register again"
+  },
+  "leagues": {
+    "title": "Leagues",
+    "loading": "Loading leagues...",
+    "noLeagues": "No leagues found.",
+    "filter": {
+      "all": "All sports"
+    }
+  },
+  "leagueDetail": {
+    "loading": "Loading league...",
+    "notFound": "League not found.",
+    "seasons": "Seasons",
+    "noSeasons": "No seasons in this league yet.",
+    "seasonsCount": "Total Seasons"
+  },
+  "seasons": {
+    "title": "Seasons",
+    "loading": "Loading seasons...",
+    "noSeasons": "No seasons found.",
+    "filter": {
+      "all": "All"
+    },
+    "status": {
+      "DRAFT": "DRAFT",
+      "ACTIVE": "ACTIVE",
+      "COMPLETED": "COMPLETED"
+    },
+    "archived": "Archived"
+  },
+  "seasonDetail": {
+    "loading": "Loading season...",
+    "notFound": "Season not found.",
+    "backToSeasons": "Back to Seasons",
+    "archivedNotice": "This season is archived. Only final standings and player totals are available — per-game schedule and box scores were permanently removed.",
+    "tabs": {
+      "overview": "Overview",
+      "standings": "Standings",
+      "schedule": "Schedule",
+      "teams": "Teams",
+      "players": "Players"
+    },
+    "overview": {
+      "gamePlayed": "Games played",
+      "outOfTotal": "Out of {{count}} total",
+      "leader": "Leading team",
+      "leaderPoints": "{{points}} points",
+      "scoredTotal": "Goals scored",
+      "leagueWide": "League-wide",
+      "avgGoalsPerGame": "Avg Goals/Game",
+      "thisSeason": "This season",
+      "upcomingGames": "Upcoming Games",
+      "topScorers": "Top Scorers",
+      "leagueLeadersDescription": "League leaders in points",
+      "noTopScorers": "No statistics recorded yet.",
+      "goalsShort": "G",
+      "assistsShort": "A",
+      "pointsShort": "Pts",
+      "viewFullSchedule": "Full schedule →"
+    },
+    "playersStats": {
+      "title": "Player Statistics",
+      "noStats": "No player statistics recorded yet.",
+      "rank": "#",
+      "player": "Player",
+      "team": "Team",
+      "gamesPlayed": "GP",
+      "goals": "G",
+      "assists": "A",
+      "points": "PTS",
+      "penaltyMinutes": "PIM"
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Team",
+      "played": "P",
+      "wins": "W",
+      "draws": "D",
+      "losses": "L",
+      "goalsFor": "GF",
+      "goalsAgainst": "GA",
+      "goalDifference": "GD",
+      "points": "Pts",
+      "noData": "No standings data yet.",
+      "tableTitle": "Standings after {{count}} games",
+      "liveHint": "Some results are not counted yet. Arrows show where each team would stand once the games in progress finish and every result is confirmed.",
+      "liveTag": "Live",
+      "playingNow": "Playing right now",
+      "wouldClimb": "Would climb {{places}} to {{rank}}",
+      "wouldDrop": "Would drop {{places}} to {{rank}}",
+      "unplaced": "Not placed",
+      "pendingTag": "Pending",
+      "awaitingConfirmation": "Played, waiting to be confirmed"
+    },
+    "schedule": {
+      "noGames": "No games scheduled yet.",
+      "round": "Round {{round}}",
+      "recent": "Recent",
+      "today": "Today",
+      "upcoming": "Upcoming",
+      "recentGames": "Recent Games",
+      "recentGamesDescription": "Final scores from past",
+      "todaysSchedule": "Today's Schedule",
+      "todaysGamesDescription": "Games scheduled for today",
+      "upcomingGames": "Upcoming Games",
+      "upcomingGamesDescription": "Schedule for the next few days",
+      "pastGames": "Played Games",
+      "empty": {
+        "upcoming": "No upcoming game scheduled.",
+        "today": "Nothing on today.",
+        "recent": "No game has been played yet."
+      }
+    },
+    "teams": {
+      "noTeams": "No teams in this season yet.",
+      "manager": "Manager: {{name}}"
+    }
+  },
+  "teamDetail": {
+    "loading": "Loading team...",
+    "notFound": "Team not found.",
+    "backTo": "Back to {{name}}",
+    "manager": "Manager: {{name}}",
+    "roster": "Roster ({{count}} players)",
+    "noPlayers": "No players added yet.",
+    "addPlayer": "+ Add Player",
+    "playerTable": {
+      "number": "#",
+      "name": "Name",
+      "position": "Position",
+      "actions": "Actions"
+    },
+    "games": {
+      "title": "Games",
+      "upcoming": "UPCOMING",
+      "recentResults": "RECENT RESULTS",
+      "noGames": "No games scheduled.",
+      "win": "W",
+      "loss": "L",
+      "draw": "D",
+      "home": "vs",
+      "away": "at",
+      "none": "No games yet.",
+      "result": {
+        "W": "WIN",
+        "D": "DRAW",
+        "L": "LOSS"
+      }
+    },
+    "confirm": {
+      "deletePlayer": "Are you sure you want to delete this player?"
+    },
+    "modal": {
+      "addPlayer": "Add Player",
+      "editPlayer": "Edit Player",
+      "name": "Name",
+      "number": "Number",
+      "position": "Position"
+    },
+    "noPosition": "Position not set",
+    "figures": {
+      "rank": "Rank",
+      "points": "Points",
+      "record": "Goals"
+    },
+    "form": {
+      "title": "Form — last {{count}} games",
+      "none": "No game played yet."
+    },
+    "manageTeam": "Manage team"
+  },
+  "playerDetail": {
+    "loading": "Loading player...",
+    "notFound": "Player not found.",
+    "backTo": "Back to {{name}}",
+    "info": {
+      "title": "Player Information",
+      "name": "Name",
+      "number": "Number",
+      "position": "Position",
+      "bornYear": "Birth Year",
+      "note": "Note"
+    },
+    "statistics": {
+      "title": "Statistics",
+      "gamesPlayed": "Games Played",
+      "goals": "Goals",
+      "assists": "Assists",
+      "gameByGame": "Game by Game",
+      "date": "Date",
+      "game": "Game",
+      "noStatistics": "No statistics recorded yet.",
+      "penaltyMinutes": "Penalty minutes",
+      "penaltyMinutesShort": "PIM"
+    },
+    "team": {
+      "title": "Current Team"
+    },
+    "teamGames": {
+      "title": "Team Games",
+      "noGames": "No games scheduled for this team."
+    }
+  },
+  "myTeams": {
+    "title": "My Teams",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need to be a team manager to access this page.",
+    "noTeams": "You are not managing any teams yet."
+  },
+  "teamManagement": {
+    "title": "Team Management",
+    "tabs": {
+      "title": "Team Management",
+      "myTeams": "My Teams"
+    },
+    "back": "Back",
+    "pwa": {
+      "wins": "Wins",
+      "losses": "Losses",
+      "points": "Points",
+      "win": "W",
+      "draw": "D",
+      "loss": "L",
+      "upcomingGames": "Upcoming Games",
+      "pastGames": "Played Games",
+      "viewAll": "View All",
+      "home": "Home",
+      "away": "Away",
+      "quickActions": "Quick Actions",
+      "addPlayer": "Add New Player",
+      "manageRoster": "Manage Roster",
+      "teamRoster": "Team Roster",
+      "add": "Add",
+      "teamSettings": "Team Settings",
+      "customizeBranding": "Customize team branding",
+      "teamInfo": "Team Information",
+      "teamName": "Team Name",
+      "season": "Season",
+      "manager": "Manager",
+      "seasonRecord": "Season Record",
+      "totalPoints": "Total Points",
+      "tabs": {
+        "overview": "Overview",
+        "roster": "Roster",
+        "schedule": "Schedule",
+        "settings": "Settings",
+        "events": "Calendar"
+      },
+      "sortNumber": "Number",
+      "searchPlayers": "Search players",
+      "noPosition": "No position set",
+      "noPlayersFound": "No players match your search",
+      "pointsShort": "pts",
+      "playerCount_one": "{{count}} player",
+      "playerCount_few": "{{count}} players",
+      "playerCount_other": "{{count}} players",
+      "otherGames": "Other",
+      "notScheduledYet": "Not scheduled yet",
+      "tbd": "TBD",
+      "homeShort": "H",
+      "awayShort": "A",
+      "newDateTbd": "new date to be confirmed",
+      "unknownOpponent": "Opponent",
+      "draws": "Draws",
+      "nextGame": "Next game",
+      "setLineup": "Set line-up",
+      "noScheduledGame": "No game scheduled yet",
+      "then": "Then",
+      "today": "today",
+      "tomorrow": "tomorrow",
+      "inDays_one": "in {{count}} day",
+      "inDays_few": "in {{count}} days",
+      "inDays_other": "in {{count}} days"
+    },
+    "gameStats": {
+      "playerStats": "Player Statistics",
+      "goals": "Goals",
+      "assists": "Assists",
+      "noPlayers": "No players in this team",
+      "fetchError": "Failed to load game data",
+      "saveSuccess": "Statistics saved successfully",
+      "saveError": "Failed to save statistics",
+      "notFound": "Game not found",
+      "notYourGame": "This game does not belong to your team",
+      "lineup": "Line-up",
+      "allSaved": "All changes saved",
+      "unsavedChanges_one": "{{count}} unsaved change",
+      "unsavedChanges_few": "{{count}} unsaved changes",
+      "unsavedChanges_other": "{{count}} unsaved changes",
+      "penaltyMinutes": "Penalty",
+      "penaltyMinutesShort": "PIM"
+    },
+    "playerDetail": {
+      "addPlayer": "Add Player",
+      "editPlayer": "Edit Player",
+      "name": "Name",
+      "number": "Number",
+      "position": "Position",
+      "bornYear": "Birth Year",
+      "note": "Note",
+      "born": "Born",
+      "goals": "Goals",
+      "assists": "Assists",
+      "gamesPlayed": "Games",
+      "gameHistory": "Game History",
+      "noGames": "No games played yet",
+      "notFound": "Player not found",
+      "fetchError": "Failed to load player data",
+      "createSuccess": "Player created successfully",
+      "saveSuccess": "Player saved successfully",
+      "saveError": "Failed to save player",
+      "deleteSuccess": "Player deleted successfully",
+      "deleteError": "Failed to delete player",
+      "confirmDelete": "Are you sure you want to delete this player?",
+      "goalsShort_one": "{{count}} goal",
+      "goalsShort_few": "{{count}} goals",
+      "goalsShort_other": "{{count}} goals",
+      "assistsShort_one": "{{count}} assist",
+      "assistsShort_few": "{{count}} assists",
+      "assistsShort_other": "{{count}} assists",
+      "noPoints": "No points",
+      "moved": "Player moved"
+    },
+    "toast": {
+      "colorUpdated": "Color for {{name}} updated!"
+    },
+    "stats": {
+      "teamRecord": "Team Record",
+      "totalPoints": "Total Points",
+      "leagueRank": "League Rank"
+    },
+    "branding": {
+      "title": "Team Branding & Colors",
+      "description": "Customize the primary color for {{name}} - appears in standings and schedules",
+      "primaryColor": "Primary Team Color",
+      "colorUsageExplanation": "This color will be used to identify {{name}} in public standings and game schedules",
+      "quickPresets": "Quick Color Presets",
+      "livePreview": "Live Preview",
+      "standingsRow": "Standings Row",
+      "gameCard": "Game Card",
+      "vsOpponent": "vs Opponent",
+      "colors": {
+        "blue": "Blue",
+        "red": "Red",
+        "gold": "Gold",
+        "green": "Green",
+        "purple": "Purple",
+        "orange": "Orange",
+        "navy": "Navy",
+        "teal": "Teal"
+      }
+    },
+    "account": {
+      "title": "Account",
+      "hint": "Link this player to the account they registered with, so they can sign in and see the team.",
+      "emailPlaceholder": "Email address",
+      "link": "Link",
+      "unlink": "Unlink account",
+      "linked": "Linked account",
+      "error": "Failed to change the account link"
+    },
+    "events": {
+      "add": "New event",
+      "newEvent": "New event",
+      "titlePlaceholder": "What is it?",
+      "locationPlaceholder": "Where? (optional)",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "empty": "No events yet. Add a training session or a meeting.",
+      "emptyRoster": "Nobody on the roster to ask yet.",
+      "delete": "Delete event",
+      "loadError": "Failed to load the calendar",
+      "saveError": "Failed to save the event",
+      "deleteError": "Failed to delete the event",
+      "answerError": "Failed to save the response",
+      "type": {
+        "MATCH": "Match",
+        "TRAINING": "Training",
+        "MEETING": "Meeting",
+        "OTHER": "Other"
+      },
+      "status": {
+        "ATTENDING": "Attending",
+        "NOT_ATTENDING": "Not attending",
+        "MAYBE": "Maybe",
+        "NO_RESPONSE": "No response"
+      }
+    },
+    "logo": {
+      "title": "Team logo",
+      "description": "Shown next to the team in standings, the schedule and on public pages.",
+      "saved": "Logo saved",
+      "removed": "Logo removed",
+      "saveError": "The logo could not be saved"
+    }
+  },
+  "seasonManagement": {
+    "title": "Season Management",
+    "subtitle": "My Seasons",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need season manager privileges.",
+    "noSeasons": "You do not manage any season yet.",
+    "newSeason": "New season",
+    "createError": "Failed to create the season",
+    "notFound": "Season not found",
+    "tabs": {
+      "season": "Season",
+      "games": "Games",
+      "teams": "Teams",
+      "table": "Table",
+      "more": "More"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed"
+    },
+    "stats": {
+      "teams": "Teams",
+      "games": "Games",
+      "played": "Played"
+    },
+    "attention": {
+      "allClear": "Everything is set",
+      "allClearHint": "Every fixture has a date. Record results as they come in."
+    },
+    "nextUp": {
+      "label": "Next up",
+      "all": "All {{count}}",
+      "empty": "No dated fixture yet"
+    },
+    "publish": {
+      "title": "Season in preparation",
+      "hint": "Activate it once play begins",
+      "action": "Activate",
+      "liveTitle": "Season is live",
+      "liveHint": "Games are being played",
+      "complete": "Complete",
+      "completedTitle": "Season completed",
+      "completedHint": "Results are final",
+      "error": "Failed to change the season status"
+    },
+    "games": {
+      "fixtures_one": "{{count}} fixture",
+      "fixtures_few": "{{count}} fixtures",
+      "fixtures_other": "{{count}} fixtures",
+      "filters": {
+        "noDate": "No date {{count}}",
+        "dated": "Dated {{count}}",
+        "played": "Played {{count}}"
+      },
+      "allRounds": "All rounds",
+      "roundShort": "R{{n}}",
+      "round": "Round {{n}}",
+      "noRound": "No round",
+      "noDate": "No date set",
+      "result": "Result",
+      "setDate": "Set date",
+      "edit": "Edit",
+      "empty": "No fixtures in this view"
+    },
+    "dates": {
+      "title": "Round {{n}} dates",
+      "subtitle": "{{count}} of {{total}} still without a date",
+      "roundDefault": "Round default",
+      "applyToAll": "Apply to all {{count}}",
+      "fixtures": "Fixtures",
+      "set": "Set",
+      "change": "Change",
+      "clear": "Clear",
+      "notSet": "No date",
+      "toSave_one": "{{count}} date to save",
+      "toSave_few": "{{count}} dates to save",
+      "toSave_other": "{{count}} dates to save",
+      "nothingToSave": "No changes",
+      "nextRound": "Round {{n}} next",
+      "lastRound": "Last round",
+      "save": "Save round",
+      "saveError": "Failed to save the dates"
+    },
+    "result": {
+      "title": "Record result",
+      "finalScore": "Final score",
+      "home": "Home",
+      "away": "Away",
+      "periods": "Periods",
+      "optional": "optional",
+      "period": "P{{n}}",
+      "status": "Status",
+      "save": "Save result",
+      "saveError": "Failed to save the result",
+      "derivedNote": "This score is calculated from the match report. Edit the report to change it.",
+      "openReport": "Match report",
+      "fromReport": "from report",
+      "saveStatus": "Save status",
+      "saveAndConfirm": "Save and confirm",
+      "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first."
+    },
+    "teams": {
+      "count_one": "{{count}} in this season",
+      "count_few": "{{count}} in this season",
+      "count_other": "{{count}} in this season",
+      "noManager": "No manager yet",
+      "players": "Players",
+      "add": "Add team",
+      "empty": "No teams in this season yet",
+      "createError": "Failed to create the team"
+    },
+    "table": {
+      "teams_one": "{{count}} team",
+      "teams_few": "{{count}} teams",
+      "teams_other": "{{count}} teams",
+      "team": "Team",
+      "played": "P",
+      "points": "Pts",
+      "empty": "No games played yet — the order is alphabetical until results come in.",
+      "liveHint": "Some results are not counted yet. Arrows show where each team would stand once the games in progress finish and every result is confirmed.",
+      "liveTag": "Live",
+      "playingNow": "Playing right now",
+      "wouldClimb": "Would climb {{places}} to {{rank}}",
+      "wouldDrop": "Would drop {{places}} to {{rank}}",
+      "unplaced": "Not placed",
+      "pendingTag": "Pending",
+      "awaitingConfirmation": "Played, waiting to be confirmed"
+    },
+    "more": {
+      "seasonInfo": "Season info",
+      "league": "League",
+      "starts": "Starts",
+      "ends": "Ends",
+      "actions": "Actions",
+      "generateSchedule": "Generate schedule",
+      "generateHint": "Creates the fixtures for every round",
+      "regenerateHint": "Replaces the existing fixtures",
+      "generateError": "Failed to generate the schedule",
+      "publicPage": "View public page",
+      "scoring": "Scoring rules",
+      "scoringInherited": "Using the default for this sport",
+      "scoringCustom": "{{win}} for a win, {{draw}} for a draw",
+      "resultsEmail": "Email results",
+      "resultsEmailHint": "Pick finished games and email results and the table to everyone in the season",
+      "divisions": "Divisions",
+      "divisionsHint": "Split the season into groups with a table each"
+    },
+    "report": {
+      "title": "Match report",
+      "derivedNote": "The score, period scores and player statistics are all calculated from what you record here.",
+      "empty": "Nothing recorded yet. Add a goal or a penalty to start the report.",
+      "loadError": "Failed to load the match report",
+      "saveError": "Failed to record that",
+      "deleteError": "Failed to remove that",
+      "period": "Period {{n}}",
+      "periodLabel": "Period",
+      "atMinute": "{{n}}'",
+      "minutes": "{{n}} min",
+      "minute": "Minute",
+      "unattributed": "No player",
+      "addGoal": "Goal",
+      "addPenalty": "Penalty",
+      "newGoal": "New goal",
+      "newPenalty": "New penalty",
+      "scorer": "Scorer",
+      "penalised": "Player",
+      "assist": "Assist",
+      "secondAssist": "Second assist",
+      "noAssist": "None",
+      "penaltyMinutes": "Penalty minutes",
+      "add": "Add",
+      "confirmedTitle": "Report confirmed",
+      "confirmedNote": "The result is final. Reopen the report to correct anything.",
+      "confirm": "Confirm report",
+      "confirmError": "Failed to confirm the report",
+      "reopen": "Reopen",
+      "reopenTitle": "Reopen the report",
+      "reopenHint": "The result has already been published. Say why it is being changed.",
+      "reasonPlaceholder": "Reason for the correction",
+      "reopenError": "Failed to reopen the report",
+      "showHistory": "Show history",
+      "hideHistory": "Hide history",
+      "noHistory": "Nothing recorded yet",
+      "auditError": "Failed to load the history",
+      "audit": {
+        "CREATE": "Added to the report",
+        "UPDATE": "Corrected in the report",
+        "DELETE": "Removed from the report",
+        "CONFIRM": "Report confirmed",
+        "REOPEN": "Report reopened",
+        "unknownActor": "Removed account"
+      }
+    },
+    "scoring": {
+      "title": "Scoring rules",
+      "inheritedNote": "This season uses the default scoring. Change anything below to give it rules of its own.",
+      "customNote": "This season has its own scoring rules.",
+      "points": "Points",
+      "win": "Win",
+      "draw": "Draw",
+      "loss": "Loss",
+      "allowDraws": "Allow draws",
+      "allowDrawsHint": "Turn off for sports that cannot end level",
+      "tiebreakers": "Tiebreakers",
+      "inOrder": "applied in order",
+      "noTiebreakers": "Teams level on points keep their current order",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "reset": "Use the default again",
+      "save": "Save rules",
+      "saveError": "Failed to save the scoring rules",
+      "tb": {
+        "GOAL_DIFF": "Goal difference",
+        "GOALS_FOR": "Goals scored",
+        "HEAD_TO_HEAD": "Head to head",
+        "WINS": "Wins",
+        "PLAYED": "Fewer games played"
+      }
+    },
+    "resultsEmail": {
+      "title": "Results email",
+      "intro": "Pick the finished games to email. Everyone in the season gets the results, the table to date and the top scorers. Games already emailed are not offered again.",
+      "recipients_one": "Goes to {{count}} person",
+      "recipients_few": "Goes to {{count}} people",
+      "recipients_other": "Goes to {{count}} people",
+      "lastSent": "last sent {{when}}",
+      "loadError": "Failed to load games",
+      "nothingToSend": "Every finished game has already been emailed.",
+      "unsentGames": "Not sent yet · {{selected}} of {{total}} selected",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "round": "Round {{round}}",
+      "unconfirmed": "not confirmed",
+      "preview": "Email preview",
+      "table": "Table",
+      "topScorers": "Top scorers",
+      "history": "Sent emails",
+      "gameCount_one": "{{count}} game",
+      "gameCount_few": "{{count}} games",
+      "gameCount_other": "{{count}} games",
+      "delivered": "{{count}} ×",
+      "sendTest": "Test to me",
+      "testSent": "Test email sent to {{email}}.",
+      "testError": "Failed to send the test email",
+      "send_one": "Send {{count}} game",
+      "send_few": "Send {{count}} games",
+      "send_other": "Send {{count}} games",
+      "sentResult": "{{games}} games sent to {{delivered}} of {{attempted}} recipients.",
+      "alreadySent": "Some of these games were emailed in the meantime. The list has been refreshed.",
+      "sendError": "Failed to send the email",
+      "shareTitle": "Image to share",
+      "shareHint": "Post the results to a WhatsApp group or any other chat. Sharing does not mark the games as sent.",
+      "shareImage": "Share image",
+      "downloadImage": "Download image",
+      "imageLoading": "Preparing image…",
+      "shareError": "Failed to share the image",
+      "imageFile": "results"
+    },
+    "divisions": {
+      "title": "Divisions",
+      "intro": "Teams play only the others in their own division, and each division gets its own table. A season with no divisions is one table.",
+      "namePlaceholder": "Division name",
+      "empty": "No divisions. The whole season shares one table.",
+      "noTeams": "No teams placed here yet",
+      "unplaced": "Not placed yet",
+      "placeIn": "Place in…",
+      "remove": "Remove",
+      "loadError": "Failed to load the divisions",
+      "createError": "Failed to create the division",
+      "deleteError": "Failed to delete the division",
+      "placeError": "Failed to place the team"
+    },
+    "visibility": {
+      "label": "Visibility",
+      "PUBLIC": {
+        "title": "Published",
+        "hint": "Anyone can find this season."
+      },
+      "UNLISTED": {
+        "title": "Not published yet",
+        "hint": "Clubs you send the link to can open it. It stays out of lists and search."
+      },
+      "PRIVATE": {
+        "title": "Hidden",
+        "hint": "Only people who manage the league can see this season."
+      },
+      "publish": "Publish",
+      "change": "Change",
+      "done": "Done",
+      "leagueUNLISTED": "The league is unlisted, so this season is not listed either, whatever it is set to.",
+      "leaguePRIVATE": "The league is private, so nobody else can see this season, whatever it is set to.",
+      "error": "Failed to change who can see the season"
+    },
+    "leagues": {
+      "title": "My leagues",
+      "new": "New league",
+      "empty": "You run no league yet.",
+      "seasons_one": "{{count}} season",
+      "seasons_other": "{{count}} seasons",
+      "seasons_few": "{{count}} seasons",
+      "seasons_many": "{{count}} seasons",
+      "edit": "Edit {{name}}",
+      "delete": "Delete {{name}}",
+      "saved": "League saved",
+      "deleted": "League deleted",
+      "seasonsTitle": "Seasons"
+    }
+  },
+  "admin": {
+    "support": {
+      "filter": "Status",
+      "all": "All",
+      "empty": "No messages with this status.",
+      "loadError": "Could not load messages",
+      "updateError": "Could not change the status",
+      "anonymous": "anonymous",
+      "replyTo": "Reply to",
+      "statusFor": "Status of {{subject}}",
+      "status": {
+        "NEW": "New",
+        "IN_PROGRESS": "In progress",
+        "WAITING_FOR_USER": "Waiting for sender",
+        "RESOLVED": "Resolved",
+        "CLOSED": "Closed"
+      },
+      "category": {
+        "QUESTION": "Question",
+        "PROBLEM": "Problem",
+        "COMPLAINT": "Complaint",
+        "IDEA": "Idea"
+      }
+    },
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need admin privileges to access this page.",
+    "tabs": {
+      "league": {
+        "title": "Leagues",
+        "addLeague": "Add League",
+        "th-name": "Name",
+        "th-sportType": "Sport Type",
+        "th-logo": "Logo",
+        "th-description": "Description",
+        "th-manager": "Manager",
+        "th-seasons-c": "Seasons",
+        "th-actions": "Actions",
+        "goToSeasons": "View seasons"
+      },
+      "user": {
+        "addUser": "Add User",
+        "neverLoggedIn": "Never",
+        "active": "Active",
+        "inactive": "Inactive",
+        "unverified": "Unverified",
+        "resendVerification": "Resend verification email",
+        "verificationSent": "Verification email sent",
+        "verificationFailed": "Failed to send verification email"
+      },
+      "season": {
+        "title": "Seasons",
+        "addSeason": "Add Season",
+        "th-name": "Name",
+        "th-league": "League",
+        "th-startDate": "Start",
+        "th-endDate": "End",
+        "th-status": "Status",
+        "th-created": "Created",
+        "th-manager": "Manager",
+        "th-teams-c": "Team count",
+        "th-actions": "Actions",
+        "goToTeams": "View teams",
+        "goToGames": "View games",
+        "archiveSeason": "Archive season"
+      },
+      "team": {
+        "title": "Teams",
+        "addTeam": "Add Team",
+        "filterBySeason": "Select Season",
+        "selectSeasonFirst": "Select a season to view teams",
+        "noTeams": "No teams in this season yet.",
+        "th-name": "Name",
+        "th-manager": "Manager",
+        "th-players": "Players",
+        "th-actions": "Actions",
+        "goToDetail": "Go to detail"
+      },
+      "player": {
+        "title": "Players",
+        "addPlayer": "Add Player",
+        "filterBySeason": "Select Season",
+        "filterByTeam": "Select Team",
+        "selectSeasonFirst": "Select a season first",
+        "selectTeamFirst": "Select a team to view players",
+        "noPlayers": "No players in this team yet.",
+        "th-name": "Name",
+        "th-number": "Number",
+        "th-position": "Position",
+        "th-bornYear": "Born",
+        "th-note": "Note",
+        "th-actions": "Actions"
+      },
+      "game": {
+        "title": "Games",
+        "addGame": "Add Game",
+        "generateSchedule": "Generate Schedule",
+        "filterBySeason": "Select Season",
+        "selectSeasonFirst": "Select a season to view games",
+        "needMoreTeams": "Add at least 2 teams to create games",
+        "noGames": "No games scheduled yet.",
+        "noDate": "Date TBD",
+        "round": "Round {{round}}",
+        "th-date": "Date",
+        "th-homeTeam": "Home",
+        "th-awayTeam": "Away",
+        "th-score": "Score",
+        "th-location": "Location",
+        "th-status": "Status",
+        "th-actions": "Actions",
+        "status": {
+          "SCHEDULED": "Scheduled",
+          "IN_PROGRESS": "In Progress",
+          "COMPLETED": "Completed",
+          "POSTPONED": "Postponed",
+          "CANCELLED": "Cancelled"
+        },
+        "toasts": {
+          "generatedGamesSuccessTitle": "Games generated",
+          "generatedGamesSuccessDescription": "Generated {{count}} games"
+        }
+      },
+      "statistics": {
+        "title": "Game Statistics",
+        "th-player": "Player",
+        "th-team": "Team",
+        "th-goals": "Goals",
+        "th-assists": "Assists",
+        "th-actions": "Actions",
+        "noStatistics": "No statistics recorded for this game yet.",
+        "addStatistic": "Add Player Statistics",
+        "selectPlayer": "Select Player",
+        "allPlayersHaveStats": "All players have statistics recorded.",
+        "loadError": "Failed to load statistics",
+        "createError": "Failed to create statistic",
+        "updateError": "Failed to update statistic",
+        "deleteError": "Failed to delete statistic",
+        "th-penaltyMinutes": "PIM"
+      }
+    },
+    "seasons": {
+      "title": "Seasons",
+      "new": "+ New",
+      "noSeasons": "No seasons yet",
+      "teamsIn": "Teams in {{name}}",
+      "selectSeason": "Select a season to manage teams",
+      "allLeagues": "All leagues",
+      "empty": "No seasons in this view",
+      "rowActions": "Season actions"
+    },
+    "teams": {
+      "addTeam": "+ Add Team",
+      "generateSchedule": "Generate Schedule",
+      "noTeams": "No teams yet",
+      "managedBy": "Manager: {{name}}"
+    },
+    "modal": {
+      "createLeague": "Create League",
+      "editLeague": "Edit League",
+      "createLeagueDesc": "Create a new league to organize your seasons",
+      "editLeagueDesc": "Update league details",
+      "leagueName": "League Name",
+      "leagueLogo": "Logo",
+      "leagueDescription": "Description",
+      "createSeason": "Create Season",
+      "editSeason": "Edit Season",
+      "createSeasonDesc": "Create a new season for your league",
+      "editSeasonDesc": "Update season details",
+      "league": "League",
+      "addTeam": "Add Team",
+      "editTeam": "Edit Team",
+      "addTeamDesc": "Add a new team to this season",
+      "editTeamDesc": "Update team details",
+      "addPlayer": "Add Player",
+      "editPlayer": "Edit Player",
+      "addPlayerDesc": "Add a new player to this team",
+      "editPlayerDesc": "Update player details",
+      "createUser": "Create User",
+      "editUser": "Edit User",
+      "name": "Name",
+      "sportType": "Sport Type",
+      "sportTypePlaceholder": "e.g., Football, Basketball",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "status": "Status",
+      "copyTeamsFrom": "Copy teams from a previous season (optional)",
+      "copyTeamsFromSeason": "Source season",
+      "copyTeamsNone": "None",
+      "copyTeamsEmpty": "This season has no teams to copy.",
+      "teamName": "Team Name",
+      "teamLogo": "Team logo",
+      "manager": "Team Manager",
+      "noManager": "No manager",
+      "playerName": "Player Name",
+      "playerNumber": "Number",
+      "playerPosition": "Position",
+      "playerBornYear": "Birth Year",
+      "playerNote": "Note",
+      "addGame": "Add Game",
+      "editGame": "Edit Game",
+      "addGameDesc": "Schedule a new game",
+      "editGameDesc": "Update game details and score",
+      "homeTeam": "Home Team",
+      "awayTeam": "Away Team",
+      "gameDate": "Date & Time",
+      "clearGameDate": "Clear date",
+      "gameDateTbdHint": "Date will show as TBD until a new date is set.",
+      "gameRound": "Round",
+      "gameLocation": "Location",
+      "gameLocationPlaceholder": "e.g., Stadium Name",
+      "gameStatus": "Status",
+      "homeScore": "Home Score",
+      "awayScore": "Away Score",
+      "totalScore": "Total",
+      "period1": "Period 1",
+      "period2": "Period 2",
+      "period3": "Period 3",
+      "generateSchedule": "Generate Schedule",
+      "generateScheduleDesc": "Automatically create a round-robin schedule for all teams. Dates will be added later.",
+      "numberOfRounds": "Number of Rounds",
+      "teamsInSeason": "Teams in season: {{count}}",
+      "roundInfo": "Each round is a full round-robin: {{gamesPerRound}} games",
+      "totalGamesInfo": "Total games to generate: {{total}}",
+      "generateWarning": "This will delete all existing games in this season and create new ones without dates. You can add dates to individual games later.",
+      "generate": "Generate",
+      "userName": "Name",
+      "userEmail": "Email",
+      "userPassword": "Password",
+      "userRole": "Role",
+      "userActive": "Active",
+      "leaveBlankToKeep": "leave blank to keep current",
+      "movePlayer": "Move Player",
+      "movePlayerDesc": "Transfer {{playerName}} to another team",
+      "currentTeam": "Current Team",
+      "targetSeason": "Target Season",
+      "targetTeam": "Target Team",
+      "noAvailableTeams": "No other teams available in this season",
+      "movePlayerBtn": "Move Player",
+      "withinGroups": "Keep fixtures inside divisions",
+      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)"
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "USER": "User"
+    },
+    "confirm": {
+      "deleteLeague": "Are you sure you want to delete this league?",
+      "deleteSeason": "Are you sure? This will delete all teams and games in this season.",
+      "deleteTeam": "Are you sure? This will delete all players and game data for this team.",
+      "deletePlayer": "Are you sure you want to delete this player?",
+      "deleteGame": "Are you sure you want to delete this game?",
+      "deleteUser": "Are you sure you want to delete this user?",
+      "deleteStatistic": "Are you sure you want to delete this statistic?",
+      "archiveSeason": "Archive this season? Only final standings and player totals will be kept — per-game details (box scores) are permanently deleted, including any games that were never finished. This cannot be undone."
+    },
+    "errors": {
+      "createLeague": "Failed to create league",
+      "updateLeague": "Failed to update league",
+      "deleteLeague": "Failed to delete league",
+      "createSeason": "Failed to create season",
+      "updateSeason": "Failed to update season",
+      "createTeam": "Failed to create team",
+      "updateTeam": "Failed to update team",
+      "createPlayer": "Failed to create player",
+      "updatePlayer": "Failed to update player",
+      "deletePlayer": "Failed to delete player",
+      "createGame": "Failed to create game",
+      "updateGame": "Failed to update game",
+      "deleteGame": "Failed to delete game",
+      "createUser": "Failed to create user",
+      "updateUser": "Failed to update user",
+      "deleteUser": "Failed to delete user",
+      "generateSchedule": "Failed to generate schedule",
+      "deleteSeason": "Failed to delete season",
+      "deleteTeam": "Failed to delete team",
+      "movePlayer": "Failed to move player",
+      "archiveSeason": "Failed to archive season",
+      "copyTeams": "Season was created, but copying teams failed"
+    }
+  },
+  "hats": {
+    "none": "No teams yet",
+    "leagueManager": "Season Manager",
+    "teamManager": "Team Manager",
+    "tournamentManager": "Tournament Manager"
+  },
+  "language": {
+    "en": "EN",
+    "cs": "CZ"
+  },
+  "sports": {
+    "FOOTBALL": "Football",
+    "BASKETBALL": "Basketball",
+    "VOLLEYBALL": "Volleyball",
+    "HOCKEY": "Hockey",
+    "TENNIS": "Tennis",
+    "HANDBALL": "Handball",
+    "FLOORBALL": "Floorball",
+    "OTHER": "Other"
+  },
+  "playerPositions": {
+    "none": "No position",
+    "GOALIE": "Goalie",
+    "DEFENDER": "Defender",
+    "MIDFIELDER": "Midfielder",
+    "FORWARD": "Forward",
+    "WING": "Wing",
+    "BACK": "Back",
+    "PIVOT": "Pivot",
+    "GUARD": "Guard",
+    "CENTER": "Center",
+    "SETTER": "Setter",
+    "OUTSIDE_HITTER": "Outside hitter",
+    "OPPOSITE": "Opposite",
+    "MIDDLE_BLOCKER": "Middle blocker",
+    "LIBERO": "Libero"
+  },
+  "landing": {
+    "tagline": "Amateur sports management made simple",
+    "nav": {
+      "tournaments": "Tournaments",
+      "seasons": "Seasons",
+      "signIn": "Sign In",
+      "getStarted": "Get Started",
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "title": "Manage your league.\nRun your tournament.",
+      "subtitle": "All-in-one platform for amateur sports organizations. Create seasons, manage teams, schedule games, track stats, and run full tournaments — all in one place.",
+      "ctaStarted": "Get Started Free",
+      "ctaDashboard": "Go to Dashboard",
+      "ctaSignIn": "Sign In",
+      "ctaTournaments": "Browse Tournaments"
+    },
+    "stats": {
+      "teams": "Teams",
+      "teamsLabel": "managed with ease",
+      "schedules": "Schedules",
+      "schedulesLabel": "auto-generated",
+      "stats": "Stats",
+      "statsLabel": "tracked in real time"
+    },
+    "tournamentCta": {
+      "title": "Running a tournament?",
+      "description": "Create groups, generate round-robin schedules, manage playoff brackets, and track top scorers — everything you need for a full tournament.",
+      "explore": "Explore Tournaments",
+      "register": "Register as Tournament Manager",
+      "createAccount": "Create Account"
+    },
+    "footer": "Amateur Team Manager. All rights reserved."
+  },
+  "tm": {
+    "title": "Tournament Management",
+    "accessDenied": "Access Denied",
+    "noPrivileges": "You need Tournament Manager privileges.",
+    "common": {
+      "loading": "Loading...",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "assign": "Assign",
+      "tbd": "TBD",
+      "seed": "Seed {{n}}",
+      "home": "Home",
+      "away": "Away",
+      "viewPublic": "View Public Page",
+      "editions": "editions",
+      "series": "Series"
+    },
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "POSTPONED": "Postponed",
+      "CANCELLED": "Cancelled"
+    },
+    "tournamentStatus": {
+      "DRAFT": "Draft",
+      "REGISTRATION": "Registration",
+      "GROUP_STAGE": "Group Stage",
+      "PLAYOFF": "Playoff",
+      "COMPLETED": "Completed"
+    },
+    "fields": {
+      "name": "Name",
+      "year": "Year",
+      "status": "Status",
+      "location": "Location",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "sportType": "Sport Type",
+      "description": "Description",
+      "logo": "Logo",
+      "country": "Country",
+      "primaryColor": "Primary Color",
+      "number": "Jersey #",
+      "bornYear": "Born Year",
+      "position": "Position",
+      "phase": "Phase",
+      "bracketSlot": "Bracket Slot",
+      "homeTeam": "Home Team",
+      "homeTeam_TENNIS": "Home Player",
+      "awayTeam": "Away Team",
+      "awayTeam_TENNIS": "Away Player",
+      "homeScore": "Home Score",
+      "awayScore": "Away Score",
+      "date": "Date",
+      "team": "Team",
+      "team_TENNIS": "Player",
+      "groupName": "Group Name"
+    },
+    "series": {
+      "title": "Tournament Series",
+      "newButton": "New Series",
+      "empty": "No series yet. Create your first tournament series.",
+      "deleteConfirm": "Delete this series? All tournaments inside will be deleted.",
+      "modal": {
+        "createTitle": "New Tournament Series",
+        "editTitle": "Edit Series"
+      },
+      "form": {
+        "namePlaceholder": "e.g. City Hockey Cup",
+        "sportType": {
+          "HOCKEY": "Hockey",
+          "TENNIS": "Tennis",
+          "OTHER": "Other"
+        }
+      },
+      "errors": {
+        "load": "Failed to load series",
+        "save": "Failed to save series",
+        "delete": "Failed to delete series"
+      }
+    },
+    "seriesDetail": {
+      "notFound": "Series not found.",
+      "editions": "Editions",
+      "newEdition": "New Edition",
+      "empty": "No editions yet. Create the first one.",
+      "modal": {
+        "createTitle": "New Tournament Edition",
+        "editTitle": "Edit Edition"
+      },
+      "form": {
+        "locationPlaceholder": "City, Country"
+      },
+      "errors": {
+        "load": "Failed to load",
+        "save": "Failed to save tournament"
+      }
+    },
+    "tournament": {
+      "notFound": "Tournament not found.",
+      "tabs": {
+        "teams": "Teams",
+        "teams_TENNIS": "Players",
+        "groups": "Groups",
+        "results": "Results",
+        "playoff": "Playoff"
+      },
+      "teams": {
+        "addButton": "Add Team",
+        "addButton_TENNIS": "Add Player",
+        "empty": "No teams yet.",
+        "empty_TENNIS": "No players yet.",
+        "noPlayers": "No players. Click + to add.",
+        "addPlayerTitle": "Add player",
+        "deleteConfirm": "Delete this team and all its players?",
+        "deleteConfirm_TENNIS": "Delete this player?",
+        "table": {
+          "number": "#",
+          "name": "Name",
+          "position": "Position",
+          "born": "Born"
+        },
+        "modal": {
+          "createTitle": "Add Team",
+          "createTitle_TENNIS": "Add Player",
+          "editTitle": "Edit Team",
+          "editTitle_TENNIS": "Edit Player"
+        },
+        "errors": {
+          "save": "Failed to save team",
+          "delete": "Failed to delete team"
+        }
+      },
+      "players": {
+        "deleteConfirm": "Delete this player?",
+        "modal": {
+          "createTitle": "Add Player",
+          "editTitle": "Edit Player"
+        },
+        "errors": {
+          "save": "Failed to save player",
+          "delete": "Failed to delete player"
+        }
+      },
+      "groups": {
+        "addButton": "Add Group",
+        "empty": "No groups yet.",
+        "noTeams": "No teams assigned.",
+        "noTeams_TENNIS": "No players assigned.",
+        "assignTeam": "Assign Team",
+        "assignTeam_TENNIS": "Assign Player",
+        "noAvailableTeams": "All teams are already assigned to a group.",
+        "generateSchedule": "Generate Schedule",
+        "deleteSchedule": "Delete Schedule",
+        "deleteScheduleConfirm": "Delete the entire generated group-stage schedule for this tournament? This cannot be undone.",
+        "deleteConfirm": "Delete this group?",
+        "schedule": {
+          "startDate": "Start Date",
+          "startTime": "Daily Start Time",
+          "endTime": "Daily End Time",
+          "slotDuration": "Slot Duration (minutes)",
+          "minRestGames": "Min. Games Between a Team's Matches",
+          "locations": "Locations",
+          "locationsPlaceholder": "e.g. Arena A, Arena B"
+        },
+        "modal": {
+          "createTitle": "Add Group",
+          "editTitle": "Edit Group",
+          "assignTitle": "Assign Teams to Group",
+          "scheduleTitle": "Generate Tournament Schedule"
+        },
+        "errors": {
+          "save": "Failed to save group",
+          "delete": "Failed to delete group",
+          "generate": "Failed to generate schedule",
+          "deleteSchedule": "Failed to delete schedule",
+          "assign": "Failed to assign team",
+          "remove": "Failed to remove team from group"
+        }
+      },
+      "results": {
+        "empty": "No group games yet. Generate schedule in the Groups tab.",
+        "modal": {
+          "title": "Enter Result"
+        },
+        "errors": {
+          "save": "Failed to save result"
+        }
+      },
+      "playoff": {
+        "addButton": "Add Game",
+        "empty": "No playoff games yet.",
+        "deleteConfirm": "Delete this playoff game?",
+        "generatePlayoffs": "Generate Playoffs",
+        "deletePlayoffs": "Delete Playoffs",
+        "deletePlayoffsConfirm": "Delete the entire generated playoff bracket for this tournament? This cannot be undone.",
+        "teamsUnknownHint": "Both teams must be known before a result can be recorded.",
+        "form": {
+          "qualifiersPerGroup": "Qualifiers Per Group",
+          "startTime": "Daily Start Time",
+          "slotDuration": "Slot Duration (minutes)",
+          "location": "Location (optional)"
+        },
+        "modal": {
+          "createTitle": "Add Playoff Game",
+          "editTitle": "Edit Playoff Game",
+          "generateTitle": "Generate Playoff Bracket"
+        },
+        "errors": {
+          "save": "Failed to save playoff game",
+          "delete": "Failed to delete game",
+          "updateStatus": "Failed to update status",
+          "generate": "Failed to generate playoffs",
+          "deletePlayoffs": "Failed to delete playoffs"
+        }
+      },
+      "errors": {
+        "load": "Failed to load tournament data"
+      }
+    }
+  },
+  "tournamentDetail": {
+    "loading": "Loading...",
+    "notFound": "Tournament not found.",
+    "breadcrumb": "Tournaments",
+    "teamsCount": "{{count}} teams",
+    "teamsCount_TENNIS": "{{count}} players",
+    "tabs": {
+      "groups": "Groups",
+      "schedule": "Group Schedule",
+      "playoff": "Playoff",
+      "teams": "Teams",
+      "teams_TENNIS": "Players"
+    },
+    "groups": {
+      "empty": "No groups yet.",
+      "groupLabel": "Group {{name}}",
+      "view": {
+        "matrix": "Results matrix",
+        "table": "Table"
+      },
+      "matrixHint": "Head-to-head results",
+      "matrixHint_TENNIS": "Head-to-head results (sets)",
+      "standingsTitle": "Group standings",
+      "qualified": "Highlighted rows went through to the playoff."
+    },
+    "standings": {
+      "rank": "#",
+      "team": "Team",
+      "team_TENNIS": "Player",
+      "played": "P",
+      "won": "W",
+      "drawn": "D",
+      "lost": "L",
+      "goalsFor": "GF",
+      "goalsAgainst": "GA",
+      "goalDiff": "+/-",
+      "points": "Pts",
+      "record": "W–L",
+      "record_DRAWS": "W–D–L",
+      "score": "Score",
+      "score_TENNIS": "Games"
+    },
+    "schedule": {
+      "empty": "No group games yet.",
+      "undated": "No start time yet",
+      "vs": "vs"
+    },
+    "playoff": {
+      "title": "Playoff Bracket",
+      "empty": "No playoff games yet.",
+      "phases": {
+        "ROUND_OF_16": "Round of 16",
+        "QUARTER_FINAL": "Quarter-Finals",
+        "SEMI_FINAL": "Semi-Finals",
+        "BRONZE": "Bronze Medal",
+        "FINAL": "Final"
+      },
+      "champion": "Tournament winner"
+    },
+    "teams": {
+      "empty": "No teams yet.",
+      "empty_TENNIS": "No players yet.",
+      "ungrouped": "No group"
+    },
+    "summary": {
+      "title": "Group summary",
+      "entrants": "teams",
+      "entrants_TENNIS": "players",
+      "played": "played of {{total}}",
+      "leader": "group leader",
+      "leader_TENNIS": "group leader"
+    }
+  },
+  "gameStatistic": {
+    "penaltyMinutes": "PIM",
+    "title": "Game statistics",
+    "score": "Score",
+    "total": "Total",
+    "period1": "P1",
+    "period2": "P2",
+    "period3": "P3",
+    "home": "Home",
+    "away": "Away",
+    "goals": "Goals",
+    "assists": "Assists",
+    "lineup": "Line-up",
+    "viewOnly": "View only",
+    "noPlayers": "No players in this team",
+    "notFound": "Game not found",
+    "unauthorized": "You are not authorized to access this page",
+    "fetchError": "Failed to fetch game data",
+    "saveSuccess": "Statistics saved successfully",
+    "saveError": "Failed to save statistics",
+    "saveAndConfirm": "Save and confirm",
+    "confirmedNote": "This game is confirmed and cannot be changed. Reopen it from the match report first.",
+    "allSaved": "All changes saved",
+    "unsavedChanges_one": "{{count}} unsaved change",
+    "unsavedChanges_few": "{{count}} unsaved changes",
+    "unsavedChanges_other": "{{count}} unsaved changes"
+  },
+  "public": {
+    "docs": {
+      "title": "Help",
+      "subtitle": "Guides for running a league, a team, players and games. Pick what you manage and find the steps you need.",
+      "searchPlaceholder": "Search help…",
+      "noResults": "No guide matches this search.",
+      "noResultsHint": "Try a broader term or show all articles.",
+      "showAll": "Show all articles",
+      "contents": "Help contents",
+      "navLabel": "Help contents",
+      "forYou": "For you",
+      "related": "Related guides",
+      "updated": "Updated {{date}}",
+      "notFound": "This guide does not exist or is no longer available.",
+      "backToDocs": "Back to help",
+      "noteTip": "Tip",
+      "noteImportant": "Important",
+      "categories": {
+        "start": "Getting started",
+        "league": "Season manager",
+        "team": "Team manager",
+        "more": "Tournaments and support"
+      },
+      "audience": {
+        "ALL": "For everyone",
+        "LEAGUE": "For season managers",
+        "TEAM": "For team managers",
+        "TOURNAMENT": "For tournament managers"
+      }
+    },
+    "updates": {
+      "title": "What's new in ATM",
+      "subtitle": "What actually changed in ATM and what we are working on. We give a date only once a change is ready to ship.",
+      "released": "Released",
+      "roadmap": "Coming up",
+      "releasedLabel": "Released",
+      "unread": "New release",
+      "roadmapNote": "Order and scope may change. We give a date only once a feature is ready to ship.",
+      "areas": {
+        "all": "All",
+        "league": "League management",
+        "team": "Team management",
+        "tournaments": "Tournaments",
+        "public": "Public site",
+        "fixes": "Fixes"
+      },
+      "status": {
+        "IN_DEVELOPMENT": "In development",
+        "DESIGNING": "Designing",
+        "CONSIDERING": "Considering"
+      },
+      "statusHint": {
+        "IN_DEVELOPMENT": "Being built right now.",
+        "DESIGNING": "An approved design exists; work may not have started.",
+        "CONSIDERING": "An idea under review, not a promise."
+      }
+    },
+    "contact": {
+      "title": "Write to us",
+      "subtitle": "Questions, problems, complaints and ideas in one place. We reply by email if you give one.",
+      "categoryLegend": "What is your message about?",
+      "categories": {
+        "QUESTION": {
+          "title": "Question",
+          "hint": "Not sure how something works."
+        },
+        "PROBLEM": {
+          "title": "Report a problem",
+          "hint": "Something does not work as it should."
+        },
+        "COMPLAINT": {
+          "title": "Complaint",
+          "hint": "Something in ATM is not good enough."
+        },
+        "IDEA": {
+          "title": "Idea",
+          "hint": "What would help you in ATM."
+        }
+      },
+      "subject": "Subject",
+      "message": "Description",
+      "messageHint": "What you wanted to do, what actually happened, and whether it happens again.",
+      "email": "Email for a reply",
+      "emailHint": "Optional. Without an email we cannot reply.",
+      "contextLabel": "Attach technical details",
+      "contextHint": "Only the page address without parameters, window size, browser type and whether you are signed in. Never passwords or browser data.",
+      "send": "Send message",
+      "sending": "Sending…",
+      "noPasswords": "Never send passwords or other sign-in details.",
+      "sentTitle": "Thank you for your message",
+      "sentWithEmail": "We will reply to the email you gave.",
+      "sentWithoutEmail": "We received your message. Without an email we cannot reply.",
+      "sendAnother": "Send another message",
+      "helpsTitle": "What helps us",
+      "helps": {
+        "what": {
+          "title": "What you wanted to do",
+          "hint": "For example, save a line-up or record a result."
+        },
+        "happened": {
+          "title": "What actually happened",
+          "hint": "An error message or unexpected behaviour."
+        },
+        "where": {
+          "title": "Where it happened",
+          "hint": "Phone or computer, and which page."
+        }
+      },
+      "seeUpdates": "See what's new in ATM →",
+      "errors": {
+        "category": "Choose what your message is about.",
+        "subject": "The subject needs at least 3 characters.",
+        "message": "The description needs at least 10 characters.",
+        "email": "Enter a valid email, or leave the field empty.",
+        "send": "Your message could not be sent. The text is still in the form; please try again.",
+        "tooMany": "You sent many messages in a short time. Please try again in a while."
+      }
+    },
+    "hero": {
+      "kicker": "Amateur sport. Real stories."
+    },
+    "loadMore": "Load more",
+    "nav": {
+      "home": "Home",
+      "competitions": "Competitions",
+      "leagues": "Leagues",
+      "seasons": "Seasons",
+      "tournaments": "Tournaments",
+      "teams": "Teams",
+      "players": "Players",
+      "games": "Games",
+      "stats": "Statistics",
+      "docs": "Help",
+      "updates": "What's new",
+      "contact": "Contact",
+      "about": "About",
+      "signIn": "Sign in",
+      "dashboard": "Dashboard"
+    },
+    "search": {
+      "placeholder": "Search a team, player, season…",
+      "tooShort": "Type at least two characters.",
+      "noResults": "Nothing found for “{{query}}”.",
+      "teams": "Teams",
+      "players": "Players",
+      "seasons": "Seasons",
+      "leagues": "Leagues"
+    },
+    "footer": {
+      "competitions": "Competitions",
+      "statistics": "Statistics",
+      "project": "Project",
+      "blurb": "Amateur sport, kept in one place: leagues, tournaments and the teams that play them."
+    },
+    "seasons": {
+      "title": "Seasons",
+      "subtitle": "Browse every season, follow how it is going and how it ended. Amateur sport has a history of its own.",
+      "view": "View",
+      "searchPlaceholder": "Search a season…",
+      "emptyHint": "Try another filter, or search by the league's name."
+    },
+    "teams": {
+      "title": "Teams",
+      "subtitle": "Every team in the app — squad, colours and the season it is playing.",
+      "view": "View",
+      "searchPlaceholder": "Search a team…",
+      "leagueFilter": "League",
+      "allLeagues": "All leagues",
+      "empty": "No team matches",
+      "emptyHint": "Try a shorter name, or clear the league filter.",
+      "noLeague": "No league yet",
+      "noSeason": "No season yet",
+      "count_one": "{{count}} team",
+      "count_few": "{{count}} teams",
+      "count_many": "{{count}} teams",
+      "count_other": "{{count}} teams"
+    },
+    "players": {
+      "title": "Players",
+      "subtitle": "Goals, assists and points of everyone on a roster, across every season on record.",
+      "searchPlaceholder": "Search a player…",
+      "sortPoints": "By points",
+      "sortName": "By name",
+      "tableTitle": "Player statistics",
+      "player": "Player",
+      "team": "Team",
+      "empty": "No player matches",
+      "emptyHint": "Try a shorter name, or clear the league filter.",
+      "count_one": "{{count}} player",
+      "count_few": "{{count}} players",
+      "count_many": "{{count}} players",
+      "count_other": "{{count}} players"
+    },
+    "games": {
+      "title": "Games",
+      "subtitle": "What is being played now, what comes next and how the last round ended.",
+      "round": "Round {{round}}",
+      "noTime": "TBC",
+      "undated": "Date to be confirmed",
+      "emptyHint": "Another league or another view may have something.",
+      "scope": {
+        "upcoming": "Upcoming",
+        "live": "Live",
+        "results": "Results"
+      },
+      "empty": {
+        "upcoming": "No game scheduled",
+        "live": "Nothing being played right now",
+        "results": "No game has finished yet",
+        "all": "No game found"
+      },
+      "status": {
+        "SCHEDULED": "SCHEDULED",
+        "IN_PROGRESS": "LIVE",
+        "COMPLETED": "FINISHED",
+        "POSTPONED": "POSTPONED",
+        "CANCELLED": "CANCELLED"
+      },
+      "count_one": "{{count}} game",
+      "count_few": "{{count}} games",
+      "count_many": "{{count}} games",
+      "count_other": "{{count}} games"
+    },
+    "stats": {
+      "title": "Statistics",
+      "subtitle": "Scoring leaders across every league and season kept here.",
+      "seasonFilter": "Season",
+      "allSeasons": "All seasons",
+      "scope": "Top 50 by points",
+      "tableTitle": "Scoring leaders",
+      "empty": "No statistics yet",
+      "emptyHint": "Numbers appear once the first games have been played."
+    },
+    "about": {
+      "title": "About the project",
+      "subtitle": "A place where an amateur league, its teams and its numbers live together.",
+      "ctaTitle": "Run your league here",
+      "ctaText": "Create a season, add the teams and let the schedule, the table and the player statistics take care of themselves."
+    },
+    "landing": {
+      "browse": "Browse competitions",
+      "todayTitle": "Being played now",
+      "allGames": "All games →",
+      "exploreTitle": "Where to next",
+      "exploreSubtitle": "Public results, no account needed.",
+      "cards": {
+        "seasons": {
+          "title": "Seasons and leagues",
+          "text": "Tables, schedules and the result of every round — from a district league to a hobby one.",
+          "action": "Browse seasons"
+        },
+        "tournaments": {
+          "title": "Tournaments",
+          "text": "Groups, the play-off bracket and live results over a single weekend.",
+          "action": "Browse tournaments"
+        },
+        "teams": {
+          "title": "Teams and players",
+          "text": "Roster, form and personal statistics — a page you can send to anyone.",
+          "action": "Find a team"
+        }
+      },
+      "organisers": {
+        "kicker": "For organisers",
+        "title": "Generate the schedule in a minute. The app works out the rest.",
+        "text": "Create a season, add the teams and let the schedule be generated. The table, the player statistics and the history all follow from the results you enter at each game.",
+        "points": {
+          "schedule": "Rounds and return fixtures generated automatically",
+          "liveTable": "A live table while games are being played",
+          "playerStats": "Goals, assists and penalty minutes per player"
+        },
+        "cta": "Create a season",
+        "secondary": "How it works",
+        "previewUrl": "atm.cz/seasons/2026-2027",
+        "previewTitle": "Table after 12 games",
+        "previewNote": "Example of a public season page."
+      },
+      "nextTitle": "Next games",
+      "pricing": {
+        "kicker": "Tournament pricing",
+        "title": "Small tournaments are free. Bigger ones cost a one-off fee.",
+        "text": "A tournament with up to {{teams}} teams is free, and you can run as many as you like. You pay only for more teams or extra features: once per tournament, or yearly for all of them.",
+        "per": {
+          "free": "per tournament, for ever",
+          "tournament": "per tournament · {{eur}}",
+          "year": "per year · {{eur}}"
+        },
+        "plans": {
+          "FREE": {
+            "name": "Free",
+            "for": "Club and school tournaments",
+            "points": [
+              "Up to {{teams}} teams",
+              "Groups, bracket, results and a public page",
+              "Team applications with a waiting list",
+              "Team logos uploaded to ATM"
+            ]
+          },
+          "TOURNAMENT": {
+            "name": "Tournament",
+            "for": "Bigger one-off tournaments",
+            "points": [
+              "Up to {{teams}} teams",
+              "Everything in Free"
+            ]
+          },
+          "TOURNAMENT_PLUS": {
+            "name": "Tournament Plus",
+            "for": "Tournaments with sponsors",
+            "points": [
+              "No team limit",
+              "Everything in Tournament"
+            ]
+          },
+          "ORGANIZER": {
+            "name": "Organiser",
+            "for": "Organisers of several tournaments a year",
+            "points": [
+              "Every tournament in your series at Plus level",
+              "For one organiser, for a year"
+            ]
+          }
+        },
+        "coming": {
+          "sponsors": "Up to {{sponsorLogos}} sponsor logos",
+          "documents": "Up to {{documents}} documents to download",
+          "branding": "No prominent ATM branding"
+        },
+        "soon": "Soon",
+        "note": "Prices include VAT. Leagues and seasons are free for now.",
+        "cta": "Start a tournament"
+      }
+    },
+    "leagues": {
+      "title": "Leagues",
+      "subtitle": "Every competition kept here, and the seasons each of them has played.",
+      "view": "View",
+      "searchPlaceholder": "Search a league…",
+      "emptyHint": "Try another sport, or clear the search.",
+      "activeCount_one": "{{count}} season in progress",
+      "activeCount_few": "{{count}} seasons in progress",
+      "activeCount_many": "{{count}} seasons in progress",
+      "activeCount_other": "{{count}} seasons in progress",
+      "seasonCount_one": "{{count}} season",
+      "seasonCount_few": "{{count}} seasons",
+      "seasonCount_many": "{{count}} seasons",
+      "seasonCount_other": "{{count}} seasons"
+    },
+    "tournaments": {
+      "title": "Tournaments",
+      "subtitle": "Groups, play-off brackets and results — a whole tournament in one place.",
+      "view": "View",
+      "searchPlaceholder": "Search a tournament…",
+      "count_one": "{{count}} tournament",
+      "count_few": "{{count}} tournaments",
+      "count_many": "{{count}} tournaments",
+      "count_other": "{{count}} tournaments",
+      "editions_one": "{{count}} edition",
+      "editions_few": "{{count}} editions",
+      "editions_many": "{{count}} editions",
+      "editions_other": "{{count}} editions",
+      "editionsTitle": "Editions",
+      "noEditions": "No edition yet.",
+      "empty": "No tournament yet",
+      "emptyHint": "Tournaments appear here once an organiser creates one.",
+      "status": {
+        "DRAFT": "DRAFT",
+        "REGISTRATION": "REGISTRATION",
+        "GROUP_STAGE": "GROUP STAGE",
+        "PLAYOFF": "PLAY-OFF",
+        "COMPLETED": "FINISHED"
+      }
+    }
+  },
+  "visibility": {
+    "label": "Who can see this",
+    "levels": {
+      "PUBLIC": "Public",
+      "UNLISTED": "Unlisted",
+      "PRIVATE": "Private"
+    },
+    "options": {
+      "PUBLIC": "Anyone can find this",
+      "UNLISTED": "Only people with the link",
+      "PRIVATE": "Only people who manage it"
+    },
+    "hints": {
+      "PUBLIC": "Listed on the site and in search",
+      "UNLISTED": "Opens from a link you share, left out of every list and search",
+      "PRIVATE": "Hidden from everyone else, even with the link"
+    }
+  },
+  "invites": {
+    "sheet": {
+      "titleTeam": "Invite a team manager",
+      "titleLeague": "Invite a season manager",
+      "changeTitleTeam": "Change the team manager",
+      "changeTitleLeague": "Change the season manager",
+      "nameLabel": "Their name",
+      "namePlaceholder": "e.g. Tomáš Král",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "emailHint": "Already using ATM? Use the email they sign in with.",
+      "languageLabel": "Email language",
+      "languageCs": "Čeština",
+      "languageEn": "English",
+      "canTitle": "What they will be able to do",
+      "canTeam": [
+        "Edit the roster, team colours and logo",
+        "Plan training and track attendance",
+        "Fill in their players' stats after a game"
+      ],
+      "canLeague": [
+        "Create seasons and add teams",
+        "Invite team managers",
+        "Generate the schedule and record results",
+        "Publish the season and email the results"
+      ],
+      "keepNote": "Dates, scores and the schedule stay with you.",
+      "replaceTeam": "{{name}} manages this team now. They lose access once the new manager accepts.",
+      "replaceLeague": "{{name}} manages this league now. They lose access once the new manager accepts.",
+      "validity": "We email the invitation. The link stays valid for 7 days.",
+      "submit": "Send invitation",
+      "sending": "Sending…",
+      "error": "The invitation could not be sent."
+    },
+    "sent": {
+      "title": "Invitation sent",
+      "body": "We emailed {{name}} at {{email}}.",
+      "spamHint": "Emails sometimes land in spam. Send them the link yourself as well, for example in WhatsApp.",
+      "share": "Share link",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "copyError": "The link could not be copied.",
+      "shareText": "{{name}}, here is your invitation to manage {{target}} in ATM: {{link}}",
+      "nextTitle": "What happens next",
+      "next1": "{{name}} opens the link and sets a password, or signs in if they already have an account.",
+      "next2Team": "The team opens with a short checklist: colours, roster, next game.",
+      "next2League": "The league opens with a checklist for setting up its first season.",
+      "next3Team": "You see their name next to the team on your Teams tab.",
+      "next3League": "You see their name next to the league in the Leagues list.",
+      "until": "The link works until {{date}}. You can resend it at any time.",
+      "inviteNext": "Invite next: {{team}}",
+      "done": "Done"
+    },
+    "status": {
+      "invited": "Invited {{when}} · {{email}}",
+      "invitedShort": "Invited: {{email}}",
+      "expired": "Invitation expired · {{email}}",
+      "noManager": "No manager yet",
+      "invitedLabel": "Invited",
+      "expiredLabel": "Expired"
+    },
+    "actions": {
+      "invite": "Invite",
+      "inviteManager": "Invite a manager",
+      "resend": "Resend",
+      "cancel": "Cancel invitation",
+      "menuLabel": "Invitation for {{team}}",
+      "resendError": "The invitation could not be resent.",
+      "cancelError": "The invitation could not be cancelled."
+    },
+    "summary": {
+      "title": "Team managers",
+      "activeOf": "{{active}} of {{total}} active",
+      "active": "{{count}} active",
+      "invited": "{{count}} invited",
+      "none": "{{count}} without a manager"
+    },
+    "teamCard": {
+      "title": "Team manager",
+      "current": "Managed by {{name}} ({{email}}).",
+      "change": "Change manager"
+    }
+  },
+  "invitePage": {
+    "documentTitle": "Invitation",
+    "roleTeam": "Team manager invitation",
+    "roleLeague": "Season manager invitation",
+    "email": "Email",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submitTeam": "Accept and open my team",
+    "submitLeague": "Accept and open my league",
+    "notYou": "Not {{name}}? Don't continue, and ask for a new invitation.",
+    "help": "Help",
+    "goHome": "Go to ATM",
+    "new": {
+      "title": "Welcome, {{name}}",
+      "introTeam": "{{name}} invited you to manage this team. Choose a password and you're in.",
+      "introLeague": "{{name}} invited you to run this league. Choose a password and you're in.",
+      "introTeamAnonymous": "You were invited to manage this team. Choose a password and you're in.",
+      "introLeagueAnonymous": "You were invited to run this league. Choose a password and you're in.",
+      "name": "Your name",
+      "password": "Choose a password",
+      "passwordHint": "At least {{min}} characters. You'll sign in with this email and password."
+    },
+    "existing": {
+      "title": "Sign in to accept",
+      "intro": "You already use ATM. Sign in and {{target}} is added next to everything you manage now.",
+      "password": "Password",
+      "forgot": "Forgot it?",
+      "submit": "Sign in and accept",
+      "signedIn": "You're signed in as {{email}}."
+    },
+    "wrongAccount": {
+      "body": "You're signed in as {{current}}, but this invitation is for {{email}}.",
+      "signOut": "Sign out and continue"
+    },
+    "expired": {
+      "title": "This invitation has expired",
+      "body": "Invitations to {{target}} work for 7 days. This one ended on {{date}}.",
+      "howTitle": "How to get a new one",
+      "how1": "Message {{name}}, who invited you.",
+      "how1Anonymous": "Contact the person who invited you.",
+      "how2Team": "They tap Resend next to your team, and a fresh link arrives within a minute.",
+      "how2League": "They send the invitation again from the Leagues list, and a fresh link arrives within a minute."
+    },
+    "revoked": {
+      "title": "This invitation was cancelled",
+      "body": "It was cancelled or replaced by a newer one. Open the latest email, or ask the person who invited you."
+    },
+    "accepted": {
+      "title": "Already accepted",
+      "body": "This invitation has been used. Sign in to continue.",
+      "signIn": "Sign in"
+    },
+    "notFound": {
+      "title": "Invitation not found",
+      "body": "The link may be incomplete or replaced by a newer one. Open the latest email, or ask for a new invitation."
+    },
+    "errors": {
+      "weakPassword": "The password needs at least {{min}} characters.",
+      "wrongAccount": "This invitation is for a different account.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "seasonChecklist": {
+    "title": "Get the season live",
+    "progress": "{{done}} of {{total}}",
+    "nextLabel": "Next step · {{current}} of {{total}}",
+    "done": "Done",
+    "guide": "Read the season manager guide",
+    "steps": {
+      "teams": {
+        "title": "Add teams",
+        "status_one": "{{count}} team",
+        "status_few": "{{count}} teams",
+        "status_other": "{{count}} teams",
+        "none": "No teams yet",
+        "body": "Add every team that plays this season. You can bring them over from an earlier season.",
+        "action": "Add teams"
+      },
+      "managers": {
+        "title": "Invite team managers",
+        "status": "{{active}} active · {{invited}} invited · {{missing}} to go",
+        "body": "Give each team someone who keeps its roster up to date. They get an email, and a link you can also send in WhatsApp.",
+        "action_one": "Invite the remaining team",
+        "action_few": "Invite the remaining {{count}}",
+        "action_other": "Invite the remaining {{count}}",
+        "skip": "I'll manage the teams myself"
+      },
+      "schedule": {
+        "title": "Generate the schedule",
+        "status_one": "{{count}} game",
+        "status_few": "{{count}} games",
+        "status_other": "{{count}} games",
+        "none": "Not generated yet",
+        "body": "Pick the format and ATM pairs every team. You can still change games afterwards.",
+        "action": "Generate schedule"
+      },
+      "dates": {
+        "title": "Set game dates",
+        "status": "{{undated}} of {{total}} without a date",
+        "body": "Teams only see a game in their schedule once it has a date.",
+        "action": "Set dates"
+      },
+      "publish": {
+        "title": "Publish the season",
+        "draft": "Draft",
+        "live": "Published",
+        "body": "Publishing shows the schedule and table on the public site.",
+        "action": "Publish season"
+      }
+    }
+  },
+  "teamChecklist": {
+    "title": "Get your team ready",
+    "progress": "{{done}} of {{total}} done",
+    "hide": "Hide",
+    "done": "Done",
+    "guide": "Stuck? Read the team manager guide",
+    "steps": {
+      "account": {
+        "title": "Your account is ready",
+        "hint": "Signed in as {{email}}"
+      },
+      "look": {
+        "title": "Check name, colours and logo",
+        "hint": "They show in the schedule, the table and the public profile"
+      },
+      "roster": {
+        "title": "Add your players",
+        "hint": "No players yet",
+        "count_one": "{{count}} player",
+        "count_few": "{{count}} players",
+        "count_other": "{{count}} players"
+      },
+      "schedule": {
+        "title": "Look at your schedule",
+        "hint": "No dated games yet",
+        "next": "Next: {{date}} vs {{opponent}}"
+      },
+      "training": {
+        "title": "Plan a training",
+        "hint": "Optional. Players answer whether they're coming"
+      }
+    }
+  },
+  "files": {
+    "upload": "Upload logo",
+    "replace": "Replace logo",
+    "remove": "Remove",
+    "uploading": "Uploading…",
+    "logoHint": "PNG, JPG or WebP up to 1 MB. You can also drop it here.",
+    "errors": {
+      "FILE_TOO_LARGE": "The logo is larger than 1 MB.",
+      "FILE_TYPE_NOT_ALLOWED": "The logo must be a PNG, JPG or WebP image.",
+      "failed": "The logo could not be uploaded. Please try again."
+    }
+  },
+  "adminShell": {
+    "title": "Administration",
+    "menuLabel": "Administration sections",
+    "openMenu": "Open the menu",
+    "toDashboard": "Back to the dashboard",
+    "soon": "Soon",
+    "comingIn": "Arrives with part {{celek}}",
+    "badge_one": "{{count}} waiting",
+    "badge_other": "{{count}} waiting",
+    "badge_few": "{{count}} waiting",
+    "badge_many": "{{count}} waiting",
+    "sections": {
+      "overview": {
+        "label": "Overview",
+        "hint": "What waits for you, and the last 30 days in numbers."
+      },
+      "payments": {
+        "label": "Payments and invoices",
+        "hint": "QR transfers and tax documents."
+      },
+      "pricing": {
+        "label": "Pricing and VAT",
+        "hint": "Prices include VAT. Every change applies from the date you pick; issued payments and documents never change. Everything goes to the audit log."
+      },
+      "users": {
+        "label": "Users",
+        "hint": "Accounts, what they run, and their history."
+      },
+      "leagues": {
+        "label": "Leagues",
+        "hint": "Every league; seasons open from here."
+      },
+      "seasons": {
+        "label": "Seasons",
+        "hint": "Every season, filtered by league."
+      },
+      "tournaments": {
+        "label": "Tournaments and series",
+        "hint": "Opens the tournament management."
+      },
+      "players": {
+        "label": "Players",
+        "hint": "Players across seasons."
+      },
+      "games": {
+        "label": "Games",
+        "hint": "Games across seasons."
+      },
+      "registrations": {
+        "label": "Registrations",
+        "hint": "Season and tournament applications."
+      },
+      "files": {
+        "label": "Files",
+        "hint": "Uploaded logos and documents."
+      },
+      "support": {
+        "label": "Support",
+        "hint": "Messages from the contact form."
+      },
+      "audit": {
+        "label": "Audit log",
+        "hint": "Who changed what, and when."
+      }
+    },
+    "search": {
+      "label": "Search the whole administration",
+      "placeholder": "Email, league, team, tournament…",
+      "users": "Users",
+      "tournaments": "Tournaments"
+    },
+    "list": {
+      "export": "Export CSV",
+      "exportError": "The export failed. Try again.",
+      "loadError": "Could not load. Try again.",
+      "filtersInUrl": "Filters are in the page address, so the link can be shared.",
+      "bulkActions": "Actions for the selected rows",
+      "selected_one": "{{count}} selected",
+      "selected_other": "{{count}} selected",
+      "selected_few": "{{count}} selected",
+      "selected_many": "{{count}} selected",
+      "clearSelection": "Clear selection",
+      "selectAll": "Select all on this page",
+      "selectRow": "Select {{name}}",
+      "pages": "Pages",
+      "range": "{{from}}–{{to}} of {{total}}",
+      "rangeEstimated": "{{from}}–{{to}} of about {{total}}",
+      "perPage_one": "{{count}} per page",
+      "perPage_other": "{{count}} per page",
+      "perPage_few": "{{count}} per page",
+      "perPage_many": "{{count}} per page",
+      "previous": "Previous",
+      "next": "Next",
+      "addFilter": "Add filter",
+      "removeFilter": "Remove filter {{label}}",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "any": "any"
+    },
+    "panel": {
+      "close": "Close detail",
+      "overview": "Overview",
+      "history": "History"
+    },
+    "confirm": {
+      "reasonRequired": "Reason (required)",
+      "reasonOptional": "Reason (optional)",
+      "reasonHint": "Saved in the audit log with your name."
+    },
+    "audit": {
+      "when": "When",
+      "who": "Who",
+      "section": "Section",
+      "record": "Record",
+      "recordId": "Record ID",
+      "action": "Action",
+      "reason": "Reason",
+      "period": "Period",
+      "field": "Field",
+      "before": "Before",
+      "after": "After",
+      "system": "System",
+      "noChanges": "No field changed.",
+      "emptyRecord": "Nothing recorded yet.",
+      "empty": "No entries match these filters.",
+      "search": "Search the log",
+      "searchPlaceholder": "Reason or record ID…",
+      "actorPlaceholder": "Name or email",
+      "actions": {
+        "CREATE": "Created",
+        "UPDATE": "Changed",
+        "DELETE": "Deleted",
+        "CONFIRM": "Confirmed",
+        "REOPEN": "Reopened"
+      },
+      "types": {
+        "User": "Users",
+        "Game": "Games",
+        "Season": "Seasons",
+        "SupportTicket": "Support",
+        "ProductPrice": "Prices",
+        "VatRate": "VAT rates",
+        "PlanLimit": "Plan limits",
+        "Setting": "Settings"
+      }
+    },
+    "users": {
+      "kicker": "User",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "account": "Account",
+      "activation": "Email confirmed",
+      "verifiedOn": "Yes, {{date}}",
+      "registered": "Registered",
+      "lastLogin": "Last login",
+      "digest": "Round summaries",
+      "activity": "Activity",
+      "activityValue": "{{players}} roster spots · {{tickets}} support messages · {{registrations}} applications",
+      "manages": "Runs",
+      "managesNothing": "Runs no league, tournament series or team.",
+      "leagues": "Leagues and seasons",
+      "series": "Tournament series",
+      "teams": "Teams",
+      "leaguesCount_one": "{{count}} league",
+      "leaguesCount_other": "{{count}} leagues",
+      "leaguesCount_few": "{{count}} leagues",
+      "leaguesCount_many": "{{count}} leagues",
+      "seriesCount_one": "{{count}} series",
+      "seriesCount_other": "{{count}} series",
+      "seriesCount_few": "{{count}} series",
+      "seriesCount_many": "{{count}} series",
+      "teamsCount_one": "{{count}} team",
+      "teamsCount_other": "{{count}} teams",
+      "teamsCount_few": "{{count}} teams",
+      "teamsCount_many": "{{count}} teams",
+      "managesFilter": {
+        "league": "A league",
+        "series": "A tournament series",
+        "team": "A team",
+        "any": "Anything",
+        "none": "Nothing"
+      },
+      "tabs": {
+        "plans": "Plans and subscriptions",
+        "payments": "Payments and invoices",
+        "billing": "Billing details",
+        "manages": "Runs"
+      },
+      "plansPending": "Plans arrive with paid tournaments (part B): the yearly Organiser plan with its dates, tournament plans, their state and expiry.",
+      "paymentsPending": "Payments arrive with part B: the user's payments with their variable symbol and invoices to download.",
+      "billingPending": "Billing details arrive with part B, including the VAT ID check.",
+      "search": "Search users",
+      "searchPlaceholder": "Name or email…",
+      "empty": "No users match these filters.",
+      "created": "User created",
+      "saved": "User saved",
+      "deleted": "User deleted",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "activated_one": "Account activated",
+      "activated_other": "{{count}} accounts activated",
+      "activated_few": "{{count}} accounts activated",
+      "activated_many": "{{count}} accounts activated",
+      "deactivated_one": "Account deactivated",
+      "deactivated_other": "{{count}} accounts deactivated",
+      "deactivated_few": "{{count}} accounts deactivated",
+      "deactivated_many": "{{count}} accounts deactivated",
+      "deactivateTitle_one": "Deactivate the account?",
+      "deactivateTitle_other": "Deactivate {{count}} accounts?",
+      "deactivateTitle_few": "Deactivate {{count}} accounts?",
+      "deactivateTitle_many": "Deactivate {{count}} accounts?",
+      "deactivateHint_one": "{{name}} is signed out at once and cannot sign in until an admin activates the account again.",
+      "deactivateHint_other": "They are signed out at once and cannot sign in until an admin activates their accounts again.",
+      "deactivateHint_few": "They are signed out at once and cannot sign in until an admin activates their accounts again.",
+      "deactivateHint_many": "They are signed out at once and cannot sign in until an admin activates their accounts again.",
+      "activateTitle": "Activate the account?",
+      "activateHint": "{{name}} can sign in again.",
+      "deleteTitle": "Delete the user?",
+      "deleteHint": "{{name}} is deleted for good. Leagues, teams and series they run stay, without a manager.",
+      "notYourself": "You cannot deactivate your own account."
+    },
+    "overview": {
+      "waiting": "Waiting for you",
+      "payments": "Payments to confirm",
+      "paymentsPending": "Arrives with paid tournaments (part B).",
+      "tickets": "Support messages",
+      "ticketsHint": "New or in progress.",
+      "registrations": "Applications without an answer",
+      "registrationsHint": "Pending for more than 7 days.",
+      "last30Days": "Last 30 days",
+      "newUsers": "New users",
+      "activeLeagues": "Active leagues",
+      "activeTournaments": "Active tournaments",
+      "activeHint": "Active means a game was dated in the last 30 days.",
+      "embeds": "Widget on websites",
+      "embedsHint": "Websites that showed a table or games from ATM in the last 30 days.",
+      "embedsViews_one": "{{count}} view",
+      "embedsViews_other": "{{count}} views",
+      "embedsNone": "Nobody has embedded it yet."
+    },
+    "pricing": {
+      "readOnly": "You can look but not change. Only the pricing manager account changes prices, VAT rates, limits and OSS.",
+      "products": "Products",
+      "leaguePlansLater": "League plans come later",
+      "product": "Product",
+      "czk": "CZK incl. VAT",
+      "eur": "EUR incl. VAT",
+      "validFromShort": "In force since",
+      "scheduled": "Planned",
+      "changePrice": "Change price",
+      "from": "from {{when}}",
+      "now": "from now",
+      "withdraw": "Withdraw {{label}}",
+      "withdrawn": "Planned change withdrawn",
+      "withdrawTitle": "Withdraw the planned change?",
+      "withdrawHint": "{{label}} will not take effect. Nothing issued depends on it yet.",
+      "withdrawConfirm": "Withdraw",
+      "vatRates": "VAT rates by country",
+      "addRate": "+ Add rate",
+      "country": "Country",
+      "rate": "Standard rate",
+      "appliesWhen": "Applies",
+      "appliesCz": "Always for Czech customers; for other EU customers while OSS is off",
+      "appliesOss": "Only with OSS on, for a customer without a VAT ID",
+      "ratesNote": "Confirm every rate with the accountant before it applies.",
+      "side": "Changes",
+      "newPrice": "New price",
+      "validFrom": "Valid from",
+      "validFromHint": "Empty means right away. A date applies from midnight in Prague.",
+      "split": "{{country}} {{rate}}: base {{base}}, VAT {{vat}}",
+      "ossOn": "(OSS is on)",
+      "ossOff": "(only with OSS on)",
+      "priceScope": "Applies to payments created {{when}}. Payments already created keep their price, and issued documents never change.",
+      "schedule": "Schedule change",
+      "priceSaved": "Price change scheduled",
+      "saveError": "Could not save. Try again.",
+      "confirmPriceTitle": "New price for {{name}}?",
+      "confirmPrice": "{{czk}} / {{eur}} incl. VAT for payments created {{when}}. The change is written to the audit log.",
+      "ratePercent": "Rate (%)",
+      "rateSaved": "VAT rate scheduled",
+      "confirmRateTitle": "New VAT rate?",
+      "confirmRate": "{{country}} {{rate}} from {{when}}, for payments created from then on. The change is written to the audit log.",
+      "limits": "Plan limits",
+      "changeLimits": "Change limits",
+      "limit": "Limit",
+      "unlimited": "unlimited",
+      "plans": {
+        "FREE": "Free",
+        "TOURNAMENT": "Tournament",
+        "TOURNAMENT_PLUS": "Tournament Plus",
+        "ORGANIZER": "Organiser"
+      },
+      "limitKeys": {
+        "TEAMS_PER_TOURNAMENT": "Teams per tournament",
+        "SPONSOR_LOGOS": "Sponsor logos",
+        "DOCUMENTS": "Documents (PDF)",
+        "DOCUMENT_MAX_MB": "Document size (MB)",
+        "LOGO_MAX_MB": "Team logo (MB)"
+      },
+      "limitsHint": "Leave a cell empty for unlimited; 0 means not included. Only changed cells are saved.",
+      "limitsSaved": "Limit change scheduled",
+      "confirmLimitsTitle_one": "Change {{count}} limit?",
+      "confirmLimitsTitle_other": "Change {{count}} limits?",
+      "confirmLimitsTitle_few": "Change {{count}} limits?",
+      "confirmLimitsTitle_many": "Change {{count}} limits?",
+      "confirmLimits": "Valid {{when}}: {{list}}. The change is written to the audit log.",
+      "oss": "OSS mode",
+      "on": "On",
+      "off": "Off",
+      "ossOffHint": "Off: customers from other EU countries without a VAT ID pay Czech VAT. Switch on when the limit is reached, after talking to the accountant.",
+      "ossOnHint": "On: customers from other EU countries without a VAT ID pay their own country's rate, declared through OSS.",
+      "ossCounter": "EU sales without a VAT ID, {{year}}",
+      "ossOf": "{{total}} of {{limit}}",
+      "ossAlerts": "You are emailed at 80 % (8 000 €) and when the limit is passed.",
+      "ossNotTracked": "Counted from payments, which arrive with part B; until then this stays at zero.",
+      "ossOnTitle": "Switch OSS on?",
+      "ossOffTitle": "Switch OSS off?",
+      "ossOnConfirm": "Payments created from now on charge EU customers without a VAT ID their own country's rate. Every such country needs a rate in the table.",
+      "ossOffConfirm": "Payments created from now on charge EU customers without a VAT ID Czech VAT.",
+      "switchOn": "Switch on",
+      "switchOff": "Switch off",
+      "ossSwitchedOn": "OSS switched on",
+      "ossSwitchedOff": "OSS switched off",
+      "lookup": "Check VAT ID or IČO",
+      "lookupHint": "A VAT ID goes to VIES, an IČO to ARES — the lookups the billing form makes.",
+      "lookupRun": "Check",
+      "lookupErrors": {
+        "VAT_ID_FORMAT": "A VAT ID starts with a two-letter country code.",
+        "ICO_FORMAT": "That is not a valid IČO.",
+        "ICO_UNKNOWN": "ARES does not know this IČO.",
+        "ARES_UNAVAILABLE": "ARES is not answering. Try again later.",
+        "failed": "The lookup failed."
+      },
+      "vatStatus": {
+        "VALID": "Valid",
+        "INVALID": "Not valid",
+        "UNAVAILABLE": "VIES did not answer; will retry"
+      },
+      "checkedAt": "Checked {{when}}",
+      "consultation": "consultation number {{id}}",
+      "ico": "IČO {{ico}}",
+      "dic": "VAT ID {{dic}}"
+    }
+  },
+  "embed": {
+    "standings": "Standings",
+    "upcoming": "Upcoming games",
+    "recent": "Latest results",
+    "noTable": "No table yet.",
+    "noUpcoming": "No games scheduled.",
+    "noRecent": "No results yet.",
+    "unavailable": "Not available.",
+    "dateTbd": "Date to be confirmed",
+    "tbd": "To be confirmed",
+    "round": "Round {{n}}",
+    "postponed": "Postponed",
+    "live": "Live",
+    "brand": {
+      "before": "Results from "
+    },
+    "columns": {
+      "rankLong": "Position",
+      "team": "Team",
+      "played": "P",
+      "playedLong": "Played",
+      "wins": "W",
+      "winsLong": "Won",
+      "draws": "D",
+      "drawsLong": "Drawn",
+      "losses": "L",
+      "lossesLong": "Lost",
+      "score": "Goals",
+      "scoreLong": "Goals for and against",
+      "points": "Pts",
+      "pointsLong": "Points"
+    },
+    "phases": {
+      "ROUND_OF_16": "Round of 16",
+      "QUARTER_FINAL": "Quarter-final",
+      "SEMI_FINAL": "Semi-final",
+      "BRONZE": "Third place",
+      "FINAL": "Final"
+    }
+  },
+  "embedPanel": {
+    "title": "Embed on a website",
+    "hint": "The table or games on the league’s or a club’s website",
+    "teamHint": "The table with your team, or its games, on the club’s website.",
+    "open": "Create the code",
+    "intro": "Choose what the website should show. Paste the code into the page as HTML; the table and games then update themselves.",
+    "unavailable": "The competition is private, so the widget would only say “Not available”. Make it Public or Unlisted (by link).",
+    "widget": "What to show",
+    "views": {
+      "standings": "Standings",
+      "games": "Games"
+    },
+    "team": "Team",
+    "allTeams": "All teams",
+    "division": "Division",
+    "group": "Group",
+    "allDivisions": "All divisions",
+    "allGroups": "All groups",
+    "wholeSeason": "Whole season together",
+    "rowsTable": "Rows",
+    "rowsGames": "Games",
+    "rowsAll": "all",
+    "results": "Show the latest results too",
+    "theme": "Look",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "accent": "Highlight colour",
+    "logos": "Team logos",
+    "hideBrand": "Hide the “Results from ATM” link",
+    "hideBrandPaid": "Only in the Tournament Plus and Organiser plans.",
+    "preview": "Preview",
+    "code": "Code to paste",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "help": "How to put the table on a website"
+  }
+}

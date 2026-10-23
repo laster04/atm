@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { menuLanguages } from '@/i18n/languages';
 import { useAuth } from '@/context/AuthContext.tsx';
 import { Button } from "@components/base/button";
 import {
@@ -25,10 +26,6 @@ export default function Navbar() {
 		navigate('/');
 	};
 
-	const toggleLanguage = () => {
-		const newLang = i18n.language === 'en' ? 'cs' : 'en';
-		i18n.changeLanguage(newLang);
-	};
 
 	const handleToLoginPage = () => {
 		navigate('/login');
@@ -129,9 +126,11 @@ export default function Navbar() {
 										</DropdownMenuItem>
 									)}
 									<DropdownMenuSeparator />
-									<DropdownMenuItem onClick={toggleLanguage}>
-										{i18n.language === 'en' ? t('language.cs') : t('language.en')}
-									</DropdownMenuItem>
+									{menuLanguages(i18n.language).filter((language) => language.code !== i18n.language).map((language) => (
+										<DropdownMenuItem key={language.code} onClick={() => i18n.changeLanguage(language.code)} lang={language.code}>
+											{language.label}
+										</DropdownMenuItem>
+									))}
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
