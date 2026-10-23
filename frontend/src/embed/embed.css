@@ -60,7 +60,9 @@ abbr { text-decoration: none; }
 
 .note { color: var(--muted); font-size: 13px; padding: 8px 0; }
 .brand { display: flex; justify-content: flex-end; font-size: 11.5px; }
-.brand a { color: var(--muted); text-decoration: none; }
+.brand a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; }
+/* The yellow mark reads on both the light and the dark theme. */
+.brand img { display: block; height: 20px; width: auto; }
 .brand a:hover, .brand a:focus-visible { color: var(--fg); text-decoration: underline; }
 .brand b { color: var(--accent); }
 :root[data-theme='dark'] .brand b { color: var(--fg); }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import atmMark from './atm-mark.png';
 
 export interface WidgetOptions {
 	kind: 'season' | 'tournament';
@@ -98,7 +99,10 @@ export default function Widget({ options }: { options: WidgetOptions | null }) {
 				: <Games data={data} options={options} t={t} />}
 			{showBrand && (
 				<p className="brand">
-					<a href={link} target="_blank" rel="noopener">{t('brand.before')}<b>ATM</b></a>
+					<a href={link} target="_blank" rel="noopener">
+						{t('brand.before')}<b>ATM</b>
+						<img src={atmMark} alt="" width={25} height={20} />
+					</a>
 				</p>
 			)}
 		</div>
