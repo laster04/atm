@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ClipboardSignature, ExternalLink, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
+import { CalendarPlus, ClipboardSignature, Code2, ExternalLink, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { gameApi, registrationApi, seasonApi } from '@/services/api';
@@ -12,6 +12,7 @@ import ResultsEmailSheet from './ResultsEmailSheet';
 import DivisionsSheet from './DivisionsSheet';
 import PlayoffSheet from './PlayoffSheet';
 import RegistrationsSheet from './RegistrationsSheet';
+import EmbedSheet from './EmbedSheet';
 import { SEASON_ACCENT } from './util';
 
 interface MoreTabProps {
@@ -36,6 +37,7 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 	// The email about a new application links here with ?registrations=1.
 	const [searchParams] = useSearchParams();
 	const [showRegistrations, setShowRegistrations] = useState(searchParams.get('registrations') === '1');
+	const [showEmbed, setShowEmbed] = useState(false);
 	const [waitingApplications, setWaitingApplications] = useState(0);
 
 	useEffect(() => {
@@ -187,6 +189,17 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 					</span>
 				</button>
 
+				<button
+					onClick={() => setShowEmbed(true)}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left"
+				>
+					<Code2 className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-sm font-semibold">{t('embedPanel.title')}</span>
+						<span className="text-xs text-muted-foreground">{t('embedPanel.hint')}</span>
+					</span>
+				</button>
+
 				<Link
 					to={`/season-detail/${season.id}`}
 					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5"
@@ -228,6 +241,8 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 					}}
 				/>
 			)}
+
+			{showEmbed && <EmbedSheet season={season} onClose={() => setShowEmbed(false)} />}
 
 			{showSummary && (
 				<ResultsEmailSheet season={season} onClose={() => setShowSummary(false)} />

@@ -5,6 +5,7 @@ import { ChevronRight, Inbox, LifeBuoy, Receipt } from 'lucide-react';
 import { adminApi } from '@/services/api';
 import type { AdminOverview } from '@types';
 import RegistrationFunnelCard from '../components/RegistrationFunnelCard';
+import EmbedUsageCard from '../components/EmbedUsageCard';
 import { ADMIN_GOLD_INK } from '../components/util';
 
 /** What waits for an admin, first thing after signing in. */
@@ -72,6 +73,7 @@ export default function OverviewPage() {
 			</section>
 
 			<RegistrationFunnelCard />
+			<EmbedUsageCard />
 		</div>
 	);
 }

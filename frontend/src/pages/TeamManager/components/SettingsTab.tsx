@@ -10,6 +10,7 @@ import { SEASON_ACCENT } from '@/pages/SeasonManager/components/util';
 import TeamColorPicker from './TeamColorPicker';
 import TeamChatCard from './TeamChatCard';
 import TeamLogoCard from './TeamLogoCard';
+import TeamEmbedCard from './TeamEmbedCard';
 import type { ManagerInvite, ManagerInviteSent, Standing, Team } from '@types';
 
 interface SettingsTabProps {
@@ -96,6 +97,8 @@ export default function SettingsTab({
 			/>
 
 			<TeamChatCard teamId={team.id} initialUrl={team.chatUrl} />
+
+			{team.season && <TeamEmbedCard team={team} seasonId={team.season.id} />}
 
 			{/* Team Info */}
 			<div className="flex flex-col gap-2">

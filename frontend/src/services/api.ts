@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type {
-  OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
+  EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
   RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
@@ -439,6 +439,7 @@ export const adminApi = {
   audit: (params: ListQuery) => api.get<ListPage<AuditEntry>>('/admin/audit', { params }),
   exportAudit: (params: ListQuery) => downloadCsv('/admin/audit', params),
   auditTypes: () => api.get<string[]>('/admin/audit/types'),
+  embeds: () => api.get<EmbedUsage>('/admin/embeds'),
   payments: (params: ListQuery) => api.get<ListPage<PlanPayment>>('/admin/payments', { params }),
   exportPayments: (params: ListQuery) => downloadCsv('/admin/payments', params),
   paymentDocument: (id: string) => api.get<{ url: string; number: string }>(`/admin/payments/${id}/document`),
@@ -459,6 +460,14 @@ export const adminApi = {
 };
 
 /** Billing details: an EU VAT ID through VIES, a Czech IČO through ARES. */
+/** The embedded widget's public data, read by the "Vložit na web" panel for its choices. */
+export const embedApi = {
+  teams: (kind: 'season' | 'tournament', id: string) =>
+    api.get<{ competition: EmbedCompetition; teams: EmbedTeamOption[] }>(`/embed/${kind}/${id}/teams`),
+  standings: (kind: 'season' | 'tournament', id: string) =>
+    api.get<{ tables: { group: { id: string; name: string } | null }[] }>(`/embed/${kind}/${id}/standings`),
+};
+
 export const billingApi = {
   vatCheck: (vatId: string) => api.post<VatCheckResult>('/billing/vat-check', { vatId }),
   company: (ico: string) => api.get<CompanyLookup>(`/billing/company/${encodeURIComponent(ico)}`),

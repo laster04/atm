@@ -2947,7 +2947,12 @@
       "activeLeagues": "Active leagues",
       "activeTournaments": "Active tournaments",
       "activeHint": "Active means a game was dated in the last 30 days.",
-      "paymentsHint": "QR transfers waiting to be confirmed."
+      "paymentsHint": "QR transfers waiting to be confirmed.",
+      "embeds": "Widget on websites",
+      "embedsHint": "Websites that showed a table or games from ATM in the last 30 days.",
+      "embedsViews_one": "{{count}} view",
+      "embedsViews_other": "{{count}} views",
+      "embedsNone": "Nobody has embedded it yet."
     },
     "pricing": {
       "readOnly": "You can look but not change. Only the pricing manager account changes prices, VAT rates, limits and OSS.",
@@ -3181,5 +3186,82 @@
     },
     "organizerUntil": "Organiser until {{date}}",
     "renew": "Renew Organiser"
+  },
+  "embed": {
+    "standings": "Standings",
+    "upcoming": "Upcoming games",
+    "recent": "Latest results",
+    "noTable": "No table yet.",
+    "noUpcoming": "No games scheduled.",
+    "noRecent": "No results yet.",
+    "unavailable": "Not available.",
+    "dateTbd": "Date to be confirmed",
+    "tbd": "To be confirmed",
+    "round": "Round {{n}}",
+    "postponed": "Postponed",
+    "live": "Live",
+    "brand": {
+      "before": "Results from "
+    },
+    "columns": {
+      "rankLong": "Position",
+      "team": "Team",
+      "played": "P",
+      "playedLong": "Played",
+      "wins": "W",
+      "winsLong": "Won",
+      "draws": "D",
+      "drawsLong": "Drawn",
+      "losses": "L",
+      "lossesLong": "Lost",
+      "score": "Goals",
+      "scoreLong": "Goals for and against",
+      "points": "Pts",
+      "pointsLong": "Points"
+    },
+    "phases": {
+      "ROUND_OF_16": "Round of 16",
+      "QUARTER_FINAL": "Quarter-final",
+      "SEMI_FINAL": "Semi-final",
+      "BRONZE": "Third place",
+      "FINAL": "Final"
+    }
+  },
+  "embedPanel": {
+    "title": "Embed on a website",
+    "hint": "The table or games on the league’s or a club’s website",
+    "teamHint": "The table with your team, or its games, on the club’s website.",
+    "open": "Create the code",
+    "intro": "Choose what the website should show. Paste the code into the page as HTML; the table and games then update themselves.",
+    "unavailable": "The competition is private, so the widget would only say “Not available”. Make it Public or Unlisted (by link).",
+    "widget": "What to show",
+    "views": {
+      "standings": "Standings",
+      "games": "Games"
+    },
+    "team": "Team",
+    "allTeams": "All teams",
+    "division": "Division",
+    "group": "Group",
+    "allDivisions": "All divisions",
+    "allGroups": "All groups",
+    "wholeSeason": "Whole season together",
+    "rowsTable": "Rows",
+    "rowsGames": "Games",
+    "rowsAll": "all",
+    "results": "Show the latest results too",
+    "theme": "Look",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "accent": "Highlight colour",
+    "logos": "Team logos",
+    "hideBrand": "Hide the “Results from ATM” link",
+    "hideBrandPaid": "Only in the Tournament Plus and Organiser plans.",
+    "preview": "Preview",
+    "code": "Code to paste",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "help": "How to put the table on a website"
   }
 }

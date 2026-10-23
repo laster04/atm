@@ -1305,3 +1305,29 @@ model DocumentCounter {
 
   @@map("document_counters")
 }
+
+// ============================================================================
+// EMBEDDED WIDGET (celek I)
+// ============================================================================
+
+enum EmbedKind {
+  SEASON
+  TOURNAMENT
+}
+
+/// How often a competition's widget was shown on another website, per site
+/// and day. No cookie and nothing about the visitor: only the embedding
+/// site's host name, which the widget reads from document.referrer.
+model EmbedView {
+  id            String    @id @default(uuid())
+  kind          EmbedKind
+  competitionId String    @map("competition_id")
+  // Host name of the page the widget is embedded in; "" when unknown.
+  site          String
+  day           DateTime  @db.Date
+  views         Int       @default(0)
+
+  @@unique([kind, competitionId, site, day])
+  @@index([day])
+  @@map("embed_views")
+}

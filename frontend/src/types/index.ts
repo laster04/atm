@@ -704,6 +704,30 @@ export interface PlanPayment {
   qr: string | null;
 }
 
+/** A competition as the embedded widget's API describes it. */
+export interface EmbedCompetition {
+  kind: 'season' | 'tournament';
+  id: string;
+  name: string;
+  parentName: string;
+  sport: string;
+  canHideBrand: boolean;
+}
+
+/** Where the widget is embedded, last 30 days. */
+export interface EmbedUsage {
+  sites: number;
+  views: number;
+  competitions: { kind: 'season' | 'tournament'; id: string; name: string; sites: string[]; views: number }[];
+}
+
+export interface EmbedTeamOption {
+  id: string;
+  name: string;
+  logo: string | null;
+  color: string | null;
+}
+
 /** One tournament plan on the public price list. Minor units, VAT included; a null limit is unlimited. */
 export interface PublicPlanPrice {
   plan: PlanName;

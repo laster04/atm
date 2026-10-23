@@ -26,6 +26,7 @@ import PositionSelect from '@components/PositionSelect';
 import { positionsForSports } from '@/utils/playerPositions';
 import LogoUpload from '@components/LogoUpload';
 import PlanChip from '../components/PlanChip';
+import EmbedDialog from '@/components/embed/EmbedDialog';
 import { isPlanLimit, planLimitMessage } from '@/utils/planLimit';
 
 // ── helpers ─────────────────────────────────────────────────
@@ -141,6 +142,7 @@ export default function TournamentManagePage() {
   });
 
   const [saving, setSaving] = useState(false);
+  const [embedOpen, setEmbedOpen] = useState(false);
   // Raised whenever something hits the plan's limit, to open the offer.
   const [planOffer, setPlanOffer] = useState(0);
 
@@ -520,10 +522,14 @@ export default function TournamentManagePage() {
             </div>
           </div>
         </div>
-        <Link to={`/tournament/${tournament.id}`} target="_blank">
-          <Button variant="outline" size="sm">{t('tm.common.viewPublic')}</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setEmbedOpen(true)}>{t('embedPanel.title')}</Button>
+          <Link to={`/tournament/${tournament.id}`} target="_blank">
+            <Button variant="outline" size="sm">{t('tm.common.viewPublic')}</Button>
+          </Link>
+        </div>
       </div>
+      <EmbedDialog open={embedOpen} onOpenChange={setEmbedOpen} kind="tournament" id={tournament.id} accent="#7c3aed" />
 
       {error && <div className="bg-red-50 text-red-700 border border-red-200 rounded p-3 text-sm">{error}</div>}
 
