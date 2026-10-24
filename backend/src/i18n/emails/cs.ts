@@ -7,6 +7,8 @@ const cs = {
   greeting: 'Dobrý den, <strong>{{name}}</strong>,',
   copyLink: 'Tlačítko nefunguje? Vložte do prohlížeče tento odkaz:',
   footer: 'ATM – Amateur Team Management',
+  /** The small credit on a Turnaj Plus tournament's e-mails. */
+  poweredBy: 'Běží na ATM',
 
   activation: {
     subject: 'Aktivujte svůj účet v ATM',

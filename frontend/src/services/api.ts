@@ -11,7 +11,7 @@ import type {
   RegistrationSettingsInput, RegistrationStatusView, RegistrationFunnel,
   ManagedCompetition,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
-  TournamentSeries, Tournament, TournamentTeam, TournamentPlayer,
+  TournamentSeries, Tournament, TournamentTeam, TournamentPlayer, TournamentPlus, TournamentSponsor, TournamentDocumentRef,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
   Paged, PublicTeam, PublicPlayer, PublicTeamQuery, PublicPlayerQuery,
@@ -328,6 +328,26 @@ export const tournamentApi = {
     api.get<TournamentStanding[]>(`/tournaments/${id}/standings`, { params: groupId ? { groupId } : undefined }),
   getTopScorers: (id: string | number, limit?: number) =>
     api.get<TournamentTopScorer[]>(`/tournaments/${id}/scorers`, { params: { limit } }),
+  // Turnaj Plus: partners and documents, limited by the tournament's plan.
+  getPlus: (id: string) => api.get<TournamentPlus>(`/tournaments/${id}/plus`),
+  addSponsor: (id: string, data: { name: string; url?: string; logo: string }) =>
+    api.post<TournamentSponsor>(`/tournaments/${id}/sponsors`, data),
+  updateSponsor: (id: string, sponsorId: string, data: Partial<{ name: string; url: string | null; logo: string }>) =>
+    api.put<TournamentSponsor>(`/tournaments/${id}/sponsors/${sponsorId}`, data),
+  deleteSponsor: (id: string, sponsorId: string) => api.delete(`/tournaments/${id}/sponsors/${sponsorId}`),
+  orderSponsors: (id: string, ids: string[]) => api.put(`/tournaments/${id}/sponsors/order`, { ids }),
+  uploadDocument: (id: string, file: File, title?: string) => {
+    const body = new FormData();
+    if (title) body.append('title', title);
+    body.append('file', file);
+    // Content-Type left to the browser, which adds the multipart boundary.
+    return api.post<TournamentDocumentRef>(`/tournaments/${id}/documents`, body, { headers: { 'Content-Type': undefined } });
+  },
+  renameDocument: (id: string, documentId: string, title: string) =>
+    api.put<{ id: string; title: string }>(`/tournaments/${id}/documents/${documentId}`, { title }),
+  deleteDocument: (id: string, documentId: string) => api.delete(`/tournaments/${id}/documents/${documentId}`),
+  /** A link, not a request: the server checks visibility and redirects to the file. */
+  documentUrl: (id: string, documentId: string) => `${API_URL}/tournaments/${id}/documents/${documentId}/download`,
 };
 
 // ── Tournament Teams ────────────────────────────────────────

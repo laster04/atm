@@ -64,6 +64,7 @@ const referencedUrls = async (urls: string[]): Promise<Set<string>> => {
     prisma.league.findMany({ where: byLogo, select: { logo: true } }),
     prisma.tournamentSeries.findMany({ where: byLogo, select: { logo: true } }),
     prisma.tournamentTeam.findMany({ where: byLogo, select: { logo: true } }),
+    prisma.tournamentSponsor.findMany({ where: byLogo, select: { logo: true } }),
     // An archived season keeps showing the logo the team had when it ended.
     prisma.seasonArchiveStanding.findMany({ where: { teamLogo: { in: urls } }, select: { teamLogo: true } })
       .then((list) => list.map((row) => ({ logo: row.teamLogo }))),
@@ -127,6 +128,7 @@ export const deleteUnreferencedLogos = async (
 export const releaseFiles = async (owners: FileOwner[]): Promise<void> => {
   try {
     await deleteUnreferencedLogos({ owners });
+    await deleteOrphanDocuments(owners);
   } catch (err) {
     console.error('Failed to release stored files:', err);
   }
@@ -154,4 +156,64 @@ export const seriesFileOwners = async (seriesId: string): Promise<FileOwner[]> =
       ...t.teams.map((team) => ({ type: 'TOURNAMENT_TEAM' as const, id: team.id })),
     ]),
   ];
+};
+
+/** A PDF starts with these bytes, whatever its name or the type the browser claims. */
+const isPdf = (input: Buffer): boolean => input.subarray(0, 5).toString('latin1') === '%PDF-';
+
+export class DocumentRejectedError extends Error {
+  constructor(public code: 'NOT_PDF', message: string) {
+    super(message);
+  }
+}
+
+/**
+ * Stores a tournament's PDF privately: it is downloaded through a short-lived
+ * signed link, after the tournament's visibility is checked, never from a
+ * public URL.
+ */
+export const storeDocument = async (
+  input: Buffer,
+  options: { tournamentId: string; uploadedById?: string | null }
+) => {
+  if (!isPdf(input)) throw new DocumentRejectedError('NOT_PDF', 'Only PDF documents are accepted');
+  const key = `documents/${crypto.randomUUID()}.pdf`;
+  const driver = storage();
+  await driver.put(key, input, 'application/pdf', 'PRIVATE');
+  try {
+    return await prisma.storedFile.create({
+      data: {
+        key,
+        kind: 'DOCUMENT',
+        visibility: 'PRIVATE',
+        mimeType: 'application/pdf',
+        size: input.length,
+        ownerType: 'TOURNAMENT',
+        ownerId: options.tournamentId,
+        uploadedById: options.uploadedById ?? null,
+      },
+    });
+  } catch (err) {
+    await driver.remove(key, 'PRIVATE').catch(() => undefined);
+    throw err;
+  }
+};
+
+/** Removes one stored file, object first: a row without its object is harmless, the reverse is lost. */
+export const removeStoredFile = async (file: { id: string; key: string; visibility: 'PUBLIC' | 'PRIVATE' }): Promise<void> => {
+  await storage().remove(file.key, file.visibility);
+  await prisma.storedFile.delete({ where: { id: file.id } });
+};
+
+/** Documents of these owners that no tournament lists any more (its rows went with it). */
+const deleteOrphanDocuments = async (owners: FileOwner[]): Promise<void> => {
+  const tournaments = owners.filter((owner) => owner.type === 'TOURNAMENT').map((owner) => owner.id);
+  if (tournaments.length === 0) return;
+  const files = await prisma.storedFile.findMany({
+    where: { kind: 'DOCUMENT', ownerType: 'TOURNAMENT', ownerId: { in: tournaments }, tournamentDocument: null },
+    select: { id: true, key: true, visibility: true },
+  });
+  for (const file of files) {
+    await removeStoredFile(file).catch((err) => console.error(`Failed to delete document ${file.key}:`, err));
+  }
 };

@@ -113,7 +113,25 @@ class EmailService {
       </div>`;
   }
 
-  private buildEmailHtml(accent: string, icon: IconName, headerTitle: string, bodyHtml: string): string {
+  /**
+   * The page every e-mail sits in. A Turnaj Plus tournament's e-mails carry its
+   * series' mark at the top (logo, else name) and only a small ATM credit below.
+   */
+  private buildEmailHtml(
+    accent: string,
+    icon: IconName,
+    headerTitle: string,
+    bodyHtml: string,
+    brand?: { mark: EmailBrand; locale: Locale } | null
+  ): string {
+    const top = brand
+      ? brand.mark.logo
+        ? `<img src="${escapeHtml(brand.mark.logo)}" alt="${escapeHtml(brand.mark.name)}" style="max-height:56px;max-width:240px;width:auto;">`
+        : `<span style="font-size:20px;font-weight:800;color:${COLORS.text};">${escapeHtml(brand.mark.name)}</span>`
+      : `<img src="${this.getLogoUrl()}" alt="ATM - Amateur Team Manager" style="height:34px;width:auto;">`;
+    const bottom = brand
+      ? `<a href="${this.getAppUrl()}" style="font-size:12px;color:#a1a1aa;text-decoration:none;">${emailTexts(brand.locale).poweredBy}</a>`
+      : `<p style="margin:0;font-size:12px;color:#a1a1aa;">ATM &ndash; Amateur Team Management</p>`;
     return `
       <!DOCTYPE html>
       <html>
@@ -125,7 +143,7 @@ class EmailService {
           <div style="max-width:600px;margin:0 auto;">
 
             <div style="text-align:center;padding-bottom:28px;">
-              <img src="${this.getLogoUrl()}" alt="ATM - Amateur Team Manager" style="height:34px;width:auto;">
+              ${top}
             </div>
 
             <div style="background:#ffffff;border-radius:14px;border:1px solid ${COLORS.border};box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden;">
@@ -142,7 +160,7 @@ class EmailService {
             </div>
 
             <div style="text-align:center;padding-top:28px;">
-              <p style="margin:0;font-size:12px;color:#a1a1aa;">ATM &ndash; Amateur Team Management</p>
+              ${bottom}
             </div>
 
           </div>
@@ -540,6 +558,8 @@ class EmailService {
     /** A tournament applicant without an account follows this to see and withdraw the application. */
     statusLink?: string | null;
     locale: Locale;
+    /** A Turnaj Plus tournament's mark; the full ATM brand when absent. */
+    brand?: EmailBrand | null;
   }): Promise<boolean> {
     const accent = '#0F172A';
     const all = emailTexts(params.locale);
@@ -553,7 +573,7 @@ class EmailService {
         ? this.button(t.status, params.statusLink, accent) + this.p(t.statusHint, { mb: 0, size: 14, color: COLORS.muted })
         : this.button(t.button, params.link, accent),
     ].join('');
-    return this.sendEmail({ to: params.to, subject: fillText(t.subject, vars), html: this.buildEmailHtml(accent, 'mail-check', t.header, body) });
+    return this.sendEmail({ to: params.to, subject: fillText(t.subject, vars), html: this.buildEmailHtml(accent, 'mail-check', t.header, body, params.brand ? { mark: params.brand, locale: params.locale } : null) });
   }
 
   /** Tells the organiser a team applied, with what they need to decide. */
@@ -567,6 +587,8 @@ class EmailService {
     capacity: PlacesSummary;
     link: string;
     locale: Locale;
+    /** A Turnaj Plus tournament's mark; the full ATM brand when absent. */
+    brand?: EmailBrand | null;
   }): Promise<boolean> {
     const accent = '#0F172A';
     const t = emailTexts(params.locale).registrationNotice;
@@ -581,7 +603,7 @@ class EmailService {
     return this.sendEmail({
       to: params.to,
       subject: fillText(t.subject, vars),
-      html: this.buildEmailHtml(accent, 'user-plus', t.header, body),
+      html: this.buildEmailHtml(accent, 'user-plus', t.header, body, params.brand ? { mark: params.brand, locale: params.locale } : null),
       replyTo: params.contactEmail,
     });
   }
@@ -596,6 +618,8 @@ class EmailService {
     reason: string | null;
     link: string;
     locale: Locale;
+    /** A Turnaj Plus tournament's mark; the full ATM brand when absent. */
+    brand?: EmailBrand | null;
   }): Promise<boolean> {
     const accent = params.decision === 'APPROVED' ? '#15803D' : '#0F172A';
     const all = emailTexts(params.locale);
@@ -610,7 +634,7 @@ class EmailService {
     return this.sendEmail({
       to: params.to,
       subject: fillText(t.subject[params.decision], vars),
-      html: this.buildEmailHtml(accent, params.decision === 'APPROVED' ? 'badge-check' : 'mail-check', t.header[params.decision], body),
+      html: this.buildEmailHtml(accent, params.decision === 'APPROVED' ? 'badge-check' : 'mail-check', t.header[params.decision], body, params.brand ? { mark: params.brand, locale: params.locale } : null),
     });
   }
 
@@ -622,6 +646,8 @@ class EmailService {
     capacity: PlacesSummary;
     link: string;
     locale: Locale;
+    /** A Turnaj Plus tournament's mark; the full ATM brand when absent. */
+    brand?: EmailBrand | null;
   }): Promise<boolean> {
     const accent = '#0F172A';
     const t = emailTexts(params.locale).registrationWithdrawn;
@@ -635,9 +661,15 @@ class EmailService {
     return this.sendEmail({
       to: params.to,
       subject: fillText(t.subject, vars),
-      html: this.buildEmailHtml(accent, 'user-plus', t.header, body),
+      html: this.buildEmailHtml(accent, 'user-plus', t.header, body, params.brand ? { mark: params.brand, locale: params.locale } : null),
     });
   }
+}
+
+/** A tournament series' own mark, shown on a Turnaj Plus tournament's e-mails. */
+export interface EmailBrand {
+  name: string;
+  logo: string | null;
 }
 
 export const emailService = new EmailService();

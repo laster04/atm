@@ -785,6 +785,38 @@ export interface Tournament {
   _count?: { teams: number; groups: number; games: number };
   /** In a series' list: the tournament takes team applications right now. */
   registrationOpen?: boolean;
+  /** Public detail only (celek C): partners, documents and how much ATM brand to show. */
+  sponsors?: TournamentSponsor[];
+  documents?: TournamentDocumentRef[];
+  branding?: Branding;
+}
+
+/**
+ * FULL: the site's header, menu and footer. LIGHT (Turnaj Plus, Organizátor):
+ * only a small "Běží na ATM" credit.
+ */
+export type Branding = 'FULL' | 'LIGHT';
+
+export interface TournamentSponsor {
+  id: string;
+  name: string;
+  url: string | null;
+  logo: string;
+}
+
+export interface TournamentDocumentRef {
+  id: string;
+  title: string;
+  /** Bytes. */
+  size: number;
+}
+
+/** What the organiser's plan allows of partners and documents, and what is there. */
+export interface TournamentPlus {
+  plan: PlanName;
+  branding: Branding;
+  sponsors: { limit: number; used: number; items: TournamentSponsor[] };
+  documents: { limit: number; used: number; maxMb: number; items: TournamentDocumentRef[] };
 }
 
 export interface TournamentTeam {
@@ -1135,6 +1167,9 @@ export interface RegistrationForm {
   rules: string | null;
   rulesVersion: number;
   fee: string | null;
+  branding: Branding;
+  /** A tournament's partners, for the printed poster. */
+  sponsors: TournamentSponsor[];
 }
 
 export interface RegistrationSettings {
@@ -1213,7 +1248,7 @@ export interface RegistrationStatusView {
   decidedAt: string | null;
   withdrawnAt: string | null;
   waitlistPosition: number | null;
-  competition: { kind: RegistrationKind; id: string; name: string };
+  competition: { kind: RegistrationKind; id: string; name: string; branding: Branding };
 }
 
 /** The admin's view of whether the forms get used. Times are in hours. */

@@ -3225,7 +3225,8 @@
         "TOURNAMENT_PLUS": "No team limit, sponsor logos, documents to download, no prominent ATM branding.",
         "ORGANIZER": "Every tournament in your series at Plus level for a year."
       },
-      "renewalFrom": "follows on from {{date}}"
+      "renewalFrom": "follows on from {{date}}",
+      "howItWorks": "How plans work"
     },
     "payment": {
       "title": "QR payment",
@@ -3381,6 +3382,53 @@
       "title": "Meetings this season",
       "noDate": "No date",
       "upcoming": "–"
+    }
+  },
+  "plus": {
+    "tab": "Partners & documents",
+    "poweredBy": "Powered by ATM",
+    "band": {
+      "label": "Tournament documents and partners",
+      "documents": "Documents",
+      "partners": "Partners"
+    },
+    "locked": {
+      "title": "Partners and documents come with Turnaj Plus",
+      "body": "With Turnaj Plus or Organizátor you add up to 10 partner logos and 5 PDF documents, and the tournament page carries only a small “Powered by ATM” link instead of the ATM menu and footer.",
+      "action": "See Turnaj Plus"
+    },
+    "brandingLight": "The tournament page, sign-up form and e-mails carry only a small “Powered by ATM” link.",
+    "brandingFull": "The tournament's plan no longer allows adding partners or documents. What is here stays visible.",
+    "used": "{{used}} of {{limit}}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "edit": "Edit",
+    "remove": "Remove",
+    "sponsors": {
+      "title": "Partners",
+      "hint": "Logos show on the tournament page and the sign-up poster, in this order.",
+      "add": "Add partner",
+      "name": "Name",
+      "url": "Website (optional)",
+      "logoNeeded": "Upload the partner's logo.",
+      "removeConfirm": "Remove partner {{name}}?"
+    },
+    "documents": {
+      "title": "Documents",
+      "hint": "Rules, propositions and other PDFs up to {{mb}} MB. Visitors download them from the tournament page.",
+      "titleLabel": "Document title",
+      "titlePlaceholder": "e.g. Tournament rules",
+      "upload": "Upload PDF",
+      "download": "Download",
+      "removeConfirm": "Delete document {{title}}?"
+    },
+    "errors": {
+      "load": "Partners and documents could not be loaded.",
+      "save": "The change could not be saved.",
+      "limit": "The tournament's plan allows no more.",
+      "documentSize": "The file is larger than the plan allows.",
+      "notPdf": "Only PDF files can be uploaded.",
+      "sponsor": "A partner needs a name and an uploaded logo; the website must start with https://."
     }
   }
 }

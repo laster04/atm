@@ -3299,7 +3299,8 @@
         "TOURNAMENT_PLUS": "Bez limitu týmů, loga sponzorů, dokumenty ke stažení, bez výrazné značky ATM.",
         "ORGANIZER": "Všechny turnaje ve vašich sériích v úrovni Plus po celý rok."
       },
-      "renewalFrom": "navazuje od {{date}}"
+      "renewalFrom": "navazuje od {{date}}",
+      "howItWorks": "Jak plány fungují"
     },
     "payment": {
       "title": "QR platba",
@@ -3455,6 +3456,53 @@
       "title": "Vzájemné zápasy v sezóně",
       "noDate": "Bez termínu",
       "upcoming": "–"
+    }
+  },
+  "plus": {
+    "tab": "Partneři a dokumenty",
+    "poweredBy": "Běží na ATM",
+    "band": {
+      "label": "Dokumenty a partneři turnaje",
+      "documents": "Dokumenty",
+      "partners": "Partneři"
+    },
+    "locked": {
+      "title": "Partneři a dokumenty patří k Turnaj Plus",
+      "body": "S plánem Turnaj Plus nebo Organizátor přidáte až 10 log partnerů a 5 dokumentů v PDF a stránka turnaje ponese jen malý odkaz „Běží na ATM“ místo menu a patičky ATM.",
+      "action": "Zobrazit Turnaj Plus"
+    },
+    "brandingLight": "Veřejná stránka turnaje, přihláška i e-maily nesou jen malý odkaz „Běží na ATM“.",
+    "brandingFull": "Plán turnaje už partnery ani dokumenty přidat nedovolí. Co tu je, zůstává vidět.",
+    "used": "{{used}} z {{limit}}",
+    "moveUp": "Posunout nahoru",
+    "moveDown": "Posunout dolů",
+    "edit": "Upravit",
+    "remove": "Odebrat",
+    "sponsors": {
+      "title": "Partneři",
+      "hint": "Loga se ukážou na stránce turnaje a na plakátu přihlášek, v tomto pořadí.",
+      "add": "Přidat partnera",
+      "name": "Název",
+      "url": "Web (nepovinné)",
+      "logoNeeded": "Nahrajte logo partnera.",
+      "removeConfirm": "Odebrat partnera {{name}}?"
+    },
+    "documents": {
+      "title": "Dokumenty",
+      "hint": "Propozice, pravidla a další PDF do {{mb}} MB. Návštěvníci je stáhnou ze stránky turnaje.",
+      "titleLabel": "Název dokumentu",
+      "titlePlaceholder": "např. Propozice turnaje",
+      "upload": "Nahrát PDF",
+      "download": "Stáhnout",
+      "removeConfirm": "Smazat dokument {{title}}?"
+    },
+    "errors": {
+      "load": "Partnery a dokumenty se nepodařilo načíst.",
+      "save": "Změnu se nepodařilo uložit.",
+      "limit": "Plán turnaje už víc nedovolí.",
+      "documentSize": "Soubor je větší, než plán dovolí.",
+      "notPdf": "Nahrávat jde jen PDF.",
+      "sponsor": "Partner potřebuje název a nahrané logo; web musí začínat https://."
     }
   }
 }

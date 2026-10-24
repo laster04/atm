@@ -5,7 +5,8 @@ import { CalendarDays, LayoutGrid, MapPin, Trophy, Users } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { tournamentApi } from '@/services/api';
 import type { Tournament, TournamentStanding } from '@types';
-import { PublicHero, SectionTabs, VisibilityBadge, type SectionTab } from '@/components/public';
+import { PublicHero, SectionTabs, VisibilityBadge, useLightChrome, type SectionTab } from '@/components/public';
+import ExtrasBand from './components/ExtrasBand';
 import { formatSeasonDate } from '@/utils/date';
 import GroupsTab from './components/GroupsTab';
 import ScheduleTab from './components/ScheduleTab';
@@ -32,6 +33,9 @@ export default function TournamentDetailScreen() {
 	const [standings, setStandings] = useState<Record<string, TournamentStanding[]>>({});
 	const [loading, setLoading] = useState(true);
 	const context = sportContext(tournament);
+	// Turnaj Plus and Organizátor: no ATM header, menu or footer, only the small credit.
+	const light = tournament?.branding === 'LIGHT';
+	useLightChrome(light);
 
 	useDocumentTitle([tournament?.name, tournament?.series?.name]);
 
@@ -94,7 +98,7 @@ export default function TournamentDetailScreen() {
 				kicker={series?.name}
 				sport={series?.sportType}
 				actions={<RegistrationButton kind="tournament" id={tournament.id} />}
-				crumbs={[
+				crumbs={light ? undefined : [
 					{ label: t('public.nav.home'), to: '/' },
 					{ label: t('public.nav.tournaments'), to: '/tournaments' },
 					...(series ? [{ label: series.name, to: `/tournaments/${series.id}` }] : []),
@@ -144,6 +148,8 @@ export default function TournamentDetailScreen() {
 					</>
 				}
 			/>
+
+			<ExtrasBand tournament={tournament} />
 
 			<SectionTabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
 

@@ -767,6 +767,10 @@ model Tournament {
   plan     TournamentPlan @default(FREE)
   payments Payment[]
 
+  // Turnaj Plus and Organizátor (celek C): partners and downloadable documents.
+  sponsors  TournamentSponsor[]
+  documents TournamentDocument[]
+
   @@map("tournaments")
 }
 
@@ -1199,6 +1203,8 @@ model StoredFile {
   uploadedById String? @map("uploaded_by_id")
   uploadedBy   User?   @relation("FileUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
 
+  tournamentDocument TournamentDocument?
+
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([ownerType, ownerId])
@@ -1340,4 +1346,47 @@ model EmbedView {
   @@unique([kind, competitionId, site, day])
   @@index([day])
   @@map("embed_views")
+}
+
+// ============================================================================
+// TURNAJ PLUS (celek C)
+// ============================================================================
+
+// A partner shown on the tournament's public page and poster. How many a
+// tournament may have comes from its plan (PlanLimit SPONSOR_LOGOS).
+model TournamentSponsor {
+  id       String  @id @default(uuid())
+  name     String
+  // The sponsor's website; optional.
+  url      String?
+  // A logo URL, uploaded like a team logo (files of kind LOGO).
+  logo     String
+  position Int     @default(0)
+
+  tournamentId String     @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([tournamentId, position])
+  @@map("tournament_sponsors")
+}
+
+// A PDF the organiser offers for download: rules, propositions. The file is
+// private in storage; downloads go through the tournament's visibility check.
+model TournamentDocument {
+  id       String @id @default(uuid())
+  title    String
+  position Int    @default(0)
+
+  fileId String     @unique @map("file_id")
+  file   StoredFile @relation(fields: [fileId], references: [id], onDelete: Restrict)
+
+  tournamentId String     @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([tournamentId, position])
+  @@map("tournament_documents")
 }

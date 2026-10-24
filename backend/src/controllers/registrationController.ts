@@ -4,7 +4,8 @@ import { Prisma, Registration, RegistrationStatus } from '@prisma/client';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { canManageSeason, canManageTournament } from '../services/access.js';
-import emailService from '../services/emailService.js';
+import emailService, { type EmailBrand } from '../services/emailService.js';
+import { brandingFor } from '../services/tournaments/plus.js';
 import { localeOf, type Locale } from '../i18n/index.js';
 import { registrationFormState } from '../services/registrationState.js';
 import {
@@ -75,6 +76,8 @@ interface Competition {
   window: Prisma.RegistrationWindowGetPayload<object> | null;
   /** A tournament's plan and team limit; null for a season. */
   allowance: TeamAllowance | null;
+  /** A Turnaj Plus tournament's own mark for its e-mails; null where the full ATM brand stays. */
+  brand: EmailBrand | null;
 }
 
 /** Everything the rules need about one season or tournament, or null if it does not exist. */
@@ -100,17 +103,19 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
       managers: season.league.manager ? [recipient(season.league.manager)] : [],
       window: season.registrationWindow,
       allowance: null,
+      brand: null,
     };
   }
   const tournament = await prisma.tournament.findUnique({
     where: { id },
     include: {
-      series: { select: { name: true, sportType: true, manager: { select: { email: true, locale: true } } } },
+      series: { select: { name: true, sportType: true, logo: true, manager: { select: { email: true, locale: true } } } },
       registrationWindow: true,
       _count: { select: { teams: true } },
     },
   });
   if (!tournament) return null;
+  const allowance = await teamAllowance(id);
   return {
     kind,
     id,
@@ -121,7 +126,8 @@ async function loadCompetition(kind: Kind, id: string): Promise<Competition | nu
     teamCount: tournament._count.teams,
     managers: tournament.series.manager ? [recipient(tournament.series.manager)] : [],
     window: tournament.registrationWindow,
-    allowance: await teamAllowance(id),
+    allowance,
+    brand: brandingFor(allowance?.plan) === 'LIGHT' ? { name: tournament.series.name, logo: tournament.series.logo } : null,
   };
 }
 
@@ -276,6 +282,16 @@ export const getForm = async (req: AuthRequest, res: Response): Promise<void> =>
       rules: window?.rules ?? null,
       rulesVersion: window?.rulesVersion ?? 1,
       fee: window?.fee ?? null,
+      // Turnaj Plus: the form shows only a small ATM credit.
+      branding: brandingFor(competition.allowance?.plan),
+      // For the printed poster: a tournament's partners.
+      sponsors: kind === 'tournament'
+        ? await prisma.tournamentSponsor.findMany({
+            where: { tournamentId: competition.id },
+            orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+            select: { id: true, name: true, url: true, logo: true },
+          })
+        : [],
     });
   } catch (error) {
     console.error('Get registration form error:', error);
@@ -453,12 +469,14 @@ export const submit = async (req: AuthRequest, res: Response): Promise<void> => 
         link: competitionLink(competition),
         statusLink: link,
         locale,
+        brand: competition.brand,
       })
       .catch((error) => console.error('Registration receipt email error:', error));
     void Promise.all([managersOrAdmins(competition), capacityOf(competition)])
       .then(([recipients, capacity]) => Promise.all(recipients.map(({ email: to, locale: managerLocale }) => emailService.sendRegistrationNoticeEmail({
         to,
         locale: managerLocale,
+        brand: competition.brand,
         teamName: teamName!,
         contactName: contactName!,
         contactEmail: email,
@@ -534,6 +552,7 @@ async function withdrawRegistration(registration: Registration, res: Response): 
       await Promise.all(recipients.map(({ email: to, locale }) => emailService.sendRegistrationWithdrawnEmail({
         to,
         locale,
+        brand: competition.brand,
         teamName: registration.teamName,
         competitionName: competition.name,
         capacity,
@@ -615,7 +634,7 @@ export const getStatus = async (req: AuthRequest, res: Response): Promise<void> 
       decidedAt: registration.decidedAt,
       withdrawnAt: registration.withdrawnAt,
       waitlistPosition,
-      competition: { kind: competition.kind, id: competition.id, name: competition.name },
+      competition: { kind: competition.kind, id: competition.id, name: competition.name, branding: brandingFor(competition.allowance?.plan) },
     });
   } catch (error) {
     console.error('Get registration status error:', error);
@@ -821,6 +840,7 @@ const notifyDecision = (
       reason: registration.reason,
       link: competitionLink(competition),
       locale: localeOf(registration.locale),
+      brand: competition.brand,
     })
     .catch((error) => console.error('Registration decision email error:', error));
 };
@@ -1105,6 +1125,7 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
         managers: [],
         window: season.registrationWindow,
         allowance: null,
+        brand: null,
       })),
       ...(await Promise.all(tournaments.map(async (tournament): Promise<Competition> => ({
         kind: 'tournament',
@@ -1117,6 +1138,7 @@ export const listManaged = async (req: AuthRequest, res: Response): Promise<void
         managers: [],
         window: tournament.registrationWindow,
         allowance: await teamAllowance(tournament.id),
+        brand: null,
       })))),
     ];
     const windowIds = competitions.flatMap((competition) => (competition.window ? [competition.window.id] : []));

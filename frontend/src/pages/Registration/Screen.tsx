@@ -6,7 +6,7 @@ import { CalendarClock, CheckCircle2, Coins, Eye, Plus, Users, X } from 'lucide-
 import { registrationApi, teamApi } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { PublicHero } from '@/components/public';
+import { PublicHero, useLightChrome } from '@/components/public';
 import type { Registration, RegistrationForm, RegistrationKind, RosterEntry, Team } from '@types';
 import { formatDeadline } from '@/utils/date';
 import { serverLocale } from '@/i18n/languages';
@@ -58,6 +58,8 @@ export default function RegistrationScreen() {
 	const token = useRef(newToken());
 
 	useDocumentTitle([form?.name, t('registration.title')]);
+	// A Turnaj Plus tournament's form carries only the small ATM credit.
+	useLightChrome(form?.branding === 'LIGHT');
 
 	useEffect(() => {
 		if (!kind) return;
@@ -165,7 +167,8 @@ export default function RegistrationScreen() {
 				title={t('registration.heading', { name: form.name })}
 				subtitle={kind === 'season' ? t('registration.seasonIntro') : t('registration.tournamentIntro')}
 				crumbs={[
-					{ label: t('public.nav.home'), to: '/' },
+					// A Turnaj Plus form leads back to its tournament, not into ATM.
+					...(form.branding === 'LIGHT' ? [] : [{ label: t('public.nav.home'), to: '/' }]),
 					{ label: form.name, to: competitionPath },
 					{ label: t('registration.title') },
 				]}

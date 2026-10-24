@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AxiosError } from 'axios';
 import { registrationApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { PublicHero } from '@/components/public';
+import { PublicHero, useLightChrome } from '@/components/public';
 import type { RegistrationStatus, RegistrationStatusView } from '@types';
 import { formatDateShort } from '@/utils/date';
 
@@ -31,6 +31,7 @@ export default function RegistrationStatusScreen() {
 	const [error, setError] = useState('');
 
 	useDocumentTitle([view?.teamName, t('registration.statusPage.title')]);
+	useLightChrome(view?.competition.branding === 'LIGHT');
 
 	useEffect(() => {
 		registrationApi.status(token)
@@ -81,7 +82,7 @@ export default function RegistrationStatusScreen() {
 				title={view.teamName}
 				subtitle={t('registration.statusPage.sentOn', { date: formatDateShort(view.createdAt, i18n.language) })}
 				crumbs={[
-					{ label: t('public.nav.home'), to: '/' },
+					...(view.competition.branding === 'LIGHT' ? [] : [{ label: t('public.nav.home'), to: '/' }]),
 					{ label: view.competition.name, to: competitionPath },
 					{ label: t('registration.statusPage.title') },
 				]}

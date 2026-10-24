@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import type { OfferPlan, PaymentCurrency, PlanOffer, PlanPayment } from '@types';
 import { tournamentApi } from '@/services/api';
@@ -96,7 +97,10 @@ function Offers({ offers, currencies, currency, onCurrency, busy, onChoose }: {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">{t('plans.offers.intro')}</p>
+      <p className="text-sm text-muted-foreground">
+        {t('plans.offers.intro')}{' '}
+        <Link to="/docs/plany-turnaju" target="_blank" className="font-semibold text-primary hover:underline">{t('plans.offers.howItWorks')}</Link>
+      </p>
       {currencies.length > 1 && (
         <fieldset className="flex items-center gap-2 text-sm">
           <legend className="sr-only">{t('plans.offers.currency')}</legend>

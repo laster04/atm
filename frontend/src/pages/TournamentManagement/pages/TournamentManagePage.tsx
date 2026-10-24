@@ -29,6 +29,7 @@ import PositionSelect from '@components/PositionSelect';
 import { positionsForSports } from '@/utils/playerPositions';
 import LogoUpload from '@components/LogoUpload';
 import PlanChip from '../components/PlanChip';
+import PlusPanel from '../components/PlusPanel';
 import EmbedDialog from '@/components/embed/EmbedDialog';
 import { isPlanLimit, planLimitMessage } from '@/utils/planLimit';
 
@@ -611,6 +612,7 @@ export default function TournamentManagePage() {
           <TabsTrigger value="groups">{t('tm.tournament.tabs.groups')} ({groups.length})</TabsTrigger>
           <TabsTrigger value="results">{t('tm.tournament.tabs.results')} ({groupGames.length})</TabsTrigger>
           <TabsTrigger value="playoff">{t('tm.tournament.tabs.playoff')} ({playoffGames.length})</TabsTrigger>
+          <TabsTrigger value="plus">{t('plus.tab')}</TabsTrigger>
           <TabsTrigger value="registrations">
             {t('registrations.title')}
             {registrations && registrations.capacity.pending > 0 && (
@@ -620,6 +622,10 @@ export default function TournamentManagePage() {
         </TabsList>
 
         {/* ── REGISTRATIONS ─────────────────────────────────── */}
+        <TabsContent value="plus" className="mt-4">
+          <PlusPanel tournamentId={tournament.id} onUpgrade={() => setPlanOffer((n) => n + 1)} />
+        </TabsContent>
+
         <TabsContent value="registrations" className="mt-4 max-w-2xl">
           <RegistrationsPanel
             kind="tournament"
