@@ -1242,3 +1242,46 @@ export interface RegistrationInput {
   /** Honeypot: left empty by people. */
   website?: string;
 }
+
+/** One player's line on the match page; only players with a number on it. */
+export interface GameDetailLine extends Partial<Record<StatKey, number | null>> {
+  teamId: string;
+  player: EventPlayerRef & { id: string };
+}
+
+/** The public match page: GET /api/games/:id/detail. */
+export interface GameDetail {
+  game: {
+    id: string;
+    date: string | null;
+    location: string | null;
+    round: number | null;
+    status: GameStatus;
+    homeScore: number | null;
+    awayScore: number | null;
+    periodScores: PartScore[] | null;
+    /** The season manager has confirmed it; only then does it count in the table. */
+    confirmed: boolean;
+    playoff: boolean;
+    homeTeam: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+    awayTeam: Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+  };
+  season: { id: string; name: string };
+  league: { id: string; name: string; sportType: SportType };
+  events: Pick<MatchEvent, 'id' | 'type' | 'period' | 'minute' | 'second' | 'teamId' | 'player' | 'assistPlayer' | 'secondaryAssistPlayer' | 'penaltyMinutes' | 'penaltyType' | 'cardColor'>[];
+  players: GameDetailLine[];
+  /** The table the game counts in: its division when both teams share one. */
+  table: { group: { id: string; name: string } | null; rows: Standing[] };
+  /** The two teams' other games this season. */
+  headToHead: {
+    id: string;
+    date: string | null;
+    status: GameStatus;
+    homeTeamId: string;
+    awayTeamId: string;
+    homeScore: number | null;
+    awayScore: number | null;
+    periodScores: PartScore[] | null;
+    confirmed: boolean;
+  }[];
+}

@@ -3,6 +3,7 @@ import {
   getPublicGames,
   getGamesBySeasonId,
   getGameById,
+  getGameDetail,
   createGame,
   updateGame,
   deleteGame,
@@ -25,6 +26,7 @@ const router = Router();
 // Public fixture list across every season: upcoming, live or results.
 router.get('/', optionalAuth, getPublicGames);
 router.get('/season/:seasonId', optionalAuth, requireVisible('season', 'seasonId'), getGamesBySeasonId);
+router.get('/:id/detail', optionalAuth, requireVisible('game'), getGameDetail);
 router.get('/:id', optionalAuth, requireVisible('game'), getGameById);
 
 router.post('/season/:seasonId', authenticate, requireSeasonAccess('seasonId'), createGame);

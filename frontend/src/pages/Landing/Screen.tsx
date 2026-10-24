@@ -10,6 +10,7 @@ import { GameStatus, type Game } from '@types';
 import { PublicFooter, PublicHeader, TeamCrest } from '@/components/public';
 import { heroImage } from '@/components/public/hero';
 import PricingSection from './components/PricingSection';
+import { gamePage } from '@/utils/gameLink';
 
 export default function LandingScreen() {
 	const { user } = useAuth();
@@ -126,7 +127,7 @@ export default function LandingScreen() {
 								return (
 									<Link
 										key={game.id}
-										to={`/season-detail/${game.seasonId}?tab=schedule`}
+										to={gamePage(game) ?? `/season-detail/${game.seasonId}?tab=schedule`}
 										className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-muted/50"
 									>
 										<div className="flex w-16 shrink-0 flex-col">

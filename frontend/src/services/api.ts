@@ -5,7 +5,7 @@ import type {
   EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
-  RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
+  GameDetail, RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   SeasonPlayoff, CreatePlayoffInput,
   RegistrationForm, RegistrationSettings, RegistrationInbox, Registration, MyRegistration, RegistrationInput, RegistrationKind,
   RegistrationSettingsInput, RegistrationStatusView, RegistrationFunnel,
@@ -239,6 +239,8 @@ export const gameApi = {
   getPublic: (params?: PublicGameQuery) => api.get<Paged<Game>>('/games', { params }),
   getBySeason: (seasonId: string | number) => api.get<Game[]>(`/games/season/${seasonId}`),
   getById: (id: string | number) => api.get<Game>(`/games/${id}`),
+  // Everything the public match page shows, in one request.
+  getDetail: (id: string) => api.get<GameDetail>(`/games/${id}/detail`),
   create: (seasonId: string | number, data: Partial<Game>) =>
     api.post<Game>(`/games/season/${seasonId}`, data),
   // `confirm` also confirms the result when the game ends up completed.

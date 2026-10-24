@@ -3328,5 +3328,59 @@
     "copy": "Copy code",
     "copied": "Copied",
     "help": "How to put the table on a website"
+  },
+  "gameDetail": {
+    "title": "Game",
+    "loading": "Loading the game…",
+    "notFound": "Game not found. It may belong to an archived season, which keeps only its final table.",
+    "breadcrumb": "Where the game belongs",
+    "round": "Round {{n}}",
+    "playoff": "Play-off",
+    "rank": "{{rank}}. in the table",
+    "vs": "vs",
+    "share": "Share",
+    "copied": "Link copied",
+    "status": {
+      "live": "Live",
+      "played": "Played",
+      "waiting": "Awaiting confirmation",
+      "scheduled": "Scheduled",
+      "postponed": "Postponed",
+      "cancelled": "Cancelled"
+    },
+    "waitingNote": "The season manager has not confirmed this result yet. It counts in the table once confirmed and may still change.",
+    "timeline": {
+      "title": "How it went",
+      "goal": "GOAL",
+      "penalty": "PEN",
+      "goalie": "GK",
+      "goalieIn": "Goalie change",
+      "assists": "Assists: {{names}}",
+      "noAssist": "Unassisted",
+      "minutes": "{{n}} min",
+      "unattributed": "No player"
+    },
+    "sets": {
+      "set": "Set",
+      "balls": "Points"
+    },
+    "players": {
+      "title": "Players",
+      "player": "Player",
+      "none": "No stats recorded."
+    },
+    "table": {
+      "title": "Table",
+      "groupTitle": "Table · {{name}}",
+      "withoutThis": "Not including this game yet; it awaits confirmation.",
+      "sets": "Sets",
+      "full": "Full table",
+      "team": "Team"
+    },
+    "meetings": {
+      "title": "Meetings this season",
+      "noDate": "No date",
+      "upcoming": "–"
+    }
   }
 }
