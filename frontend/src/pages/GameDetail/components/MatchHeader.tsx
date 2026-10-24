@@ -49,8 +49,11 @@ export default function MatchHeader({ detail, profile }: { detail: GameDetail; p
 		const rank = rankOf(team.id);
 		return (
 			<Link to={`/teams/${team.id}`} className="flex min-w-0 flex-col items-center gap-2.5 text-center text-white hover:opacity-90">
-				<span className="flex size-14 items-center justify-center rounded-2xl bg-white shadow-lg sm:size-20">
-					<TeamCrest team={team} size={48} className="!bg-transparent" />
+				{/* A logo sits on a white tile whatever its own colours. Without one, or when
+				    it fails to load, the crest falls back to initials on the team colour,
+				    so it must keep its own background. */}
+				<span className="flex size-16 items-center justify-center rounded-2xl bg-white shadow-lg sm:size-20">
+					<TeamCrest team={team} size={48} />
 				</span>
 				<span className="text-[15px] font-bold leading-tight sm:text-2xl sm:font-extrabold">{team.name}</span>
 				{rank && <span className="text-xs text-white/70 sm:text-[13px]">{t('gameDetail.rank', { rank })}</span>}
