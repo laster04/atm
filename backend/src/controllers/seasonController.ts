@@ -25,6 +25,8 @@ type StandingGame = {
   awayTeamId: string;
   homeScore: number | null;
   awayScore: number | null;
+  /** Set scores of a volleyball game: they tell a 3:2 from a 3:1 and add up the balls. */
+  periodScores?: unknown;
   /**
    * Only read for pending games, to tell one being played from one played and
    * waiting to be confirmed. The two look the same to the table and different
@@ -95,6 +97,10 @@ export function computeStandings(
       goalsAgainst: row.goalsAgainst,
       goalDifference: row.goalDifference,
       points: row.points,
+      otWins: row.otWins,
+      otLosses: row.otLosses,
+      partPointsFor: row.partPointsFor,
+      partPointsAgainst: row.partPointsAgainst,
       rank,
       inPlay: playing.has(row.teamId),
       awaitingConfirmation: awaiting.has(row.teamId),
@@ -500,7 +506,11 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
             losses: s.losses,
             goalsFor: s.goalsFor,
             goalsAgainst: s.goalsAgainst,
-            points: s.points
+            points: s.points,
+            otWins: s.otWins,
+            otLosses: s.otLosses,
+            partPointsFor: s.partPointsFor,
+            partPointsAgainst: s.partPointsAgainst
           }))
         });
       }
@@ -629,6 +639,10 @@ export const getArchivedStandings = async (req: Request, res: Response): Promise
       goalsAgainst: row.goalsAgainst,
       goalDifference: row.goalsFor - row.goalsAgainst,
       points: row.points,
+      otWins: row.otWins,
+      otLosses: row.otLosses,
+      partPointsFor: row.partPointsFor,
+      partPointsAgainst: row.partPointsAgainst,
       rank: row.rank,
       // An archived season is finished: nothing is being played and there is
       // nothing left for the table to project.

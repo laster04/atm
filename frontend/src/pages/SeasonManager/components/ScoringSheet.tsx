@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, RotateCcw, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { seasonApi } from '@/services/api';
-import { SportType, type ScoringPolicy, type Season, type Tiebreaker } from '@types';
+import { SportType, type ScoringPolicy, type Season, type SetFormat, type Tiebreaker } from '@types';
 import { SEASON_ACCENT } from './util';
 
 interface ScoringSheetProps {
@@ -13,6 +13,7 @@ interface ScoringSheetProps {
 }
 
 const ALL_TIEBREAKERS: Tiebreaker[] = ['GOAL_DIFF', 'GOALS_FOR', 'HEAD_TO_HEAD', 'WINS', 'PLAYED'];
+const VOLLEYBALL_TIEBREAKERS: Tiebreaker[] = ['WINS', 'SET_RATIO', 'BALL_RATIO', 'HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR', 'PLAYED'];
 
 /**
  * What a season falls back to when it carries no scoring of its own. It matches
@@ -29,10 +30,26 @@ const INHERITED: ScoringPolicy = {
 	tiebreakers: ['GOAL_DIFF', 'GOALS_FOR'],
 };
 
+/** Volleyball leagues default to the Czech federation's rules (server: VOLLEYBALL_POLICY). */
+const INHERITED_VOLLEYBALL: ScoringPolicy = {
+	winPoints: 3,
+	drawPoints: 1,
+	lossPoints: 0,
+	otWinPoints: 2,
+	otLossPoints: 1,
+	allowDraws: false,
+	tiebreakers: ['WINS', 'SET_RATIO', 'BALL_RATIO', 'HEAD_TO_HEAD'],
+	setFormat: 'BEST_OF_5',
+};
+
+const SET_FORMATS: SetFormat[] = ['BEST_OF_5', 'BEST_OF_3', 'TWO_SETS'];
+
 export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetProps) {
 	const { t } = useTranslation();
 
-	const [policy, setPolicy] = useState<ScoringPolicy>(season.scoring ?? INHERITED);
+	const volleyball = season.league?.sportType === SportType.VOLLEYBALL;
+	const inherited = volleyball ? INHERITED_VOLLEYBALL : INHERITED;
+	const [policy, setPolicy] = useState<ScoringPolicy>(season.scoring ?? inherited);
 	// Null on the season means "inherit". Saving from an inherited state writes an
 	// explicit policy; resetting clears it back to inheriting.
 	const [custom, setCustom] = useState(season.scoring != null);
@@ -44,21 +61,36 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 		setCustom(true);
 	};
 
+	// How many sets a volleyball match has. Two fixed sets can end 1:1, a draw,
+	// and have no deciding set, so they score win / draw / loss.
+	const setFormat: SetFormat = policy.setFormat ?? 'BEST_OF_5';
+	const twoSets = volleyball && setFormat === 'TWO_SETS';
+	const setsKey = setFormat === 'BEST_OF_3' ? 'sets3' : 'sets';
+	const chooseFormat = (format: SetFormat) =>
+		patch(format === 'TWO_SETS'
+			? { setFormat: format, allowDraws: true, otWinPoints: policy.winPoints, otLossPoints: policy.lossPoints }
+			: { setFormat: format, allowDraws: false });
+
 	// Volleyball can score by set result: a 3:2 win and a 2:3 loss earn their own
 	// points, stored as the after-regulation points the table already knows.
-	const volleyball = season.league?.sportType === SportType.VOLLEYBALL;
-	const bySets = volleyball && (policy.otWinPoints !== policy.winPoints || policy.otLossPoints !== policy.lossPoints);
+	const bySets = volleyball && !twoSets && (policy.otWinPoints !== policy.winPoints || policy.otLossPoints !== policy.lossPoints);
 	const setBySets = (on: boolean) =>
 		patch(on
 			? { winPoints: 3, otWinPoints: 2, otLossPoints: 1, lossPoints: 0, allowDraws: false }
 			: { otWinPoints: policy.winPoints, otLossPoints: policy.lossPoints });
 
-	const points: { key: keyof ScoringPolicy; label: string }[] = bySets
+	const points: { key: keyof ScoringPolicy; label: string }[] = twoSets
 		? [
-				{ key: 'winPoints', label: t('seasonManagement.scoring.sets.win') },
-				{ key: 'otWinPoints', label: t('seasonManagement.scoring.sets.closeWin') },
-				{ key: 'otLossPoints', label: t('seasonManagement.scoring.sets.closeLoss') },
-				{ key: 'lossPoints', label: t('seasonManagement.scoring.sets.loss') },
+				{ key: 'winPoints', label: t('seasonManagement.scoring.twoSets.win') },
+				{ key: 'drawPoints', label: t('seasonManagement.scoring.twoSets.draw') },
+				{ key: 'lossPoints', label: t('seasonManagement.scoring.twoSets.loss') },
+			]
+		: bySets
+		? [
+				{ key: 'winPoints', label: t(`seasonManagement.scoring.${setsKey}.win`) },
+				{ key: 'otWinPoints', label: t(`seasonManagement.scoring.${setsKey}.closeWin`) },
+				{ key: 'otLossPoints', label: t(`seasonManagement.scoring.${setsKey}.closeLoss`) },
+				{ key: 'lossPoints', label: t(`seasonManagement.scoring.${setsKey}.loss`) },
 			]
 		: [
 				{ key: 'winPoints', label: t('seasonManagement.scoring.win') },
@@ -103,7 +135,12 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 		}
 	};
 
-	const inactive = ALL_TIEBREAKERS.filter((entry) => !policy.tiebreakers.includes(entry));
+	const inactive = (volleyball ? VOLLEYBALL_TIEBREAKERS : ALL_TIEBREAKERS).filter((entry) => !policy.tiebreakers.includes(entry));
+	// In volleyball the score is the sets, so "goals" read as sets there.
+	const tiebreakerLabel = (tiebreaker: Tiebreaker) =>
+		t(volleyball && (tiebreaker === 'GOAL_DIFF' || tiebreaker === 'GOALS_FOR')
+			? `seasonManagement.scoring.tbVolleyball.${tiebreaker}`
+			: `seasonManagement.scoring.tb.${tiebreaker}`);
 
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -130,6 +167,35 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 						: t('seasonManagement.scoring.inheritedNote')}
 				</p>
 
+				{volleyball && (
+					<div className="flex flex-col gap-2">
+						<span className="tm-section-label">{t('seasonManagement.scoring.format.title')}</span>
+						<div className="tm-rows-card" role="radiogroup" aria-label={t('seasonManagement.scoring.format.title')}>
+							{SET_FORMATS.map((format) => (
+								<button
+									key={format}
+									type="button"
+									role="radio"
+									aria-checked={setFormat === format}
+									onClick={() => chooseFormat(format)}
+									className="flex min-h-[56px] w-full items-center gap-3 px-3.5 text-left"
+								>
+									<span
+										className="flex size-5 shrink-0 items-center justify-center rounded-full border-2"
+										style={{ borderColor: setFormat === format ? SEASON_ACCENT : undefined }}
+									>
+										{setFormat === format && <span className="size-2.5 rounded-full" style={{ backgroundColor: SEASON_ACCENT }} />}
+									</span>
+									<span className="flex min-w-0 flex-1 flex-col gap-px">
+										<span className="text-[14.5px] font-medium">{t(`seasonManagement.scoring.format.${format}`)}</span>
+										<span className="text-[11.5px] text-muted-foreground">{t(`seasonManagement.scoring.format.${format}Hint`)}</span>
+									</span>
+								</button>
+							))}
+						</div>
+					</div>
+				)}
+
 				<div className="flex flex-col gap-2">
 					<span className="tm-section-label">{t('seasonManagement.scoring.points')}</span>
 					<div className="tm-rows-card">
@@ -146,11 +212,11 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 								/>
 							</div>
 						))}
-						{volleyball && (
+						{volleyball && !twoSets && (
 							<div className="flex h-[60px] items-center gap-3 px-3.5">
 								<span className="flex min-w-0 flex-1 flex-col gap-px">
 									<span className="truncate text-[14.5px] font-medium">{t('seasonManagement.scoring.sets.toggle')}</span>
-									<span className="truncate text-[11.5px] text-muted-foreground">{t('seasonManagement.scoring.sets.hint')}</span>
+									<span className="truncate text-[11.5px] text-muted-foreground">{t(`seasonManagement.scoring.${setsKey}.hint`)}</span>
 								</span>
 								<button
 									role="switch"
@@ -211,7 +277,7 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 									{index + 1}
 								</span>
 								<span className="min-w-0 flex-1 truncate text-[14px] font-medium">
-									{t(`seasonManagement.scoring.tb.${tiebreaker}`)}
+									{tiebreakerLabel(tiebreaker)}
 								</span>
 								<button
 									onClick={() => move(index, -1)}
@@ -248,7 +314,7 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 									onClick={() => toggleTiebreaker(tiebreaker)}
 									className="h-9 rounded-full border border-border px-3 text-[13px] font-medium"
 								>
-									+ {t(`seasonManagement.scoring.tb.${tiebreaker}`)}
+									+ {tiebreakerLabel(tiebreaker)}
 								</button>
 							))}
 						</div>

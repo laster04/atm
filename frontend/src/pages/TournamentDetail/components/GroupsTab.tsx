@@ -21,6 +21,7 @@ const initialView = (): GroupView =>
 	typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches ? 'matrix' : 'table';
 
 export default function GroupsTab({ tournament, standings, context }: GroupsTabProps) {
+	const volleyball = tournament?.series?.sportType === 'VOLLEYBALL';
 	const { t } = useTranslation();
 	const groups = tournament.groups ?? [];
 	const [groupId, setGroupId] = useState(groups[0]?.id ?? '');
@@ -108,7 +109,7 @@ export default function GroupsTab({ tournament, standings, context }: GroupsTabP
 					<div className="flex flex-col gap-5">
 						{summary(false)}
 						<Panel flush title={t('tournamentDetail.groups.standingsTitle')}>
-							<GroupStandings standings={rows} qualified={qualified} context={context} variant="compact" />
+							<GroupStandings standings={rows} qualified={qualified} context={context} variant="compact" volleyball={volleyball} />
 						</Panel>
 					</div>
 				</div>
@@ -117,10 +118,10 @@ export default function GroupsTab({ tournament, standings, context }: GroupsTabP
 					<Panel flush title={groupName} description={t('tournamentDetail.groups.standingsTitle')}>
 						{/* A phone gets the sidebar's short table rather than a sideways scroll. */}
 						<div className="hidden sm:block">
-							<GroupStandings standings={rows} qualified={qualified} context={context} variant="full" />
+							<GroupStandings standings={rows} qualified={qualified} context={context} variant="full" volleyball={volleyball} />
 						</div>
 						<div className="sm:hidden">
-							<GroupStandings standings={rows} qualified={qualified} context={context} variant="compact" />
+							<GroupStandings standings={rows} qualified={qualified} context={context} variant="compact" volleyball={volleyball} />
 						</div>
 					</Panel>
 					{summary(true)}

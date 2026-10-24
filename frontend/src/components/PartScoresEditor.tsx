@@ -1,17 +1,23 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, X } from 'lucide-react';
-import type { PartScore } from '@types';
-import { partLabel, type SportProfile } from '@/utils/sportProfiles';
+import { AlertTriangle, Plus, X } from 'lucide-react';
+import type { PartScore, SetFormat } from '@types';
+import { partLabel, setLimits, volleyballNotes, type SportProfile } from '@/utils/sportProfiles';
 
 /** One editable part: either side may still be empty while it is typed. */
 export type PartDraft = { home: number | null; away: number | null };
 
 /**
  * The rows a game's parts start with: what is stored, padded to regulation.
- * Volleyball starts with three sets; the fourth and fifth are added as needed.
+ * Volleyball starts with the sets a side needs to win (three, or two); the rest
+ * are added as needed.
  */
-export const initialParts = (stored: PartScore[] | null | undefined, profile: SportProfile): PartDraft[] => {
-	const start = profile.scoreIsPartsWon ? 3 : profile.parts.regulation;
+export const initialParts = (
+	stored: PartScore[] | null | undefined,
+	profile: SportProfile,
+	setFormat?: SetFormat,
+	playoff = false
+): PartDraft[] => {
+	const start = profile.scoreIsPartsWon ? setLimits(setFormat, playoff).start : profile.parts.regulation;
 	const rows: PartDraft[] = (stored ?? []).map((part) => ({ home: part.home, away: part.away }));
 	while (rows.length < start) rows.push({ home: null, away: null });
 	return rows;
@@ -36,12 +42,20 @@ interface PartScoresEditorProps {
 	onChange: (rows: PartDraft[]) => void;
 	readOnly?: boolean;
 	inputClassName?: string;
+	/** Volleyball: how many sets the competition plays (default: to three won). */
+	setFormat?: SetFormat;
+	/** A play-off game needs a winner, so two fixed sets get a deciding third. */
+	playoff?: boolean;
 }
 
 /** Score per period, half, quarter or set, as many as the sport plays. */
-export default function PartScoresEditor({ profile, rows, onChange, readOnly, inputClassName }: PartScoresEditorProps) {
+export default function PartScoresEditor({ profile, rows, onChange, readOnly, inputClassName, setFormat, playoff }: PartScoresEditorProps) {
 	const { t } = useTranslation();
-	const start = profile.scoreIsPartsWon ? 3 : profile.parts.regulation;
+	const limits = profile.scoreIsPartsWon ? setLimits(setFormat, playoff) : { start: profile.parts.regulation, max: profile.parts.max };
+	const start = limits.start;
+	// Sets typed in full are checked against the rules; half-typed rows wait.
+	const filled = rows.filter((row): row is PartScore => row.home !== null && row.away !== null);
+	const notes = profile.scoreIsPartsWon && !readOnly && filled.length === rows.length ? volleyballNotes(filled, setFormat, playoff) : [];
 
 	const set = (index: number, side: 'home' | 'away', raw: string) => {
 		const value = raw === '' ? null : Math.max(0, Math.floor(Number(raw)));
@@ -90,7 +104,7 @@ export default function PartScoresEditor({ profile, rows, onChange, readOnly, in
 					);
 				})}
 			</div>
-			{!readOnly && rows.length < profile.parts.max && (
+			{!readOnly && rows.length < limits.max && (
 				<button
 					type="button"
 					onClick={() => onChange([...rows, { home: null, away: null }])}
@@ -99,6 +113,15 @@ export default function PartScoresEditor({ profile, rows, onChange, readOnly, in
 					<Plus className="size-4" aria-hidden />
 					{profile.scoreIsPartsWon ? t('sports.parts.addSet') : t('sports.parts.addOvertime')}
 				</button>
+			)}
+			{notes.length > 0 && (
+				<div role="status" className="flex gap-2 rounded-[10px] bg-warning/15 px-3 py-2.5 text-[12.5px] leading-snug">
+					<AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning-foreground" aria-hidden />
+					<ul className="flex flex-col gap-0.5">
+						{notes.map((note, index) => <li key={index}>{t(note.key, note.vars)}</li>)}
+						<li className="text-muted-foreground">{t('sports.volleyball.stillSaves')}</li>
+					</ul>
+				</div>
 			)}
 		</div>
 	);

@@ -593,6 +593,12 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Wins and losses decided after regulation (a volleyball 3:2 / 2:3); see standings/compute. */
+  otWins: number;
+  otLosses: number;
+  /** Volleyball balls (míče) won and lost, summed from the set scores. */
+  partPointsFor: number;
+  partPointsAgainst: number;
   /** Position in the official table, 1-based. */
   rank: number;
   /** True while this team has a game in progress. */
@@ -672,6 +678,8 @@ export interface UpdateTournamentRequest {
   startDate?: string | null;
   endDate?: string | null;
   location?: string | null;
+  /** The tournament's own scoring (e.g. the volleyball set format), or null to inherit the series'. */
+  scoring?: unknown;
 }
 
 // --- TournamentTeam ---
@@ -741,6 +749,8 @@ export interface UpdateTournamentGameRequest {
   status?: GameStatus;
   bracketSlot?: number | null;
   note?: string | null;
+  /** Volleyball sets; the score is worked out from them. */
+  periodScores?: unknown;
 }
 
 export interface GenerateTournamentScheduleRequest {

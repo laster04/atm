@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, Radio } from 'lucide-react';
-import type { GroupTable, SeasonPlayoff } from '@types';
+import { SportType, type GroupTable, type SeasonPlayoff } from '@types';
 import { hasLiveGames, liveTone } from '@/utils/liveTable';
+import { volleyballSplit } from '@/utils/volleyballTable';
 import { seasonApi } from '@/services/api';
 import SeasonPlayoffBracket from '@/components/playoff/SeasonPlayoffBracket';
 
@@ -10,6 +11,7 @@ interface StandingsTabProps {
 	seasonId: string;
 	/** One entry per division; a season with none arrives as a single table. */
 	tables: GroupTable[];
+	sport?: SportType;
 }
 
 /**
@@ -17,8 +19,9 @@ interface StandingsTabProps {
  * count ride under the team name, which is what keeps the row readable at
  * 390px without a horizontal scroller.
  */
-export default function StandingsTab({ seasonId, tables }: StandingsTabProps) {
+export default function StandingsTab({ seasonId, tables, sport }: StandingsTabProps) {
 	const { t } = useTranslation();
+	const volleyball = sport === SportType.VOLLEYBALL;
 	const [playoff, setPlayoff] = useState<SeasonPlayoff | null>(null);
 
 	// The tables are re-read whenever a result changes; the bracket follows them.
@@ -117,7 +120,9 @@ export default function StandingsTab({ seasonId, tables }: StandingsTabProps) {
 								)}
 							</span>
 							<span className="text-[11.5px] tabular-nums text-muted-foreground">
-								{row.wins}-{row.draws}-{row.losses} · {row.goalsFor}–{row.goalsAgainst}
+								{volleyball
+									? t('seasonManagement.table.volleyballRecord', { ...volleyballSplit(row), sets: `${row.goalsFor}:${row.goalsAgainst}` })
+									: `${row.wins}-${row.draws}-${row.losses} · ${row.goalsFor}–${row.goalsAgainst}`}
 							</span>
 						</span>
 						<span className="w-6 shrink-0 text-center text-sm tabular-nums text-muted-foreground">

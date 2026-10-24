@@ -117,7 +117,8 @@ const buildSummary = async (
   // does; a summary that disagreed with the site would be worse than none.
   const allCompleted = await prisma.game.findMany({
     where: { seasonId, ...COUNTS_TOWARD_TABLE },
-    select: { homeTeamId: true, awayTeamId: true, homeScore: true, awayScore: true },
+    // The set scores tell a volleyball 3:2 from a 3:1, which earn different points.
+    select: { homeTeamId: true, awayTeamId: true, homeScore: true, awayScore: true, periodScores: true },
   });
 
   const table = computeTable(

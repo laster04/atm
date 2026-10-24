@@ -7,9 +7,12 @@ import {
   tournamentGroupApi, tournamentGameApi, tournamentPlayoffApi, registrationApi,
 } from '@/services/api';
 import type {
-  PlayerPosition, RegistrationSettings, Tournament, TournamentTeam, TournamentPlayer,
+  PlayerPosition, RegistrationSettings, SetFormat, Tournament, TournamentTeam, TournamentPlayer,
   TournamentGroup, TournamentGame, TournamentStatus, TournamentGamePhase,
 } from '@types';
+import { AxiosError } from 'axios';
+import PartScoresEditor, { initialParts, toPartScores, type PartDraft } from '@/components/PartScoresEditor';
+import { formatParts, partsWon, profileFor } from '@/utils/sportProfiles';
 import { Button } from '@components/base/button';
 import { Badge } from '@components/base/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/base/tabs';
@@ -141,10 +144,28 @@ export default function TournamentManagePage() {
     qualifiersPerGroup: '1', startTime: '10:00', slotDurationMinutes: '40', location: '',
   });
 
+  // Volleyball: results are entered as sets, and the score follows from them.
+  const [resultParts, setResultParts] = useState<PartDraft[]>([]);
+  const [playoffParts, setPlayoffParts] = useState<PartDraft[]>([]);
+
   const [saving, setSaving] = useState(false);
   const [embedOpen, setEmbedOpen] = useState(false);
   // Raised whenever something hits the plan's limit, to open the offer.
   const [planOffer, setPlanOffer] = useState(0);
+
+  const profile = profileFor(tournament?.series?.sportType);
+  const bySets = profile.scoreIsPartsWon;
+  // Tournaments play to two won sets unless the organiser chose otherwise.
+  const setFormat: SetFormat = tournament?.scoring?.setFormat ?? 'BEST_OF_3';
+  const setsScore = (rows: PartDraft[]) => partsWon(toPartScores(rows) ?? []);
+
+  const changeSetFormat = async (format: SetFormat) => {
+    if (!tournament) return;
+    try {
+      const res = await tournamentApi.update(tournament.id, { scoring: { ...(tournament.scoring ?? {}), setFormat: format } });
+      setTournament(res.data);
+    } catch { setError(t('tm.tournament.setFormat.error')); }
+  };
 
   // ── load ───────────────────────────────────────────────────
   const load = async () => {
@@ -364,6 +385,7 @@ export default function TournamentManagePage() {
   const openResult = (g: TournamentGame) => {
     setEditingGame(g);
     setGameForm({ homeScore: g.homeScore?.toString() ?? '', awayScore: g.awayScore?.toString() ?? '', date: g.date ? g.date.slice(0, 10) : '', location: g.location ?? '', status: g.status });
+    setResultParts(initialParts(g.periodScores, profile, setFormat));
     setResultModal(true);
   };
 
@@ -372,8 +394,12 @@ export default function TournamentManagePage() {
     setSaving(true); setError('');
     try {
       const res = await tournamentGameApi.update(editingGame.id, {
-        homeScore: gameForm.homeScore !== '' ? parseInt(gameForm.homeScore) : null,
-        awayScore: gameForm.awayScore !== '' ? parseInt(gameForm.awayScore) : null,
+        ...(bySets
+          ? { periodScores: toPartScores(resultParts) }
+          : {
+              homeScore: gameForm.homeScore !== '' ? parseInt(gameForm.homeScore) : null,
+              awayScore: gameForm.awayScore !== '' ? parseInt(gameForm.awayScore) : null,
+            }),
         date: gameForm.date || undefined,
         location: gameForm.location || undefined,
         status: gameForm.status as TournamentGame['status'],
@@ -388,6 +414,7 @@ export default function TournamentManagePage() {
   const openPlayoffCreate = () => {
     setEditingPlayoff(null);
     setPlayoffForm({ phase: 'QUARTER_FINAL', homeTeamId: '', awayTeamId: '', bracketSlot: '', homeScore: '', awayScore: '', date: '', status: 'SCHEDULED' });
+    setPlayoffParts(initialParts(null, profile, setFormat, true));
     setPlayoffModal(true);
   };
 
@@ -398,6 +425,7 @@ export default function TournamentManagePage() {
       bracketSlot: g.bracketSlot?.toString() ?? '', homeScore: g.homeScore?.toString() ?? '',
       awayScore: g.awayScore?.toString() ?? '', date: g.date ? g.date.slice(0, 10) : '', status: g.status,
     });
+    setPlayoffParts(initialParts(g.periodScores, profile, setFormat, true));
     setPlayoffModal(true);
   };
 
@@ -410,8 +438,12 @@ export default function TournamentManagePage() {
         homeTeamId: playoffForm.homeTeamId ? playoffForm.homeTeamId : null,
         awayTeamId: playoffForm.awayTeamId ? playoffForm.awayTeamId : null,
         bracketSlot: playoffForm.bracketSlot ? parseInt(playoffForm.bracketSlot) : null,
-        homeScore: playoffForm.homeScore !== '' ? parseInt(playoffForm.homeScore) : null,
-        awayScore: playoffForm.awayScore !== '' ? parseInt(playoffForm.awayScore) : null,
+        ...(bySets
+          ? { periodScores: toPartScores(playoffParts) }
+          : {
+              homeScore: playoffForm.homeScore !== '' ? parseInt(playoffForm.homeScore) : null,
+              awayScore: playoffForm.awayScore !== '' ? parseInt(playoffForm.awayScore) : null,
+            }),
         date: playoffForm.date || undefined,
         status: playoffForm.status as TournamentGame['status'],
       };
@@ -423,7 +455,10 @@ export default function TournamentManagePage() {
         setPlayoffGames(prev => [...prev, res.data]);
       }
       setPlayoffModal(false);
-    } catch { setError(t('tm.tournament.playoff.errors.save')); }
+    } catch (err) {
+      const code = (err as AxiosError<{ code?: string }>).response?.data?.code;
+      setError(t(code === 'PLAYOFF_NEEDS_WINNER' ? 'tm.tournament.playoff.errors.needsWinner' : 'tm.tournament.playoff.errors.save'));
+    }
     finally { setSaving(false); }
   };
 
@@ -672,6 +707,17 @@ export default function TournamentManagePage() {
 
         {/* ── RESULTS ───────────────────────────────────────── */}
         <TabsContent value="results" className="mt-4 space-y-2">
+          {bySets && (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3">
+              <label htmlFor="set-format" className="text-sm font-medium">{t('tm.tournament.setFormat.label')}</label>
+              <select id="set-format" className={sel + ' w-auto'} value={setFormat} onChange={e => changeSetFormat(e.target.value as SetFormat)}>
+                {(['BEST_OF_5', 'BEST_OF_3', 'TWO_SETS'] as const).map(format => (
+                  <option key={format} value={format}>{t(`seasonManagement.scoring.format.${format}`)}</option>
+                ))}
+              </select>
+              <span className="text-xs text-muted-foreground">{t(`seasonManagement.scoring.format.${setFormat}Hint`)}</span>
+            </div>
+          )}
           {groupGames.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground border rounded-lg">
               {t('tm.tournament.results.empty')}
@@ -695,6 +741,9 @@ export default function TournamentManagePage() {
                             <span className="font-bold">{game.homeScore} – {game.awayScore}</span>
                           ) : (
                             <span className="text-muted-foreground text-sm">vs</span>
+                          )}
+                          {game.periodScores && game.periodScores.length > 0 && (
+                            <div className="text-xs tabular-nums text-muted-foreground">{formatParts(game.periodScores, profile)}</div>
                           )}
                           {game.group && <div className="text-xs text-muted-foreground">Grp {game.group.name}</div>}
                         </div>
@@ -753,6 +802,9 @@ export default function TournamentManagePage() {
                                 <span className="font-bold">{game.homeScore} – {game.awayScore}</span>
                               ) : (
                                 <span className="text-muted-foreground text-sm">vs</span>
+                              )}
+                              {game.periodScores && game.periodScores.length > 0 && (
+                                <div className="text-xs tabular-nums text-muted-foreground">{formatParts(game.periodScores, profile)}</div>
                               )}
                             </div>
                             <span className="font-medium text-sm">{playoffSideLabel(game.awayTeam, game.awaySeed, t)}</span>
@@ -963,10 +1015,20 @@ export default function TournamentManagePage() {
                 <span className="text-muted-foreground">vs</span>
                 <span>{editingGame.awayTeam?.name ?? t('tm.common.away')}</span>
               </div>
+              {bySets ? (
+                <div className="space-y-2">
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="font-medium">{t('sports.partsTitle.SET')}</span>
+                    <span className="font-bold tabular-nums">{setsScore(resultParts).home} : {setsScore(resultParts).away}</span>
+                  </div>
+                  <PartScoresEditor profile={profile} rows={resultParts} onChange={setResultParts} setFormat={setFormat} />
+                </div>
+              ) : (
               <div className="grid grid-cols-2 gap-3">
                 <Field label={t('tm.fields.homeScore')}><input type="number" min={0} className={inp} value={gameForm.homeScore} onChange={e => setGameForm(f => ({ ...f, homeScore: e.target.value }))} /></Field>
                 <Field label={t('tm.fields.awayScore')}><input type="number" min={0} className={inp} value={gameForm.awayScore} onChange={e => setGameForm(f => ({ ...f, awayScore: e.target.value }))} /></Field>
               </div>
+              )}
               <Field label={t('tm.fields.status')}>
                 <select className={sel} value={gameForm.status} onChange={e => setGameForm(f => ({ ...f, status: e.target.value }))}>
                   <option value="SCHEDULED">{t('tm.status.SCHEDULED')}</option>
@@ -1022,6 +1084,17 @@ export default function TournamentManagePage() {
                 {t('tm.tournament.playoff.teamsUnknownHint')}
               </p>
             )}
+            {bySets ? (
+              (playoffForm.homeTeamId && playoffForm.awayTeamId) ? (
+                <div className="space-y-2">
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="font-medium">{t('sports.partsTitle.SET')}</span>
+                    <span className="font-bold tabular-nums">{setsScore(playoffParts).home} : {setsScore(playoffParts).away}</span>
+                  </div>
+                  <PartScoresEditor profile={profile} rows={playoffParts} onChange={setPlayoffParts} setFormat={setFormat} playoff />
+                </div>
+              ) : null
+            ) : (
             <div className="grid grid-cols-2 gap-3">
               <Field label={t('tm.fields.homeScore')}>
                 <input type="number" min={0} className={inp} value={playoffForm.homeScore}
@@ -1034,6 +1107,7 @@ export default function TournamentManagePage() {
                   onChange={e => setPlayoffForm(f => ({ ...f, awayScore: e.target.value }))} />
               </Field>
             </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <Field label={t('tm.fields.date')}><input type="date" className={inp} value={playoffForm.date} onChange={e => setPlayoffForm(f => ({ ...f, date: e.target.value }))} /></Field>
               <Field label={t('tm.fields.status')}>

@@ -269,7 +269,7 @@ export default function Detail() {
 							onInvitesChange={setInvites}
 						/>
 					)}
-					{activeTab === 'table' && <StandingsTab seasonId={season.id} tables={tables} />}
+					{activeTab === 'table' && <StandingsTab seasonId={season.id} tables={tables} sport={season.league?.sportType} />}
 					{activeTab === 'more' && (
 						<MoreTab
 							season={season}
@@ -318,6 +318,7 @@ export default function Detail() {
 				<ResultSheet
 					game={resultGame}
 					sport={season.league?.sportType}
+					setFormat={season.scoring?.setFormat}
 					onClose={() => setResultGame(null)}
 					onOpenReport={() => {
 						setReportGame(resultGame);

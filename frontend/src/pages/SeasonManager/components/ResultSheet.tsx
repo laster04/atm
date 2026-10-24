@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ClipboardList, Lock, Minus, Plus, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
-import { GameStatus, type Game, type SportType } from '@types';
+import { GameStatus, type Game, type SetFormat, type SportType } from '@types';
 import { SEASON_ACCENT } from './util';
 import PartScoresEditor, { initialParts, toPartScores } from '@/components/PartScoresEditor';
 import { partsWon, profileFor } from '@/utils/sportProfiles';
@@ -13,6 +13,8 @@ interface ResultSheetProps {
 	game: Game;
 	/** Decides the parts (halves, quarters, sets) and whether the score follows from them. */
 	sport?: SportType;
+	/** Volleyball: the season's set format; to three won sets when it has none. */
+	setFormat?: SetFormat;
 	onClose: () => void;
 	onSaved: (game: Game) => void;
 	onOpenReport: () => void;
@@ -25,7 +27,7 @@ const STATUSES = [
 	GameStatus.CANCELLED,
 ];
 
-export default function ResultSheet({ game, sport, onClose, onSaved, onOpenReport }: ResultSheetProps) {
+export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, onOpenReport }: ResultSheetProps) {
 	const { t, i18n } = useTranslation();
 
 	// A game with a match report has its score computed from that report. Editing
@@ -39,7 +41,7 @@ export default function ResultSheet({ game, sport, onClose, onSaved, onOpenRepor
 	const profile = profileFor(sport);
 	const [homeScore, setHomeScore] = useState(game.homeScore ?? 0);
 	const [awayScore, setAwayScore] = useState(game.awayScore ?? 0);
-	const [parts, setParts] = useState(() => initialParts(game.periodScores, profile));
+	const [parts, setParts] = useState(() => initialParts(game.periodScores, profile, setFormat, game.playoffSeriesId != null));
 	// Volleyball: the result is the sets won, so it is shown, not typed.
 	const setsWon = profile.scoreIsPartsWon ? partsWon(toPartScores(parts) ?? []) : null;
 	const [status, setStatus] = useState<GameStatus>(
@@ -213,6 +215,8 @@ export default function ResultSheet({ game, sport, onClose, onSaved, onOpenRepor
 						rows={parts}
 						onChange={setParts}
 						readOnly={derived}
+						setFormat={setFormat}
+						playoff={game.playoffSeriesId != null}
 						inputClassName="sm-score-input h-11 w-14 rounded-[10px] bg-input-background text-center text-base font-semibold tabular-nums"
 					/>
 				</div>

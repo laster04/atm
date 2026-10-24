@@ -1,4 +1,5 @@
 import { SportType } from '@prisma/client';
+import { SET_FORMATS, type SetFormat } from '../sports/profile.js';
 
 /**
  * How a competition turns results into table points, and how it breaks ties.
@@ -22,6 +23,8 @@ export interface ScoringPolicy {
   /** Sports where a level score is impossible (tennis) rank draws out entirely. */
   allowDraws: boolean;
   tiebreakers: Tiebreaker[];
+  /** Volleyball only: how many sets a match has; see sports/profile. Absent elsewhere. */
+  setFormat?: SetFormat;
   /**
    * The sport the policy was resolved for. Not stored; it lets the table tell
    * a volleyball match that went to a fifth set (scored with otWin/otLoss) from
@@ -30,7 +33,12 @@ export interface ScoringPolicy {
   sport?: SportType;
 }
 
-export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED';
+/**
+ * SET_RATIO and BALL_RATIO are volleyball's: sets won over sets lost (the score
+ * of a volleyball game is its sets) and balls won over balls lost, summed from
+ * the set scores. Ratios, not differences, as the Czech rules have it.
+ */
+export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED' | 'SET_RATIO' | 'BALL_RATIO';
 
 const goalBased = (winPoints: number, drawPoints: number): ScoringPolicy => ({
   winPoints,
@@ -50,6 +58,23 @@ const goalBased = (winPoints: number, drawPoints: number): ScoringPolicy => ({
 export type CompetitionKind = 'LEAGUE' | 'TOURNAMENT';
 
 /**
+ * Volleyball by the Czech federation's rules (Soutěžní řád volejbalu, čl. 28):
+ * 3:0 and 3:1 earn three points, 3:2 two, 2:3 one, a lost match nothing. On a
+ * level points total: more wins, then the set ratio, then the ball ratio, then
+ * the match between the two.
+ */
+export const VOLLEYBALL_POLICY: ScoringPolicy = {
+  winPoints: 3,
+  drawPoints: 1,
+  lossPoints: 0,
+  otWinPoints: 2,
+  otLossPoints: 1,
+  allowDraws: false,
+  tiebreakers: ['WINS', 'SET_RATIO', 'BALL_RATIO', 'HEAD_TO_HEAD'],
+  setFormat: 'BEST_OF_5',
+};
+
+/**
  * Per-sport defaults for a tournament. Existing tournaments carry an explicit
  * override written by the migration that introduced this module, so changing a
  * default here never rewrites a table that has already been played.
@@ -57,7 +82,8 @@ export type CompetitionKind = 'LEAGUE' | 'TOURNAMENT';
 export const SPORT_DEFAULTS: Record<SportType, ScoringPolicy> = {
   FOOTBALL: goalBased(3, 1),
   BASKETBALL: { ...goalBased(2, 0), allowDraws: false, tiebreakers: ['HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR'] },
-  VOLLEYBALL: { ...goalBased(3, 0), allowDraws: false, tiebreakers: ['HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR'] },
+  // Tournaments play shorter matches; the rules allow two won sets there.
+  VOLLEYBALL: { ...VOLLEYBALL_POLICY, setFormat: 'BEST_OF_3' },
   HOCKEY: goalBased(3, 1),
   HANDBALL: goalBased(2, 1),
   FLOORBALL: goalBased(3, 1),
@@ -80,6 +106,9 @@ export const SPORT_DEFAULTS: Record<SportType, ScoringPolicy> = {
  * before scoring became configurable. That stays the league default so no season
  * changes point totals under an organiser who never asked for a change; a league
  * that wants 3/1/0 sets it explicitly.
+ *
+ * Volleyball is the exception: its leagues came with the sport profiles, never
+ * ran on the old two points, and default to the federation's rules.
  */
 export const LEAGUE_DEFAULT: ScoringPolicy = {
   winPoints: 2,
@@ -96,13 +125,13 @@ export const defaultPolicy = (
   kind: CompetitionKind
 ): ScoringPolicy =>
   kind === 'LEAGUE'
-    ? LEAGUE_DEFAULT
+    ? sportType === 'VOLLEYBALL' ? VOLLEYBALL_POLICY : LEAGUE_DEFAULT
     : SPORT_DEFAULTS[sportType ?? 'OTHER'] ?? SPORT_DEFAULTS.OTHER;
 
 const isNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
 
-const TIEBREAKERS: readonly Tiebreaker[] = ['HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR', 'WINS', 'PLAYED'];
+const TIEBREAKERS: readonly Tiebreaker[] = ['HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR', 'WINS', 'PLAYED', 'SET_RATIO', 'BALL_RATIO'];
 
 const parseTiebreakers = (value: unknown, fallback: Tiebreaker[]): Tiebreaker[] => {
   if (!Array.isArray(value)) return fallback;
@@ -143,6 +172,12 @@ export const checkScoringOverride = (value: unknown): OverrideCheck => {
     if (typeof raw.allowDraws !== 'boolean') return { ok: false, error: 'allowDraws must be true or false' };
     kept.allowDraws = raw.allowDraws;
   }
+  if (raw.setFormat !== undefined) {
+    if (!(SET_FORMATS as readonly unknown[]).includes(raw.setFormat)) {
+      return { ok: false, error: `setFormat must be one of ${SET_FORMATS.join(', ')}` };
+    }
+    kept.setFormat = raw.setFormat;
+  }
   if (raw.tiebreakers !== undefined) {
     const parsed = parseTiebreakers(raw.tiebreakers, []);
     if (!Array.isArray(raw.tiebreakers) || parsed.length !== raw.tiebreakers.length) {
@@ -170,14 +205,17 @@ export const resolvePolicy = (
   }
 
   const raw = override as Record<string, unknown>;
+  const setFormat = (SET_FORMATS as readonly unknown[]).includes(raw.setFormat) ? raw.setFormat as SetFormat : base.setFormat;
   return {
     winPoints: isNumber(raw.winPoints) ? raw.winPoints : base.winPoints,
     drawPoints: isNumber(raw.drawPoints) ? raw.drawPoints : base.drawPoints,
     lossPoints: isNumber(raw.lossPoints) ? raw.lossPoints : base.lossPoints,
     otWinPoints: isNumber(raw.otWinPoints) ? raw.otWinPoints : base.otWinPoints,
     otLossPoints: isNumber(raw.otLossPoints) ? raw.otLossPoints : base.otLossPoints,
-    allowDraws: typeof raw.allowDraws === 'boolean' ? raw.allowDraws : base.allowDraws,
+    // Two fixed sets end 1:1 as often as not; such a match is a draw, whatever the stored flag says.
+    allowDraws: setFormat === 'TWO_SETS' ? true : typeof raw.allowDraws === 'boolean' ? raw.allowDraws : base.allowDraws,
     tiebreakers: parseTiebreakers(raw.tiebreakers, base.tiebreakers),
+    ...(setFormat && { setFormat }),
     ...(sportType && { sport: sportType }),
   };
 };

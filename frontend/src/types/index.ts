@@ -68,7 +68,8 @@ export interface User {
 }
 
 /** How results become table points, and how ties are broken. */
-export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED';
+/** SET_RATIO and BALL_RATIO are volleyball's: sets and balls won over lost. */
+export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED' | 'SET_RATIO' | 'BALL_RATIO';
 
 export interface ScoringPolicy {
   winPoints: number;
@@ -78,7 +79,15 @@ export interface ScoringPolicy {
   otLossPoints: number;
   allowDraws: boolean;
   tiebreakers: Tiebreaker[];
+  /** Volleyball only: how many sets a match has. */
+  setFormat?: SetFormat;
 }
+
+/**
+ * How a volleyball match is played: to three won sets, to two, or exactly two
+ * sets where 1:1 is a draw. A play-off game in the last needs a third set.
+ */
+export type SetFormat = 'BEST_OF_5' | 'BEST_OF_3' | 'TWO_SETS';
 
 /** What a results email says, as the preview endpoint returns it. */
 export interface RoundSummary {
@@ -314,6 +323,12 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Wins and losses decided after regulation: a volleyball 3:2 / 2:3. */
+  otWins: number;
+  otLosses: number;
+  /** Volleyball balls (míče) won and lost, summed from the set scores. */
+  partPointsFor: number;
+  partPointsAgainst: number;
   /** Position in the official table, 1-based. */
   rank: number;
   /** True while this team has a game in progress. */
@@ -757,6 +772,8 @@ export interface Tournament {
   year?: number | null;
   status: TournamentStatus;
   plan?: TournamentPlan;
+  /** The tournament's own scoring override, e.g. its volleyball set format; null inherits. */
+  scoring?: Partial<ScoringPolicy> | null;
   startDate?: string | null;
   endDate?: string | null;
   location?: string | null;
@@ -814,6 +831,8 @@ export interface TournamentGame {
   homeSeed?: number | null;
   awaySeed?: number | null;
   note?: string | null;
+  /** Volleyball sets; the score follows from them. */
+  periodScores?: PartScore[] | null;
   tournamentId: string;
   groupId?: string | null;
   homeTeamId?: string | null;
@@ -844,6 +863,11 @@ export interface TournamentStanding {
   goalsAgainst: number;
   goalDiff: number;
   points: number;
+  /** Volleyball: wins and losses in the deciding set, and balls. */
+  otWins: number;
+  otLosses: number;
+  partPointsFor: number;
+  partPointsAgainst: number;
 }
 
 export interface TournamentTopScorer {

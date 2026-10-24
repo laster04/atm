@@ -10,9 +10,11 @@ interface GroupStandingsProps {
 	context: SportContext;
 	/** The sidebar table carries a record column; the full one splits it out. */
 	variant: 'compact' | 'full';
+	/** Volleyball counts sets and balls where other sports count goals. */
+	volleyball?: boolean;
 }
 
-export default function GroupStandings({ standings, qualified, context, variant }: GroupStandingsProps) {
+export default function GroupStandings({ standings, qualified, context, variant, volleyball }: GroupStandingsProps) {
 	const { t } = useTranslation();
 	const withDraws = standings.some((row) => row.drawn > 0);
 	const anyQualified = standings.some((row) => qualified.has(row.teamId));
@@ -36,8 +38,14 @@ export default function GroupStandings({ standings, qualified, context, variant 
 								<Th className="text-center">{t('tournamentDetail.standings.lost')}</Th>
 							</>
 						)}
-						<Th className="text-center">{t('tournamentDetail.standings.score', { context })}</Th>
-						{variant === 'full' && <Th className="text-center">{t('tournamentDetail.standings.goalDiff')}</Th>}
+						<Th className="text-center">
+							{volleyball ? t('seasonDetail.standings.volleyball.sets') : t('tournamentDetail.standings.score', { context })}
+						</Th>
+						{variant === 'full' && (
+							<Th className="text-center">
+								{volleyball ? t('seasonDetail.standings.volleyball.balls') : t('tournamentDetail.standings.goalDiff')}
+							</Th>
+						)}
 						<Th className="text-center text-foreground">{t('tournamentDetail.standings.points')}</Th>
 					</HeadRow>
 				</thead>
@@ -65,7 +73,10 @@ export default function GroupStandings({ standings, qualified, context, variant 
 							<Td className={`text-center tabular-nums ${variant === 'compact' ? 'text-subtle-foreground' : ''}`}>
 								{row.goalsFor}:{row.goalsAgainst}
 							</Td>
-							{variant === 'full' && (
+							{variant === 'full' && volleyball && (
+								<Td className="text-center tabular-nums">{row.partPointsFor}:{row.partPointsAgainst}</Td>
+							)}
+							{variant === 'full' && !volleyball && (
 								<Td className="text-center">
 									<span
 										className={`font-semibold ${

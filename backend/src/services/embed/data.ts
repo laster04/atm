@@ -32,6 +32,9 @@ export interface EmbedRow {
   goalsFor: number;
   goalsAgainst: number;
   points: number;
+  /** Volleyball wins and losses in five sets, for the V3 V2 P1 P0 split. */
+  otWins: number;
+  otLosses: number;
 }
 
 export interface EmbedTable {
@@ -128,6 +131,8 @@ export async function seasonTables(seasonId: string, group?: string): Promise<Em
       goalsFor: row.goalsFor,
       goalsAgainst: row.goalsAgainst,
       points: row.points,
+      otWins: row.otWins,
+      otLosses: row.otLosses,
     }));
   };
 
@@ -158,6 +163,8 @@ export async function tournamentTables(tournamentId: string, group?: string): Pr
       goalsFor: row.goalsFor,
       goalsAgainst: row.goalsAgainst,
       points: row.points,
+      otWins: row.otWins,
+      otLosses: row.otLosses,
     }));
   if (groups.length === 0) return [{ group: null, rows: toRows(await computeGroupStandings(tournamentId, null)) }];
   return Promise.all(groups.map(async (row) => ({ group: row, rows: toRows(await computeGroupStandings(tournamentId, row.id)) })));
