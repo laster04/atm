@@ -25,6 +25,7 @@ import { SeasonManagerLayout, SeasonManagerIndex, MySeasonsPage, SeasonManagePag
 import Teams from './pages/Teams';
 import Players from './pages/Players';
 import Games from './pages/Games';
+import GameDetail from './pages/GameDetail/Screen';
 import Stats from './pages/Stats';
 import About from './pages/About';
 import Updates from './pages/Updates';
@@ -92,6 +93,7 @@ function AppContent() {
           <Route path="/players" element={<Players />} />
           <Route path="/players/:id" element={<PlayerDetail />} />
           <Route path="/games" element={<Games />} />
+          <Route path="/games/:id" element={<GameDetail />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/about" element={<About />} />
           <Route path="/docs" element={<Suspense fallback={<DocsFallback />}><Docs /></Suspense>} />

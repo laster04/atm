@@ -1,9 +1,11 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Clock } from 'lucide-react';
 import { formatDateShort, formatGameTime, isToday, isBeforeToday, isAfterToday } from '@/utils/date';
 import { GameStatus, type Game, type SportType } from '@types';
 import { formatParts, profileFor } from '@/utils/sportProfiles';
 import { GameStatusBadge, TeamCrest } from '@/components/public';
+import { gamePage } from '@/utils/gameLink';
 
 export enum FilterTimeEnum {
 	TODAY = 'today',
@@ -46,11 +48,10 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport }: G
 				const scored = game.status !== GameStatus.SCHEDULED;
 				const parts = formatParts(game.periodScores, profile);
 
-				return (
-					<div
-						key={game.id}
-						className="flex flex-col gap-3 border-b border-border-subtle px-5 py-4 last:border-0 sm:flex-row sm:items-center sm:gap-5"
-					>
+				const href = gamePage(game);
+				const rowClass = 'flex flex-col gap-3 border-b border-border-subtle px-5 py-4 last:border-0 sm:flex-row sm:items-center sm:gap-5';
+				const content = (
+					<>
 						<div className="flex items-center gap-3 sm:w-40 sm:shrink-0">
 							<span className="flex items-center gap-1.5 text-[13px] font-bold">
 								<CalendarDays className="size-3.5 text-muted-foreground" />
@@ -104,7 +105,14 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport }: G
 							)}
 							<GameStatusBadge status={game.status} />
 						</div>
-					</div>
+					</>
+				);
+
+				// A played game opens its own page; one still to come has none yet.
+				return href ? (
+					<Link key={game.id} to={href} className={`${rowClass} transition-colors hover:bg-muted/50`}>{content}</Link>
+				) : (
+					<div key={game.id} className={rowClass}>{content}</div>
 				);
 			})}
 		</div>

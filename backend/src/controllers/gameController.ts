@@ -14,6 +14,7 @@ import { Prisma, GameStatus } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { listedGameWhere } from '../services/visibility.js';
 import { isAdmin } from '../services/access.js';
+import { gameDetail } from '../services/games/detail.js';
 
 /** A play-off game must produce a winner; overtime and shootout goals go into the final score. */
 const PLAYOFF_NEEDS_WINNER = 'A play-off game needs a winner (count overtime or shootout goals in the score)';
@@ -62,6 +63,21 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
     res.json(game);
   } catch (error) {
     console.error('Get game error:', error);
+    res.status(500).json({ error: 'Failed to fetch game' });
+  }
+};
+
+/** The public match page: the game, its report, players, table and meetings. */
+export const getGameDetail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const detail = await gameDetail(req.params.id);
+    if (!detail) {
+      res.status(404).json({ error: 'Game not found' });
+      return;
+    }
+    res.json(detail);
+  } catch (error) {
+    console.error('Get game detail error:', error);
     res.status(500).json({ error: 'Failed to fetch game' });
   }
 };

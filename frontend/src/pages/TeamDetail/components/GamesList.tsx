@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDateShort, formatGameTime } from '@/utils/date';
 import { GameStatus, type Game } from '@types';
 import { EmptyState, Panel } from '@/components/public';
+import { gamePage } from '@/utils/gameLink';
 
 interface GamesListProps {
 	games: Game[];
@@ -63,11 +64,10 @@ export default function GamesList({ games, teamId, seasonId }: GamesListProps) {
 						const played = game.status === GameStatus.COMPLETED;
 						const result = played ? resultOf(game, teamId) : null;
 
-						return (
-							<div
-								key={game.id}
-								className="flex items-center gap-4 border-b border-border-subtle px-5 py-3.5 last:border-0"
-							>
+						const href = gamePage(game);
+						const rowClass = 'flex items-center gap-4 border-b border-border-subtle px-5 py-3.5 last:border-0';
+						const content = (
+							<>
 								<div className="flex w-24 shrink-0 flex-col">
 									<span className="text-[13px] font-bold">
 										{game.date ? formatDateShort(game.date, i18n.language) : t('public.games.noTime')}
@@ -100,7 +100,13 @@ export default function GamesList({ games, teamId, seasonId }: GamesListProps) {
 										{game.round != null ? t('seasonDetail.schedule.round', { round: game.round }) : ''}
 									</span>
 								)}
-							</div>
+							</>
+						);
+
+						return href ? (
+							<Link key={game.id} to={href} className={`${rowClass} transition-colors hover:bg-muted/50`}>{content}</Link>
+						) : (
+							<div key={game.id} className={rowClass}>{content}</div>
 						);
 					})}
 				</div>

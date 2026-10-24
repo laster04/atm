@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Trophy } from 'lucide-react';
 import { formatGameTime } from '@/utils/date';
+import { gamePage } from '@/utils/gameLink';
 import { GameStatus, type Game } from '@types';
 import { GameStatusBadge, TeamCrest } from '@/components/public';
 
@@ -16,7 +17,7 @@ export default function GameRow({ game }: { game: Game }) {
 
 	return (
 		<Link
-			to={`/season-detail/${game.seasonId}?tab=schedule`}
+			to={gamePage(game) ?? `/season-detail/${game.seasonId}?tab=schedule`}
 			className="flex flex-col gap-3 border-t border-border-subtle px-5 py-4 transition-colors first:border-t-0 hover:bg-muted/50 sm:flex-row sm:items-center sm:gap-5"
 		>
 			<div className="flex w-full items-center gap-3 sm:w-24 sm:shrink-0">

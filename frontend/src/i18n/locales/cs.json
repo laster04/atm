@@ -3335,5 +3335,59 @@
     "copy": "Kopírovat kód",
     "copied": "Zkopírováno",
     "help": "Jak vložit tabulku na web"
+  },
+  "gameDetail": {
+    "title": "Zápas",
+    "loading": "Načítám zápas…",
+    "notFound": "Zápas nebyl nalezen. Možná patří do archivované sezóny, ta si nechává jen konečnou tabulku.",
+    "breadcrumb": "Kde zápas je",
+    "round": "{{n}}. kolo",
+    "playoff": "Play-off",
+    "rank": "{{rank}}. v tabulce",
+    "vs": "vs",
+    "share": "Sdílet",
+    "copied": "Odkaz zkopírován",
+    "status": {
+      "live": "Živě",
+      "played": "Odehráno",
+      "waiting": "Čeká na potvrzení",
+      "scheduled": "Naplánováno",
+      "postponed": "Odloženo",
+      "cancelled": "Zrušeno"
+    },
+    "waitingNote": "Výsledek zatím nepotvrdil správce sezóny. Do tabulky se započítá, až ho potvrdí, a ještě se může změnit.",
+    "timeline": {
+      "title": "Průběh zápasu",
+      "goal": "GÓL",
+      "penalty": "TREST",
+      "goalie": "BR",
+      "goalieIn": "Střídání brankáře",
+      "assists": "Asistence: {{names}}",
+      "noAssist": "Bez asistence",
+      "minutes": "{{n}} min",
+      "unattributed": "Bez hráče"
+    },
+    "sets": {
+      "set": "Set",
+      "balls": "Míče"
+    },
+    "players": {
+      "title": "Hráči zápasu",
+      "player": "Hráč",
+      "none": "Nikdo nemá zapsanou statistiku."
+    },
+    "table": {
+      "title": "Tabulka",
+      "groupTitle": "Tabulka · {{name}}",
+      "withoutThis": "Zatím bez tohoto zápasu, čeká na potvrzení.",
+      "sets": "Sety",
+      "full": "Celá tabulka",
+      "team": "Tým"
+    },
+    "meetings": {
+      "title": "Vzájemné zápasy v sezóně",
+      "noDate": "Bez termínu",
+      "upcoming": "–"
+    }
   }
 }
