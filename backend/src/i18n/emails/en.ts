@@ -4,6 +4,7 @@ const en: EmailTexts = {
   greeting: 'Hello <strong>{{name}}</strong>,',
   copyLink: 'Button not working? Paste this link into your browser:',
   footer: 'ATM – Amateur Team Management',
+  poweredBy: 'Powered by ATM',
 
   activation: {
     subject: 'Activate your ATM account',

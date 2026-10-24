@@ -27,6 +27,10 @@ import {
   getTournamentStandings,
 } from '../controllers/tournamentController.js';
 import { getOffers, getPlan, startPayment } from '../controllers/paymentController.js';
+import {
+  createSponsor, deleteDocument, deleteSponsor, downloadDocument, getPlus, orderSponsors,
+  parseDocumentUpload, renameDocument, updateSponsor, uploadDocument,
+} from '../controllers/tournamentPlusController.js';
 
 import {
   getTeamsByTournament,
@@ -84,6 +88,17 @@ router.get('/series/:seriesId/tournaments', optionalAuth, requireVisible('series
 router.post('/series/:seriesId/tournaments', authenticate, requireSeriesAccess('seriesId'), createTournament);
 
 router.get('/:id', optionalAuth, requireVisible('tournament'), getTournamentById);
+// Turnaj Plus: partners and documents. Adding is limited by the plan; the
+// download checks the tournament is visible and hands out a short-lived link.
+router.get('/:id/plus', authenticate, requireTournamentAccess(), getPlus);
+router.post('/:id/sponsors', authenticate, requireTournamentAccess(), createSponsor);
+router.put('/:id/sponsors/order', authenticate, requireTournamentAccess(), orderSponsors);
+router.put('/:id/sponsors/:sponsorId', authenticate, requireTournamentAccess(), updateSponsor);
+router.delete('/:id/sponsors/:sponsorId', authenticate, requireTournamentAccess(), deleteSponsor);
+router.post('/:id/documents', authenticate, requireTournamentAccess(), parseDocumentUpload, uploadDocument);
+router.put('/:id/documents/:documentId', authenticate, requireTournamentAccess(), renameDocument);
+router.delete('/:id/documents/:documentId', authenticate, requireTournamentAccess(), deleteDocument);
+router.get('/:id/documents/:documentId/download', optionalAuth, requireVisible('tournament'), downloadDocument);
 router.put('/:id', authenticate, requireTournamentAccess(), updateTournament);
 router.delete('/:id', authenticate, requireTournamentAccess(), deleteTournament);
 router.get('/:id/standings', optionalAuth, requireVisible('tournament'), getTournamentStandings);

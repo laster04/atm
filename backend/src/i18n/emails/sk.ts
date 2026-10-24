@@ -4,6 +4,7 @@ const sk: EmailTexts = {
   greeting: 'Dobrý deň, <strong>{{name}}</strong>,',
   copyLink: 'Tlačidlo nefunguje? Vložte do prehliadača tento odkaz:',
   footer: 'ATM – Amateur Team Management',
+  poweredBy: 'Beží na ATM',
 
   activation: {
     subject: 'Aktivujte svoj účet v ATM',

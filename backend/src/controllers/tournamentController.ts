@@ -5,6 +5,8 @@ import { Prisma, TournamentStatus } from '@prisma/client';
 import { computeGroupStandings } from '../utils/tournamentStandings.js';
 import { releaseFiles, tournamentFileOwners } from '../services/storage/files.js';
 import { checkScoringOverride } from '../services/scoring/policy.js';
+import { teamAllowance } from '../services/plans/tournamentPlan.js';
+import { publicExtras } from '../services/tournaments/plus.js';
 
 const tournamentInclude = {
   series: { select: { id: true, name: true, sportType: true, logo: true, visibility: true } },
@@ -51,7 +53,10 @@ export const getTournamentById = async (req: Request, res: Response): Promise<vo
       },
     });
     if (!tournament) { res.status(404).json({ error: 'Tournament not found' }); return; }
-    res.json(tournament);
+    // Partners, documents and how much ATM brand the public page carries.
+    const allowance = await teamAllowance(id);
+    const plus = await publicExtras(id, allowance?.plan ?? null);
+    res.json({ ...tournament, ...plus });
   } catch (error) {
     console.error('Get tournament error:', error);
     res.status(500).json({ error: 'Failed to fetch tournament' });

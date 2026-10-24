@@ -3363,5 +3363,52 @@
       "noDate": "Bez termínu",
       "upcoming": "–"
     }
+  },
+  "plus": {
+    "tab": "Partneri a dokumenty",
+    "poweredBy": "Beží na ATM",
+    "band": {
+      "label": "Dokumenty a partneri turnaja",
+      "documents": "Dokumenty",
+      "partners": "Partneri"
+    },
+    "locked": {
+      "title": "Partneri a dokumenty patria k Turnaj Plus",
+      "body": "S plánom Turnaj Plus alebo Organizátor pridáte až 10 log partnerov a 5 dokumentov v PDF a stránka turnaja bude mať len malý odkaz „Beží na ATM“ namiesto menu a pätičky ATM.",
+      "action": "Zobraziť Turnaj Plus"
+    },
+    "brandingLight": "Verejná stránka turnaja, prihláška aj e-maily majú len malý odkaz „Beží na ATM“.",
+    "brandingFull": "Plán turnaja už partnerov ani dokumenty pridať nedovolí. Čo tu je, zostáva viditeľné.",
+    "used": "{{used}} z {{limit}}",
+    "moveUp": "Posunúť nahor",
+    "moveDown": "Posunúť nadol",
+    "edit": "Upraviť",
+    "remove": "Odobrať",
+    "sponsors": {
+      "title": "Partneri",
+      "hint": "Logá sa zobrazia na stránke turnaja a na plagáte prihlášok, v tomto poradí.",
+      "add": "Pridať partnera",
+      "name": "Názov",
+      "url": "Web (nepovinné)",
+      "logoNeeded": "Nahrajte logo partnera.",
+      "removeConfirm": "Odobrať partnera {{name}}?"
+    },
+    "documents": {
+      "title": "Dokumenty",
+      "hint": "Propozície, pravidlá a ďalšie PDF do {{mb}} MB. Návštevníci ich stiahnu zo stránky turnaja.",
+      "titleLabel": "Názov dokumentu",
+      "titlePlaceholder": "napr. Propozície turnaja",
+      "upload": "Nahrať PDF",
+      "download": "Stiahnuť",
+      "removeConfirm": "Zmazať dokument {{title}}?"
+    },
+    "errors": {
+      "load": "Partnerov a dokumenty sa nepodarilo načítať.",
+      "save": "Zmenu sa nepodarilo uložiť.",
+      "limit": "Plán turnaja už viac nedovolí.",
+      "documentSize": "Súbor je väčší, než plán dovolí.",
+      "notPdf": "Nahrávať sa dá len PDF.",
+      "sponsor": "Partner potrebuje názov a nahrané logo; web musí začínať https://."
+    }
   }
 }

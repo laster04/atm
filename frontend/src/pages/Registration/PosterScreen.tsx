@@ -7,6 +7,7 @@ import { registrationApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import type { RegistrationForm, RegistrationKind } from '@types';
 import { formatDeadline } from '@/utils/date';
+import { PoweredByAtm } from '@/components/public';
 
 const KIND_BY_SLUG: Record<string, RegistrationKind> = { sezona: 'season', turnaj: 'tournament' };
 
@@ -62,6 +63,18 @@ export default function RegistrationPosterScreen() {
 					{form.capacity.max != null && <p>{t('registrations.poster.places', { count: form.capacity.max })}</p>}
 					{form.fee && <p>{t('registration.fee', { fee: form.fee })}</p>}
 				</div>
+				{form.sponsors.length > 0 && (
+					<div className="flex flex-col items-center gap-3 border-t border-slate-200 pt-6">
+						<span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{t('plus.band.partners')}</span>
+						<div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+							{form.sponsors.map((sponsor) => (
+								<img key={sponsor.id} src={sponsor.logo} alt={sponsor.name} className="h-14 w-auto max-w-[180px] object-contain" />
+							))}
+						</div>
+					</div>
+				)}
+				{/* Every plan's poster names who runs the sign-up, small. */}
+				<PoweredByAtm className="mt-2" />
 			</div>
 		</div>
 	);
