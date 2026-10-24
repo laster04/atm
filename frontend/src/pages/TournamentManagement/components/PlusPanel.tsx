@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { ArrowDown, ArrowUp, Download, FileText, Lock, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
 import { Button } from '@components/base/button';
@@ -98,7 +99,10 @@ export default function PlusPanel({ tournamentId, onUpgrade }: PlusPanelProps) {
 					<Lock className="size-5 shrink-0 text-violet-700" aria-hidden />
 					<div className="flex min-w-0 flex-1 flex-col gap-1">
 						<span className="text-[15px] font-semibold">{t('plus.locked.title')}</span>
-						<span className="text-[13px] text-muted-foreground">{t('plus.locked.body')}</span>
+						<span className="text-[13px] text-muted-foreground">
+							{t('plus.locked.body')}{' '}
+							<Link to="/docs/plany-turnaju#partneri" target="_blank" className="font-semibold text-primary hover:underline">{t('plans.offers.howItWorks')}</Link>
+						</span>
 					</div>
 					<Button size="sm" className="shrink-0 bg-violet-700 hover:bg-violet-800" onClick={onUpgrade}>{t('plus.locked.action')}</Button>
 				</div>

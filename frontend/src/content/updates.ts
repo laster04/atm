@@ -39,6 +39,36 @@ export const updatesLocale = (language: string | undefined): UpdatesLocale =>
 
 export const RELEASES: ReleaseNote[] = [
 	{
+		slug: 'plany-turnaju-a-turnaj-plus',
+		releasedAt: '2026-10-25',
+		areas: ['tournaments', 'public'],
+		docs: ['plany-turnaju'],
+		content: {
+			cs: {
+				title: 'Plány turnajů a Turnaj Plus',
+				summary: 'Malý turnaj zůstává zdarma. Pro víc týmů se plán turnaje zaplatí QR převodem a Turnaj Plus přidá partnery, dokumenty a stránku bez výrazné značky ATM.',
+				items: [
+					'Plán turnaje s limitem týmů; navýšení a QR platba přímo ve správě turnaje, daňový doklad e-mailem.',
+					'Roční plán Organizátor pro všechny turnaje série.',
+					'Turnaj Plus: loga partnerů na stránce turnaje a na plakátu přihlášek.',
+					'Turnaj Plus: propozice a pravidla v PDF ke stažení.',
+					'Turnaj Plus: stránka turnaje, přihláška a e-maily jen s malým odkazem „Běží na ATM“.',
+				],
+			},
+			en: {
+				title: 'Tournament plans and Tournament Plus',
+				summary: 'A small tournament stays free. For more teams the tournament’s plan is paid by QR transfer, and Tournament Plus adds partners, documents and a page without the prominent ATM brand.',
+				items: [
+					'A tournament plan with a team limit; upgrading and QR payment right in tournament management, the tax document by e-mail.',
+					'A yearly Organiser plan for every tournament of a series.',
+					'Tournament Plus: partner logos on the tournament page and the sign-up poster.',
+					'Tournament Plus: rules and propositions as downloadable PDFs.',
+					'Tournament Plus: the tournament page, sign-up form and e-mails with only a small “Powered by ATM” link.',
+				],
+			},
+		},
+	},
+	{
 		slug: 'prihlasky-tymu',
 		releasedAt: '2026-10-17',
 		areas: ['league', 'tournaments', 'public'],

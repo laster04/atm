@@ -1,5 +1,7 @@
 # ATM Pricing & Monetization Proposal
 
+> What is built of this for tournaments (plans, limits, QR payments, Turnaj Plus) is described in [TOURNAMENT_PLANS.md](TOURNAMENT_PLANS.md). This file is the original proposal.
+
 ## 1. Monetization principle
 
 Do not charge primarily per player or per user.

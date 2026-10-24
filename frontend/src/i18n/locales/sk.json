@@ -3293,7 +3293,8 @@
         "TOURNAMENT_PLUS": "Bez limitu tímov, logá sponzorov, dokumenty na stiahnutie, bez výraznej značky ATM.",
         "ORGANIZER": "Všetky turnaje vo vašich sériách v úrovni Plus po celý rok."
       },
-      "renewalFrom": "nadväzuje od {{date}}"
+      "renewalFrom": "nadväzuje od {{date}}",
+      "howItWorks": "Ako plány fungujú"
     },
     "payment": {
       "title": "QR platba",

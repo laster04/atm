@@ -3225,7 +3225,8 @@
         "TOURNAMENT_PLUS": "No team limit, sponsor logos, documents to download, no prominent ATM branding.",
         "ORGANIZER": "Every tournament in your series at Plus level for a year."
       },
-      "renewalFrom": "follows on from {{date}}"
+      "renewalFrom": "follows on from {{date}}",
+      "howItWorks": "How plans work"
     },
     "payment": {
       "title": "QR payment",
