@@ -19,12 +19,16 @@ export interface WidgetOptions {
 }
 
 interface Team { id: string; name: string; logo: string | null; color: string | null }
-interface Row { rank: number; team: Team; played: number; wins: number; draws: number; losses: number; goalsFor: number; goalsAgainst: number; points: number }
+interface Row {
+	rank: number; team: Team; played: number; wins: number; draws: number; losses: number; goalsFor: number; goalsAgainst: number; points: number;
+	/** Volleyball wins and losses in five sets. */
+	otWins: number; otLosses: number;
+}
 interface Game {
 	id: string; date: string | null; location: string | null; round: number | null; phase: string | null; status: string;
 	home: Team | null; away: Team | null; homeScore: number | null; awayScore: number | null;
 }
-interface Competition { kind: 'season' | 'tournament'; id: string; name: string; parentName: string; canHideBrand: boolean }
+interface Competition { kind: 'season' | 'tournament'; id: string; name: string; parentName: string; sport: string; canHideBrand: boolean }
 interface Data {
 	competition: Competition;
 	tables?: { group: { id: string; name: string } | null; rows: Row[] }[];
@@ -125,6 +129,21 @@ function TeamName({ team, logos, fallback }: { team: Team | null; logos: boolean
 function Standings({ data, options, t }: { data: Data; options: WidgetOptions; t: T }) {
 	const tables = data.tables ?? [];
 	if (tables.every((table) => table.rows.length === 0)) return <p className="note">{t('noTable')}</p>;
+	// Volleyball splits wins and losses by 3:2 / 2:3 and counts sets, as the federation's tables do.
+	const volleyball = data.competition.sport === 'VOLLEYBALL';
+	const record: { key: string; value: (row: Row) => number }[] = volleyball
+		? [
+				{ key: 'v3', value: (row) => row.wins - row.otWins },
+				{ key: 'v2', value: (row) => row.otWins },
+				{ key: 'p1', value: (row) => row.otLosses },
+				{ key: 'p0', value: (row) => row.losses - row.otLosses },
+			]
+		: [
+				{ key: 'wins', value: (row) => row.wins },
+				{ key: 'draws', value: (row) => row.draws },
+				{ key: 'losses', value: (row) => row.losses },
+			];
+	const score = volleyball ? 'sets' : 'score';
 	return (
 		<>
 			{tables.map((table) => {
@@ -140,10 +159,10 @@ function Standings({ data, options, t }: { data: Data; options: WidgetOptions; t
 								<th scope="col"><abbr title={t('columns.rankLong')}>#</abbr></th>
 								<th scope="col" className="team">{t('columns.team')}</th>
 								<th scope="col"><abbr title={t('columns.playedLong')}>{t('columns.played')}</abbr></th>
-								<th scope="col" className="wide"><abbr title={t('columns.winsLong')}>{t('columns.wins')}</abbr></th>
-								<th scope="col" className="wide"><abbr title={t('columns.drawsLong')}>{t('columns.draws')}</abbr></th>
-								<th scope="col" className="wide"><abbr title={t('columns.lossesLong')}>{t('columns.losses')}</abbr></th>
-								<th scope="col" className="mid-col"><abbr title={t('columns.scoreLong')}>{t('columns.score')}</abbr></th>
+								{record.map(({ key }) => (
+									<th key={key} scope="col" className="wide"><abbr title={t(`columns.${key}Long`)}>{t(`columns.${key}`)}</abbr></th>
+								))}
+								<th scope="col" className="mid-col"><abbr title={t(`columns.${score}Long`)}>{t(`columns.${score}`)}</abbr></th>
 								<th scope="col"><abbr title={t('columns.pointsLong')}>{t('columns.points')}</abbr></th>
 							</tr>
 						</thead>
@@ -155,9 +174,7 @@ function Standings({ data, options, t }: { data: Data; options: WidgetOptions; t
 										<TeamName team={row.team} logos={options.logos} fallback="" />
 									</th>
 									<td>{row.played}</td>
-									<td className="wide">{row.wins}</td>
-									<td className="wide">{row.draws}</td>
-									<td className="wide">{row.losses}</td>
+									{record.map(({ key, value }) => <td key={key} className="wide">{value(row)}</td>)}
 									<td className="mid-col">{row.goalsFor}:{row.goalsAgainst}</td>
 									<td className="points">{row.points}</td>
 								</tr>

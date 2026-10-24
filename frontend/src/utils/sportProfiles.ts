@@ -98,3 +98,41 @@ export const rankColumn = (profile: SportProfile): { key: StatKey | 'rankTotal';
 	profile.rankBy.length > 1
 		? { key: 'rankTotal', labelKey: 'stats.short.rankTotal' }
 		: { key: profile.rankBy[0] ?? 'goals', labelKey: `stats.short.${profile.rankBy[0] ?? 'goals'}` };
+
+/** Something about entered volleyball sets worth a second look: an i18n key and its values. */
+export interface SetNote {
+	key: string;
+	vars: Record<string, number>;
+}
+
+/**
+ * Gentle checks on volleyball sets, never a block: hobby leagues play their own
+ * variants. By the rules a set goes to 25 and the deciding set to 15, won by
+ * two clear points, and the match ends when a side has won `setsToWin` sets.
+ */
+export function volleyballNotes(sets: PartScore[], setsToWin = 3): SetNote[] {
+	const notes: SetNote[] = [];
+	const deciding = setsToWin * 2 - 2;
+	let home = 0;
+	let away = 0;
+	sets.forEach((set, index) => {
+		const n = index + 1;
+		if (home >= setsToWin || away >= setsToWin) {
+			notes.push({ key: 'sports.volleyball.afterWin', vars: { n } });
+			return;
+		}
+		const won = Math.max(set.home, set.away);
+		const lost = Math.min(set.home, set.away);
+		const target = index === deciding ? 15 : 25;
+		if (won === lost) notes.push({ key: 'sports.volleyball.levelSet', vars: { n } });
+		else if (won < target || won - lost < 2 || (won > target && won - lost !== 2)) {
+			notes.push({ key: 'sports.volleyball.unusualSet', vars: { n, target } });
+		}
+		if (set.home > set.away) home++;
+		else if (set.away > set.home) away++;
+	});
+	if (sets.length > 0 && home < setsToWin && away < setsToWin) {
+		notes.push({ key: 'sports.volleyball.noWinner', vars: { count: setsToWin } });
+	}
+	return notes;
+}

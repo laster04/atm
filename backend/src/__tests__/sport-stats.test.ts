@@ -198,6 +198,20 @@ describe('volleyball', () => {
     expect(bad.status).toBe(400);
   });
 
+  it('runs a new league on the federation rules and counts the balls', async () => {
+    const built = await build('VOLLEYBALL', 'VolleyRules');
+    await request(app).put(`/api/games/${built.gameId}`).set(auth())
+      .send({ status: 'COMPLETED', periodScores: [
+        { home: 25, away: 20 }, { home: 20, away: 25 }, { home: 25, away: 20 }, { home: 20, away: 25 }, { home: 15, away: 13 },
+      ] });
+    await request(app).post(`/api/games/${built.gameId}/confirm`).set(auth());
+
+    const standings = await request(app).get(`/api/seasons/${built.seasonId}/standings`);
+    const row = (id: string) => standings.body.find((entry: { team: { id: string } }) => entry.team.id === id);
+    expect(row(built.teams[0])).toMatchObject({ points: 2, wins: 1, otWins: 1, partPointsFor: 105, partPointsAgainst: 103 });
+    expect(row(built.teams[1])).toMatchObject({ points: 1, losses: 1, otLosses: 1, partPointsFor: 103, partPointsAgainst: 105 });
+  });
+
   it('keeps no player lines', async () => {
     const built = await build('VOLLEYBALL', 'VolleyLines');
     const res = await request(app).post(`/api/game-statistics/game/${built.gameId}`).set(auth())

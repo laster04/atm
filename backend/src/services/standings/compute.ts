@@ -28,6 +28,15 @@ export interface StandingRow<TTeam> {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /**
+   * Of wins and losses, those decided after regulation: a volleyball 3:2 / 2:3.
+   * The volleyball table splits wins and losses by them (V3 V2 P1 P0).
+   */
+  otWins: number;
+  otLosses: number;
+  /** Points scored inside the parts, summed: volleyball balls (míče). Zero where parts are not recorded. */
+  partPointsFor: number;
+  partPointsAgainst: number;
 }
 
 interface TeamRef {
@@ -35,6 +44,20 @@ interface TeamRef {
 }
 
 const headToHeadKey = (a: string, b: string): string => [a, b].sort().join('-');
+
+/** Won over lost, as volleyball ranks sets and balls. Nothing lost beats any ratio. */
+const ratio = (won: number, lost: number): number => (lost === 0 ? (won === 0 ? 0 : Infinity) : won / lost);
+
+/** Higher ratio first; written out because Infinity - Infinity is NaN. */
+const byRatio = (a: number, b: number): number => (a === b ? 0 : a > b ? -1 : 1);
+
+const partPoints = (periodScores: unknown): { home: number; away: number } | null => {
+  if (!Array.isArray(periodScores)) return null;
+  return (periodScores as PartScore[]).reduce(
+    (sum, part) => ({ home: sum.home + (part?.home ?? 0), away: sum.away + (part?.away ?? 0) }),
+    { home: 0, away: 0 }
+  );
+};
 
 /**
  * A result only counts once both teams and both scores are known. A fixture
@@ -78,6 +101,10 @@ export function buildTable<TTeam extends TeamRef>(
       goalsAgainst: 0,
       goalDifference: 0,
       points: 0,
+      otWins: 0,
+      otLosses: 0,
+      partPointsFor: 0,
+      partPointsAgainst: 0,
     });
   }
 
@@ -96,6 +123,13 @@ export function buildTable<TTeam extends TeamRef>(
     home.goalsAgainst += result.awayScore;
     away.goalsFor += result.awayScore;
     away.goalsAgainst += result.homeScore;
+    const balls = partPoints(result.periodScores);
+    if (balls) {
+      home.partPointsFor += balls.home;
+      home.partPointsAgainst += balls.away;
+      away.partPointsFor += balls.away;
+      away.partPointsAgainst += balls.home;
+    }
 
     const overtime = result.decidedAfterRegulation ?? playedPastRegulation(result, policy);
     const winPoints = overtime ? policy.otWinPoints : policy.winPoints;
@@ -106,11 +140,19 @@ export function buildTable<TTeam extends TeamRef>(
       home.points += winPoints;
       away.losses++;
       away.points += losePoints;
+      if (overtime) {
+        home.otWins++;
+        away.otLosses++;
+      }
     } else if (result.homeScore < result.awayScore) {
       away.wins++;
       away.points += winPoints;
       home.losses++;
       home.points += losePoints;
+      if (overtime) {
+        away.otWins++;
+        home.otLosses++;
+      }
     } else {
       // Sports that cannot end level should never reach here; if a level score
       // is recorded anyway it is counted as played but awards nothing.
@@ -177,6 +219,10 @@ export function rankTable<TTeam>(
         return b.goalsFor - a.goalsFor;
       case 'WINS':
         return b.wins - a.wins;
+      case 'SET_RATIO':
+        return byRatio(ratio(a.goalsFor, a.goalsAgainst), ratio(b.goalsFor, b.goalsAgainst));
+      case 'BALL_RATIO':
+        return byRatio(ratio(a.partPointsFor, a.partPointsAgainst), ratio(b.partPointsFor, b.partPointsAgainst));
       // Fewer games played ranks higher when everything else is level, so a team
       // with a game in hand is not shown below one that has already played it.
       case 'PLAYED':

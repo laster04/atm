@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, X } from 'lucide-react';
+import { AlertTriangle, Plus, X } from 'lucide-react';
 import type { PartScore } from '@types';
-import { partLabel, type SportProfile } from '@/utils/sportProfiles';
+import { partLabel, volleyballNotes, type SportProfile } from '@/utils/sportProfiles';
 
 /** One editable part: either side may still be empty while it is typed. */
 export type PartDraft = { home: number | null; away: number | null };
@@ -42,6 +42,9 @@ interface PartScoresEditorProps {
 export default function PartScoresEditor({ profile, rows, onChange, readOnly, inputClassName }: PartScoresEditorProps) {
 	const { t } = useTranslation();
 	const start = profile.scoreIsPartsWon ? 3 : profile.parts.regulation;
+	// Sets typed in full are checked against the rules; half-typed rows wait.
+	const filled = rows.filter((row): row is PartScore => row.home !== null && row.away !== null);
+	const notes = profile.scoreIsPartsWon && !readOnly && filled.length === rows.length ? volleyballNotes(filled) : [];
 
 	const set = (index: number, side: 'home' | 'away', raw: string) => {
 		const value = raw === '' ? null : Math.max(0, Math.floor(Number(raw)));
@@ -99,6 +102,15 @@ export default function PartScoresEditor({ profile, rows, onChange, readOnly, in
 					<Plus className="size-4" aria-hidden />
 					{profile.scoreIsPartsWon ? t('sports.parts.addSet') : t('sports.parts.addOvertime')}
 				</button>
+			)}
+			{notes.length > 0 && (
+				<div role="status" className="flex gap-2 rounded-[10px] bg-warning/15 px-3 py-2.5 text-[12.5px] leading-snug">
+					<AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning-foreground" aria-hidden />
+					<ul className="flex flex-col gap-0.5">
+						{notes.map((note, index) => <li key={index}>{t(note.key, note.vars)}</li>)}
+						<li className="text-muted-foreground">{t('sports.volleyball.stillSaves')}</li>
+					</ul>
+				</div>
 			)}
 		</div>
 	);

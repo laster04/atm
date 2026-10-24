@@ -126,7 +126,7 @@ export default function SeasonDetailScreen() {
 
   const tabs: { id: TabSeasonDetailType; label: string; icon: JSX.Element; content: JSX.Element }[] = [
     { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} sport={season.league?.sportType} /> },
-    { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable tables={tables} games={games} /> },
+    { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable tables={tables} games={games} sport={season.league?.sportType} /> },
     // Only a season that has drawn its play-off gets the tab.
     ...(playoff ? [{ id: TabSeasonDetailType.PLAYOFF, label: t('playoff.title'), icon: <Swords className="size-4" />, content: <Panel flush title={t('playoff.title')}><SeasonPlayoffBracket playoff={playoff} /></Panel> }] : []),
     ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <CalendarDays className="size-4" />, content: <ScheduleList games={games} sport={season.league?.sportType} /> }]),

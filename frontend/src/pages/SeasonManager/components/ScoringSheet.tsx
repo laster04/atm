@@ -13,6 +13,7 @@ interface ScoringSheetProps {
 }
 
 const ALL_TIEBREAKERS: Tiebreaker[] = ['GOAL_DIFF', 'GOALS_FOR', 'HEAD_TO_HEAD', 'WINS', 'PLAYED'];
+const VOLLEYBALL_TIEBREAKERS: Tiebreaker[] = ['WINS', 'SET_RATIO', 'BALL_RATIO', 'HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR', 'PLAYED'];
 
 /**
  * What a season falls back to when it carries no scoring of its own. It matches
@@ -29,10 +30,23 @@ const INHERITED: ScoringPolicy = {
 	tiebreakers: ['GOAL_DIFF', 'GOALS_FOR'],
 };
 
+/** Volleyball leagues default to the Czech federation's rules (server: VOLLEYBALL_POLICY). */
+const INHERITED_VOLLEYBALL: ScoringPolicy = {
+	winPoints: 3,
+	drawPoints: 1,
+	lossPoints: 0,
+	otWinPoints: 2,
+	otLossPoints: 1,
+	allowDraws: false,
+	tiebreakers: ['WINS', 'SET_RATIO', 'BALL_RATIO', 'HEAD_TO_HEAD'],
+};
+
 export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetProps) {
 	const { t } = useTranslation();
 
-	const [policy, setPolicy] = useState<ScoringPolicy>(season.scoring ?? INHERITED);
+	const volleyball = season.league?.sportType === SportType.VOLLEYBALL;
+	const inherited = volleyball ? INHERITED_VOLLEYBALL : INHERITED;
+	const [policy, setPolicy] = useState<ScoringPolicy>(season.scoring ?? inherited);
 	// Null on the season means "inherit". Saving from an inherited state writes an
 	// explicit policy; resetting clears it back to inheriting.
 	const [custom, setCustom] = useState(season.scoring != null);
@@ -46,7 +60,6 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 
 	// Volleyball can score by set result: a 3:2 win and a 2:3 loss earn their own
 	// points, stored as the after-regulation points the table already knows.
-	const volleyball = season.league?.sportType === SportType.VOLLEYBALL;
 	const bySets = volleyball && (policy.otWinPoints !== policy.winPoints || policy.otLossPoints !== policy.lossPoints);
 	const setBySets = (on: boolean) =>
 		patch(on
@@ -103,7 +116,12 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 		}
 	};
 
-	const inactive = ALL_TIEBREAKERS.filter((entry) => !policy.tiebreakers.includes(entry));
+	const inactive = (volleyball ? VOLLEYBALL_TIEBREAKERS : ALL_TIEBREAKERS).filter((entry) => !policy.tiebreakers.includes(entry));
+	// In volleyball the score is the sets, so "goals" read as sets there.
+	const tiebreakerLabel = (tiebreaker: Tiebreaker) =>
+		t(volleyball && (tiebreaker === 'GOAL_DIFF' || tiebreaker === 'GOALS_FOR')
+			? `seasonManagement.scoring.tbVolleyball.${tiebreaker}`
+			: `seasonManagement.scoring.tb.${tiebreaker}`);
 
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -211,7 +229,7 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 									{index + 1}
 								</span>
 								<span className="min-w-0 flex-1 truncate text-[14px] font-medium">
-									{t(`seasonManagement.scoring.tb.${tiebreaker}`)}
+									{tiebreakerLabel(tiebreaker)}
 								</span>
 								<button
 									onClick={() => move(index, -1)}
@@ -248,7 +266,7 @@ export default function ScoringSheet({ season, onClose, onSaved }: ScoringSheetP
 									onClick={() => toggleTiebreaker(tiebreaker)}
 									className="h-9 rounded-full border border-border px-3 text-[13px] font-medium"
 								>
-									+ {t(`seasonManagement.scoring.tb.${tiebreaker}`)}
+									+ {tiebreakerLabel(tiebreaker)}
 								</button>
 							))}
 						</div>

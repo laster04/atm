@@ -1,18 +1,22 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, Radio } from 'lucide-react';
-import { Game, GameStatus, GroupTable } from '@types';
+import { Game, GameStatus, GroupTable, SportType } from '@types';
 import { hasLiveGames, liveTone } from '@/utils/liveTable';
+import { volleyballSplit } from '@/utils/volleyballTable';
 import { EmptyState, Panel, TeamCrest, Th, Td, TableShell, HeadRow } from '@/components/public';
 
 interface StandingsTableProps {
 	/** One entry per division; a season with none arrives as a single table. */
 	tables: GroupTable[];
 	games: Game[];
+	/** Volleyball gets its own columns: the 3:2 split, sets and balls. */
+	sport?: SportType;
 }
 
-export default function StandingsTable({ tables, games }: StandingsTableProps) {
+export default function StandingsTable({ tables, games, sport }: StandingsTableProps) {
 	const { t } = useTranslation();
+	const volleyball = sport === SportType.VOLLEYBALL;
 	const standings = tables.flatMap((table) => table.standings);
 	const live = hasLiveGames(standings);
 	// The table is the regular season; play-off games are counted on the bracket.
@@ -43,12 +47,36 @@ export default function StandingsTable({ tables, games }: StandingsTableProps) {
 						<Th className="w-14 text-center">{t('seasonDetail.standings.rank')}</Th>
 						<Th className="text-left">{t('seasonDetail.standings.team')}</Th>
 						<Th className="text-center">{t('seasonDetail.standings.played')}</Th>
-						<Th className="text-center">{t('seasonDetail.standings.wins')}</Th>
-						<Th className="text-center">{t('seasonDetail.standings.draws')}</Th>
-						<Th className="text-center">{t('seasonDetail.standings.losses')}</Th>
-						<Th className="text-center">{t('seasonDetail.standings.goalsFor')}</Th>
-						<Th className="text-center">{t('seasonDetail.standings.goalsAgainst')}</Th>
-						<Th className="text-center">{t('seasonDetail.standings.goalDifference')}</Th>
+						{volleyball ? (
+							<>
+								{(['v3', 'v2', 'p1', 'p0'] as const).map((key) => (
+									<Th key={key} className="text-center">
+										<abbr title={t(`seasonDetail.standings.volleyball.${key}Title`)} className="no-underline">
+											{t(`seasonDetail.standings.volleyball.${key}`)}
+										</abbr>
+									</Th>
+								))}
+								<Th className="text-center">
+									<abbr title={t('seasonDetail.standings.volleyball.setsTitle')} className="no-underline">
+										{t('seasonDetail.standings.volleyball.sets')}
+									</abbr>
+								</Th>
+								<Th className="text-center">
+									<abbr title={t('seasonDetail.standings.volleyball.ballsTitle')} className="no-underline">
+										{t('seasonDetail.standings.volleyball.balls')}
+									</abbr>
+								</Th>
+							</>
+						) : (
+							<>
+								<Th className="text-center">{t('seasonDetail.standings.wins')}</Th>
+								<Th className="text-center">{t('seasonDetail.standings.draws')}</Th>
+								<Th className="text-center">{t('seasonDetail.standings.losses')}</Th>
+								<Th className="text-center">{t('seasonDetail.standings.goalsFor')}</Th>
+								<Th className="text-center">{t('seasonDetail.standings.goalsAgainst')}</Th>
+								<Th className="text-center">{t('seasonDetail.standings.goalDifference')}</Th>
+							</>
+						)}
 						<Th className="text-center text-foreground">{t('seasonDetail.standings.points')}</Th>
 					</HeadRow>
 				</thead>
@@ -59,7 +87,7 @@ export default function StandingsTable({ tables, games }: StandingsTableProps) {
 						...(divided
 							? [
 									<tr key={`head-${table.group?.id ?? 'unplaced'}`} className="border-t border-border-subtle">
-										<Td colSpan={10} className="bg-muted/60 text-[11px] font-bold uppercase tracking-wide">
+										<Td colSpan={volleyball ? 9 : 10} className="bg-muted/60 text-[11px] font-bold uppercase tracking-wide">
 											{table.group?.name ?? t('seasonDetail.standings.unplaced')}
 										</Td>
 									</tr>,
@@ -123,20 +151,32 @@ export default function StandingsTable({ tables, games }: StandingsTableProps) {
 										</div>
 									</Td>
 									<Td className="text-center">{row.played}</Td>
-									<Td className="text-center">{row.wins}</Td>
-									<Td className="text-center">{row.draws}</Td>
-									<Td className="text-center">{row.losses}</Td>
-									<Td className="text-center">{row.goalsFor}</Td>
-									<Td className="text-center">{row.goalsAgainst}</Td>
-									<Td className="text-center">
-										<span
-											className={`font-semibold ${
-												row.goalDifference > 0 ? 'text-success-strong' : row.goalDifference < 0 ? 'text-destructive-strong' : ''
-											}`}
-										>
-											{row.goalDifference > 0 ? '+' : ''}{row.goalDifference}
-										</span>
-									</Td>
+									{volleyball ? (
+										<>
+											{Object.values(volleyballSplit(row)).map((count, index) => (
+												<Td key={index} className="text-center">{count}</Td>
+											))}
+											<Td className="text-center tabular-nums">{row.goalsFor}:{row.goalsAgainst}</Td>
+											<Td className="text-center tabular-nums">{row.partPointsFor}:{row.partPointsAgainst}</Td>
+										</>
+									) : (
+										<>
+											<Td className="text-center">{row.wins}</Td>
+											<Td className="text-center">{row.draws}</Td>
+											<Td className="text-center">{row.losses}</Td>
+											<Td className="text-center">{row.goalsFor}</Td>
+											<Td className="text-center">{row.goalsAgainst}</Td>
+											<Td className="text-center">
+												<span
+													className={`font-semibold ${
+														row.goalDifference > 0 ? 'text-success-strong' : row.goalDifference < 0 ? 'text-destructive-strong' : ''
+													}`}
+												>
+													{row.goalDifference > 0 ? '+' : ''}{row.goalDifference}
+												</span>
+											</Td>
+										</>
+									)}
 									<Td className="text-center text-[15px] font-extrabold">
 										{row.points}
 										{row.live && row.live.points !== row.points && (

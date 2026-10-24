@@ -346,7 +346,21 @@
       "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo",
       "unplaced": "Nezařazené",
       "pendingTag": "Čeká",
-      "awaitingConfirmation": "Odehráno, čeká na potvrzení"
+      "awaitingConfirmation": "Odehráno, čeká na potvrzení",
+      "volleyball": {
+        "v3": "V3",
+        "v3Title": "Výhry 3:0 a 3:1",
+        "v2": "V2",
+        "v2Title": "Výhry 3:2",
+        "p1": "P1",
+        "p1Title": "Prohry 2:3",
+        "p0": "P0",
+        "p0Title": "Prohry 0:3 a 1:3",
+        "sets": "Sety",
+        "setsTitle": "Sety vyhrané a prohrané",
+        "balls": "Míče",
+        "ballsTitle": "Míče vyhrané a prohrané"
+      }
     },
     "schedule": {
       "noGames": "Zatim zadne naplanovanene zapasy.",
@@ -788,7 +802,8 @@
       "wouldDrop": "Klesl by o {{places}} na {{rank}}. místo",
       "unplaced": "Nezařazené",
       "pendingTag": "Čeká",
-      "awaitingConfirmation": "Odehráno, čeká na potvrzení"
+      "awaitingConfirmation": "Odehráno, čeká na potvrzení",
+      "volleyballRecord": "V3 {{v3}} · V2 {{v2}} · P1 {{p1}} · P0 {{p0}} · sety {{sets}}"
     },
     "more": {
       "seasonInfo": "O sezóně",
@@ -885,7 +900,9 @@
         "GOALS_FOR": "Vstřelené góly",
         "HEAD_TO_HEAD": "Vzájemný zápas",
         "WINS": "Počet výher",
-        "PLAYED": "Méně odehraných zápasů"
+        "PLAYED": "Méně odehraných zápasů",
+        "SET_RATIO": "Poměr setů (podíl)",
+        "BALL_RATIO": "Poměr míčů (podíl)"
       },
       "sets": {
         "toggle": "Body podle výsledku na sety",
@@ -894,6 +911,10 @@
         "closeWin": "Výhra 3:2",
         "closeLoss": "Prohra 2:3",
         "loss": "Prohra 0:3 nebo 1:3"
+      },
+      "tbVolleyball": {
+        "GOAL_DIFF": "Rozdíl setů",
+        "GOALS_FOR": "Vyhrané sety"
       }
     },
     "resultsEmail": {
@@ -1341,6 +1362,15 @@
     "side": {
       "home": "domácí",
       "away": "hosté"
+    },
+    "volleyball": {
+      "unusualSet": "{{n}}. set nevypadá podle pravidel: hraje se do {{target}} bodů s rozdílem dvou.",
+      "levelSet": "{{n}}. set je nerozhodný; set musí mít vítěze.",
+      "afterWin": "{{n}}. set je navíc: zápas už má vítěze.",
+      "noWinner_one": "Zápas zatím nemá vítěze (hraje se na {{count}} vítězný set).",
+      "noWinner_few": "Zápas zatím nemá vítěze (hraje se na {{count}} vítězné sety).",
+      "noWinner_other": "Zápas zatím nemá vítěze (hraje se na {{count}} vítězných setů).",
+      "stillSaves": "Uložit jde i tak, pokud vaše soutěž hraje jinak."
     }
   },
   "playerPositions": {
@@ -3289,7 +3319,17 @@
       "score": "Skóre",
       "scoreLong": "Vstřelené a obdržené",
       "points": "B",
-      "pointsLong": "Body"
+      "pointsLong": "Body",
+      "v3": "V3",
+      "v3Long": "Výhry 3:0 a 3:1",
+      "v2": "V2",
+      "v2Long": "Výhry 3:2",
+      "p1": "P1",
+      "p1Long": "Prohry 2:3",
+      "p0": "P0",
+      "p0Long": "Prohry 0:3 a 1:3",
+      "sets": "Sety",
+      "setsLong": "Sety vyhrané a prohrané"
     },
     "phases": {
       "ROUND_OF_16": "Osmifinále",

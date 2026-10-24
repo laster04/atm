@@ -13,6 +13,11 @@ export interface GroupStandingRow {
   goalsAgainst: number;
   goalDiff: number;
   points: number;
+  /** Volleyball split and balls; see services/standings/compute. */
+  otWins: number;
+  otLosses: number;
+  partPointsFor: number;
+  partPointsAgainst: number;
 }
 
 // Shared by the standings endpoint and playoff seeding, so both rank teams the
@@ -50,5 +55,9 @@ export async function computeGroupStandings(tournamentId: string, groupId: strin
     goalsAgainst: row.goalsAgainst,
     goalDiff: row.goalDifference,
     points: row.points,
+    otWins: row.otWins,
+    otLosses: row.otLosses,
+    partPointsFor: row.partPointsFor,
+    partPointsAgainst: row.partPointsAgainst,
   }));
 }

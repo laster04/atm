@@ -658,6 +658,11 @@ model SeasonArchiveStanding {
   goalsFor     Int      @map("goals_for")
   goalsAgainst Int      @map("goals_against")
   points       Int
+  // The volleyball table's split and its balls; see services/standings/compute.
+  otWins            Int @default(0) @map("ot_wins")
+  otLosses          Int @default(0) @map("ot_losses")
+  partPointsFor     Int @default(0) @map("part_points_for")
+  partPointsAgainst Int @default(0) @map("part_points_against")
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@unique([seasonId, teamId])

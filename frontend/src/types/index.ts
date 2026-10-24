@@ -68,7 +68,8 @@ export interface User {
 }
 
 /** How results become table points, and how ties are broken. */
-export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED';
+/** SET_RATIO and BALL_RATIO are volleyball's: sets and balls won over lost. */
+export type Tiebreaker = 'HEAD_TO_HEAD' | 'GOAL_DIFF' | 'GOALS_FOR' | 'WINS' | 'PLAYED' | 'SET_RATIO' | 'BALL_RATIO';
 
 export interface ScoringPolicy {
   winPoints: number;
@@ -314,6 +315,12 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Wins and losses decided after regulation: a volleyball 3:2 / 2:3. */
+  otWins: number;
+  otLosses: number;
+  /** Volleyball balls (míče) won and lost, summed from the set scores. */
+  partPointsFor: number;
+  partPointsAgainst: number;
   /** Position in the official table, 1-based. */
   rank: number;
   /** True while this team has a game in progress. */

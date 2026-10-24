@@ -593,6 +593,12 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
+  /** Wins and losses decided after regulation (a volleyball 3:2 / 2:3); see standings/compute. */
+  otWins: number;
+  otLosses: number;
+  /** Volleyball balls (míče) won and lost, summed from the set scores. */
+  partPointsFor: number;
+  partPointsAgainst: number;
   /** Position in the official table, 1-based. */
   rank: number;
   /** True while this team has a game in progress. */
