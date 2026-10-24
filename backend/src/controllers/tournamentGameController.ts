@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
 import {
   AuthRequest,
@@ -9,6 +10,7 @@ import {
 } from '../types/index.js';
 import { advancePlayoffBracket, resolvePlayoffSeeds } from './tournamentPlayoffController.js';
 import { toId, toNullableId } from '../utils/ids.js';
+import { checkParts, partsWon, profileFor } from '../services/sports/profile.js';
 
 const gameInclude = {
   homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, country: true } },
@@ -96,13 +98,26 @@ export const createGame = async (req: AuthRequest, res: Response): Promise<void>
 export const updateGame = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { homeScore, awayScore, date, location, status, bracketSlot, note } =
-      req.body as UpdateTournamentGameRequest;
+    const { date, location, status, bracketSlot, note } = req.body as UpdateTournamentGameRequest;
+    let { homeScore, awayScore } = req.body as UpdateTournamentGameRequest;
     const homeTeamId = toNullableId(req.body.homeTeamId);
     const awayTeamId = toNullableId(req.body.awayTeamId);
 
-    const existing = await prisma.tournamentGame.findUnique({ where: { id: id } });
+    const existing = await prisma.tournamentGame.findUnique({
+      where: { id: id },
+      include: { tournament: { select: { series: { select: { sportType: true } } } } },
+    });
     if (!existing) { res.status(404).json({ error: 'Game not found' }); return; }
+
+    // Volleyball sets, as on league games: the result is the sets won.
+    const profile = profileFor(existing.tournament.series.sportType);
+    const parts = checkParts((req.body as UpdateTournamentGameRequest).periodScores, profile);
+    if (!parts.ok) { res.status(400).json({ error: parts.error }); return; }
+    if (profile.scoreIsPartsWon && parts.value) {
+      const won = partsWon(parts.value);
+      homeScore = won.home;
+      awayScore = won.away;
+    }
 
     // A playoff slot generated before its teams are known (seed-only, see
     // homeSeed/awaySeed) can't have a result recorded until both sides are
@@ -117,6 +132,15 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         res.status(400).json({ error: 'Both teams must be known before recording a playoff result' });
         return;
       }
+      // A play-off game sends its winner on; a level result (two volleyball sets
+      // split 1:1) would leave the next round without a team.
+      const finalHome = homeScore !== undefined ? homeScore : existing.homeScore;
+      const finalAway = awayScore !== undefined ? awayScore : existing.awayScore;
+      const finishing = (status ?? existing.status) === 'COMPLETED';
+      if (finishing && finalHome != null && finalAway != null && finalHome === finalAway && profile.scoreIsPartsWon) {
+        res.status(400).json({ error: 'A play-off game needs a winner: play a deciding set', code: 'PLAYOFF_NEEDS_WINNER' });
+        return;
+      }
     }
 
     const game = await prisma.tournamentGame.update({
@@ -126,6 +150,9 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
         ...(awayTeamId !== undefined && { awayTeamId }),
         ...(homeScore !== undefined && { homeScore }),
         ...(awayScore !== undefined && { awayScore }),
+        ...(parts.value !== undefined && {
+          periodScores: parts.value === null ? Prisma.JsonNull : (parts.value as unknown as Prisma.InputJsonValue),
+        }),
         ...(date !== undefined && { date: date ? new Date(date) : null }),
         ...(location !== undefined && { location }),
         ...(status !== undefined && { status }),

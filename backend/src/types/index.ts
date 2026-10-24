@@ -678,6 +678,8 @@ export interface UpdateTournamentRequest {
   startDate?: string | null;
   endDate?: string | null;
   location?: string | null;
+  /** The tournament's own scoring (e.g. the volleyball set format), or null to inherit the series'. */
+  scoring?: unknown;
 }
 
 // --- TournamentTeam ---
@@ -747,6 +749,8 @@ export interface UpdateTournamentGameRequest {
   status?: GameStatus;
   bracketSlot?: number | null;
   note?: string | null;
+  /** Volleyball sets; the score is worked out from them. */
+  periodScores?: unknown;
 }
 
 export interface GenerateTournamentScheduleRequest {

@@ -915,6 +915,27 @@
       "tbVolleyball": {
         "GOAL_DIFF": "Rozdíl setů",
         "GOALS_FOR": "Vyhrané sety"
+      },
+      "format": {
+        "title": "Formát zápasu",
+        "BEST_OF_5": "Na 3 vítězné sety",
+        "BEST_OF_5Hint": "Jako mistrovské soutěže: 3:0, 3:1 nebo 3:2",
+        "BEST_OF_3": "Na 2 vítězné sety",
+        "BEST_OF_3Hint": "Kratší zápasy, třetí set do 15: 2:0 nebo 2:1",
+        "TWO_SETS": "Dva sety",
+        "TWO_SETSHint": "Hrají se vždy dva sety, 1:1 je remíza; play-off rozhodne třetí set"
+      },
+      "sets3": {
+        "win": "Výhra 2:0",
+        "closeWin": "Výhra 2:1",
+        "closeLoss": "Prohra 1:2",
+        "loss": "Prohra 0:2",
+        "hint": "Výhra 2:1 a prohra 1:2 mají vlastní body"
+      },
+      "twoSets": {
+        "win": "Výhra 2:0",
+        "draw": "Remíza 1:1",
+        "loss": "Prohra 0:2"
       }
     },
     "resultsEmail": {
@@ -1370,7 +1391,8 @@
       "noWinner_one": "Zápas zatím nemá vítěze (hraje se na {{count}} vítězný set).",
       "noWinner_few": "Zápas zatím nemá vítěze (hraje se na {{count}} vítězné sety).",
       "noWinner_other": "Zápas zatím nemá vítěze (hraje se na {{count}} vítězných setů).",
-      "stillSaves": "Uložit jde i tak, pokud vaše soutěž hraje jinak."
+      "stillSaves": "Uložit jde i tak, pokud vaše soutěž hraje jinak.",
+      "twoSets": "Zápas se hraje na dva sety."
     }
   },
   "playerPositions": {
@@ -1639,11 +1661,16 @@
           "delete": "Nepodařilo se smazat zápas",
           "updateStatus": "Nepodařilo se aktualizovat stav",
           "generate": "Nepodařilo se vygenerovat playoff",
-          "deletePlayoffs": "Nepodařilo se smazat playoff"
+          "deletePlayoffs": "Nepodařilo se smazat playoff",
+          "needsWinner": "Zápas play-off potřebuje vítěze: doplňte rozhodující set."
         }
       },
       "errors": {
         "load": "Nepodařilo se načíst data turnaje"
+      },
+      "setFormat": {
+        "label": "Formát zápasů",
+        "error": "Formát zápasů se nepodařilo uložit"
       }
     }
   },

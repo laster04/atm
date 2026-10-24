@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest, CreateTournamentRequest, UpdateTournamentRequest } from '../types/index.js';
-import { TournamentStatus } from '@prisma/client';
+import { Prisma, TournamentStatus } from '@prisma/client';
 import { computeGroupStandings } from '../utils/tournamentStandings.js';
 import { releaseFiles, tournamentFileOwners } from '../services/storage/files.js';
+import { checkScoringOverride } from '../services/scoring/policy.js';
 
 const tournamentInclude = {
   series: { select: { id: true, name: true, sportType: true, logo: true, visibility: true } },
@@ -88,6 +89,11 @@ export const updateTournament = async (req: AuthRequest, res: Response): Promise
   try {
     const { id } = req.params;
     const { name, year, status, startDate, endDate, location } = req.body as UpdateTournamentRequest;
+    const scoring = checkScoringOverride((req.body as UpdateTournamentRequest).scoring);
+    if (!scoring.ok) {
+      res.status(400).json({ error: scoring.error });
+      return;
+    }
 
     const tournament = await prisma.tournament.update({
       where: { id: id },
@@ -98,6 +104,9 @@ export const updateTournament = async (req: AuthRequest, res: Response): Promise
         ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
         ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
         ...(location !== undefined && { location }),
+        ...(scoring.value !== undefined && {
+          scoring: scoring.value === null ? Prisma.JsonNull : (scoring.value as Prisma.InputJsonValue),
+        }),
       },
       include: tournamentInclude,
     });

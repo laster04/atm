@@ -34,7 +34,8 @@ describe('resolvePolicy', () => {
   // must score exactly as every season did before it.
   it('defaults volleyball, league or tournament, to the federation rules', () => {
     expect(resolvePolicy(null, 'VOLLEYBALL', 'LEAGUE')).toEqual({ ...VOLLEYBALL_POLICY, sport: 'VOLLEYBALL' });
-    expect(resolvePolicy(null, 'VOLLEYBALL', 'TOURNAMENT')).toEqual({ ...VOLLEYBALL_POLICY, sport: 'VOLLEYBALL' });
+    // Tournaments play to two won sets, which the rules allow them.
+    expect(resolvePolicy(null, 'VOLLEYBALL', 'TOURNAMENT')).toEqual({ ...VOLLEYBALL_POLICY, setFormat: 'BEST_OF_3', sport: 'VOLLEYBALL' });
     expect(VOLLEYBALL_POLICY).toMatchObject({ winPoints: 3, otWinPoints: 2, otLossPoints: 1, lossPoints: 0 });
   });
 

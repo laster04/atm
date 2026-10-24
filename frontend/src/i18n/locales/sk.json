@@ -915,6 +915,27 @@
       "tbVolleyball": {
         "GOAL_DIFF": "Rozdiel setov",
         "GOALS_FOR": "Vyhrané sety"
+      },
+      "format": {
+        "title": "Formát zápasu",
+        "BEST_OF_5": "Na 3 víťazné sety",
+        "BEST_OF_5Hint": "Ako majstrovské súťaže: 3:0, 3:1 alebo 3:2",
+        "BEST_OF_3": "Na 2 víťazné sety",
+        "BEST_OF_3Hint": "Kratšie zápasy, tretí set do 15: 2:0 alebo 2:1",
+        "TWO_SETS": "Dva sety",
+        "TWO_SETSHint": "Hrajú sa vždy dva sety, 1:1 je remíza; play-off rozhodne tretí set"
+      },
+      "sets3": {
+        "win": "Výhra 2:0",
+        "closeWin": "Výhra 2:1",
+        "closeLoss": "Prehra 1:2",
+        "loss": "Prehra 0:2",
+        "hint": "Výhra 2:1 a prehra 1:2 majú vlastné body"
+      },
+      "twoSets": {
+        "win": "Výhra 2:0",
+        "draw": "Remíza 1:1",
+        "loss": "Prehra 0:2"
       }
     },
     "resultsEmail": {
@@ -1370,7 +1391,8 @@
       "noWinner_one": "Zápas zatiaľ nemá víťaza (hrá sa na {{count}} víťazný set).",
       "noWinner_few": "Zápas zatiaľ nemá víťaza (hrá sa na {{count}} víťazné sety).",
       "noWinner_other": "Zápas zatiaľ nemá víťaza (hrá sa na {{count}} víťazných setov).",
-      "stillSaves": "Uložiť sa dá aj tak, ak vaša súťaž hrá inak."
+      "stillSaves": "Uložiť sa dá aj tak, ak vaša súťaž hrá inak.",
+      "twoSets": "Zápas sa hrá na dva sety."
     }
   },
   "playerPositions": {
@@ -1639,11 +1661,16 @@
           "delete": "Zápas sa nepodarilo vymazať",
           "updateStatus": "Stav sa nepodarilo aktualizovať",
           "generate": "Play-off sa nepodarilo vygenerovať",
-          "deletePlayoffs": "Play-off sa nepodarilo vymazať"
+          "deletePlayoffs": "Play-off sa nepodarilo vymazať",
+          "needsWinner": "Zápas play-off potrebuje víťaza: doplňte rozhodujúci set."
         }
       },
       "errors": {
         "load": "Údaje turnaja sa nepodarilo načítať"
+      },
+      "setFormat": {
+        "label": "Formát zápasov",
+        "error": "Formát zápasov sa nepodarilo uložiť"
       }
     }
   },

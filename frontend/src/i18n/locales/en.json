@@ -906,6 +906,27 @@
       "tbVolleyball": {
         "GOAL_DIFF": "Set difference",
         "GOALS_FOR": "Sets won"
+      },
+      "format": {
+        "title": "Match format",
+        "BEST_OF_5": "First to 3 sets",
+        "BEST_OF_5Hint": "As in championship play: 3:0, 3:1 or 3:2",
+        "BEST_OF_3": "First to 2 sets",
+        "BEST_OF_3Hint": "Shorter matches, third set to 15: 2:0 or 2:1",
+        "TWO_SETS": "Two sets",
+        "TWO_SETSHint": "Always two sets, 1:1 is a draw; a play-off game goes to a third set"
+      },
+      "sets3": {
+        "win": "Win 2:0",
+        "closeWin": "Win 2:1",
+        "closeLoss": "Loss 1:2",
+        "loss": "Loss 0:2",
+        "hint": "A 2:1 win and a 1:2 loss earn their own points"
+      },
+      "twoSets": {
+        "win": "Win 2:0",
+        "draw": "Draw 1:1",
+        "loss": "Loss 0:2"
       }
     },
     "resultsEmail": {
@@ -1353,7 +1374,8 @@
       "afterWin": "Set {{n}} is extra: the match already has a winner.",
       "noWinner_one": "The match has no winner yet (first to {{count}} set).",
       "noWinner_other": "The match has no winner yet (first to {{count}} sets).",
-      "stillSaves": "You can still save if your competition plays differently."
+      "stillSaves": "You can still save if your competition plays differently.",
+      "twoSets": "The match is played as two sets."
     }
   },
   "playerPositions": {
@@ -1622,11 +1644,16 @@
           "delete": "Failed to delete game",
           "updateStatus": "Failed to update status",
           "generate": "Failed to generate playoffs",
-          "deletePlayoffs": "Failed to delete playoffs"
+          "deletePlayoffs": "Failed to delete playoffs",
+          "needsWinner": "A play-off game needs a winner: add the deciding set."
         }
       },
       "errors": {
         "load": "Failed to load tournament data"
+      },
+      "setFormat": {
+        "label": "Match format",
+        "error": "The match format could not be saved"
       }
     }
   },

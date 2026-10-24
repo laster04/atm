@@ -123,15 +123,33 @@ export function partsWon(parts: PartScore[]): { home: number; away: number } {
 }
 
 /**
- * Whether a game went beyond regulation: overtime, extra time or a fifth set
- * that settles a 2:2 volleyball match. Scoring can then award different points
- * (services/scoring/policy.ts, otWinPoints / otLossPoints).
+ * How a volleyball match is played, set in the competition's scoring:
+ * to three won sets (the federation's championships), to two (tournaments may),
+ * or exactly two sets, where 1:1 is a draw (hobby tournaments). A play-off game
+ * needs a winner, so in the two-set format it goes to a third set.
  */
-export function decidedAfterRegulation(parts: PartScore[] | null | undefined, profile: SportProfile): boolean {
+export type SetFormat = 'BEST_OF_5' | 'BEST_OF_3' | 'TWO_SETS';
+
+export const SET_FORMATS: readonly SetFormat[] = ['BEST_OF_5', 'BEST_OF_3', 'TWO_SETS'];
+
+/** Sets a side must win; the two-set format has no such number, a play-off game in it goes to two. */
+export const setsToWin = (format: SetFormat | undefined): number => (format === 'BEST_OF_5' || !format ? 3 : 2);
+
+/**
+ * Whether a game went beyond regulation: overtime, extra time or the deciding
+ * set of a volleyball match (the fifth, or the third when played to two won
+ * sets). Scoring can then award different points (services/scoring/policy.ts,
+ * otWinPoints / otLossPoints). Two fixed sets have no deciding set.
+ */
+export function decidedAfterRegulation(
+  parts: PartScore[] | null | undefined,
+  profile: SportProfile,
+  format?: SetFormat
+): boolean {
   if (!parts) return false;
   if (profile.scoreIsPartsWon) {
-    // Best of five: the fifth set is the tie-break.
-    return parts.length === profile.parts.max;
+    if (format === 'TWO_SETS') return false;
+    return parts.length === setsToWin(format) * 2 - 1;
   }
   return parts.length > profile.parts.regulation;
 }

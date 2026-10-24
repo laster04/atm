@@ -1,4 +1,5 @@
 import { SportType } from '@prisma/client';
+import { SET_FORMATS, type SetFormat } from '../sports/profile.js';
 
 /**
  * How a competition turns results into table points, and how it breaks ties.
@@ -22,6 +23,8 @@ export interface ScoringPolicy {
   /** Sports where a level score is impossible (tennis) rank draws out entirely. */
   allowDraws: boolean;
   tiebreakers: Tiebreaker[];
+  /** Volleyball only: how many sets a match has; see sports/profile. Absent elsewhere. */
+  setFormat?: SetFormat;
   /**
    * The sport the policy was resolved for. Not stored; it lets the table tell
    * a volleyball match that went to a fifth set (scored with otWin/otLoss) from
@@ -68,6 +71,7 @@ export const VOLLEYBALL_POLICY: ScoringPolicy = {
   otLossPoints: 1,
   allowDraws: false,
   tiebreakers: ['WINS', 'SET_RATIO', 'BALL_RATIO', 'HEAD_TO_HEAD'],
+  setFormat: 'BEST_OF_5',
 };
 
 /**
@@ -78,7 +82,8 @@ export const VOLLEYBALL_POLICY: ScoringPolicy = {
 export const SPORT_DEFAULTS: Record<SportType, ScoringPolicy> = {
   FOOTBALL: goalBased(3, 1),
   BASKETBALL: { ...goalBased(2, 0), allowDraws: false, tiebreakers: ['HEAD_TO_HEAD', 'GOAL_DIFF', 'GOALS_FOR'] },
-  VOLLEYBALL: VOLLEYBALL_POLICY,
+  // Tournaments play shorter matches; the rules allow two won sets there.
+  VOLLEYBALL: { ...VOLLEYBALL_POLICY, setFormat: 'BEST_OF_3' },
   HOCKEY: goalBased(3, 1),
   HANDBALL: goalBased(2, 1),
   FLOORBALL: goalBased(3, 1),
@@ -167,6 +172,12 @@ export const checkScoringOverride = (value: unknown): OverrideCheck => {
     if (typeof raw.allowDraws !== 'boolean') return { ok: false, error: 'allowDraws must be true or false' };
     kept.allowDraws = raw.allowDraws;
   }
+  if (raw.setFormat !== undefined) {
+    if (!(SET_FORMATS as readonly unknown[]).includes(raw.setFormat)) {
+      return { ok: false, error: `setFormat must be one of ${SET_FORMATS.join(', ')}` };
+    }
+    kept.setFormat = raw.setFormat;
+  }
   if (raw.tiebreakers !== undefined) {
     const parsed = parseTiebreakers(raw.tiebreakers, []);
     if (!Array.isArray(raw.tiebreakers) || parsed.length !== raw.tiebreakers.length) {
@@ -194,14 +205,17 @@ export const resolvePolicy = (
   }
 
   const raw = override as Record<string, unknown>;
+  const setFormat = (SET_FORMATS as readonly unknown[]).includes(raw.setFormat) ? raw.setFormat as SetFormat : base.setFormat;
   return {
     winPoints: isNumber(raw.winPoints) ? raw.winPoints : base.winPoints,
     drawPoints: isNumber(raw.drawPoints) ? raw.drawPoints : base.drawPoints,
     lossPoints: isNumber(raw.lossPoints) ? raw.lossPoints : base.lossPoints,
     otWinPoints: isNumber(raw.otWinPoints) ? raw.otWinPoints : base.otWinPoints,
     otLossPoints: isNumber(raw.otLossPoints) ? raw.otLossPoints : base.otLossPoints,
-    allowDraws: typeof raw.allowDraws === 'boolean' ? raw.allowDraws : base.allowDraws,
+    // Two fixed sets end 1:1 as often as not; such a match is a draw, whatever the stored flag says.
+    allowDraws: setFormat === 'TWO_SETS' ? true : typeof raw.allowDraws === 'boolean' ? raw.allowDraws : base.allowDraws,
     tiebreakers: parseTiebreakers(raw.tiebreakers, base.tiebreakers),
+    ...(setFormat && { setFormat }),
     ...(sportType && { sport: sportType }),
   };
 };

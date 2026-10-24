@@ -109,8 +109,16 @@ function GameRow({ game, first }: { game: TournamentGame; first: boolean }) {
 			<span className="hidden w-14 shrink-0 truncate text-xs text-muted-foreground sm:block">{game.location}</span>
 			<span className={`${side(homeWon)} text-right`}>{game.homeTeam?.name ?? t('tm.common.tbd')}</span>
 			{played ? (
-				<span className="min-w-[56px] shrink-0 rounded-lg bg-muted px-2.5 py-1 text-center text-sm font-extrabold tabular-nums">
-					{game.homeScore}:{game.awayScore}
+				<span className="flex min-w-[56px] shrink-0 flex-col items-center gap-0.5">
+					<span className="rounded-lg bg-muted px-2.5 py-1 text-center text-sm font-extrabold tabular-nums">
+						{game.homeScore}:{game.awayScore}
+					</span>
+					{/* Volleyball sets, as federation results show them. */}
+					{game.periodScores && game.periodScores.length > 0 && (
+						<span className="text-[10.5px] tabular-nums text-muted-foreground">
+							{game.periodScores.map((set) => `${set.home}:${set.away}`).join(', ')}
+						</span>
+					)}
 				</span>
 			) : game.status === 'SCHEDULED' ? (
 				<span className="min-w-[56px] shrink-0 text-center text-xs font-semibold text-muted-foreground">

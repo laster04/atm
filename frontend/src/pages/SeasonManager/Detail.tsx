@@ -318,6 +318,7 @@ export default function Detail() {
 				<ResultSheet
 					game={resultGame}
 					sport={season.league?.sportType}
+					setFormat={season.scoring?.setFormat}
 					onClose={() => setResultGame(null)}
 					onOpenReport={() => {
 						setReportGame(resultGame);

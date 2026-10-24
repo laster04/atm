@@ -80,7 +80,7 @@ const isCounted = (
 const playedPastRegulation = (result: StandingResult, policy: ScoringPolicy): boolean => {
   if (!policy.sport || !Array.isArray(result.periodScores)) return false;
   const profile = profileFor(policy.sport);
-  return profile.scoreIsPartsWon && decidedAfterRegulation(result.periodScores as PartScore[], profile);
+  return profile.scoreIsPartsWon && decidedAfterRegulation(result.periodScores as PartScore[], profile, policy.setFormat);
 };
 
 export function buildTable<TTeam extends TeamRef>(
