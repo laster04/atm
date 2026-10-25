@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ClipboardList, Lock, Minus, Plus, Save, X } from 'lucide-react';
+import { BarChart3, ClipboardList, Lock, Minus, Plus, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
 import { GameStatus, type Game, type SetFormat, type SportType } from '@types';
@@ -29,6 +30,7 @@ const STATUSES = [
 
 export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, onOpenReport }: ResultSheetProps) {
 	const { t, i18n } = useTranslation();
+	const navigate = useNavigate();
 
 	// A game with a match report has its score computed from that report. Editing
 	// the figures here would be overwritten by the next event, so they are shown
@@ -178,6 +180,15 @@ export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, 
 					<ClipboardList className="size-4" aria-hidden />
 					{t('seasonManagement.result.openReport')}
 				</button>}
+				{/* Who played and each player's numbers, for both teams at once */}
+				<button
+					onClick={() => navigate(`/team-management/game-statistic/${game.id}`)}
+					className="flex h-11 items-center justify-center gap-2 rounded-[10px] border text-[14.5px] font-semibold"
+					style={{ borderColor: SEASON_ACCENT, color: SEASON_ACCENT }}
+				>
+					<BarChart3 className="size-4" aria-hidden />
+					{t('seasonManagement.result.openPlayerStats')}
+				</button>
 
 				{/* Final score */}
 				<div className="flex flex-col gap-3.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">

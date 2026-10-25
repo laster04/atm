@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,13 +22,26 @@ import SettingsTab from './components/SettingsTab';
 import TeamChecklist from './components/TeamChecklist';
 
 type TabType = 'overview' | 'roster' | 'schedule' | 'events' | 'settings';
+const TAB_IDS: TabType[] = ['overview', 'roster', 'schedule', 'events', 'settings'];
 
 export default function Detail() {
 	const { id } = useParams<{ id: string }>();
 	const { t } = useTranslation();
 	const { canManageTeam, user } = useAuth();
 
-	const [activeTab, setActiveTab] = useState<TabType>('overview');
+	// The tab lives in the URL, so returning from a player or game screen lands
+	// on the tab that opened it. Switching replaces the entry: back still leaves
+	// the team rather than walking through its tabs.
+	const [searchParams, setSearchParams] = useSearchParams();
+	const tabParam = searchParams.get('tab') as TabType | null;
+	const activeTab: TabType = tabParam && TAB_IDS.includes(tabParam) ? tabParam : 'overview';
+	const setActiveTab = (tab: TabType) => {
+		setSearchParams((params) => {
+			if (tab === 'overview') params.delete('tab');
+			else params.set('tab', tab);
+			return params;
+		}, { replace: true });
+	};
 	const [team, setTeam] = useState<Team | null>(null);
 	const [players, setPlayers] = useState<Player[]>([]);
 	const [standing, setStanding] = useState<Standing | undefined>();
