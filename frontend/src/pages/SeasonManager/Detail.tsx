@@ -20,6 +20,7 @@ import { LIVE_REFRESH_MS, hasLiveGames } from '@/utils/liveTable';
 import { SEASON_ACCENT, SEASON_STATUS_TONE, isPlayed, needsDate, teamCount } from './components/util';
 
 export type SeasonTab = 'overview' | 'games' | 'teams' | 'table' | 'more';
+const SEASON_TABS: SeasonTab[] = ['overview', 'games', 'teams', 'table', 'more'];
 
 export default function Detail() {
 	const { id } = useParams<{ id: string }>();
@@ -28,8 +29,22 @@ export default function Detail() {
 	const { isAdmin } = useAuth();
 
 	// The email about a new application links to ?registrations=1, which the More tab opens.
-	const [searchParams] = useSearchParams();
-	const [activeTab, setActiveTab] = useState<SeasonTab>(searchParams.get('registrations') === '1' ? 'more' : 'overview');
+	// The tab lives in the URL, so returning from the player statistics lands on
+	// the tab that opened them. Switching replaces the entry: back still leaves
+	// the season rather than walking through its tabs.
+	const [searchParams, setSearchParams] = useSearchParams();
+	const tabParam = searchParams.get('tab') as SeasonTab | null;
+	const activeTab: SeasonTab = tabParam && SEASON_TABS.includes(tabParam)
+		? tabParam
+		: searchParams.get('registrations') === '1' ? 'more' : 'overview';
+	const setActiveTab = useCallback((tab: SeasonTab) => {
+		setSearchParams((params) => {
+			params.delete('registrations');
+			if (tab === 'overview') params.delete('tab');
+			else params.set('tab', tab);
+			return params;
+		}, { replace: true });
+	}, [setSearchParams]);
 	const [season, setSeason] = useState<Season | null>(null);
 	const [teams, setTeams] = useState<Team[]>([]);
 	const [games, setGames] = useState<Game[]>([]);

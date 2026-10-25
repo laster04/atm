@@ -26,6 +26,12 @@ const signature = (s: PlayerStatForm) => `${s.played}|${JSON.stringify(s.values)
 
 /** Penalty minutes come in twos on the ice; everything else steps by one. */
 const STEP: Partial<Record<StatKey, number>> = { penaltyMinutes: 2 };
+/**
+ * Fields that can also be typed: basketball points, as tapping to 24 one at a
+ * time is no way to keep score, and penalty minutes, as a 5 or 10 minute
+ * penalty is out of reach in steps of two.
+ */
+const TYPED: StatKey[] = ['points', 'penaltyMinutes'];
 
 export default function GameStatsPage() {
 	const { id: teamId, gameId } = useParams<{ id: string; gameId: string }>();
@@ -208,8 +214,7 @@ export default function GameStatsPage() {
 					>
 						<Minus className="size-3.5" />
 					</button>
-					{field === 'points' ? (
-						// Basketball points are typed: tapping to 24 one at a time is no way to keep score.
+					{TYPED.includes(field) ? (
 						<input
 							type="number"
 							min={0}

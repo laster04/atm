@@ -34,6 +34,12 @@ const scoreSignature = (total: Total, parts: PartDraft[]) => JSON.stringify([tot
 
 /** Penalty minutes come in twos on the ice; everything else steps by one. */
 const STEP: Partial<Record<StatKey, number>> = { penaltyMinutes: 2 };
+/**
+ * Fields that can also be typed: basketball points, as tapping to 24 one at a
+ * time is no way to keep score, and penalty minutes, as a 5 or 10 minute
+ * penalty is out of reach in steps of two.
+ */
+const TYPED: StatKey[] = ['points', 'penaltyMinutes'];
 
 function Stepper({
 	label,
@@ -41,12 +47,15 @@ function Stepper({
 	dimmed,
 	disabled,
 	onStep,
+	onSet,
 }: {
 	label: string;
 	value: number;
 	dimmed: boolean;
 	disabled: boolean;
 	onStep: (delta: number) => void;
+	/** Given for a field that can be typed as well as stepped. */
+	onSet?: (value: number) => void;
 }) {
 	return (
 		<div className="tm-stat-stepper">
@@ -60,7 +69,20 @@ function Stepper({
 				>
 					<Minus className="size-3.5" />
 				</button>
-				<output className={dimmed ? 'text-muted-foreground' : undefined}>{value}</output>
+				{onSet ? (
+					<input
+						type="number"
+						min={0}
+						inputMode="numeric"
+						aria-label={label}
+						value={value}
+						disabled={disabled}
+						onChange={(e) => onSet(Number(e.target.value) || 0)}
+						className={`w-10 bg-transparent text-center tabular-nums ${dimmed ? 'text-muted-foreground' : ''}`}
+					/>
+				) : (
+					<output className={dimmed ? 'text-muted-foreground' : undefined}>{value}</output>
+				)}
 				<button
 					type="button"
 					aria-label={`${label} +`}
@@ -158,10 +180,11 @@ export default function PlayerGameStatisticPage(): React.JSX.Element {
 		}));
 	};
 
-	const step = (team: 'home' | 'away', stat: PlayerStatForm, field: StatKey, delta: number) => {
-		const value = Math.max(0, (stat.values[field] ?? 0) + delta * (STEP[field] ?? 1));
-		patch(team, stat.playerId, { values: { ...stat.values, [field]: value }, played: true });
-	};
+	const setValue = (team: 'home' | 'away', stat: PlayerStatForm, field: StatKey, value: number) =>
+		patch(team, stat.playerId, { values: { ...stat.values, [field]: Math.max(0, value) }, played: true });
+
+	const step = (team: 'home' | 'away', stat: PlayerStatForm, field: StatKey, delta: number) =>
+		setValue(team, stat, field, (stat.values[field] ?? 0) + delta * (STEP[field] ?? 1));
 
 	const profile = profileFor(game?.season?.league?.sportType);
 	const fields = profile.stats;
@@ -391,6 +414,7 @@ export default function PlayerGameStatisticPage(): React.JSX.Element {
 												dimmed={!stat.played}
 												disabled={!canEditTeam}
 												onStep={(delta) => step(side, stat, field, delta)}
+												onSet={TYPED.includes(field) ? (value) => setValue(side, stat, field, value) : undefined}
 											/>
 										))}
 									</div>

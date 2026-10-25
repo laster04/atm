@@ -746,6 +746,7 @@
       "saveError": "Failed to save the result",
       "derivedNote": "This score is calculated from the match report. Edit the report to change it.",
       "openReport": "Match report",
+      "openPlayerStats": "Statystyki zawodników",
       "fromReport": "from report",
       "saveStatus": "Save status",
       "saveAndConfirm": "Save and confirm",
