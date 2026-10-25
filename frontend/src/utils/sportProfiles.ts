@@ -160,3 +160,10 @@ export function volleyballNotes(sets: PartScore[], format?: SetFormat, playoff =
 	}
 	return notes;
 }
+
+/**
+ * Sports a league or a tournament series can be created with: those with a
+ * profile of their own, then tennis and "other". Handball keeps the hockey
+ * shape until a league asks for its own, so it is not offered yet.
+ */
+export const CREATABLE_SPORTS: SportType[] = ['HOCKEY', 'FLOORBALL', 'FOOTBALL', 'BASKETBALL', 'VOLLEYBALL', 'TENNIS', 'OTHER'] as SportType[];

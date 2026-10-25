@@ -11,6 +11,7 @@ import { Plus, Pencil, Trash2, Trophy, ChevronRight } from 'lucide-react';
 import VisibilityPicker from '@/components/VisibilityPicker';
 import LogoUpload from '@/components/LogoUpload';
 import { VisibilityBadge } from '@/components/public';
+import { CREATABLE_SPORTS } from '@/utils/sportProfiles';
 
 const EMPTY: Partial<TournamentSeries> = { name: '', sportType: SportType.HOCKEY, description: '', logo: '', visibility: Visibility.PUBLIC };
 
@@ -130,9 +131,7 @@ export default function SeriesListPage() {
                 value={form.sportType ?? 'HOCKEY'}
                 onChange={e => setForm(f => ({ ...f, sportType: e.target.value as TournamentSeries['sportType'] }))}
               >
-                <option value="HOCKEY">{t('tm.series.form.sportType.HOCKEY')}</option>
-                <option value="TENNIS">{t('tm.series.form.sportType.TENNIS')}</option>
-                <option value="OTHER">{t('tm.series.form.sportType.OTHER')}</option>
+                {CREATABLE_SPORTS.map((sport) => <option key={sport} value={sport}>{t(`sports.${sport}`)}</option>)}
               </select>
             </div>
             <div>
