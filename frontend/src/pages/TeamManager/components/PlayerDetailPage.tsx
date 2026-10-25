@@ -25,7 +25,7 @@ export default function PlayerDetailPage() {
 	const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>();
 	const navigate = useNavigate();
 	// Back to the team screen that opened this one, not a fresh copy of it.
-	const goBackToTeam = useGoBack(`/team-management/${teamId}`);
+	const goBackToTeam = useGoBack(`/team-management/${teamId}?tab=roster`);
 	const { t, i18n } = useTranslation();
 	const isNew = playerId === 'new';
 	// The team checklist links here with ?invite=1 to open the invitation at once.
@@ -97,14 +97,14 @@ export default function PlayerDetailPage() {
 			};
 
 			if (isNew) {
-				const res = await playerApi.create(teamId, playerData);
+				await playerApi.create(teamId, playerData);
 				toast.success(t('teamManagement.playerDetail.createSuccess'));
-				navigate(`/team-management/${teamId}/player/${res.data.id}`, { replace: true });
+				goBackToTeam();
 			} else if (playerId) {
-				const res = await playerApi.update(playerId, playerData);
-				setPlayer(res.data);
+				await playerApi.update(playerId, playerData);
 				toast.success(t('teamManagement.playerDetail.saveSuccess'));
 				setShowEditModal(false);
+				goBackToTeam();
 			}
 		} catch (error) {
 			toast.error(t('teamManagement.playerDetail.saveError'));
