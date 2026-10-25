@@ -1499,12 +1499,7 @@
         "editTitle": "Edit Series"
       },
       "form": {
-        "namePlaceholder": "e.g. City Hockey Cup",
-        "sportType": {
-          "HOCKEY": "Hockey",
-          "TENNIS": "Tennis",
-          "OTHER": "Other"
-        }
+        "namePlaceholder": "e.g. City Hockey Cup"
       },
       "errors": {
         "load": "Failed to load series",

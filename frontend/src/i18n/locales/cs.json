@@ -1516,12 +1516,7 @@
         "editTitle": "Upravit sérii"
       },
       "form": {
-        "namePlaceholder": "např. Městský hokejový pohár",
-        "sportType": {
-          "HOCKEY": "Hokej",
-          "TENNIS": "Tenis",
-          "OTHER": "Jiné"
-        }
+        "namePlaceholder": "např. Městský hokejový pohár"
       },
       "errors": {
         "load": "Nepodařilo se načíst série",

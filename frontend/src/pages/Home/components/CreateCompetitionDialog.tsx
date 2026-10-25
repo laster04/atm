@@ -7,13 +7,14 @@ import { useAuth } from '@/context/AuthContext';
 import { SportType, Visibility } from '@types';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/base/dialog';
 import VisibilityPicker from '@/components/VisibilityPicker';
+import { CREATABLE_SPORTS } from '@/utils/sportProfiles';
 
 export type StartKind = 'league' | 'series';
 
-/** The sports each kind can be created with today; the same lists as the admin and tournament forms. */
+/** The sports each kind can be created with today; tournaments take every sport leagues do. */
 const SPORTS: Record<StartKind, SportType[]> = {
-	league: [SportType.HOCKEY, SportType.FLOORBALL, SportType.FOOTBALL, SportType.BASKETBALL, SportType.VOLLEYBALL, SportType.TENNIS, SportType.OTHER],
-	series: [SportType.HOCKEY, SportType.TENNIS, SportType.OTHER],
+	league: CREATABLE_SPORTS,
+	series: CREATABLE_SPORTS,
 };
 
 interface CreateCompetitionDialogProps {

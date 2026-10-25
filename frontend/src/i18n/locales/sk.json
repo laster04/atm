@@ -1516,12 +1516,7 @@
         "editTitle": "Upraviť sériu"
       },
       "form": {
-        "namePlaceholder": "napr. Mestský hokejový pohár",
-        "sportType": {
-          "HOCKEY": "Hokej",
-          "TENNIS": "Tenis",
-          "OTHER": "Iné"
-        }
+        "namePlaceholder": "napr. Mestský hokejový pohár"
       },
       "errors": {
         "load": "Série sa nepodarilo načítať",
