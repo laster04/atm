@@ -184,6 +184,11 @@
       "forgotPassword": "Zapomenuté heslo?",
       "failed": "Prihlaseni selhalo"
     },
+    "google": {
+      "or": "nebo",
+      "failed": "Přihlášení přes Google se nepovedlo. Zkuste to znovu, nebo použijte e-mail a heslo.",
+      "deactivated": "Váš účet byl deaktivován."
+    },
     "forgotPassword": {
       "title": "Zapomenuté heslo",
       "description": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovení",

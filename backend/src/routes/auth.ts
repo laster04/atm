@@ -2,6 +2,8 @@ import { Router } from 'express';
 import {
   register,
   login,
+  getGoogleConfig,
+  googleSignIn,
   getMe,
   completeOnboarding,
   completeTeamTour,
@@ -22,6 +24,8 @@ const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.get('/google/config', getGoogleConfig);
+router.post('/google', googleSignIn);
 router.get('/activate/:token', activateAccount);
 router.post('/resend-activation', resendActivationEmail);
 router.post('/forgot-password', requestPasswordReset);

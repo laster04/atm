@@ -9,6 +9,7 @@ import { AxiosError } from 'axios';
 import { Button } from '@components/base/button';
 import { Input } from '@components/base/input';
 import { Label } from '@components/base/label';
+import GoogleSignInButton from '@components/GoogleSignInButton';
 
 interface LoginFormData {
   email: string;
@@ -45,6 +46,7 @@ export default function LoginForm() {
 
   return (
     <>
+      <GoogleSignInButton next={afterLogin} />
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
       )}
