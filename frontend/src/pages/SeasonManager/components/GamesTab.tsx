@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Pencil } from 'lucide-react';
 import { GameStatus, type Game } from '@types';
 import { GAME_STATUS_TONE, SEASON_ACCENT, isPlayed, needsDate, roundsOf } from './util';
 import { APP_TIME_ZONE } from '@/utils/date';
@@ -147,13 +147,27 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 							</div>
 
 							<div className="flex items-center gap-2 border-t border-border pt-2">
-								<span
-									className="flex min-w-0 flex-1 items-center gap-1.5 text-[12.5px]"
-									style={game.date ? undefined : { color: '#92400e' }}
-								>
-									<CalendarDays className="size-3 shrink-0" aria-hidden />
-									<span className="truncate">{whenLabel(game)}</span>
-								</span>
+								{/* A dated fixture still moves; only a confirmed result is closed. */}
+								{game.date && !game.confirmedAt ? (
+									<button
+										onClick={() => onOpenDates(game.round ?? 0)}
+										title={t('seasonManagement.games.changeDate')}
+										className="flex min-w-0 flex-1 items-center gap-1.5 text-left text-[12.5px]"
+									>
+										<CalendarDays className="size-3 shrink-0" aria-hidden />
+										<span className="truncate underline decoration-dotted underline-offset-2">{whenLabel(game)}</span>
+										<Pencil className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+										<span className="sr-only">{t('seasonManagement.games.changeDate')}</span>
+									</button>
+								) : (
+									<span
+										className="flex min-w-0 flex-1 items-center gap-1.5 text-[12.5px]"
+										style={game.date ? undefined : { color: '#92400e' }}
+									>
+										<CalendarDays className="size-3 shrink-0" aria-hidden />
+										<span className="truncate">{whenLabel(game)}</span>
+									</span>
+								)}
 								{game.date ? (
 									<button
 										onClick={() => onOpenResult(game)}
