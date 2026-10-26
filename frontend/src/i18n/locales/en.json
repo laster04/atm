@@ -731,6 +731,7 @@
       "noDate": "No date set",
       "result": "Result",
       "setDate": "Set date",
+      "changeDate": "Change date",
       "edit": "Edit",
       "empty": "No fixtures in this view"
     },
