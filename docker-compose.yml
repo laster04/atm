@@ -34,7 +34,13 @@ services:
       - /app/node_modules
 
   frontend:
-    build: ./frontend
+    # The Dockerfile's last stage is the production server (dist on port 3000);
+    # development stops at the build stage, which has every dependency, and
+    # runs Vite instead.
+    build:
+      context: ./frontend
+      target: build
+    command: npm run dev -- --host
     environment:
       VITE_API_URL: http://localhost:3001/api
     ports:
