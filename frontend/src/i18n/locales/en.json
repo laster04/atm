@@ -184,6 +184,11 @@
       "forgotPassword": "Forgot password?",
       "failed": "Login failed"
     },
+    "google": {
+      "or": "or",
+      "failed": "Signing in with Google failed. Try again, or use your e-mail and password.",
+      "deactivated": "Your account has been deactivated."
+    },
     "forgotPassword": {
       "title": "Forgot Password",
       "description": "Enter your email and we'll send you a reset link",

@@ -78,8 +78,13 @@ enum PlayerPosition {
 model User {
   id                          String    @id @default(uuid())
   email                       String    @unique
+  // Accounts made through Google get a random hash nobody knows; "forgot
+  // password" gives them a real one.
   password                    String
   name                        String
+  // Google's account id ("sub"); set on the first Google sign-in, which also
+  // links an existing account with the same verified address.
+  googleId                    String?   @unique @map("google_id")
   role                        Role      @default(USER)
   active                      Boolean   @default(true)
   emailVerified               Boolean   @default(false) @map("email_verified")

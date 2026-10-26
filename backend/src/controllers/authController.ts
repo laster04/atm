@@ -8,6 +8,7 @@ import { isLocale, localeOf, type Locale } from '../i18n/index.js';
 import { normalizeEmail } from '../utils/email.js';
 import { getManagedCounts } from '../services/access.js';
 import { auditSnapshot, recordAudit } from '../services/audit/record.js';
+import { googleClientId, verifyGoogleCredential } from '../services/googleAuth.js';
 import {
   AuthRequest,
   RegisterRequest,
@@ -158,6 +159,89 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+};
+
+/** Tells the app whether to offer "Continue with Google", and for which client id. */
+export const getGoogleConfig = (_req: AuthRequest, res: Response): void => {
+  res.json({ clientId: googleClientId() });
+};
+
+/**
+ * Signs in, or signs up, with a Google ID token. Google has verified the
+ * address, so a new account needs no activation mail, and an existing one with
+ * the same address is linked to the Google account (and counts as activated).
+ */
+export const googleSignIn = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { credential } = req.body ?? {};
+    if (typeof credential !== 'string' || !credential) {
+      res.status(400).json({ error: 'Google credential is required' });
+      return;
+    }
+    if (!googleClientId()) {
+      res.status(404).json({ error: 'Google sign-in is not available' });
+      return;
+    }
+
+    const identity = await verifyGoogleCredential(credential);
+    if (!identity) {
+      res.status(401).json({ error: 'Google sign-in failed' });
+      return;
+    }
+
+    const email = normalizeEmail(identity.email);
+    const existing =
+      (await prisma.user.findUnique({ where: { googleId: identity.googleId } })) ??
+      (await prisma.user.findUnique({ where: { email } }));
+
+    if (existing) {
+      if (!existing.active) {
+        res.status(403).json({ error: 'Your account has been deactivated' });
+        return;
+      }
+      if (existing.googleId !== identity.googleId || !existing.emailVerified) {
+        await prisma.user.update({
+          where: { id: existing.id },
+          data: {
+            googleId: identity.googleId,
+            ...(!existing.emailVerified && {
+              emailVerified: true,
+              emailVerifiedAt: new Date(),
+              activationToken: null,
+              activationTokenExpiresAt: null,
+            }),
+          },
+        });
+      }
+      res.json({ ...(await startSession(existing.id)), created: false });
+      return;
+    }
+
+    const locale = localeOf(req.body?.locale);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        // Never told to anyone: the account signs in through Google until the
+        // user sets a password of their own through "forgot password".
+        password: await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10),
+        name: identity.name,
+        role: 'USER',
+        locale,
+        googleId: identity.googleId,
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+      },
+    });
+
+    emailService.sendWelcomeEmail(user.email, user.name, locale).catch((err) => {
+      console.error('Failed to send welcome email:', err);
+    });
+
+    res.status(201).json({ ...(await startSession(user.id)), created: true });
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    res.status(500).json({ error: 'Google sign-in failed' });
   }
 };
 

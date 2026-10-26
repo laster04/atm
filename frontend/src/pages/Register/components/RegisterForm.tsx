@@ -7,6 +7,7 @@ import { normalizeEmail } from '@/utils/email';
 import { safeNextPath, withNext } from '@/utils/nextPath';
 import { AxiosError } from 'axios';
 import { CheckCircle, Mail, Trophy } from 'lucide-react';
+import GoogleSignInButton from '@components/GoogleSignInButton';
 
 interface RegisterFormData {
   name: string;
@@ -87,6 +88,10 @@ export default function RegisterForm() {
       {next && (
         <div className="bg-blue-50 text-blue-800 px-4 py-3 rounded-lg mb-4 text-sm">{t('auth.register.forApplication')}</div>
       )}
+
+      <div className="mb-6">
+        <GoogleSignInButton next={next} text="signup_with" />
+      </div>
 
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>

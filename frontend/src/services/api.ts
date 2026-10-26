@@ -41,7 +41,7 @@ api.interceptors.request.use((config) => {
 
 // A 401 from these is an answer for the screen, not an expired session: a wrong
 // password, or an invitation asking its holder to sign in first.
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/invites/token/'];
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/google', '/invites/token/'];
 
 api.interceptors.response.use(
   (response) => response,
@@ -78,6 +78,10 @@ export const authApi = {
     api.post<{ message: string; user: User; token: string }>('/auth/register', { ...data, locale: serverLocale(i18next.language) }),
   login: (data: { email: string; password: string }) =>
     api.post<{ user: User; token: string }>('/auth/login', data),
+  googleConfig: () => api.get<{ clientId: string | null }>('/auth/google/config'),
+  // A first Google sign-in creates the account, its e-mails in the language on screen.
+  googleSignIn: (credential: string) =>
+    api.post<{ user: User; token: string; created: boolean }>('/auth/google', { credential, locale: serverLocale(i18next.language) }),
   activateAccount: (token: string) =>
     api.get<{ message: string }>(`/auth/activate/${token}`),
   resendActivationEmail: (email: string, next?: string) =>

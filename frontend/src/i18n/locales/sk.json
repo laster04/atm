@@ -184,6 +184,11 @@
       "forgotPassword": "Zabudnuté heslo?",
       "failed": "Prihlásenie zlyhalo"
     },
+    "google": {
+      "or": "alebo",
+      "failed": "Prihlásenie cez Google sa nepodarilo. Skúste to znova alebo použite e-mail a heslo.",
+      "deactivated": "Váš účet bol deaktivovaný."
+    },
     "forgotPassword": {
       "title": "Zabudnuté heslo",
       "description": "Zadajte svoj e-mail a pošleme vám odkaz na obnovenie",
