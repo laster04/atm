@@ -7,7 +7,7 @@ import { gameApi, inviteApi, seasonApi, teamApi } from '@/services/api';
 import { Button } from '@components/base/button';
 import { VisibilityBadge } from '@/components/public';
 import { strictest } from '@/utils/visibility';
-import type { Game, GroupTable, ManagerInvite, Season, Team } from '@types';
+import type { Game, GroupTable, ManagerInvite, Season, SeasonResultClaims, Team } from '@types';
 import OverviewTab from './components/OverviewTab';
 import GamesTab from './components/GamesTab';
 import TeamsTab from './components/TeamsTab';
@@ -48,6 +48,8 @@ export default function Detail() {
 	const [season, setSeason] = useState<Season | null>(null);
 	const [teams, setTeams] = useState<Team[]>([]);
 	const [games, setGames] = useState<Game[]>([]);
+	// What the teams reported for each game, by game id.
+	const [claims, setClaims] = useState<Record<string, SeasonResultClaims>>({});
 	const [invites, setInvites] = useState<ManagerInvite[]>([]);
 	const [tables, setTables] = useState<GroupTable[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -79,6 +81,14 @@ export default function Detail() {
 			.then((res) => setInvites(res.data))
 			.catch((err) => console.error(err));
 	}, [id]);
+
+	// Re-read with the games: a confirmed game takes its reports out of question.
+	useEffect(() => {
+		if (!id) return;
+		gameApi.getSeasonResultClaims(id)
+			.then((res) => setClaims(Object.fromEntries(res.data.map((entry) => [entry.gameId, entry]))))
+			.catch((err) => console.error(err));
+	}, [id, games]);
 
 	// Standings only mean something once a game has been played, and the endpoint
 	// is the one call the other three tabs never need.
@@ -271,6 +281,7 @@ export default function Detail() {
 					{activeTab === 'games' && (
 						<GamesTab
 							games={games}
+							claims={claims}
 							onOpenDates={setDatesRound}
 							onOpenResult={setResultGame}
 						/>
@@ -332,6 +343,7 @@ export default function Detail() {
 			{resultGame && (
 				<ResultSheet
 					game={resultGame}
+					claims={claims[resultGame.id]}
 					sport={season.league?.sportType}
 					setFormat={season.scoring?.setFormat}
 					onClose={() => setResultGame(null)}

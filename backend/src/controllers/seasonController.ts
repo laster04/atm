@@ -237,11 +237,15 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
 export const updateSeason = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, startDate, endDate, status, visibility } = req.body as UpdateSeasonRequest;
+    const { name, startDate, endDate, status, visibility, autoConfirmAgreed } = req.body as UpdateSeasonRequest;
     const leagueId = toId(req.body.leagueId);
 
     if (visibility !== undefined && !isVisibility(visibility)) {
       res.status(400).json({ error: 'Invalid visibility' });
+      return;
+    }
+    if (autoConfirmAgreed !== undefined && typeof autoConfirmAgreed !== 'boolean') {
+      res.status(400).json({ error: 'autoConfirmAgreed must be true or false' });
       return;
     }
     // The season's own scoring, or null to inherit the league's again.
@@ -293,6 +297,7 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
         ...(endDate && { endDate: new Date(endDate) }),
         ...(status && { status }),
         ...(visibility && { visibility }),
+        ...(autoConfirmAgreed !== undefined && { autoConfirmAgreed }),
         ...(scoring.value !== undefined && {
           scoring: scoring.value === null ? Prisma.JsonNull : (scoring.value as Prisma.InputJsonValue),
         })

@@ -866,6 +866,9 @@
         "DELETE": "Removed from the report",
         "CONFIRM": "Report confirmed",
         "REOPEN": "Report reopened",
+        "AUTO_CONFIRM": "Confirmed by both teams",
+        "SCORER_LINK_CREATE": "Scorer link created",
+        "SCORER_LINK_REVOKE": "Scorer link cancelled",
         "unknownActor": "Removed account"
       },
       "newCard": "New card",
@@ -2915,7 +2918,10 @@
         "UPDATE": "Changed",
         "DELETE": "Deleted",
         "CONFIRM": "Confirmed",
-        "REOPEN": "Reopened"
+        "REOPEN": "Reopened",
+        "AUTO_CONFIRM": "Confirmed by teams",
+        "SCORER_LINK_CREATE": "Scorer link created",
+        "SCORER_LINK_REVOKE": "Scorer link cancelled"
       },
       "types": {
         "User": "Users",
@@ -3431,6 +3437,112 @@
       "documentSize": "The file is larger than the plan allows.",
       "notPdf": "Only PDF files can be uploaded.",
       "sponsor": "A partner needs a name and an uploaded logo; the website must start with https://."
+    }
+  },
+  "resultClaim": {
+    "title": "Final score",
+    "hint": "Send the score the game ended with. When the other team sends the same score, the game is confirmed.",
+    "hintManual": "Send the score the game ended with. The season manager confirms the game.",
+    "send": "Send score",
+    "resend": "Send corrected score",
+    "sent": "Score sent",
+    "sendError": "Failed to send the score",
+    "waitingThem": "Score sent. Waiting for {{team}} to send theirs.",
+    "opponentSent": "{{team}} has sent its score. Send yours to compare.",
+    "theirScore": "{{team}} reports {{score}}",
+    "goalsMismatch": "Your players' goals add up to {{sum}}, but your score is {{score}}.",
+    "awaitingResult": "Awaiting result",
+    "reported": "Reported by the teams",
+    "notReported": "Not sent",
+    "useScore": "Use",
+    "state": {
+      "WAITING": "One of the two teams has sent its score.",
+      "CONFIRMED": "Both teams sent the same score. The game is confirmed.",
+      "AGREED": "Both teams sent the same score. The season manager confirms the game.",
+      "DISAGREE": "The two scores differ. Check yours; otherwise the season manager decides.",
+      "CONFLICTS_WITH_GAME": "Both teams agree, but the game already has a different score. The season manager decides.",
+      "NEEDS_WINNER": "A play-off game needs a winner. Count overtime or shootout goals in the score."
+    },
+    "block": {
+      "SPORT": "In this sport the season manager enters the result.",
+      "CONFIRMED": "The game is confirmed.",
+      "ARCHIVED": "The season is archived.",
+      "NOT_PLAYED_YET": "You can send the score once the game has started.",
+      "NOT_PLAYED": "The game was postponed or cancelled."
+    },
+    "badge": {
+      "WAITING": "1 of 2 teams reported",
+      "CONFIRMED": "Confirmed by teams",
+      "AGREED": "Teams agree",
+      "DISAGREE": "Teams disagree",
+      "CONFLICTS_WITH_GAME": "Differs from the score",
+      "NEEDS_WINNER": "Draw in a play-off"
+    },
+    "setting": {
+      "title": "Results from teams",
+      "on": "When both teams send the same score, the game is confirmed automatically",
+      "off": "Teams send their scores; you confirm every game",
+      "saveError": "Failed to save the setting"
+    }
+  },
+  "scorerLink": {
+    "title": "Scorer link",
+    "hint": "Someone without an account - the scorekeeper, a referee - can write the goals of this game on their phone. The link works until two days after the game starts.",
+    "labelPlaceholder": "Who gets it (optional), e.g. Pavel - table",
+    "create": "Create link",
+    "replace": "New link",
+    "replaceHint": "The address is shown only once. A new link cancels the old one.",
+    "revoke": "Cancel link",
+    "shownOnce": "Send this address now - it is shown only once. It works until {{until}}.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Send link",
+    "qrAlt": "QR code of the scorer link",
+    "qrHint": "The scorer can scan this at the rink.",
+    "message": "Please record the goals of {{home}} - {{away}} here: {{link}}",
+    "active": "A link is active until {{until}}.",
+    "activeFor": "Link for {{name}} is active until {{until}}.",
+    "lastUsed": "Last used {{when}}",
+    "expired": "The previous link has expired. Create a new one if needed.",
+    "createError": "Failed to create the link",
+    "revokeError": "Failed to cancel the link",
+    "auditActor": "Scorer link",
+    "auditActorNamed": "Scorer link: {{name}}"
+  },
+  "scorerPage": {
+    "documentTitle": "Game report",
+    "title": "Game report",
+    "missingTitle": "This link does not exist",
+    "missingText": "Check that the whole address was copied, or ask the season manager for a new link.",
+    "expiredTitle": "This link has expired",
+    "revokedTitle": "This link was cancelled",
+    "deadText": "The link for {{home}} - {{away}} no longer works. Ask the season manager for a new one.",
+    "empty": "No goals yet. Add one with the buttons below.",
+    "goalFor": "Goal {{team}}",
+    "newGoal": "Goal for {{team}}",
+    "scorer": "Scorer",
+    "unattributed": "Not known",
+    "assist": "Assist",
+    "secondAssist": "Second assist",
+    "noAssist": "None",
+    "minute": "Minute",
+    "atMinute": "{{n}}'",
+    "saveGoal": "Save goal",
+    "saveError": "Failed to save the goal",
+    "deleteGoal": "Remove goal",
+    "deleteError": "Failed to remove the goal",
+    "finish": "End of game",
+    "finishTitle": "End the game?",
+    "finishHint": "{{home}} - {{away}} ends {{score}}. You can still correct goals until the season manager confirms the game.",
+    "finishConfirm": "End game",
+    "finishError": "Failed to end the game",
+    "finished": "The game is over. The season manager will confirm it; until then you can correct goals (link works until {{until}}).",
+    "finishedConfirmed": "The game is over and confirmed: both teams reported the same score.",
+    "block": {
+      "CONFIRMED": "The game is confirmed. The report can no longer be changed.",
+      "ARCHIVED": "The season is archived.",
+      "NOT_PLAYED": "The game was postponed or cancelled.",
+      "HAND_STATS": "The season manager has already entered player statistics by hand, so goals cannot be added here."
     }
   }
 }

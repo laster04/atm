@@ -241,6 +241,7 @@ export interface UpdateSeasonRequest {
   endDate?: string;
   status?: SeasonStatus;
   visibility?: Visibility;
+  autoConfirmAgreed?: boolean;
 }
 
 // Response types

@@ -8,7 +8,7 @@ import { profileFor } from '../services/sports/profile.js';
 
 const EVENT_TYPES = Object.values(MatchEventType);
 
-interface EventBody {
+export interface EventBody {
   type?: string;
   period?: number;
   minute?: number | null;
@@ -32,7 +32,7 @@ const isInt = (value: unknown): value is number => Number.isInteger(value);
  * about the match itself rather than about permissions: which teams are playing,
  * whose players may appear, and which fields the event type allows.
  */
-const validate = async (
+export const validate = async (
   body: EventBody,
   game: { id: string; homeTeamId: string; awayTeamId: string; season: { league: { sportType: SportType } } }
 ): Promise<ValidationError | null> => {
@@ -112,7 +112,7 @@ const validate = async (
   return null;
 };
 
-const toData = (body: EventBody) => ({
+export const toData = (body: EventBody) => ({
   type: body.type as MatchEventType,
   period: body.period ?? 1,
   minute: body.minute ?? null,
@@ -127,7 +127,7 @@ const toData = (body: EventBody) => ({
 });
 
 /** The shape a report change takes in the audit trail. */
-const auditView = (event: {
+export const auditView = (event: {
   id: string;
   type: MatchEventType;
   period: number;
@@ -149,14 +149,14 @@ const auditView = (event: {
   penaltyMinutes: event.penaltyMinutes,
 });
 
-const eventInclude = {
+export const eventInclude = {
   team: { select: { id: true, name: true, logo: true, primaryColor: true } },
   player: { select: { id: true, name: true, number: true } },
   assistPlayer: { select: { id: true, name: true, number: true } },
   secondaryAssistPlayer: { select: { id: true, name: true, number: true } },
 } satisfies Prisma.MatchEventInclude;
 
-const orderedByClock: Prisma.MatchEventOrderByWithRelationInput[] = [
+export const orderedByClock: Prisma.MatchEventOrderByWithRelationInput[] = [
   { period: 'asc' },
   { minute: 'asc' },
   { second: 'asc' },

@@ -18,6 +18,7 @@ import adminRoutes from './routes/admin.js';
 import billingRoutes from './routes/billing.js';
 import fileRoutes from './routes/files.js';
 import embedRoutes from './routes/embed.js';
+import scorerRoutes from './routes/scorer.js';
 import { serveLocalUploads } from './controllers/fileController.js';
 import { getSitemap } from './controllers/sitemapController.js';
 
@@ -83,6 +84,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/embed', embedRoutes);
+app.use('/api/scorer', scorerRoutes);
 // The local storage driver's public files; R2 serves its own in production.
 app.use('/api/uploads', serveLocalUploads);
 

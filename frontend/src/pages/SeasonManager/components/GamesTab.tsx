@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Pencil } from 'lucide-react';
-import { GameStatus, type Game } from '@types';
+import { GameStatus, type Game, type ResultClaimState, type SeasonResultClaims } from '@types';
 import { GAME_STATUS_TONE, SEASON_ACCENT, isPlayed, needsDate, roundsOf } from './util';
 import { APP_TIME_ZONE } from '@/utils/date';
 
@@ -9,11 +9,23 @@ type Filter = 'noDate' | 'dated' | 'played';
 
 interface GamesTabProps {
 	games: Game[];
+	/** What the teams reported, by game id. */
+	claims?: Record<string, SeasonResultClaims>;
 	onOpenDates: (round: number) => void;
 	onOpenResult: (game: Game) => void;
 }
 
-export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabProps) {
+/** How each state of the teams' reports reads on a fixture: settled, waiting, or for the manager to decide. */
+const CLAIM_TONE: Record<ResultClaimState, { bg: string; fg: string }> = {
+	CONFIRMED: { bg: '#dcfce7', fg: '#166534' },
+	AGREED: { bg: '#dcfce7', fg: '#166534' },
+	WAITING: { bg: '#e0e7ff', fg: '#3730a3' },
+	DISAGREE: { bg: '#fee2e2', fg: '#991b1b' },
+	CONFLICTS_WITH_GAME: { bg: '#fee2e2', fg: '#991b1b' },
+	NEEDS_WINNER: { bg: '#fef3c7', fg: '#92400e' },
+};
+
+export default function GamesTab({ games, claims = {}, onOpenDates, onOpenResult }: GamesTabProps) {
 	const { t, i18n } = useTranslation();
 	const [filter, setFilter] = useState<Filter>('noDate');
 	// A round number, every play-off game, or everything.
@@ -104,6 +116,7 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 				visible.map((game) => {
 					const tone = GAME_STATUS_TONE[game.status];
 					const scored = game.homeScore !== null && game.homeScore !== undefined;
+					const claimState = claims[game.id]?.state;
 					return (
 						<div
 							key={game.id}
@@ -123,6 +136,14 @@ export default function GamesTab({ games, onOpenDates, onOpenResult }: GamesTabP
 											? t('seasonManagement.games.round', { n: game.round })
 											: t('seasonManagement.games.noRound')}
 								</span>
+								{claimState && (
+									<span
+										className="tm-status-pill ml-auto shrink-0"
+										style={{ backgroundColor: CLAIM_TONE[claimState].bg, color: CLAIM_TONE[claimState].fg }}
+									>
+										{t(`resultClaim.badge.${claimState}`)}
+									</span>
+								)}
 							</div>
 
 							{/* Both teams stacked, so neither name has to truncate against a score */}

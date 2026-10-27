@@ -874,6 +874,9 @@
         "DELETE": "Odobraté zo zápisu",
         "CONFIRM": "Zápis potvrdený",
         "REOPEN": "Zápis znova otvorený",
+        "AUTO_CONFIRM": "Potvrdené zhodou tímov",
+        "SCORER_LINK_CREATE": "Vytvorený odkaz pre zapisovateľa",
+        "SCORER_LINK_REVOKE": "Zrušený odkaz pre zapisovateľa",
         "unknownActor": "Vymazaný účet"
       },
       "newCard": "Nová karta",
@@ -2971,7 +2974,10 @@
         "UPDATE": "Zmenené",
         "DELETE": "Vymazané",
         "CONFIRM": "Potvrdené",
-        "REOPEN": "Znova otvorené"
+        "REOPEN": "Znova otvorené",
+        "AUTO_CONFIRM": "Potvrdené tímami",
+        "SCORER_LINK_CREATE": "Odkaz pre zapisovateľa",
+        "SCORER_LINK_REVOKE": "Zrušený odkaz pre zapisovateľa"
       },
       "types": {
         "User": "Používatelia",
@@ -3411,6 +3417,112 @@
       "documentSize": "Súbor je väčší, než plán dovolí.",
       "notPdf": "Nahrávať sa dá len PDF.",
       "sponsor": "Partner potrebuje názov a nahrané logo; web musí začínať https://."
+    }
+  },
+  "resultClaim": {
+    "title": "Konečný výsledok",
+    "hint": "Pošlite výsledok, ako zápas skončil. Keď súper pošle rovnaký, zápas sa potvrdí.",
+    "hintManual": "Pošlite výsledok, ako zápas skončil. Zápas potvrdí správca sezóny.",
+    "send": "Poslať výsledok",
+    "resend": "Poslať opravený výsledok",
+    "sent": "Výsledok odoslaný",
+    "sendError": "Výsledok sa nepodarilo odoslať",
+    "waitingThem": "Výsledok odoslaný. Čaká sa, kým ho pošle {{team}}.",
+    "opponentSent": "{{team}} už výsledok poslal. Pošlite svoj na porovnanie.",
+    "theirScore": "{{team}} hlási {{score}}",
+    "goalsMismatch": "Góly vašich hráčov dávajú spolu {{sum}}, ale váš výsledok je {{score}}.",
+    "awaitingResult": "Čaká na výsledok",
+    "reported": "Nahlásili tímy",
+    "notReported": "Neposlané",
+    "useScore": "Použiť",
+    "state": {
+      "WAITING": "Výsledok zatiaľ poslal jeden z dvoch tímov.",
+      "CONFIRMED": "Oba tímy poslali rovnaký výsledok. Zápas je potvrdený.",
+      "AGREED": "Oba tímy poslali rovnaký výsledok. Zápas potvrdí správca sezóny.",
+      "DISAGREE": "Výsledky tímov sa líšia. Skontrolujte svoj, inak rozhodne správca sezóny.",
+      "CONFLICTS_WITH_GAME": "Tímy sa zhodujú, ale pri zápase je už zapísaný iný výsledok. Rozhodne správca sezóny.",
+      "NEEDS_WINNER": "Zápas play-off potrebuje víťaza. Započítajte do výsledku góly z predĺženia alebo nájazdov."
+    },
+    "block": {
+      "SPORT": "V tomto športe zapisuje výsledok správca sezóny.",
+      "CONFIRMED": "Zápas je potvrdený.",
+      "ARCHIVED": "Sezóna je archivovaná.",
+      "NOT_PLAYED_YET": "Výsledok bude možné poslať, keď zápas začne.",
+      "NOT_PLAYED": "Zápas bol odložený alebo zrušený."
+    },
+    "badge": {
+      "WAITING": "Nahlásil 1 z 2 tímov",
+      "CONFIRMED": "Potvrdené tímami",
+      "AGREED": "Tímy sa zhodujú",
+      "DISAGREE": "Tímy sa nezhodujú",
+      "CONFLICTS_WITH_GAME": "Líši sa od výsledku",
+      "NEEDS_WINNER": "Remíza v play-off"
+    },
+    "setting": {
+      "title": "Výsledky od tímov",
+      "on": "Keď oba tímy pošlú rovnaký výsledok, zápas sa potvrdí sám",
+      "off": "Tímy výsledky posielajú, každý zápas potvrdzujete vy",
+      "saveError": "Nastavenie sa nepodarilo uložiť"
+    }
+  },
+  "scorerLink": {
+    "title": "Odkaz pre zapisovateľa",
+    "hint": "Niekto bez účtu – zapisovateľ, rozhodca – môže góly tohto zápasu zapisovať v mobile. Odkaz platí do dvoch dní od začiatku zápasu.",
+    "labelPlaceholder": "Pre koho (nepovinné), napr. Pavol – stolík",
+    "create": "Vytvoriť odkaz",
+    "replace": "Nový odkaz",
+    "replaceHint": "Adresa sa zobrazí iba raz. Nový odkaz ten starý zruší.",
+    "revoke": "Zrušiť odkaz",
+    "shownOnce": "Pošli adresu hneď – zobrazí sa iba teraz. Platí do {{until}}.",
+    "copy": "Kopírovať",
+    "copied": "Skopírované",
+    "share": "Poslať odkaz",
+    "qrAlt": "QR kód odkazu pre zapisovateľa",
+    "qrHint": "Zapisovateľ si ho môže na mieste načítať mobilom.",
+    "message": "Prosím zapíš góly zápasu {{home}} – {{away}} tu: {{link}}",
+    "active": "Odkaz platí do {{until}}.",
+    "activeFor": "Odkaz pre {{name}} platí do {{until}}.",
+    "lastUsed": "Naposledy použitý {{when}}",
+    "expired": "Predchádzajúci odkaz vypršal. Ak treba, vytvor nový.",
+    "createError": "Odkaz sa nepodarilo vytvoriť",
+    "revokeError": "Odkaz sa nepodarilo zrušiť",
+    "auditActor": "Odkaz pre zapisovateľa",
+    "auditActorNamed": "Zapisovateľ: {{name}}"
+  },
+  "scorerPage": {
+    "documentTitle": "Zápis zápasu",
+    "title": "Zápis zápasu",
+    "missingTitle": "Tento odkaz neexistuje",
+    "missingText": "Skontroluj, či sa skopírovala celá adresa, alebo požiadaj správcu sezóny o nový odkaz.",
+    "expiredTitle": "Odkaz vypršal",
+    "revokedTitle": "Odkaz bol zrušený",
+    "deadText": "Odkaz na zápas {{home}} – {{away}} už neplatí. Požiadaj správcu sezóny o nový.",
+    "empty": "Zatiaľ žiadny gól. Pridaj ho tlačidlami dole.",
+    "goalFor": "Gól {{team}}",
+    "newGoal": "Gól: {{team}}",
+    "scorer": "Strelec",
+    "unattributed": "Neznámy",
+    "assist": "Asistencia",
+    "secondAssist": "Druhá asistencia",
+    "noAssist": "Žiadna",
+    "minute": "Minúta",
+    "atMinute": "{{n}}. min",
+    "saveGoal": "Uložiť gól",
+    "saveError": "Gól sa nepodarilo uložiť",
+    "deleteGoal": "Zmazať gól",
+    "deleteError": "Gól sa nepodarilo zmazať",
+    "finish": "Koniec zápasu",
+    "finishTitle": "Ukončiť zápas?",
+    "finishHint": "{{home}} – {{away}} končí {{score}}. Góly môžeš opravovať, kým správca sezóny zápas nepotvrdí.",
+    "finishConfirm": "Ukončiť zápas",
+    "finishError": "Zápas sa nepodarilo ukončiť",
+    "finished": "Zápas je ukončený. Potvrdí ho správca sezóny, dovtedy môžeš góly opraviť (odkaz platí do {{until}}).",
+    "finishedConfirmed": "Zápas je ukončený a potvrdený: oba tímy nahlásili rovnaké skóre.",
+    "block": {
+      "CONFIRMED": "Zápas je potvrdený. Zápis sa už nedá meniť.",
+      "ARCHIVED": "Sezóna je archivovaná.",
+      "NOT_PLAYED": "Zápas bol odložený alebo zrušený.",
+      "HAND_STATS": "Správca sezóny už zadal štatistiky hráčov ručne, preto tu góly pridať nejdú."
     }
   }
 }

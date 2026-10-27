@@ -218,6 +218,15 @@ export default function MatchReportSheet({
 		}
 	};
 
+	// Changes made through a scorer link have no account behind them; the trail names the link.
+	const linkActor = (entry: AuditEntry): string | null => {
+		const via = (entry.after ?? entry.before) as { via?: string; scorer?: string | null } | null | undefined;
+		if (via?.via !== 'SCORER_LINK' || entry.action.startsWith('SCORER_LINK')) return null;
+		return via.scorer
+			? t('scorerLink.auditActorNamed', { name: via.scorer })
+			: t('scorerLink.auditActor');
+	};
+
 	const toggleAudit = () => {
 		const next = !showAudit;
 		setShowAudit(next);
@@ -602,7 +611,7 @@ export default function MatchReportSheet({
 									</span>
 									<span className="text-[11.5px] text-muted-foreground">
 										{[
-											entry.actor?.name ?? t('seasonManagement.report.audit.unknownActor'),
+											entry.actor?.name ?? linkActor(entry) ?? t('seasonManagement.report.audit.unknownActor'),
 											new Date(entry.createdAt).toLocaleString(i18n.language, { timeZone: APP_TIME_ZONE, 
 												day: 'numeric',
 												month: 'short',

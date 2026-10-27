@@ -4,14 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { BarChart3, ClipboardList, Lock, Minus, Plus, Save, X } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { gameApi } from '@/services/api';
-import { GameStatus, type Game, type SetFormat, type SportType } from '@types';
+import { GameStatus, type Game, type SeasonResultClaims, type SetFormat, type SportType } from '@types';
 import { SEASON_ACCENT } from './util';
+import ScorerLinkCard from './ScorerLinkCard';
 import PartScoresEditor, { initialParts, toPartScores } from '@/components/PartScoresEditor';
 import { partsWon, profileFor } from '@/utils/sportProfiles';
 import { APP_TIME_ZONE } from '@/utils/date';
 
 interface ResultSheetProps {
 	game: Game;
+	/** The scores the two teams reported, if any. */
+	claims?: SeasonResultClaims;
 	/** Decides the parts (halves, quarters, sets) and whether the score follows from them. */
 	sport?: SportType;
 	/** Volleyball: the season's set format; to three won sets when it has none. */
@@ -28,7 +31,7 @@ const STATUSES = [
 	GameStatus.CANCELLED,
 ];
 
-export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, onOpenReport }: ResultSheetProps) {
+export default function ResultSheet({ game, claims, sport, setFormat, onClose, onSaved, onOpenReport }: ResultSheetProps) {
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 
@@ -41,8 +44,10 @@ export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, 
 	const confirmed = game.confirmedAt != null;
 
 	const profile = profileFor(sport);
-	const [homeScore, setHomeScore] = useState(game.homeScore ?? 0);
-	const [awayScore, setAwayScore] = useState(game.awayScore ?? 0);
+	// A game nobody has scored yet starts from what the home team reported, else the away team.
+	const reported = claims?.claims.find((c) => c.teamId === game.homeTeamId) ?? claims?.claims[0];
+	const [homeScore, setHomeScore] = useState(game.homeScore ?? reported?.homeScore ?? 0);
+	const [awayScore, setAwayScore] = useState(game.awayScore ?? reported?.awayScore ?? 0);
 	const [parts, setParts] = useState(() => initialParts(game.periodScores, profile, setFormat, game.playoffSeriesId != null));
 	// Volleyball: the result is the sets won, so it is shown, not typed.
 	const setsWon = profile.scoreIsPartsWon ? partsWon(toPartScores(parts) ?? []) : null;
@@ -180,6 +185,8 @@ export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, 
 					<ClipboardList className="size-4" aria-hidden />
 					{t('seasonManagement.result.openReport')}
 				</button>}
+				{/* Someone without an account keeps the report on the spot */}
+				{profile.events.length > 0 && <ScorerLinkCard game={game} />}
 				{/* Who played and each player's numbers, for both teams at once */}
 				<button
 					onClick={() => navigate(`/team-management/game-statistic/${game.id}`)}
@@ -189,6 +196,46 @@ export default function ResultSheet({ game, sport, setFormat, onClose, onSaved, 
 					<BarChart3 className="size-4" aria-hidden />
 					{t('seasonManagement.result.openPlayerStats')}
 				</button>
+
+				{/* What each team reported, to compare with and take over */}
+				{claims && claims.claims.length > 0 && (
+					<div className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">
+						<div className="flex items-baseline justify-between gap-2">
+							<span className="tm-section-label">{t('resultClaim.reported')}</span>
+							{claims.state && (
+								<span className="text-[12.5px] text-muted-foreground">{t(`resultClaim.badge.${claims.state}`)}</span>
+							)}
+						</div>
+						{[game.homeTeam, game.awayTeam].map((team) => {
+							const claim = claims.claims.find((c) => c.teamId === team?.id);
+							return (
+								<div key={team?.id} className="flex items-center gap-2.5">
+									<span className="min-w-0 flex-1 truncate text-[14px] font-semibold">{team?.name}</span>
+									{claim ? (
+										<>
+											<span className="shrink-0 text-[17px] font-bold tabular-nums">
+												{claim.homeScore}:{claim.awayScore}
+											</span>
+											{!derived && !setsWon && !confirmed && (
+												<button
+													onClick={() => {
+														setHomeScore(claim.homeScore);
+														setAwayScore(claim.awayScore);
+													}}
+													className="h-9 shrink-0 rounded-[9px] border border-border px-3 text-[13px] font-semibold"
+												>
+													{t('resultClaim.useScore')}
+												</button>
+											)}
+										</>
+									) : (
+										<span className="shrink-0 text-[13px] text-muted-foreground">{t('resultClaim.notReported')}</span>
+									)}
+								</div>
+							);
+						})}
+					</div>
+				)}
 
 				{/* Final score */}
 				<div className="flex flex-col gap-3.5 rounded-xl border border-border bg-card p-3.5 shadow-sm">

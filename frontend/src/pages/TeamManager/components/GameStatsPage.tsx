@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGoBack } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, Loader2, Minus, Plus, Save } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Check, Loader2, Minus, Plus, Save, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { gameApi, playerApi, gameStatisticApi, teamApi } from '@/services/api';
 
 import { Button } from '@components/base/button';
-import { GameStatus, type Game, type PlayerGameStatistic, type Player, type StatKey } from '@types';
+import { GameStatus, type Game, type PlayerGameStatistic, type Player, type ResultClaimsView, type StatKey } from '@types';
 import { APP_TIME_ZONE } from '@/utils/date';
 import { formatParts, profileFor } from '@/utils/sportProfiles';
 
@@ -46,6 +46,11 @@ export default function GameStatsPage() {
 	const [teamStats, setTeamStats] = useState<PlayerStatForm[]>([]);
 	const [baseline, setBaseline] = useState<Record<string, string>>({});
 	const [isHomeTeam, setIsHomeTeam] = useState(false);
+	// The final score as this team reports it, from its own side: ours first.
+	const [claims, setClaims] = useState<ResultClaimsView | null>(null);
+	const [ourScore, setOurScore] = useState(0);
+	const [theirScore, setTheirScore] = useState(0);
+	const [sending, setSending] = useState(false);
 
 	const color = teamColor || '#003E7E';
 	const profile = profileFor(game?.season?.league?.sportType);
@@ -95,6 +100,19 @@ export default function GameStatsPage() {
 
 				setTeamStats(stats);
 				setBaseline(Object.fromEntries(stats.map((s) => [s.playerId, signature(s)])));
+
+				// Only a team's own manager reports its result; anyone else just
+				// sees the statistics, as before.
+				const claimsResp = await gameApi.getResultClaims(gameId).catch(() => null);
+				if (claimsResp && claimsResp.data.teamIds.includes(teamId)) {
+					setClaims(claimsResp.data);
+					const home = gameData.homeTeamId === teamId;
+					const own = claimsResp.data.claims.find((c) => c.teamId === teamId);
+					const startHome = own?.homeScore ?? gameData.homeScore ?? 0;
+					const startAway = own?.awayScore ?? gameData.awayScore ?? 0;
+					setOurScore(home ? startHome : startAway);
+					setTheirScore(home ? startAway : startHome);
+				}
 			} catch (error) {
 				toast.error(t('teamManagement.gameStats.fetchError'));
 			} finally {
@@ -133,8 +151,9 @@ export default function GameStatsPage() {
 	const step = (stat: PlayerStatForm, field: StatKey, delta: number) =>
 		setValue(stat, field, (stat.values[field] ?? 0) + delta * (STEP[field] ?? 1));
 
-	const handleSubmit = async () => {
-		if (!gameId || !dirty.length) return;
+	/** Saves the changed rows; true when there was nothing to save or all of it saved. */
+	const saveStats = async (): Promise<boolean> => {
+		if (!gameId || !dirty.length) return true;
 
 		setSaving(true);
 		try {
@@ -164,10 +183,41 @@ export default function GameStatsPage() {
 				setBaseline(Object.fromEntries(next.map((s) => [s.playerId, signature(s)])));
 				return next;
 			});
+			return true;
 		} catch (error) {
 			toast.error(t('teamManagement.gameStats.saveError'));
+			return false;
 		} finally {
 			setSaving(false);
+		}
+	};
+
+	const handleSubmit = () => { void saveStats(); };
+
+	// The players' statistics go in first: once both scores match, the game is
+	// confirmed and its statistics close with it.
+	const sendScore = async () => {
+		if (!gameId || !teamId || !game) return;
+		if (!(await saveStats())) return;
+
+		setSending(true);
+		try {
+			const score = isHomeTeam
+				? { homeScore: ourScore, awayScore: theirScore }
+				: { homeScore: theirScore, awayScore: ourScore };
+			const res = await gameApi.submitResultClaim(gameId, teamId, score);
+			setClaims(res.data);
+			if (res.data.outcome === 'CONFIRMED') {
+				const fresh = await gameApi.getById(gameId);
+				setGame(fresh.data);
+				toast.success(t('resultClaim.state.CONFIRMED'));
+			} else {
+				toast.success(t('resultClaim.sent'));
+			}
+		} catch (error) {
+			toast.error(t('resultClaim.sendError'));
+		} finally {
+			setSending(false);
 		}
 	};
 
@@ -197,6 +247,57 @@ export default function GameStatsPage() {
 	const parts = formatParts(
 		game.periodScores?.map((part) => (isHomeTeam ? part : { home: part.away, away: part.home })),
 		profile,
+	);
+
+	// This team's report on the final score, read from its own side.
+	const ownClaim = claims?.claims.find((c) => c.teamId === teamId);
+	const theirClaim = claims?.claims.find((c) => c.teamId !== teamId);
+	const theirReport = theirClaim && theirClaim.homeScore != null && theirClaim.awayScore != null
+		? (isHomeTeam ? `${theirClaim.homeScore}:${theirClaim.awayScore}` : `${theirClaim.awayScore}:${theirClaim.homeScore}`)
+		: null;
+	const canSend = claims != null && claims.block === null;
+	const claimStatus = (() => {
+		if (!claims) return '';
+		if (claims.block === 'CONFIRMED') {
+			return claims.state === 'CONFIRMED' ? t('resultClaim.state.CONFIRMED') : t('resultClaim.block.CONFIRMED');
+		}
+		if (claims.block) return t(`resultClaim.block.${claims.block}`);
+		if (!claims.state) return claims.autoConfirm ? t('resultClaim.hint') : t('resultClaim.hintManual');
+		if (claims.state === 'WAITING') {
+			return ownClaim
+				? t('resultClaim.waitingThem', { team: opponentTeam?.name })
+				: t('resultClaim.opponentSent', { team: opponentTeam?.name });
+		}
+		return t(`resultClaim.state.${claims.state}`);
+	})();
+	// Goals (points in basketball) of the players ticked above, against the score typed.
+	const goalKey = fields.find((key) => key === 'goals' || key === 'points');
+	const goalSum = goalKey ? totals.byField.find((f) => f.key === goalKey)?.sum ?? 0 : null;
+	const goalsMismatch = canSend && goalSum !== null && totals.lineup > 0 && goalSum !== ourScore;
+
+	const ScoreStepper = ({ name, value, onChange }: { name?: string; value: number; onChange: (next: number) => void }) => (
+		<div className="flex items-center gap-2.5">
+			<span className="min-w-0 flex-1 truncate text-[15px] font-semibold">{name}</span>
+			<span className="tm-stat-controls">
+				<button
+					type="button"
+					aria-label={`${name} −`}
+					disabled={!canSend || value === 0}
+					onClick={() => onChange(Math.max(0, value - 1))}
+				>
+					<Minus className="size-3.5" />
+				</button>
+				<output className="w-8 text-center text-xl font-bold tabular-nums">{value}</output>
+				<button
+					type="button"
+					aria-label={`${name} +`}
+					disabled={!canSend}
+					onClick={() => onChange(value + 1)}
+				>
+					<Plus className="size-3.5" />
+				</button>
+			</span>
+		</div>
 	);
 
 	const Stepper = ({ stat, field }: { stat: PlayerStatForm; field: StatKey }) => {
@@ -278,6 +379,41 @@ export default function GameStatsPage() {
 					</div>
 				)}
 			</div>
+
+			{/* The final score this team reports; two matching reports confirm the game */}
+			{claims && claims.block !== 'SPORT' && (
+				<section
+					aria-label={t('resultClaim.title')}
+					className="flex flex-col gap-3 border-b border-border bg-card px-4 py-3.5"
+				>
+					<span className="tm-section-label">{t('resultClaim.title')}</span>
+					<ScoreStepper name={myTeam?.name} value={ourScore} onChange={setOurScore} />
+					<ScoreStepper name={opponentTeam?.name} value={theirScore} onChange={setTheirScore} />
+					<p className="text-[12.5px] leading-snug text-muted-foreground">{claimStatus}</p>
+					{theirReport && claims.state !== 'CONFIRMED' && claims.state !== 'WAITING' && (
+						<p className="text-[12.5px] font-semibold leading-snug">
+							{t('resultClaim.theirScore', { team: opponentTeam?.name, score: theirReport })}
+						</p>
+					)}
+					{goalsMismatch && (
+						<p className="flex items-start gap-1.5 text-[12.5px] leading-snug text-amber-800">
+							<AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+							{t('resultClaim.goalsMismatch', { sum: goalSum, score: ourScore })}
+						</p>
+					)}
+					{canSend && (
+						<Button
+							className="h-11 text-[15px] font-semibold text-white"
+							style={{ backgroundColor: color }}
+							disabled={sending || saving}
+							onClick={sendScore}
+						>
+							{sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+							{ownClaim ? t('resultClaim.resend') : t('resultClaim.send')}
+						</Button>
+					)}
+				</section>
+			)}
 
 			{/* Running totals, then the column headers the steppers sit under */}
 			<div className="flex items-center gap-4 border-b border-border bg-card px-4 py-2.5 text-xs text-muted-foreground">
