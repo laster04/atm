@@ -8,7 +8,7 @@ import { useListParams } from '../components/list/useListParams';
 import { AuditChanges } from '../components/audit/AuditChanges';
 import { formatInstant } from '../components/format';
 
-const ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'CONFIRM', 'REOPEN'];
+const ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'CONFIRM', 'REOPEN', 'AUTO_CONFIRM', 'SCORER_LINK_CREATE', 'SCORER_LINK_REVOKE'];
 
 /** What a line is about, as a person reads it: the record's name when the snapshot has one. */
 export const auditSubject = (entry: AuditEntry): string => {

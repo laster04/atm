@@ -182,6 +182,8 @@ export interface Season {
   scoring?: ScoringPolicy | null;
   /** New seasons start UNLISTED and are published once the draw is ready. */
   visibility?: Visibility;
+  /** Both teams reporting the same score completes and confirms the game. */
+  autoConfirmAgreed?: boolean;
   archivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -450,7 +452,106 @@ export interface TeamEventInput {
   gameId?: string | null;
 }
 
-export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'CONFIRM' | 'REOPEN';
+export type AuditAction =
+  | 'CREATE' | 'UPDATE' | 'DELETE' | 'CONFIRM' | 'REOPEN' | 'AUTO_CONFIRM'
+  | 'SCORER_LINK_CREATE' | 'SCORER_LINK_REVOKE';
+
+/** Why a team cannot report a game's result right now. */
+export type ResultClaimBlock = 'SPORT' | 'CONFIRMED' | 'ARCHIVED' | 'NOT_PLAYED_YET' | 'NOT_PLAYED';
+
+/** How the two teams' reported results stand against each other and the game. */
+export type ResultClaimState = 'WAITING' | 'CONFIRMED' | 'AGREED' | 'DISAGREE' | 'CONFLICTS_WITH_GAME' | 'NEEDS_WINNER';
+
+/** One team's reported score. The other side's score stays hidden until a team has sent its own. */
+export interface ResultClaim {
+  teamId: string;
+  submitted: true;
+  homeScore: number | null;
+  awayScore: number | null;
+  updatedAt: string;
+}
+
+export interface ResultClaimsView {
+  block: ResultClaimBlock | null;
+  autoConfirm: boolean;
+  state: ResultClaimState | null;
+  /** The teams of this game the viewer reports for. */
+  teamIds: string[];
+  claims: ResultClaim[];
+  /** Set on the answer to a report: what sending it led to. */
+  outcome?: ResultClaimState;
+}
+
+/** A game of the season the teams have reported on, for the season manager. */
+export interface SeasonResultClaims {
+  gameId: string;
+  state: ResultClaimState | null;
+  claims: { teamId: string; homeScore: number; awayScore: number; updatedAt: string }[];
+}
+
+export type ScorerLinkStatus = 'ACTIVE' | 'EXPIRED' | 'REVOKED';
+
+/** What the season manager sees of a game's scorer link. The address itself is shown only once. */
+export interface ScorerLinkSummary {
+  id: string;
+  label: string | null;
+  expiresAt: string;
+  lastUsedAt: string | null;
+  createdAt: string;
+  status: ScorerLinkStatus;
+}
+
+export interface ScorerLinkState {
+  /** False for sports without a goal report (volleyball, basketball, tennis). */
+  supported: boolean;
+  link: ScorerLinkSummary | null;
+}
+
+export interface ScorerLinkCreated {
+  link: ScorerLinkSummary;
+  url: string;
+}
+
+/** Why the scorer's page cannot change the report. */
+export type ScorerBlock = 'CONFIRMED' | 'ARCHIVED' | 'HAND_STATS' | 'NOT_PLAYED';
+
+type ScorerTeam = Pick<Team, 'id' | 'name' | 'logo' | 'primaryColor'>;
+
+/** Everything the page behind a scorer link shows. */
+export interface ScorerPage {
+  status: ScorerLinkStatus;
+  label: string | null;
+  expiresAt: string;
+  game: {
+    id: string;
+    date: string | null;
+    location: string | null;
+    status: GameStatus;
+    homeScore: number | null;
+    awayScore: number | null;
+    confirmed: boolean;
+    homeTeam: ScorerTeam;
+    awayTeam: ScorerTeam;
+    seasonName: string;
+    leagueName: string;
+    sportType: SportType;
+  };
+  block: ScorerBlock | null;
+  /** `mine`: recorded through this link, so the scorer may remove it. */
+  events: (MatchEvent & { mine: boolean })[];
+  rosters: Record<string, EventPlayerRef[]>;
+  /** After finishing: CONFIRMED when the teams' reports confirmed the game at once. */
+  outcome?: string | null;
+}
+
+export interface ScorerGoalInput {
+  teamId: string;
+  period: number;
+  minute: number | null;
+  playerId: string | null;
+  assistPlayerId: string | null;
+  secondaryAssistPlayerId: string | null;
+}
 
 /** One line of the administrative trail behind a record. */
 export interface AuditEntry {

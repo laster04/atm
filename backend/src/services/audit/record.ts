@@ -6,7 +6,12 @@ export type AuditAction =
   | 'UPDATE'
   | 'DELETE'
   | 'CONFIRM'
-  | 'REOPEN';
+  | 'REOPEN'
+  // A game the two teams' matching results confirmed, without a person doing it.
+  | 'AUTO_CONFIRM'
+  // A scorer link for the game was handed out, or cancelled.
+  | 'SCORER_LINK_CREATE'
+  | 'SCORER_LINK_REVOKE';
 
 export interface AuditEntry {
   entityType: string;

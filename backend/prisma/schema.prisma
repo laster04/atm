@@ -116,6 +116,8 @@ model User {
   playerProfiles          Player[]
   recordedMatchEvents     MatchEvent[]       @relation("MatchEventRecorder")
   confirmedGames          Game[]             @relation("GameConfirmer")
+  resultClaims            GameResultClaim[]  @relation("ResultClaimSubmitter")
+  scorerLinks             ScorerLink[]       @relation("ScorerLinkCreator")
   auditEntries            AuditLog[]         @relation("AuditActor")
   createdTeamEvents       TeamEvent[]        @relation("TeamEventCreator")
   attendanceResponses     Attendance[]       @relation("AttendanceResponder")
@@ -163,20 +165,23 @@ model League {
 }
 
 model Season {
-  id         String       @id @default(uuid())
-  name       String
-  startDate  DateTime     @map("start_date")
-  endDate    DateTime     @map("end_date")
-  status     SeasonStatus @default(DRAFT)
+  id                String       @id @default(uuid())
+  name              String
+  startDate         DateTime     @map("start_date")
+  endDate           DateTime     @map("end_date")
+  status            SeasonStatus @default(DRAFT)
   // Overrides the league's scoring for this season only; null inherits.
-  scoring    Json?
+  scoring           Json?
   // A new season starts unlisted and is published once its draw is ready.
   // Replaces the old rule that hid DRAFT seasons from lists; status now only
   // says where the season is in its life, not who may see it.
-  visibility Visibility   @default(UNLISTED)
-  archivedAt DateTime?    @map("archived_at")
-  createdAt  DateTime     @default(now()) @map("created_at")
-  updatedAt  DateTime     @updatedAt @map("updated_at")
+  visibility        Visibility   @default(UNLISTED)
+  // When both teams' managers report the same final score, the game is
+  // completed and confirmed without waiting for the season manager.
+  autoConfirmAgreed Boolean      @default(true) @map("auto_confirm_agreed")
+  archivedAt        DateTime?    @map("archived_at")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
 
   leagueId String @map("league_id")
   league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
@@ -250,12 +255,13 @@ model Team {
   managerId String? @map("manager_id")
   manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
-  seasonTeams SeasonTeam[]
-  players     Player[]
-  homeGames   Game[]       @relation("HomeTeam")
-  awayGames   Game[]       @relation("AwayTeam")
-  matchEvents MatchEvent[] @relation("MatchEventTeam")
-  teamEvents  TeamEvent[]
+  seasonTeams  SeasonTeam[]
+  players      Player[]
+  homeGames    Game[]            @relation("HomeTeam")
+  awayGames    Game[]            @relation("AwayTeam")
+  matchEvents  MatchEvent[]      @relation("MatchEventTeam")
+  teamEvents   TeamEvent[]
+  resultClaims GameResultClaim[]
 
   archivedStandings   SeasonArchiveStanding[]
   archivedPlayerStats SeasonArchivePlayerStat[]
@@ -367,11 +373,15 @@ model Game {
   homeTeamId String @map("home_team_id")
   homeTeam   Team   @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Restrict)
 
-  awayTeamId String                @map("away_team_id")
-  awayTeam   Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
-  statistic  PlayerGameStatistic[] @relation("GameStatistic")
-  events     MatchEvent[]
-  teamEvents TeamEvent[]
+  awayTeamId   String                @map("away_team_id")
+  awayTeam     Team                  @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Restrict)
+  statistic    PlayerGameStatistic[] @relation("GameStatistic")
+  events       MatchEvent[]
+  teamEvents   TeamEvent[]
+  // What each team's manager says the final score was (services/games/resultClaims.ts).
+  resultClaims GameResultClaim[]
+  // Links that let someone without an account keep this game's report.
+  scorerLinks  ScorerLink[]
 
   // Set on a play-off game: the series it belongs to. Play-off games never
   // count in the table (services/standings/filters.ts) and are created and
@@ -432,6 +442,55 @@ model PlayoffSeries {
 // accident and the manager can see when it last went and to how many people.
 // A round summary names its round; an email of hand-picked games has none and
 // is known by the games linked to it.
+/// One team's word on how a league game ended, sent by that team's manager.
+/// Two matching claims settle the game on their own when the season allows it;
+/// two that differ wait for the season manager, who sees both side by side.
+model GameResultClaim {
+  id        String @id @default(uuid())
+  homeScore Int    @map("home_score")
+  awayScore Int    @map("away_score")
+
+  gameId String @map("game_id")
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  teamId String @map("team_id")
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  submittedById String? @map("submitted_by_id")
+  submittedBy   User?   @relation("ResultClaimSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // A team says one thing about a game; sending again replaces it.
+  @@unique([gameId, teamId])
+  @@map("game_result_claims")
+}
+
+/// A link that lets someone without an account - a scorekeeper at the rink, a
+/// referee - write the goals of one game. Only the season manager creates it.
+/// Only a hash of the token is stored, so a lost link is replaced, never read
+/// back; a new link for the same game cancels the old one.
+model ScorerLink {
+  id          String       @id @default(uuid())
+  gameId      String       @map("game_id")
+  game        Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  // Who the season manager gave it to, shown in the game's history.
+  label       String?
+  tokenHash   String       @unique @map("token_hash")
+  expiresAt   DateTime     @map("expires_at")
+  revokedAt   DateTime?    @map("revoked_at")
+  lastUsedAt  DateTime?    @map("last_used_at")
+  createdById String?      @map("created_by_id")
+  createdBy   User?        @relation("ScorerLinkCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  events      MatchEvent[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@index([gameId])
+  @@map("scorer_links")
+}
+
 model SeasonDigest {
   id    String @id @default(uuid())
   round Int?
@@ -616,6 +675,9 @@ model MatchEvent {
   // with the person.
   recordedById String?  @map("recorded_by_id")
   recordedBy   User?    @relation("MatchEventRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+  // Or the scorer link it was recorded through, for someone without an account.
+  scorerLinkId String?     @map("scorer_link_id")
+  scorerLink   ScorerLink? @relation(fields: [scorerLinkId], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ClipboardSignature, Code2, ExternalLink, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
+import { CalendarPlus, ClipboardSignature, Code2, ExternalLink, Handshake, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { gameApi, registrationApi, seasonApi } from '@/services/api';
-import type { Game, Season, Team } from '@types';
+import { SportType, type Game, type Season, type Team } from '@types';
 import GenerateScheduleModal, { type GenerateScheduleData } from '@/pages/Admin/components/games/GenerateScheduleModal';
 import ScoringSheet from './ScoringSheet';
 import ResultsEmailSheet from './ResultsEmailSheet';
@@ -14,6 +14,8 @@ import PlayoffSheet from './PlayoffSheet';
 import RegistrationsSheet from './RegistrationsSheet';
 import EmbedSheet from './EmbedSheet';
 import { SEASON_ACCENT } from './util';
+
+const NO_TEAM_REPORTS: SportType[] = [SportType.VOLLEYBALL, SportType.TENNIS];
 
 interface MoreTabProps {
 	season: Season;
@@ -55,6 +57,25 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 			.catch(() => setGroupCount(0));
 	}, [season.id, showDivisions]);
 	const [error, setError] = useState('');
+	const [savingAgreement, setSavingAgreement] = useState(false);
+	// Seasons created before the option existed confirm agreed results too.
+	const autoConfirm = season.autoConfirmAgreed !== false;
+	// Volleyball and tennis tables need sets, so their teams do not report scores.
+	const teamsReport = !NO_TEAM_REPORTS.includes(season.league?.sportType ?? SportType.HOCKEY);
+
+	const toggleAutoConfirm = async () => {
+		setError('');
+		setSavingAgreement(true);
+		try {
+			const res = await seasonApi.update(season.id, { autoConfirmAgreed: !autoConfirm });
+			onSeasonChange(res.data);
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string }>;
+			setError(axiosError.response?.data?.error || t('resultClaim.setting.saveError'));
+		} finally {
+			setSavingAgreement(false);
+		}
+	};
 
 	const formatDate = (iso: string) =>
 		new Date(iso).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -174,6 +195,32 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 						</span>
 					</span>
 				</button>
+
+				{teamsReport && <button
+					onClick={toggleAutoConfirm}
+					disabled={savingAgreement}
+					role="switch"
+					aria-checked={autoConfirm}
+					className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left disabled:opacity-50"
+				>
+					<Handshake className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+					<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span className="text-sm font-semibold">{t('resultClaim.setting.title')}</span>
+						<span className="text-xs text-muted-foreground">
+							{autoConfirm ? t('resultClaim.setting.on') : t('resultClaim.setting.off')}
+						</span>
+					</span>
+					<span
+						aria-hidden
+						className="relative h-6 w-10 shrink-0 rounded-full transition-colors"
+						style={{ backgroundColor: autoConfirm ? SEASON_ACCENT : '#cbd5e1' }}
+					>
+						<span
+							className="absolute top-0.5 size-5 rounded-full bg-white shadow transition-all"
+							style={{ left: autoConfirm ? '18px' : '2px' }}
+						/>
+					</span>
+				</button>}
 
 				<button
 					onClick={() => setShowSummary(true)}

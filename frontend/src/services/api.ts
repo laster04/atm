@@ -4,7 +4,7 @@ import { serverLocale } from '@/i18n/languages';
 import type {
   EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
-  ArchivedStanding, ArchivedPlayerStat, AuditEntry, MatchEvent, MatchEventInput, MyPlayerProfile,
+  ArchivedStanding, ArchivedPlayerStat, AuditEntry, ResultClaimsView, SeasonResultClaims, ScorerLinkState, ScorerLinkCreated, ScorerPage, ScorerGoalInput, MatchEvent, MatchEventInput, MyPlayerProfile,
   GameDetail, RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   SeasonPlayoff, CreatePlayoffInput,
   RegistrationForm, RegistrationSettings, RegistrationInbox, Registration, MyRegistration, RegistrationInput, RegistrationKind,
@@ -50,7 +50,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // A scorer link needs no account: an old session on the phone is dropped,
+      // not allowed to send the scorer away from the game.
+      if (!window.location.pathname.startsWith('/zapis/')) window.location.href = '/login';
     }
     return Promise.reject(error);
   }
@@ -259,7 +261,25 @@ export const gameApi = {
   confirm: (id: string | number) => api.post<Game>(`/games/${id}/confirm`),
   // Reopening a published result needs a reason; the trail keeps it.
   reopen: (id: string | number, reason: string) => api.post<Game>(`/games/${id}/reopen`, { reason }),
-  getAudit: (id: string | number) => api.get<AuditEntry[]>(`/games/${id}/audit`)
+  getAudit: (id: string | number) => api.get<AuditEntry[]>(`/games/${id}/audit`),
+  // Each team's word on the final score; two matching words settle the game.
+  getResultClaims: (id: string) => api.get<ResultClaimsView>(`/games/${id}/result-claims`),
+  submitResultClaim: (id: string, teamId: string, score: { homeScore: number; awayScore: number }) =>
+    api.put<ResultClaimsView>(`/games/${id}/result-claims/${teamId}`, score),
+  getSeasonResultClaims: (seasonId: string) => api.get<SeasonResultClaims[]>(`/games/season/${seasonId}/result-claims`),
+  // A link a scorekeeper without an account keeps the report through. Its
+  // address comes back from create only.
+  getScorerLink: (id: string) => api.get<ScorerLinkState>(`/games/${id}/scorer-link`),
+  createScorerLink: (id: string, label: string) => api.post<ScorerLinkCreated>(`/games/${id}/scorer-link`, { label }),
+  revokeScorerLink: (id: string) => api.delete(`/games/${id}/scorer-link`)
+};
+
+/** The scorekeeper's side of a scorer link: the token in the address is the only credential. */
+export const scorerApi = {
+  get: (token: string) => api.get<ScorerPage>(`/scorer/${token}`),
+  addGoal: (token: string, goal: ScorerGoalInput) => api.post<ScorerPage>(`/scorer/${token}/goals`, goal),
+  deleteGoal: (token: string, eventId: string) => api.delete<ScorerPage>(`/scorer/${token}/goals/${eventId}`),
+  finish: (token: string) => api.post<ScorerPage>(`/scorer/${token}/finish`)
 };
 
 export const gameStatisticApi = {

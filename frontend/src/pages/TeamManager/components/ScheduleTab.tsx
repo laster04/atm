@@ -24,11 +24,16 @@ export default function ScheduleTab({ games, teamId, teamColor }: ScheduleTabPro
 
 	const buckets = useMemo(() => {
 		const all = games || [];
+		// A scheduled game whose start has passed is waiting for its result, which
+		// the team reports from the game screen, so it sits with the played ones.
+		const now = Date.now();
+		const awaitingResult = (g: Game) =>
+			g.status === GameStatus.SCHEDULED && g.date != null && new Date(g.date).getTime() <= now;
 		return {
 			// The API already sorts soonest-first with undated games last.
-			upcoming: all.filter((g) => g.status === GameStatus.SCHEDULED),
+			upcoming: all.filter((g) => g.status === GameStatus.SCHEDULED && !awaitingResult(g)),
 			played: all
-				.filter((g) => g.status === GameStatus.COMPLETED)
+				.filter((g) => g.status === GameStatus.COMPLETED || awaitingResult(g))
 				.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()),
 			other: all.filter((g) => OTHER_STATUSES.includes(g.status)),
 		};
@@ -170,7 +175,8 @@ export default function ScheduleTab({ games, teamId, teamColor }: ScheduleTabPro
 			const home = isHome(game);
 			const teamScore = home ? game.homeScore : game.awayScore;
 			const oppScore = home ? game.awayScore : game.homeScore;
-			const hasScore = teamScore != null && oppScore != null;
+			const awaiting = game.status !== GameStatus.COMPLETED;
+			const hasScore = !awaiting && teamScore != null && oppScore != null;
 			const result = !hasScore ? null
 				: teamScore > oppScore ? 'win'
 				: teamScore === oppScore ? 'draw' : 'loss';
@@ -190,6 +196,11 @@ export default function ScheduleTab({ games, teamId, teamColor }: ScheduleTabPro
 						<span className="tm-game-opponent">{opponentName(game)}</span>
 						<Meta game={game} />
 					</span>
+					{awaiting && (
+						<span className="tm-status-pill shrink-0" style={{ backgroundColor: `${color}1A`, color }}>
+							{t('resultClaim.awaitingResult')}
+						</span>
+					)}
 					{hasScore && (
 						<span className="flex flex-col items-end gap-1 shrink-0">
 							<span className="text-lg font-bold tabular-nums leading-none">
