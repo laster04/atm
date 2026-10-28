@@ -3662,5 +3662,12 @@
       "NOT_PLAYED": "Zápas byl odložen nebo zrušen.",
       "TEAMS_UNKNOWN": "Týmy tohoto zápasu ještě nejsou známé."
     }
+  },
+  "cookieConsent": {
+    "title": "Cookies pro měření reklamy",
+    "text": "Používáme cookies Google Ads, abychom věděli, kolik lidí k nám přivedla reklama. Bez vašeho souhlasu se žádné neukládají.",
+    "decline": "Odmítnout",
+    "accept": "Přijmout",
+    "settings": "Nastavení cookies"
   }
 }

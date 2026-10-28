@@ -3586,5 +3586,12 @@
       "NOT_PLAYED": "The game was postponed or cancelled.",
       "TEAMS_UNKNOWN": "The teams of this game are not known yet."
     }
+  },
+  "cookieConsent": {
+    "title": "Cookies for measuring ads",
+    "text": "We use Google Ads cookies to see how many people our ads bring here. None are stored without your consent.",
+    "decline": "Decline",
+    "accept": "Accept",
+    "settings": "Cookie settings"
   }
 }

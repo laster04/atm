@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { menuLanguages } from '@/i18n/languages';
 import logoImage from '@/assets/logo-full.png';
+import { openCookieSettings } from '@/components/CookieConsent';
 
 const COLUMNS = [
 	{
@@ -66,6 +67,9 @@ export default function PublicFooter() {
 				<div className="flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/45 sm:flex-row sm:items-center">
 					<span className="flex-1">© {new Date().getFullYear()} {t('landing.footer')}</span>
 					<span className="flex flex-wrap gap-3">
+						<button type="button" onClick={openCookieSettings} className="self-start hover:text-white/80">
+							{t('cookieConsent.settings')}
+						</button>
 						{menuLanguages(i18n.language).filter((language) => language.code !== i18n.language).map((language) => (
 							<button
 								key={language.code}
