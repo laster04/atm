@@ -33,7 +33,7 @@ import Contact from './pages/Contact';
 import Registration from './pages/Registration';
 import RegistrationStatus from './pages/Registration/StatusScreen';
 import RegistrationPoster from './pages/Registration/PosterScreen';
-import Scorer from './pages/Scorer';
+import Scorer, { TournamentScorer } from './pages/Scorer';
 import Tournaments from './pages/Tournaments';
 import TournamentSeriesDetail from './pages/Tournaments/SeriesDetail';
 import TournamentDetail from './pages/TournamentDetail';
@@ -84,6 +84,7 @@ function AppContent() {
         <Route path="/prihlaska/:kind/:id/plakat" element={<RegistrationPoster />} />
         {/* Kept on a phone at the rink by someone without an account: the app's own bar only. */}
         <Route path="/zapis/:token" element={<Scorer />} />
+        <Route path="/zapis/t/:token" element={<TournamentScorer />} />
 
         {/* Public part: readable signed out, one header and footer for all. */}
         <Route element={<PublicLayout />}>

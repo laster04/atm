@@ -18,6 +18,29 @@ const gameInclude = {
   group: { select: { id: true, name: true } },
 };
 
+/**
+ * What a saved result sets moving: the last group game fills the play-off
+ * seeds, and a decided play-off game sends its teams on. The organiser's form
+ * and a court's scorer link both end here.
+ */
+export async function afterResult(game: Parameters<typeof advancePlayoffBracket>[0]): Promise<void> {
+  if (game.phase === 'GROUP' && game.status === 'COMPLETED') {
+    await resolvePlayoffSeeds(game.tournamentId);
+  }
+  await advancePlayoffBracket(game);
+}
+
+/** Answers for a game whose statistics a scorer link keeps; true when it did. */
+const keptByLink = async (gameId: string, res: Response): Promise<boolean> => {
+  const game = await prisma.tournamentGame.findUnique({ where: { id: gameId }, select: { keptByLink: true } });
+  if (!game?.keptByLink) return false;
+  res.status(409).json({
+    error: 'A scorer link keeps this game: its statistics follow from the goals recorded there',
+    code: 'KEPT_BY_LINK',
+  });
+  return true;
+};
+
 // ── Games ──────────────────────────────────────────────────
 
 export const getGamesByTournament = async (req: Request, res: Response): Promise<void> => {
@@ -143,9 +166,19 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       }
     }
 
+    // A score typed over what a scorer link kept takes the game back by hand:
+    // the link's goals go, the statistics they made stay as they are.
+    const takesOver = existing.keptByLink && (
+      (homeScore !== undefined && homeScore !== existing.homeScore)
+      || (awayScore !== undefined && awayScore !== existing.awayScore)
+      || (parts.value !== undefined && JSON.stringify(parts.value) !== JSON.stringify(existing.periodScores))
+    );
+    if (takesOver) await prisma.tournamentGoal.deleteMany({ where: { gameId: id } });
+
     const game = await prisma.tournamentGame.update({
       where: { id: id },
       data: {
+        ...(takesOver && { keptByLink: false }),
         ...(homeTeamId !== undefined && { homeTeamId }),
         ...(awayTeamId !== undefined && { awayTeamId }),
         ...(homeScore !== undefined && { homeScore }),
@@ -161,10 +194,7 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
       },
       include: gameInclude,
     });
-    if (game.phase === 'GROUP' && game.status === 'COMPLETED') {
-      await resolvePlayoffSeeds(game.tournamentId);
-    }
-    await advancePlayoffBracket(game);
+    await afterResult(game);
     res.json(game);
   } catch (error) {
     console.error('Update tournament game error:', error);
@@ -205,6 +235,7 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
     const { goals, assists } = req.body as CreateTournamentGameStatisticRequest;
     const playerId = toId(req.body.playerId);
     if (!playerId) { res.status(400).json({ error: 'playerId is required' }); return; }
+    if (await keptByLink(id, res)) return;
 
     const existing = await prisma.tournamentGameStatistic.findUnique({
       where: { gameId_playerId: { gameId: id, playerId } },
@@ -227,8 +258,9 @@ export const createStatistic = async (req: AuthRequest, res: Response): Promise<
 
 export const updateStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { statId } = req.params;
+    const { id, statId } = req.params;
     const { goals, assists } = req.body as UpdateTournamentGameStatisticRequest;
+    if (await keptByLink(id, res)) return;
 
     const stat = await prisma.tournamentGameStatistic.update({
       where: { id: statId },
@@ -247,7 +279,8 @@ export const updateStatistic = async (req: AuthRequest, res: Response): Promise<
 
 export const deleteStatistic = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { statId } = req.params;
+    const { id, statId } = req.params;
+    if (await keptByLink(id, res)) return;
     await prisma.tournamentGameStatistic.delete({ where: { id: statId } });
     res.json({ message: 'Statistic deleted' });
   } catch (error) {

@@ -5,6 +5,7 @@ import type {
   EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, ResultClaimsView, SeasonResultClaims, ScorerLinkState, ScorerLinkCreated, ScorerPage, ScorerGoalInput, MatchEvent, MatchEventInput, MyPlayerProfile,
+  CourtScorerPage, CourtGoalInput, PartScore, TournamentScorerLinks,
   GameDetail, RoundSummary, ResultsEmailCandidates, SeasonDigest, SeasonGroup, GroupTable,
   SeasonPlayoff, CreatePlayoffInput,
   RegistrationForm, RegistrationSettings, RegistrationInbox, Registration, MyRegistration, RegistrationInput, RegistrationKind,
@@ -279,7 +280,19 @@ export const scorerApi = {
   get: (token: string) => api.get<ScorerPage>(`/scorer/${token}`),
   addGoal: (token: string, goal: ScorerGoalInput) => api.post<ScorerPage>(`/scorer/${token}/goals`, goal),
   deleteGoal: (token: string, eventId: string) => api.delete<ScorerPage>(`/scorer/${token}/goals/${eventId}`),
-  finish: (token: string) => api.post<ScorerPage>(`/scorer/${token}/finish`)
+  finish: (token: string) => api.post<ScorerPage>(`/scorer/${token}/finish`),
+  // A tournament link opens the games of one court.
+  court: {
+    get: (token: string, gameId?: string) =>
+      api.get<CourtScorerPage>(`/scorer/t/${token}`, { params: gameId ? { game: gameId } : undefined }),
+    addGoal: (token: string, gameId: string, goal: CourtGoalInput) =>
+      api.post<CourtScorerPage>(`/scorer/t/${token}/games/${gameId}/goals`, goal),
+    deleteGoal: (token: string, gameId: string, goalId: string) =>
+      api.delete<CourtScorerPage>(`/scorer/t/${token}/games/${gameId}/goals/${goalId}`),
+    setSets: (token: string, gameId: string, periodScores: PartScore[]) =>
+      api.put<CourtScorerPage>(`/scorer/t/${token}/games/${gameId}/sets`, { periodScores }),
+    finish: (token: string, gameId: string) => api.post<CourtScorerPage>(`/scorer/t/${token}/games/${gameId}/finish`)
+  }
 };
 
 export const gameStatisticApi = {
@@ -450,6 +463,14 @@ export const tournamentGameApi = {
   ) => api.put<TournamentGameStatistic>(`/tournaments/games/${gameId}/statistics/${statId}`, data),
   deleteStatistic: (gameId: string | number, statId: string | number) =>
     api.delete(`/tournaments/games/${gameId}/statistics/${statId}`),
+};
+
+// ── Tournament scorer links (one per court; the address comes back from create only) ──
+export const tournamentScorerLinkApi = {
+  list: (tournamentId: string) => api.get<TournamentScorerLinks>(`/tournaments/${tournamentId}/scorer-links`),
+  create: (tournamentId: string, location: string, label: string) =>
+    api.post<ScorerLinkCreated>(`/tournaments/${tournamentId}/scorer-links`, { location, label }),
+  revoke: (tournamentId: string, linkId: string) => api.delete(`/tournaments/${tournamentId}/scorer-links/${linkId}`),
 };
 
 export default api;
