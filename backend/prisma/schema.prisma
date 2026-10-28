@@ -118,6 +118,7 @@ model User {
   confirmedGames          Game[]             @relation("GameConfirmer")
   resultClaims            GameResultClaim[]  @relation("ResultClaimSubmitter")
   scorerLinks             ScorerLink[]       @relation("ScorerLinkCreator")
+  tournamentScorerLinks   TournamentScorerLink[] @relation("TournamentScorerLinkCreator")
   auditEntries            AuditLog[]         @relation("AuditActor")
   createdTeamEvents       TeamEvent[]        @relation("TeamEventCreator")
   attendanceResponses     Attendance[]       @relation("AttendanceResponder")
@@ -838,6 +839,8 @@ model Tournament {
   sponsors  TournamentSponsor[]
   documents TournamentDocument[]
 
+  scorerLinks TournamentScorerLink[]
+
   @@map("tournaments")
 }
 
@@ -856,6 +859,7 @@ model TournamentTeam {
   players    TournamentPlayer[]
   groupTeams TournamentGroupTeam[]
   homeGames  TournamentGame[]      @relation("TournamentHomeTeam")
+  goals      TournamentGoal[]
   awayGames  TournamentGame[]      @relation("TournamentAwayTeam")
 
   registration Registration?
@@ -877,6 +881,8 @@ model TournamentPlayer {
   team   TournamentTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   statistics TournamentGameStatistic[]
+  goals      TournamentGoal[] @relation("TournamentGoalScorer")
+  assists    TournamentGoal[] @relation("TournamentGoalAssist")
 
   @@map("tournament_players")
 }
@@ -935,8 +941,60 @@ model TournamentGame {
   awayTeam   TournamentTeam? @relation("TournamentAwayTeam", fields: [awayTeamId], references: [id], onDelete: SetNull)
 
   statistics TournamentGameStatistic[]
+  // Goals a scorer link wrote. While keptByLink is set the score and the
+  // statistics follow from them (for volleyball, the link keeps the sets).
+  goals      TournamentGoal[]
+  keptByLink Boolean          @default(false) @map("kept_by_link")
 
   @@map("tournament_games")
+}
+
+// A link that lets a volunteer without an account keep the games of one court
+// (the games sharing a location) on the day of a tournament. Only a SHA-256 of
+// its token is stored; each court has at most one live link.
+model TournamentScorerLink {
+  id           String           @id @default(uuid())
+  tournamentId String           @map("tournament_id")
+  tournament   Tournament       @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  location     String
+  // Who the organiser gave it to.
+  label        String?
+  tokenHash    String           @unique @map("token_hash")
+  expiresAt    DateTime         @map("expires_at")
+  revokedAt    DateTime?        @map("revoked_at")
+  lastUsedAt   DateTime?        @map("last_used_at")
+  createdById  String?          @map("created_by_id")
+  createdBy    User?            @relation("TournamentScorerLinkCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  goals        TournamentGoal[]
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  @@index([tournamentId, location])
+  @@map("tournament_scorer_links")
+}
+
+// One goal recorded through a scorer link. The game's score and its players'
+// statistics are counted from these.
+model TournamentGoal {
+  id     String         @id @default(uuid())
+  gameId String         @map("game_id")
+  game   TournamentGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  teamId String         @map("team_id")
+  team   TournamentTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  playerId       String?           @map("player_id")
+  player         TournamentPlayer? @relation("TournamentGoalScorer", fields: [playerId], references: [id], onDelete: SetNull)
+  assistPlayerId String?           @map("assist_player_id")
+  assistPlayer   TournamentPlayer? @relation("TournamentGoalAssist", fields: [assistPlayerId], references: [id], onDelete: SetNull)
+
+  scorerLinkId String?               @map("scorer_link_id")
+  scorerLink   TournamentScorerLink? @relation(fields: [scorerLinkId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([gameId])
+  @@map("tournament_goals")
 }
 
 model TournamentGameStatistic {

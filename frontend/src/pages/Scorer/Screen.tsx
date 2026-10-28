@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Ban, CheckCircle2, Clock, Flag, Lock, Plus, SearchX, Target, Trash2 } from 'lucide-react';
+import { Ban, CheckCircle2, Clock, Flag, Lock, SearchX } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { scorerApi } from '@/services/api';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -9,13 +9,7 @@ import { GameStatus, MatchEventType, type ScorerGoalInput, type ScorerPage } fro
 import { partLabel, profileFor } from '@/utils/sportProfiles';
 import { APP_TIME_ZONE } from '@/utils/date';
 import { PoweredByAtm } from '@/components/public';
-
-const NAVY = '#0F172A';
-
-type PlayerRef = { name: string; number?: number | null };
-
-const playerLabel = (player?: PlayerRef | null) =>
-	player ? (player.number != null ? `#${player.number} ${player.name}` : player.name) : null;
+import { chosen, DeadEnd, fieldClass, GoalBar, GoalRow, NAVY, Notice, playerLabel } from './components/ScorerParts';
 
 /**
  * Where a scorer link lands: one game's goals, kept on a phone by someone
@@ -152,9 +146,6 @@ export default function ScorerScreen() {
 		}
 	};
 
-	const field = 'h-12 rounded-[10px] border border-border bg-input-background px-3 text-[15px]';
-	const choice = (selected: boolean) =>
-		selected ? { backgroundColor: NAVY, borderColor: NAVY, color: '#ffffff' } : undefined;
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background">
@@ -210,34 +201,18 @@ export default function ScorerScreen() {
 											.filter(Boolean)
 											.join(', ');
 										return (
-											<div key={event.id} className="flex items-center gap-3 px-3.5 py-2.5">
-												<span
-													className="flex size-8 shrink-0 items-center justify-center rounded-full text-white"
-													style={{ backgroundColor: teamOf(event.teamId).primaryColor || '#94a3b8' }}
-												>
-													<Target className="size-4" aria-hidden />
-												</span>
-												<span className="flex min-w-0 flex-1 flex-col gap-px">
-													<span className="truncate text-[14.5px] font-semibold">
-														{playerLabel(event.player) ?? t('scorerPage.unattributed')}
-														{assists ? ` (${assists})` : ''}
-													</span>
-													<span className="truncate text-[11.5px] text-muted-foreground">
-														{teamOf(event.teamId).name}
-														{event.minute != null ? ` · ${t('scorerPage.atMinute', { n: event.minute })}` : ''}
-													</span>
-												</span>
-												{editable && event.mine && (
-													<button
-														onClick={() => void run(() => scorerApi.deleteGoal(token, event.id), t('scorerPage.deleteError'))}
-														disabled={busy}
-														className="flex size-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:opacity-70 disabled:opacity-50"
-														aria-label={t('scorerPage.deleteGoal')}
-													>
-														<Trash2 className="size-4" aria-hidden />
-													</button>
-												)}
-											</div>
+											<GoalRow
+												key={event.id}
+												color={teamOf(event.teamId).primaryColor}
+												title={`${playerLabel(event.player) ?? t('scorerPage.unattributed')}${assists ? ` (${assists})` : ''}`}
+												subtitle={`${teamOf(event.teamId).name}${event.minute != null ? ` · ${t('scorerPage.atMinute', { n: event.minute })}` : ''}`}
+												busy={busy}
+												onDelete={
+													editable && event.mine
+														? () => void run(() => scorerApi.deleteGoal(token, event.id), t('scorerPage.deleteError'))
+														: undefined
+												}
+											/>
 										);
 									})}
 								</div>
@@ -255,7 +230,7 @@ export default function ScorerScreen() {
 							<select
 								value={draft.playerId ?? ''}
 								onChange={(e) => patch({ playerId: e.target.value || null })}
-								className={field}
+								className={fieldClass}
 							>
 								<option value="">{t('scorerPage.unattributed')}</option>
 								{roster.map((player) => (
@@ -277,7 +252,7 @@ export default function ScorerScreen() {
 										<select
 											value={draft[key] ?? ''}
 											onChange={(e) => patch({ [key]: e.target.value || null })}
-											className={`${field} px-2 text-[14px]`}
+											className={`${fieldClass} px-2 text-[14px]`}
 										>
 											<option value="">{t('scorerPage.noAssist')}</option>
 											{/* Nobody assists their own goal, or twice on one goal. */}
@@ -309,7 +284,7 @@ export default function ScorerScreen() {
 											type="button"
 											onClick={() => patch({ period })}
 											className="h-12 rounded-[10px] border text-[14px] font-semibold"
-											style={choice(draft.period === period)}
+											style={chosen(draft.period === period)}
 										>
 											{period}
 										</button>
@@ -387,57 +362,23 @@ export default function ScorerScreen() {
 			</main>
 
 			{editable && !draft && !finishing && (
-				<div className="sticky bottom-0 shrink-0 border-t border-border bg-background/95 backdrop-blur">
-					<div className="mx-auto flex max-w-xl flex-col gap-2 px-4 py-3">
-						<div className="grid grid-cols-2 gap-2">
-							{teams.map((team) => (
-								<button
-									key={team.id}
-									type="button"
-									onClick={() => startGoal(team.id)}
-									className="flex h-14 min-w-0 items-center justify-center gap-1.5 rounded-[12px] px-2 text-[15px] font-bold text-white"
-									style={{ backgroundColor: team.primaryColor || NAVY }}
-								>
-									<Plus className="size-4 shrink-0" aria-hidden />
-									<span className="truncate">{t('scorerPage.goalFor', { team: team.name })}</span>
-								</button>
-							))}
-						</div>
-						{!finished && (
-							<button
-								type="button"
-								onClick={() => {
-									setError('');
-									setFinishing(true);
-								}}
-								className="flex h-11 items-center justify-center gap-2 rounded-[10px] border border-border text-[14.5px] font-semibold"
-							>
-								<Flag className="size-4" aria-hidden />
-								{t('scorerPage.finish')}
-							</button>
-						)}
-					</div>
-				</div>
+				<GoalBar teams={teams} onGoal={startGoal}>
+					{!finished && (
+						<button
+							type="button"
+							onClick={() => {
+								setError('');
+								setFinishing(true);
+							}}
+							className="flex h-11 items-center justify-center gap-2 rounded-[10px] border border-border text-[14.5px] font-semibold"
+						>
+							<Flag className="size-4" aria-hidden />
+							{t('scorerPage.finish')}
+						</button>
+					)}
+				</GoalBar>
 			)}
 		</div>
 	);
 }
 
-function Notice({ icon, children }: { icon: ReactNode; children: ReactNode }) {
-	return (
-		<div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/40 p-3.5">
-			<span className="mt-0.5 shrink-0 text-muted-foreground">{icon}</span>
-			<p className="text-[13px] leading-snug">{children}</p>
-		</div>
-	);
-}
-
-function DeadEnd({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
-	return (
-		<div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background px-6 text-center">
-			<span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">{icon}</span>
-			<h1 className="text-lg font-bold">{title}</h1>
-			<p className="max-w-sm text-sm text-muted-foreground">{text}</p>
-		</div>
-	);
-}

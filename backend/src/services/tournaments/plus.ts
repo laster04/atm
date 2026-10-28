@@ -21,7 +21,7 @@ export class PlanFeatureError extends Error {
   readonly code = 'PLAN_FEATURE';
 
   constructor(
-    public readonly feature: 'SPONSOR_LOGOS' | 'DOCUMENTS' | 'DOCUMENT_SIZE',
+    public readonly feature: 'SPONSOR_LOGOS' | 'DOCUMENTS' | 'DOCUMENT_SIZE' | 'SCORER_LINKS',
     public readonly plan: Plan,
     public readonly limit: number | null
   ) {

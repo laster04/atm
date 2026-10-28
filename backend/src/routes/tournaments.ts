@@ -73,6 +73,7 @@ import {
   generateTournamentPlayoffs,
   deleteTournamentPlayoffs,
 } from '../controllers/tournamentPlayoffController.js';
+import { createCourtLink, getCourtLinks, revokeCourtLink } from '../controllers/tournamentScorerLinkController.js';
 
 const router = Router();
 
@@ -106,6 +107,10 @@ router.get('/:id/plan', authenticate, requireTournamentAccess(), getPlan);
 router.get('/:id/plan/offers', authenticate, requireTournamentAccess(), getOffers);
 router.post('/:id/payments', authenticate, requireTournamentAccess(), startPayment);
 router.get('/:tournamentId/scorers', optionalAuth, requireVisible('tournament', 'tournamentId'), getTopScorersByTournament);
+// Scorer links, one per court, for paid plans. The volunteer's side is in scorer.ts.
+router.get('/:tournamentId/scorer-links', authenticate, requireTournamentAccess('tournamentId'), getCourtLinks);
+router.post('/:tournamentId/scorer-links', authenticate, requireTournamentAccess('tournamentId'), createCourtLink);
+router.delete('/:tournamentId/scorer-links/:linkId', authenticate, requireTournamentAccess('tournamentId'), revokeCourtLink);
 
 // ── Teams ──────────────────────────────────────────────────
 router.get('/:tournamentId/teams', optionalAuth, requireVisible('tournament', 'tournamentId'), getTeamsByTournament);

@@ -30,6 +30,7 @@ import { positionsForSports } from '@/utils/playerPositions';
 import LogoUpload from '@components/LogoUpload';
 import PlanChip from '../components/PlanChip';
 import PlusPanel from '../components/PlusPanel';
+import ScorerLinksPanel from '../components/ScorerLinksPanel';
 import EmbedDialog from '@/components/embed/EmbedDialog';
 import { isPlanLimit, planLimitMessage } from '@/utils/planLimit';
 
@@ -612,6 +613,7 @@ export default function TournamentManagePage() {
           <TabsTrigger value="groups">{t('tm.tournament.tabs.groups')} ({groups.length})</TabsTrigger>
           <TabsTrigger value="results">{t('tm.tournament.tabs.results')} ({groupGames.length})</TabsTrigger>
           <TabsTrigger value="playoff">{t('tm.tournament.tabs.playoff')} ({playoffGames.length})</TabsTrigger>
+          <TabsTrigger value="scorers">{t('courtLinks.tab')}</TabsTrigger>
           <TabsTrigger value="plus">{t('plus.tab')}</TabsTrigger>
           <TabsTrigger value="registrations">
             {t('registrations.title')}
@@ -622,6 +624,10 @@ export default function TournamentManagePage() {
         </TabsList>
 
         {/* ── REGISTRATIONS ─────────────────────────────────── */}
+        <TabsContent value="scorers" className="mt-4">
+          <ScorerLinksPanel tournamentId={tournament.id} tournamentName={tournament.name} onUpgrade={() => setPlanOffer((n) => n + 1)} />
+        </TabsContent>
+
         <TabsContent value="plus" className="mt-4">
           <PlusPanel tournamentId={tournament.id} onUpgrade={() => setPlanOffer((n) => n + 1)} />
         </TabsContent>
@@ -1021,6 +1027,11 @@ export default function TournamentManagePage() {
                 <span className="text-muted-foreground">vs</span>
                 <span>{editingGame.awayTeam?.name ?? t('tm.common.away')}</span>
               </div>
+              {editingGame.keptByLink && (
+                <p className="text-xs text-violet-800 bg-violet-50 border border-violet-200 rounded px-3 py-2">
+                  {t('courtLinks.keptByLink')}
+                </p>
+              )}
               {bySets ? (
                 <div className="space-y-2">
                   <div className="flex items-baseline justify-between text-sm">
@@ -1088,6 +1099,11 @@ export default function TournamentManagePage() {
             {(!playoffForm.homeTeamId || !playoffForm.awayTeamId) && (
               <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
                 {t('tm.tournament.playoff.teamsUnknownHint')}
+              </p>
+            )}
+            {editingPlayoff?.keptByLink && (
+              <p className="text-xs text-violet-800 bg-violet-50 border border-violet-200 rounded px-3 py-2">
+                {t('courtLinks.keptByLink')}
               </p>
             )}
             {bySets ? (
