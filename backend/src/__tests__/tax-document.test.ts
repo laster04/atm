@@ -47,7 +47,7 @@ async function paidFor(label: string, plan: 'TOURNAMENT' | 'TOURNAMENT_PLUS' | '
   const tournament = await request(app).post(`/api/tournaments/series/${series.body.id}/tournaments`).set(auth(owner.token))
     .send({ name: `Tax Cup ${label} ${stamp}` });
   const payment = await request(app).post(`/api/tournaments/${tournament.body.id}/payments`).set(auth(owner.token))
-    .send({ plan, currency });
+    .send({ plan, currency, immediateStart: true });
   expect(payment.status).toBe(201);
   return { id: payment.body.id as string, owner };
 }

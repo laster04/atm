@@ -1,5 +1,5 @@
 import { AuthUser } from '../types/index.js';
-import { canManageTeam } from './access.js';
+import { canManageTeam, canManageTournamentTeam } from './access.js';
 
 /**
  * What a logged-out visitor is allowed to see of a roster.
@@ -53,3 +53,24 @@ export const toPublicManager = (
   manager: { id: string; name: string; email: string } | null | undefined
 ): { id: string; name: string } | null =>
   manager ? { id: manager.id, name: manager.name } : null;
+
+/**
+ * A tournament roster as a visitor sees it: the same rule as a league roster,
+ * so birth years and notes stay with whoever runs the team or the tournament.
+ * The position stays, because the public tournament pages show it.
+ */
+export const toPublicTournamentPlayer = <T extends { bornYear: number | null; note: string | null }>(
+  player: T
+): Omit<T, 'bornYear' | 'note'> => {
+  const { bornYear: _bornYear, note: _note, ...rest } = player;
+  return rest;
+};
+
+/** True when this viewer may see a tournament team's full roster. */
+export const canSeeFullTournamentRoster = async (
+  user: AuthUser | undefined,
+  teamId: string
+): Promise<boolean> => {
+  if (!user) return false;
+  return canManageTournamentTeam(user, teamId);
+};

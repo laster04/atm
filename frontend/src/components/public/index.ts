@@ -21,3 +21,4 @@ export { default as PlayerHeroBand } from './PlayerHeroBand';
 export { default as KnockoutBracket } from './KnockoutBracket';
 export type { KnockoutCard, KnockoutRound, KnockoutSide } from './KnockoutBracket';
 export { useLightChrome, PoweredByAtm } from './chrome';
+export { default as LegalDocument } from './LegalDocument';

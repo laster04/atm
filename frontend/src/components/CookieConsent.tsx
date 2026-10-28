@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 declare global {
 	interface Window {
 		gtag?: (...args: unknown[]) => void;
+		/** Defined in index.html: downloads gtag.js once consent is given. */
+		atmLoadGoogleTag?: () => void;
 	}
 }
 
@@ -30,7 +33,7 @@ export function openCookieSettings() {
 
 /**
  * Asks once whether Google Ads may set its cookies. Until the visitor agrees
- * the tag runs in Consent Mode with everything denied (see index.html).
+ * gtag.js is not loaded at all (see index.html).
  * Accept and decline are equally prominent, as the EU rules ask.
  */
 export default function CookieConsent() {
@@ -49,12 +52,17 @@ export default function CookieConsent() {
 		} catch {
 			// Private mode: the banner simply asks again next visit.
 		}
-		window.gtag?.('consent', 'update', {
-			ad_storage: choice,
-			ad_user_data: choice,
-			ad_personalization: choice,
-			analytics_storage: choice,
-		});
+		if (choice === 'granted') {
+			window.atmLoadGoogleTag?.();
+		} else {
+			// Only matters when the tag was loaded by an earlier "accept".
+			window.gtag?.('consent', 'update', {
+				ad_storage: 'denied',
+				ad_user_data: 'denied',
+				ad_personalization: 'denied',
+				analytics_storage: 'denied',
+			});
+		}
 		setOpen(false);
 	};
 
@@ -67,7 +75,12 @@ export default function CookieConsent() {
 		>
 			<div className="flex flex-col gap-3 rounded-2xl bg-navy p-5 text-white shadow-2xl">
 				<h2 className="text-base font-bold">{t('cookieConsent.title')}</h2>
-				<p className="text-sm leading-relaxed text-white/80">{t('cookieConsent.text')}</p>
+				<p className="text-sm leading-relaxed text-white/80">
+					{t('cookieConsent.text')}{' '}
+					<Link to="/privacy" className="font-bold text-white underline underline-offset-2 hover:text-white/80">
+						{t('cookieConsent.more')}
+					</Link>
+				</p>
 				<div className="flex flex-col gap-2 sm:flex-row">
 					<button
 						type="button"

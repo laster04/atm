@@ -353,8 +353,9 @@ export const tournamentApi = {
   getPlan: (id: string) => api.get<PlanStatus>(`/tournaments/${id}/plan`),
   getOffers: (id: string) =>
     api.get<{ offers: PlanOffer[]; currencies: PaymentCurrency[] }>(`/tournaments/${id}/plan/offers`),
+  // immediateStart: the payer ticked that the plan starts at once (terms, section 5).
   startPayment: (id: string, plan: OfferPlan, currency: PaymentCurrency) =>
-    api.post<PlanPayment>(`/tournaments/${id}/payments`, { plan, currency }),
+    api.post<PlanPayment>(`/tournaments/${id}/payments`, { plan, currency, immediateStart: true }),
   cancelPayment: (paymentId: string) => api.post<PlanPayment>(`/billing/payments/${paymentId}/cancel`),
   create: (seriesId: string | number, data: Partial<Tournament>) =>
     api.post<Tournament>(`/tournaments/series/${seriesId}/tournaments`, data),

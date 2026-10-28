@@ -1389,6 +1389,11 @@ model Payment {
   tournamentId String?     @map("tournament_id")
   tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: SetNull)
 
+  // When the payer asked for the plan to start at once and acknowledged that a
+  // consumer loses the right to withdraw once the service is fully provided
+  // (terms of service, section 5). Required for every new payment.
+  immediateStartConsentAt DateTime? @map("immediate_start_consent_at")
+
   confirmedAt   DateTime? @map("confirmed_at")
   confirmedById String?   @map("confirmed_by_id")
   confirmedBy   User?     @relation("PaymentConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)

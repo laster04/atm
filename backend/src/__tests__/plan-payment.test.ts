@@ -64,7 +64,7 @@ async function tournament(label: string, teams = 0, owner = organiser.token) {
 const offers = (id: string, as = organiser.token) => request(app).get(`/api/tournaments/${id}/plan/offers`).set(auth(as));
 const statusAs = (id: string, as: string) => request(app).get(`/api/tournaments/${id}/plan`).set(auth(as));
 const buy = (id: string, plan: string, currency = 'CZK', as = organiser.token) =>
-  request(app).post(`/api/tournaments/${id}/payments`).set(auth(as)).send({ plan, currency });
+  request(app).post(`/api/tournaments/${id}/payments`).set(auth(as)).send({ plan, currency, immediateStart: true });
 const status = (id: string) => request(app).get(`/api/tournaments/${id}/plan`).set(auth(organiser.token));
 const confirm = (ids: string[], as = admin.token) =>
   request(app).post('/api/admin/payments/confirm').set(auth(as)).send({ ids, reason: 'On the statement' });
@@ -127,6 +127,19 @@ describe('offers', () => {
 });
 
 describe('paying for a plan', () => {
+  it('needs the payer to ask for an immediate start, and remembers when they did', async () => {
+    const id = await tournament('consent');
+    const refused = await request(app).post(`/api/tournaments/${id}/payments`).set(auth(organiser.token))
+      .send({ plan: 'TOURNAMENT', currency: 'CZK' });
+    expect(refused.status).toBe(400);
+    expect(refused.body.code).toBe('IMMEDIATE_START_REQUIRED');
+
+    const paid = await buy(id, 'TOURNAMENT');
+    expect(paid.status).toBe(201);
+    const stored = await prisma.payment.findUnique({ where: { id: paid.body.id } });
+    expect(stored?.immediateStartConsentAt).toBeInstanceOf(Date);
+  });
+
   it('shows the amount, the account and a QR code, tells the admins, and allows one at a time', async () => {
     const id = await tournament('pay', 6);
     notices.mockClear();

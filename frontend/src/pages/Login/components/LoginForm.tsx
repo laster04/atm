@@ -10,6 +10,7 @@ import { Button } from '@components/base/button';
 import { Input } from '@components/base/input';
 import { Label } from '@components/base/label';
 import GoogleSignInButton from '@components/GoogleSignInButton';
+import LegalConsentNote from '@components/LegalConsentNote';
 
 interface LoginFormData {
   email: string;
@@ -85,6 +86,9 @@ export default function LoginForm() {
           </Button>
         </div>
       </form>
+
+      {/* Google sign-in makes an account when there is none yet. */}
+      <LegalConsentNote className="my-4 text-center" />
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">

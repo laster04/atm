@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import type { OfferPlan, PaymentCurrency, PlanOffer, PlanPayment } from '@types';
@@ -27,10 +27,13 @@ export default function UpgradeDialog({ tournamentId, open, onOpenChange, paymen
   const [currency, setCurrency] = useState<PaymentCurrency>('CZK');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // Asked afresh each time the offers open; see the terms, section 5.
+  const [immediateStart, setImmediateStart] = useState(false);
 
   useEffect(() => {
     if (!open || payment) return;
     setError('');
+    setImmediateStart(false);
     tournamentApi.getOffers(tournamentId)
       .then((res) => {
         setOffers(res.data.offers);
@@ -76,17 +79,19 @@ export default function UpgradeDialog({ tournamentId, open, onOpenChange, paymen
         {error && <p className="text-sm text-red-700">{error}</p>}
         {payment
           ? <PaymentDetails payment={payment} busy={busy} onCancel={() => void cancel()} />
-          : <Offers offers={offers} currencies={currencies} currency={currency} onCurrency={setCurrency} busy={busy} onChoose={(plan) => void choose(plan)} />}
+          : <Offers offers={offers} currencies={currencies} currency={currency} onCurrency={setCurrency} immediateStart={immediateStart} onImmediateStart={setImmediateStart} busy={busy} onChoose={(plan) => void choose(plan)} />}
       </DialogContent>
     </Dialog>
   );
 }
 
-function Offers({ offers, currencies, currency, onCurrency, busy, onChoose }: {
+function Offers({ offers, currencies, currency, onCurrency, immediateStart, onImmediateStart, busy, onChoose }: {
   offers: PlanOffer[] | null;
   currencies: PaymentCurrency[];
   currency: PaymentCurrency;
   onCurrency: (currency: PaymentCurrency) => void;
+  immediateStart: boolean;
+  onImmediateStart: (value: boolean) => void;
   busy: boolean;
   onChoose: (plan: OfferPlan) => void;
 }) {
@@ -127,11 +132,25 @@ function Offers({ offers, currencies, currency, onCurrency, busy, onChoose }: {
                 {offer.startsAt && ` · ${t('plans.offers.renewalFrom', { date: formatSeasonDate(offer.startsAt, i18n.language) })}`}
               </p>
               <p className="flex-1 text-sm">{t(`plans.offers.points.${offer.plan}`, { limit: offer.limit })}</p>
-              <Button disabled={busy || price === undefined} onClick={() => onChoose(offer.plan)}>{t('plans.offers.choose')}</Button>
+              <Button disabled={busy || price === undefined || !immediateStart} onClick={() => onChoose(offer.plan)}>{t('plans.offers.choose')}</Button>
             </li>
           );
         })}
       </ul>
+      <label className="flex items-start gap-2.5 rounded-lg border p-3 text-sm leading-relaxed">
+        <input
+          type="checkbox"
+          checked={immediateStart}
+          onChange={(event) => onImmediateStart(event.target.checked)}
+          className="mt-1 size-4 shrink-0"
+        />
+        <span>
+          <Trans
+            i18nKey="legal.immediateStart"
+            components={{ terms: <Link to="/terms" target="_blank" className="font-semibold text-primary hover:underline" /> }}
+          />
+        </span>
+      </label>
       <p className="text-xs text-muted-foreground">{t('plans.offers.vatIncluded')}</p>
     </div>
   );
