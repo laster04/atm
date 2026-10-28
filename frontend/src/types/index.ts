@@ -544,6 +544,72 @@ export interface ScorerPage {
   outcome?: string | null;
 }
 
+/** What a tournament court's link records: goals, or set scores for volleyball. Null: neither, for this sport. */
+export type CourtScorerMode = 'GOALS' | 'SETS';
+
+/** One court of a tournament (the games sharing a location) and its scorer link. */
+export interface TournamentScorerCourt {
+  location: string;
+  games: number;
+  link: ScorerLinkSummary | null;
+}
+
+export interface TournamentScorerLinks {
+  mode: CourtScorerMode | null;
+  /** False on the free plan: scorer links are a paid feature. */
+  allowed: boolean;
+  plan: string;
+  courts: TournamentScorerCourt[];
+}
+
+/** Why a court's link cannot change one of its games. */
+export type CourtScorerBlock = 'HAND_RESULT' | 'NOT_PLAYED' | 'TEAMS_UNKNOWN';
+
+type CourtTeam = Pick<TournamentTeam, 'id' | 'name' | 'logo' | 'primaryColor'>;
+
+export interface CourtGame {
+  id: string;
+  phase: TournamentGamePhase;
+  date: string | null;
+  status: GameStatus;
+  homeScore: number | null;
+  awayScore: number | null;
+  periodScores: PartScore[] | null;
+  homeTeam: CourtTeam | null;
+  awayTeam: CourtTeam | null;
+  groupName: string | null;
+  block: CourtScorerBlock | null;
+}
+
+export interface CourtGoal {
+  id: string;
+  teamId: string;
+  player: EventPlayerRef | null;
+  assistPlayer: EventPlayerRef | null;
+  createdAt: string;
+  /** Recorded through this link, so the scorer may remove it. */
+  mine: boolean;
+}
+
+/** Everything the page behind a tournament court's link shows. */
+export interface CourtScorerPage {
+  status: ScorerLinkStatus;
+  label: string | null;
+  location: string;
+  expiresAt: string;
+  mode: CourtScorerMode | null;
+  tournament: { id: string; name: string; seriesName: string; sportType: SportType; setFormat: SetFormat | null };
+  games: CourtGame[];
+  /** The open game's goals and rosters, when one was asked for. */
+  game: { id: string; goals: CourtGoal[]; rosters: Record<string, EventPlayerRef[]> } | null;
+}
+
+export interface CourtGoalInput {
+  teamId: string;
+  playerId: string | null;
+  assistPlayerId: string | null;
+}
+
 export interface ScorerGoalInput {
   teamId: string;
   period: number;
@@ -966,6 +1032,8 @@ export interface TournamentGame {
   note?: string | null;
   /** Volleyball sets; the score follows from them. */
   periodScores?: PartScore[] | null;
+  /** A court's scorer link keeps the result; a score typed by hand takes it back. */
+  keptByLink?: boolean;
   tournamentId: string;
   groupId?: string | null;
   homeTeamId?: string | null;

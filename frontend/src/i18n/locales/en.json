@@ -3544,5 +3544,47 @@
       "NOT_PLAYED": "The game was postponed or cancelled.",
       "HAND_STATS": "The season manager has already entered player statistics by hand, so goals cannot be added here."
     }
+  },
+  "courtLinks": {
+    "tab": "Scorers",
+    "intro": "Give each court to a volunteer: one link opens all games played there. They add goals on their phone, with the scorer when known, and end each game. The score, table and top scorers update at once.",
+    "unsupported": "Scorer links are not available for this sport yet.",
+    "locked": {
+      "title": "Scorer links come with a paid tournament plan",
+      "body": "With Turnaj, Turnaj Plus or Organizátor you hand each court to a volunteer, and results come in as the games are played.",
+      "action": "See plans"
+    },
+    "noCourts": "No game has a court yet. Fill in the courts (locations) when you generate the schedule, or in each game.",
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games",
+    "hint": "Anyone without an account can keep the games of this court on their phone. The link works until 12 hours after the last game here.",
+    "labelPlaceholder": "Who gets it (optional), e.g. Jana - court 1",
+    "message": "Please record the games of {{court}} at {{tournament}} here: {{link}}",
+    "qrHint": "The volunteer can scan this at the court.",
+    "keptByLink": "This result is kept by the court's scorer link. Saving a different score here takes the game over by hand: the link can no longer change it.",
+    "errors": {
+      "load": "Scorer links could not be loaded."
+    }
+  },
+  "courtPage": {
+    "documentTitle": "Court scoring",
+    "title": "Scoring · {{court}}",
+    "until": "The link works until {{until}}.",
+    "missingText": "Check that the whole address was copied, or ask the organiser for a new link.",
+    "deadText": "The link for {{court}} no longer works. Ask the organiser for a new one.",
+    "noGames": "No games on this court yet.",
+    "group": "Group {{name}}",
+    "back": "All games on the court",
+    "finishHint": "{{home}} - {{away}} ends {{score}}. The result counts at once; you can still correct it while the link works.",
+    "finished": "The game is over and counts. You can still correct it until {{until}}.",
+    "next": "Next: {{home}} - {{away}}",
+    "saveSets": "Save sets",
+    "setsError": "Failed to save the sets",
+    "needsWinner": "A play-off game needs a winner. Add the deciding goal or set first.",
+    "block": {
+      "HAND_RESULT": "The organiser has already entered this result, so it cannot be changed here.",
+      "NOT_PLAYED": "The game was postponed or cancelled.",
+      "TEAMS_UNKNOWN": "The teams of this game are not known yet."
+    }
   }
 }

@@ -3618,5 +3618,49 @@
       "NOT_PLAYED": "Zápas byl odložen nebo zrušen.",
       "HAND_STATS": "Správce sezóny už zadal statistiky hráčů ručně, proto tu góly přidat nejdou."
     }
+  },
+  "courtLinks": {
+    "tab": "Zapisovatelé",
+    "intro": "Svěřte každé hřiště dobrovolníkovi: jeden odkaz otevře všechny zápasy, které se na něm hrají. Na mobilu přidává góly, případně i střelce, a ukončí každý zápas. Skóre, tabulka i střelci se aktualizují hned.",
+    "unsupported": "Pro tento sport zatím odkazy pro zapisovatele nejsou.",
+    "locked": {
+      "title": "Odkazy pro zapisovatele patří k placenému plánu turnaje",
+      "body": "S plánem Turnaj, Turnaj Plus nebo Organizátor svěříte každé hřiště dobrovolníkovi a výsledky přibývají, jak se zápasy hrají.",
+      "action": "Zobrazit plány"
+    },
+    "noCourts": "Žádný zápas zatím nemá hřiště. Doplňte hřiště (místa) při generování rozpisu, nebo u jednotlivých zápasů.",
+    "games_one": "{{count}} zápas",
+    "games_few": "{{count}} zápasy",
+    "games_many": "{{count}} zápasů",
+    "games_other": "{{count}} zápasů",
+    "hint": "Kdokoli bez účtu může na mobilu zapisovat zápasy tohoto hřiště. Odkaz platí do 12 hodin po posledním zápase na něm.",
+    "labelPlaceholder": "Komu ho dáváte (nepovinné), např. Jana - hřiště 1",
+    "message": "Prosím zapisuj zápasy na hřišti {{court}} na turnaji {{tournament}} tady: {{link}}",
+    "qrHint": "Dobrovolník si ho může naskenovat u hřiště.",
+    "keptByLink": "Tento výsledek zapisuje odkaz pro zapisovatele hřiště. Když tady uložíte jiné skóre, převezmete zápas ručně a odkaz ho už nezmění.",
+    "errors": {
+      "load": "Odkazy pro zapisovatele se nepodařilo načíst."
+    }
+  },
+  "courtPage": {
+    "documentTitle": "Zápis hřiště",
+    "title": "Zápis · {{court}}",
+    "until": "Odkaz platí do {{until}}.",
+    "missingText": "Zkontrolujte, že je zkopírovaná celá adresa, nebo požádejte pořadatele o nový odkaz.",
+    "deadText": "Odkaz pro {{court}} už nefunguje. Požádejte pořadatele o nový.",
+    "noGames": "Na tomto hřišti zatím nejsou žádné zápasy.",
+    "group": "Skupina {{name}}",
+    "back": "Všechny zápasy hřiště",
+    "finishHint": "{{home}} - {{away}} končí {{score}}. Výsledek platí hned; dokud odkaz funguje, můžete ho ještě opravit.",
+    "finished": "Zápas skončil a výsledek platí. Opravit ho můžete do {{until}}.",
+    "next": "Další: {{home}} - {{away}}",
+    "saveSets": "Uložit sety",
+    "setsError": "Sety se nepodařilo uložit",
+    "needsWinner": "Zápas play-off potřebuje vítěze. Nejdřív zapište rozhodující gól nebo set.",
+    "block": {
+      "HAND_RESULT": "Pořadatel už tento výsledek zapsal, proto ho tady nelze měnit.",
+      "NOT_PLAYED": "Zápas byl odložen nebo zrušen.",
+      "TEAMS_UNKNOWN": "Týmy tohoto zápasu ještě nejsou známé."
+    }
   }
 }
