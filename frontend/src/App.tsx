@@ -55,6 +55,7 @@ function DocsFallback() {
 }
 import { Toaster } from "@components/base/toaster.tsx";
 import ErrorBoundary from './components/ErrorBoundary';
+import CookieConsent from './components/CookieConsent';
 
 /**
  * The account pages — sign-in, registration, activation, invites — keep the
@@ -78,6 +79,7 @@ function AppContent() {
   return (
     <>
       <Toaster />
+      <CookieConsent />
       <Routes>
         <Route path="/" element={<Landing />} />
         {/* Printed and pinned up, so without the site's header and footer. */}
