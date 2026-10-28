@@ -158,6 +158,8 @@ export async function createPayment(input: {
   payerId: string;
   plan: OfferPlan;
   currency: Currency;
+  /** When the payer asked for an immediate start; see Payment.immediateStartConsentAt. */
+  immediateStartConsentAt: Date;
 }): Promise<PaymentWithRelations> {
   return prisma.$transaction(async (tx) => {
     await lockCompetition(tx, 'tournament', input.tournamentId);
@@ -183,6 +185,7 @@ export async function createPayment(input: {
         snapshot: snapshot as unknown as Prisma.InputJsonValue,
         payerId: input.payerId,
         tournamentId: input.tournamentId,
+        immediateStartConsentAt: input.immediateStartConsentAt,
       },
       include: paymentInclude,
     });

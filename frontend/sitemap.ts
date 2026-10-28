@@ -29,6 +29,8 @@ const STATIC_PATHS = [
   '/updates',
   '/updates/roadmap',
   '/contact',
+  '/privacy',
+  '/terms',
 ]
 
 const xml = (lines: string[]) => ['<?xml version="1.0" encoding="UTF-8"?>', ...lines, ''].join('\n')

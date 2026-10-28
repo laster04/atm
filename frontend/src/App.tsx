@@ -30,6 +30,8 @@ import Stats from './pages/Stats';
 import About from './pages/About';
 import Updates from './pages/Updates';
 import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import Registration from './pages/Registration';
 import RegistrationStatus from './pages/Registration/StatusScreen';
 import RegistrationPoster from './pages/Registration/PosterScreen';
@@ -107,6 +109,8 @@ function AppContent() {
           <Route path="/updates" element={<Updates />} />
           <Route path="/updates/roadmap" element={<Updates />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/prihlaska/stav/:token" element={<RegistrationStatus />} />
           <Route path="/prihlaska/:kind/:id" element={<Registration />} />
           <Route path="/tournaments" element={<Tournaments />} />

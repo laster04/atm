@@ -3589,9 +3589,219 @@
   },
   "cookieConsent": {
     "title": "Cookies for measuring ads",
-    "text": "We use Google Ads cookies to see how many people our ads bring here. None are stored without your consent.",
+    "text": "We start Google Ads measurement only with your consent. Without it, Google's script is not loaded at all.",
     "decline": "Decline",
     "accept": "Accept",
-    "settings": "Cookie settings"
+    "settings": "Cookie settings",
+    "more": "More information"
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "subtitle": "Who is responsible for your data, what we do with it, who receives it and what your rights are.",
+    "updated": "Effective from 28 October 2026",
+    "footerLink": "Privacy policy",
+    "sections": [
+      {
+        "title": "Who is responsible for your data",
+        "paragraphs": [
+          "ATM is run by Conesoft s.r.o., company ID 24359114, VAT number CZ24359114, registered office Horní Žďár 112, 377 01 Jindřichův Hradec, Czech Republic, registered in the Commercial Register kept by the Regional Court in České Budějovice, section C, entry 36120 (\"we\").",
+          "We are the controller of the data about your account, payments, contact-form messages and ad measurement.",
+          "Rosters, games, results, attendance and team registrations are entered into ATM by the competition's organiser (a league, club or tournament organiser) and team managers. The organiser is the controller of this data: they decide what to enter and whether the competition is public. We process it for them as a processor under the ATM terms of service. For requests about this data, contact the organiser first; we will help as well.",
+          "Send questions and requests through the form on the Contact page (it works without signing in) or by post to our registered office."
+        ]
+      },
+      {
+        "title": "Data we are responsible for",
+        "items": [
+          "Account: name, e-mail and password (stored only as a hash, never readable). With Google sign-in, also your Google account's identifier and the name and e-mail Google passes to us. Purpose: creating and running the account. Legal basis: performance of a contract. An account cannot be created without a name and e-mail.",
+          "Payments and tax documents: billing details (name, address, company ID, VAT number), amount, payment reference and the documents issued. Payment is by bank transfer; we never process card details. Company IDs are looked up in the Czech ARES register and VAT numbers checked in VIES. Legal basis: performance of a contract and legal obligation (accounting and VAT). A tax document cannot be issued without billing details.",
+          "Contact form: your e-mail and message, and for a signed-in user also their account. Purpose: handling the question or request. Legal basis: legitimate interest in answering, or steps prior to a contract for questions about an order.",
+          "Account e-mails: activation, password reset, invitations and tax documents. Legal basis: performance of a contract. The round summary contains only the results, table and top scorers of a competition you play in or manage; you can switch it off on your dashboard. We send no marketing messages. If that changes, they will only be sent with your consent and with an unsubscribe link in every message.",
+          "Change log: who changed results, rosters or competition settings and when. Purpose: protecting competitions from mistakes and misuse. Legal basis: legitimate interest.",
+          "Operation and security: the server briefly records technical details of requests (IP address, time, page address). The IP address is also used to limit how many forms can be sent; this is kept only in the server's memory. Legal basis: legitimate interest in running the service securely.",
+          "Google Ads measurement: only with your consent, see the section on cookies. Legal basis: consent."
+        ]
+      },
+      {
+        "title": "Data we process for competition organisers",
+        "paragraphs": [
+          "The organiser and team managers enter into ATM:"
+        ],
+        "items": [
+          "rosters: player name, shirt number, position, year of birth and a note,",
+          "games: results, goals, assists, cards, penalties and other statistics,",
+          "trainings and attendance: who signed up for a training or game,",
+          "team registrations: the contact person's name, e-mail, phone and a note,",
+          "documents and logos the organiser uploads (rules, regulations, team and partner logos)."
+        ],
+        "after": "Only what the organiser publishes is shown publicly: team names, player names and numbers, results, tables and statistics. Years of birth, notes and registration contacts are visible only to the team's and the competition's managers. The organiser can hide a competition. The organiser is responsible for informing players who have no ATM account; they can point them to this page."
+      },
+      {
+        "title": "Cookies and browser storage",
+        "paragraphs": [
+          "Without consent we store in your browser only what the service needs to work as you asked:"
+        ],
+        "items": [
+          "sign-in (the sign-in token and basic account details): until you sign out,",
+          "your chosen language: until you change it or clear your browser data,",
+          "your cookie choice: until you change it or clear your browser data,",
+          "a temporary copy of public results for faster loading: until you clear your browser data."
+        ],
+        "after": "Google Ads measurement starts only after you click Accept. Until then, and after you decline, Google's script is not loaded at all and Google receives nothing from us. With consent, Google stores cookies (for example _gcl_au for 90 days, cookies on Google's domain for up to 13 months) to see how many people our ads bring to the site. You can change your choice at any time with the Cookie settings link in the footer; declining is as easy as accepting."
+      },
+      {
+        "title": "Who receives your data",
+        "paragraphs": [
+          "We never sell data. It is received only by:"
+        ],
+        "items": [
+          "processors who run the service for us: Railway Corporation (servers and database), Cloudflare, Inc. (website delivery and file storage) and Resend (sending e-mails),",
+          "Google as an independent controller: when you sign in with Google, or when you consent to ad measurement (see policies.google.com),",
+          "the competition's organiser: registrations and data of their competition,",
+          "public authorities where the law requires it (for example the tax office)."
+        ],
+        "after": "In the ARES and VIES registers we only check company IDs and VAT numbers you enter. Railway, Cloudflare, Resend and Google are US companies and may process data there too. Transfers rely on the EU–US Data Privacy Framework for companies certified under it, and otherwise on the European Commission's standard contractual clauses. We will send you a copy of the relevant safeguards on request."
+      },
+      {
+        "title": "How long we keep data",
+        "items": [
+          "Account: until it is closed. On request we first block the account and within 30 days delete or anonymise the personal data in it. Results and statistics remain, no longer linked to you.",
+          "Contact messages: 2 years after they are handled.",
+          "Change log: 3 years.",
+          "Attendance: 2 years after the training or game.",
+          "Rosters, registrations and other competition data: as long as the organiser decides. Deleting the competition, team or player removes them.",
+          "Results and statistics of played competitions: as sports history, until the competition is deleted, limited to name, team, shirt number and statistics. If a player objects, we replace their name with a label such as \"Player #8\".",
+          "Tax documents: 10 years from the end of the tax period in which the supply took place. Other accounting records: 5 years from the end of the accounting period.",
+          "Server technical logs: briefly, as set by the hosting provider."
+        ],
+        "after": "Data past its period is deleted at least once a quarter. Deleted data may briefly remain in database backups until they are overwritten; backups are used only to recover from a failure."
+      },
+      {
+        "title": "Your rights",
+        "paragraphs": [
+          "You have the right to access your data and have it corrected. Under the conditions set by the GDPR, you also have the right to erasure, restriction of processing and data portability; portability applies to data we process by automated means based on consent or a contract. You can object to processing based on legitimate interest; we will comply unless we have compelling grounds to continue. You can withdraw consent at any time; this does not affect processing before the withdrawal.",
+          "Send requests through the Contact page. We reply within one month. For complex requests or many of them we may extend this by two further months; we will tell you so, with the reason, within the first month. Requests about rosters, attendance and registrations are passed to the competition's organiser unless we handle them ourselves by agreement with them.",
+          "If you believe we handle data unlawfully, you can complain to the Czech Office for Personal Data Protection (www.uoou.gov.cz) or the supervisory authority in your country."
+        ]
+      },
+      {
+        "title": "Changes to this policy",
+        "paragraphs": [
+          "We update this policy when the service or the law changes. We tell you about substantial changes in advance by e-mail or in the app. The effective date is at the top of this page."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Terms of service",
+    "subtitle": "Rules for using ATM and its paid plans, and for processing competition data for organisers.",
+    "updated": "Effective from 28 October 2026",
+    "footerLink": "Terms of service",
+    "sections": [
+      {
+        "title": "Introduction",
+        "paragraphs": [
+          "These terms govern the use of the ATM (Amateur Team Manager) web app at atm-online.cz. It is run by Conesoft s.r.o., company ID 24359114, VAT number CZ24359114, registered office Horní Žďár 112, 377 01 Jindřichův Hradec, Czech Republic, registered in the Commercial Register kept by the Regional Court in České Budějovice, section C, entry 36120 (\"we\").",
+          "The contract between you and us is made when you create an account and, for paid plans, when you order one in the app. If you use ATM as a consumer, you also have the rights the law gives you, which these terms cannot limit. If you use it for business or for an association or club, some provisions differ; we always say so.",
+          "The terms exist in Czech, English and Slovak. In case of conflict the Czech version prevails. How we process personal data is described in the privacy policy."
+        ]
+      },
+      {
+        "title": "Account",
+        "items": [
+          "Anyone over 15 can create an account; younger people only with a parent's or guardian's consent.",
+          "Give truthful details and keep your password to yourself. You are responsible for what happens in your account.",
+          "An account is personal; each person should have their own. You can hand over the management of a league, team or tournament to another account by invitation.",
+          "You can close your account at any time through the Contact page. If you seriously breach these terms, we may block or close your account; we will warn you first where the nature of the breach allows."
+        ]
+      },
+      {
+        "title": "What ATM offers",
+        "paragraphs": [
+          "ATM is for running amateur leagues, seasons and tournaments: schedules, results, tables, player statistics, team registrations, attendance and public competition pages, including a widget for a club's website. Basic use is free; the scope of the free version and of paid plans is shown in the price list on the website.",
+          "We keep developing ATM and may change its features. We will not substantially limit a feature you have paid for while the plan is valid. We take care of availability but cannot guarantee uninterrupted operation; we try to do planned maintenance outside the main game times."
+        ]
+      },
+      {
+        "title": "Paid plans and payments",
+        "items": [
+          "Prices are shown in the price list on the website and in the app, including VAT, in Czech crowns or euros. The price shown when you order applies.",
+          "The Tournament and Tournament Plus plans apply to one tournament. The Organiser plan is valid for 1 year from payment and does not renew automatically.",
+          "After ordering you get the payment details (account number, payment reference, QR code). The plan starts once we receive the payment; we e-mail you the tax document.",
+          "We may cancel an order that has not been paid within 30 days."
+        ]
+      },
+      {
+        "title": "Consumer withdrawal",
+        "paragraphs": [
+          "A consumer may withdraw from a paid plan contract without giving a reason within 14 days of making it, through the Contact page or by letter to our registered office. We refund the money within 14 days of the withdrawal, in the same way it was paid.",
+          "If the plan started at your request within this period, we refund the price reduced by the proportion for the time the plan was valid. If the service was fully provided within this period with the consumer's consent (for example, the tournament with the paid plan has already taken place), the right of withdrawal ends.",
+          "Businesses and legal entities have no right to withdraw without giving a reason."
+        ]
+      },
+      {
+        "title": "Complaints",
+        "paragraphs": [
+          "If a paid service does not work as described, tell us without undue delay through the Contact page. We handle complaints within 30 days: we fix the fault or give you a reasonable discount or refund.",
+          "Consumers can also resolve a dispute out of court with the Czech Trade Inspection Authority (www.coi.cz)."
+        ]
+      },
+      {
+        "title": "Content you put into ATM",
+        "items": [
+          "You are responsible for the content you enter or upload (rosters, results, logos, documents, texts). Only add what you have the right to add, and data about people only to the extent needed to run the competition.",
+          "Do not add anything unlawful, offensive or infringing on others' rights. We may remove or hide such content.",
+          "You give us a free permission to store your content, adapt it for display and show it to the extent ATM needs to provide the service according to your settings. The permission ends when the content is deleted.",
+          "Results entered by teams or scorers are checked by the competition's organiser. We are not responsible for their accuracy."
+        ]
+      },
+      {
+        "title": "Competition data: the organiser as controller, us as processor",
+        "paragraphs": [
+          "This section is a data processing agreement under Article 28 GDPR between the competition's organiser (a league, club or tournament organiser, \"the organiser\") as controller and us as processor."
+        ],
+        "items": [
+          "Subject and duration: storing and displaying the data the organiser and team managers enter into ATM, for as long as the organiser uses ATM.",
+          "Nature and purpose: keeping competition records, computing tables and statistics, publishing according to the visibility settings, sending invitations and summaries, handling registrations.",
+          "Data and data subjects: players, team managers, coaches and team contact persons; name, shirt number, position, year of birth, notes, statistics, attendance, registration contacts and uploaded documents.",
+          "Instructions: we process the data only according to these terms and the settings the organiser chooses in ATM. If we consider an instruction unlawful, we will say so.",
+          "Confidentiality and security: only authorised people bound by confidentiality have access to the data. We use encrypted connections, store passwords only as hashes, control access by roles and back up the database.",
+          "Sub-processors: the organiser gives us general authorisation to engage sub-processors. Currently these are Railway Corporation (servers and database), Cloudflare, Inc. (website delivery and file storage) and Resend (e-mails). We announce changes at least 30 days ahead on the privacy policy page or by e-mail; the organiser may object and end the contract.",
+          "Assistance: we help the organiser handle people's requests about their data and meet the controller's other obligations. We inform the organiser without undue delay of any security breach affecting their data.",
+          "End: after a competition, team or account is deleted, we delete the data; it disappears from backups as they are overwritten. On the organiser's request we hand over the data in a common machine-readable format before deletion.",
+          "Audits: on request we provide the information needed to demonstrate these obligations. An audit at our premises is possible by agreement and with reasonable notice."
+        ],
+        "after": "The organiser is responsible for having a legal basis for the processing, entering only the data needed and informing the people whose data they enter (especially players without an account). They consider separately whether to publish data about children."
+      },
+      {
+        "title": "Liability",
+        "paragraphs": [
+          "We are liable for damage we cause by breaching our obligations. We are not liable for content users put into ATM, nor for outages caused by circumstances beyond our control.",
+          "Towards businesses and legal entities we are not liable for lost profit or indirect damage, and total compensation is limited to the amount they paid us in the last 12 months. This limit does not apply to damage caused intentionally or by gross negligence, nor towards consumers."
+        ]
+      },
+      {
+        "title": "End of the service",
+        "paragraphs": [
+          "You can stop using ATM at any time. If we stop running ATM or a paid plan, we will announce it at least 3 months in advance and refund the unused part of the price paid."
+        ]
+      },
+      {
+        "title": "Changes to the terms",
+        "paragraphs": [
+          "We may change these terms when the service, prices or the law change. We announce a change at least 1 month in advance by e-mail or in the app. If you disagree, you can end the contract before the change takes effect; a paid plan runs on under the original terms, or we refund its unused part."
+        ]
+      },
+      {
+        "title": "Final provisions",
+        "paragraphs": [
+          "The contract is governed by Czech law. A consumer from another EU country keeps the protection given by the mandatory law of their country. If any provision is invalid, the others remain in force."
+        ]
+      }
+    ]
+  },
+  "legal": {
+    "signupNote": "By creating an account (including with Google) you agree to the <terms>terms of service</terms> and acknowledge the <privacy>privacy policy</privacy>.",
+    "immediateStart": "I want the plan to start as soon as it is paid. I understand that as a consumer I can withdraw within 14 days with a proportional refund, and that the right of withdrawal ends once the service has been fully provided (<terms>terms of service</terms>, section 5)."
   }
 }

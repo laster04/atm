@@ -2,33 +2,38 @@
 <html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18542927824"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      // Consent Mode v2: nothing is stored until the visitor agrees in the
-      // cookie banner (src/components/CookieConsent.tsx), which remembers the
-      // choice under the same key.
+      // Basic Consent Mode: gtag.js is not even downloaded until the visitor
+      // agrees in the cookie banner (src/components/CookieConsent.tsx), so
+      // nothing reaches Google before that or after a refusal. The banner
+      // remembers the choice under the same key and calls atmLoadGoogleTag.
       gtag('consent', 'default', {
         ad_storage: 'denied',
         ad_user_data: 'denied',
         ad_personalization: 'denied',
-        analytics_storage: 'denied',
-        wait_for_update: 500
+        analytics_storage: 'denied'
       });
+      window.atmLoadGoogleTag = function () {
+        if (window.atmGoogleTagLoaded) return;
+        window.atmGoogleTagLoaded = true;
+        gtag('consent', 'update', {
+          ad_storage: 'granted',
+          ad_user_data: 'granted',
+          ad_personalization: 'granted',
+          analytics_storage: 'granted'
+        });
+        gtag('js', new Date());
+        gtag('config', 'AW-18542927824');
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18542927824';
+        document.head.appendChild(script);
+      };
       try {
-        if (localStorage.getItem('atm-cookie-consent') === 'granted') {
-          gtag('consent', 'update', {
-            ad_storage: 'granted',
-            ad_user_data: 'granted',
-            ad_personalization: 'granted',
-            analytics_storage: 'granted'
-          });
-        }
+        if (localStorage.getItem('atm-cookie-consent') === 'granted') window.atmLoadGoogleTag();
       } catch (e) {}
-      gtag('js', new Date());
-
-      gtag('config', 'AW-18542927824');
     </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/pwa/favicon-64.png" />

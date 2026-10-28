@@ -3665,9 +3665,219 @@
   },
   "cookieConsent": {
     "title": "Cookies pro měření reklamy",
-    "text": "Používáme cookies Google Ads, abychom věděli, kolik lidí k nám přivedla reklama. Bez vašeho souhlasu se žádné neukládají.",
+    "text": "Reklamní měření Google Ads spustíme jen s vaším souhlasem. Bez něj se skript Googlu vůbec nenačte.",
     "decline": "Odmítnout",
     "accept": "Přijmout",
-    "settings": "Nastavení cookies"
+    "settings": "Nastavení cookies",
+    "more": "Více informací"
+  },
+  "privacy": {
+    "title": "Ochrana osobních údajů",
+    "subtitle": "Kdo za vaše údaje odpovídá, co s nimi děláme, komu je předáváme a jaká máte práva.",
+    "updated": "Platné od 28. 10. 2026",
+    "footerLink": "Ochrana osobních údajů",
+    "sections": [
+      {
+        "title": "Kdo za vaše údaje odpovídá",
+        "paragraphs": [
+          "ATM provozuje Conesoft s.r.o., IČO 24359114, DIČ CZ24359114, se sídlem Horní Žďár 112, 377 01 Jindřichův Hradec, zapsaná v obchodním rejstříku vedeném Krajským soudem v Českých Budějovicích, oddíl C, vložka 36120 (dále „my“).",
+          "Pro údaje o vašem účtu, platbách, dotazech z kontaktního formuláře a pro měření reklamy jsme správcem my.",
+          "Soupisky, zápasy, výsledky, docházku a přihlášky týmů zadává do ATM pořadatel soutěže (liga, klub nebo pořadatel turnaje) a správci týmů. Správcem těchto údajů je pořadatel: rozhoduje, co do ATM zadá a zda bude soutěž veřejná. My je pro něj zpracováváme jako zpracovatel podle obchodních podmínek ATM. S žádostmi k těmto údajům se obracejte nejdřív na pořadatele; pomůžeme vám i my.",
+          "Dotazy a žádosti nám posílejte přes formulář na stránce Kontakt (funguje i bez přihlášení) nebo poštou na adresu sídla."
+        ]
+      },
+      {
+        "title": "Údaje, za které odpovídáme my",
+        "items": [
+          "Účet: jméno, e-mail a heslo (uložené jen jako otisk, ne v čitelné podobě). Při přihlášení přes Google také identifikátor Google účtu a jméno a e-mail, které nám Google předá. Účel: založení a provoz účtu. Právní základ: plnění smlouvy. Bez jména a e-mailu účet založit nelze.",
+          "Platby a daňové doklady: fakturační údaje (jméno nebo název, adresa, IČO, DIČ), částka, variabilní symbol a vystavené doklady. Platí se převodem na účet, údaje o platebních kartách nezpracováváme. IČO dohledáváme v registru ARES a DIČ ověřujeme v systému VIES. Právní základ: plnění smlouvy a právní povinnost (účetnictví a DPH). Bez fakturačních údajů nelze vystavit daňový doklad.",
+          "Kontaktní formulář: e-mail a text zprávy, u přihlášeného uživatele také jeho účet. Účel: vyřízení dotazu nebo žádosti. Právní základ: oprávněný zájem odpovědět na dotaz, u dotazů na objednávku jednání o smlouvě.",
+          "E-maily k účtu: aktivace, obnova hesla, pozvánky a daňové doklady. Právní základ: plnění smlouvy. Souhrn odehraného kola obsahuje jen výsledky, tabulku a střelce soutěže, ve které hrajete nebo kterou spravujete; vypnout ho můžete na své nástěnce. Obchodní sdělení neposíláme. Pokud to změníme, budou jen s vaším souhlasem a s odkazem na odhlášení v každé zprávě.",
+          "Záznam změn: kdo a kdy změnil výsledky, soupisky nebo nastavení soutěže. Účel: ochrana soutěží před chybami a zneužitím. Právní základ: oprávněný zájem.",
+          "Provoz a bezpečnost: server krátkodobě zaznamenává technické údaje o požadavcích (IP adresa, čas, adresa stránky). IP adresu používáme také k omezení počtu odeslaných formulářů; tuto informaci držíme jen v paměti serveru. Právní základ: oprávněný zájem na bezpečném provozu.",
+          "Měření reklamy Google Ads: jen s vaším souhlasem, viz kapitola o cookies. Právní základ: souhlas."
+        ]
+      },
+      {
+        "title": "Údaje, které zpracováváme pro pořadatele soutěží",
+        "paragraphs": [
+          "Pořadatel a správci týmů do ATM zadávají:"
+        ],
+        "items": [
+          "soupisky: jméno hráče, číslo dresu, pozice, rok narození a poznámka,",
+          "zápasy: výsledky, góly, asistence, karty, tresty a další statistiky,",
+          "tréninky a docházka: kdo se na trénink nebo zápas přihlásil,",
+          "přihlášky týmů: jméno kontaktní osoby, e-mail, telefon a poznámka,",
+          "dokumenty a loga, která pořadatel nahraje (propozice, pravidla, loga týmů a partnerů)."
+        ],
+        "after": "Veřejně se ukazuje jen to, co pořadatel zveřejní: názvy týmů, jména a čísla hráčů, výsledky, tabulky a statistiky. Rok narození, poznámky a kontakty z přihlášek vidí jen správci týmu a soutěže. Pořadatel může soutěž skrýt. Za informování hráčů, kteří v ATM účet nemají, odpovídá pořadatel; může je odkázat na tuto stránku."
+      },
+      {
+        "title": "Cookies a úložiště prohlížeče",
+        "paragraphs": [
+          "Bez souhlasu ukládáme do prohlížeče jen to, bez čeho služba nefunguje tak, jak jste si ji vyžádali:"
+        ],
+        "items": [
+          "přihlášení (přihlašovací token a základní údaje o účtu): do odhlášení,",
+          "zvolený jazyk: do změny jazyka nebo smazání dat prohlížeče,",
+          "vaše volba cookies: do její změny nebo smazání dat prohlížeče,",
+          "dočasná kopie veřejných výsledků pro rychlejší načítání: do smazání dat prohlížeče."
+        ],
+        "after": "Reklamní měření Google Ads se spustí až po kliknutí na Přijmout. Do té doby a po odmítnutí se skript Googlu vůbec nenačte a Google od nás nic nedostane. Se souhlasem Google ukládá cookies (například _gcl_au na 90 dní, cookies v doméně Googlu až 13 měsíců), aby zjistil, kolik lidí na web přivedla naše reklama. Volbu můžete kdykoli změnit odkazem Nastavení cookies v patičce webu; odmítnout je stejně snadné jako přijmout."
+      },
+      {
+        "title": "Komu údaje předáváme",
+        "paragraphs": [
+          "Údaje nikomu neprodáváme. Dostávají je jen:"
+        ],
+        "items": [
+          "zpracovatelé, kteří pro nás zajišťují provoz: Railway Corporation (servery a databáze), Cloudflare, Inc. (doručování webu a úložiště souborů) a Resend (odesílání e-mailů),",
+          "Google jako samostatný správce: když se přihlásíte přes Google, nebo když udělíte souhlas s měřením reklamy (jeho zásady najdete na policies.google.com),",
+          "pořadatel soutěže: přihlášky a údaje své soutěže,",
+          "orgány veřejné moci, pokud to vyžaduje zákon (například finanční úřad)."
+        ],
+        "after": "V registrech ARES a VIES jen ověřujeme IČO a DIČ, které nám zadáte. Railway, Cloudflare, Resend a Google jsou společnosti z USA a údaje mohou zpracovávat i tam. Předání se opírá o rámec EU–USA pro ochranu osobních údajů u společností, které jsou v něm certifikované, jinak o standardní smluvní doložky Evropské komise. Kopii příslušných záruk vám na požádání pošleme."
+      },
+      {
+        "title": "Jak dlouho údaje uchováváme",
+        "items": [
+          "Účet: do jeho zrušení. Na žádost účet nejdřív zablokujeme a do 30 dnů z něj osobní údaje odstraníme nebo je anonymizujeme. Výsledky a statistiky zůstanou bez vazby na vás.",
+          "Kontaktní zprávy: 2 roky od vyřízení.",
+          "Záznam změn: 3 roky.",
+          "Docházka: 2 roky od tréninku nebo zápasu.",
+          "Soupisky, přihlášky a další údaje soutěží: po dobu, kterou určí pořadatel. Smazáním soutěže, týmu nebo hráče zmizí.",
+          "Výsledky a statistiky odehraných soutěží: jako sportovní historie, dokud soutěž nebude smazána, v rozsahu jméno, tým, číslo dresu a statistiky. Pokud hráč vznese námitku, nahradíme jeho jméno označením, například „Hráč #8“.",
+          "Daňové doklady: 10 let od konce zdaňovacího období, ve kterém se plnění uskutečnilo. Ostatní účetní záznamy: 5 let od konce účetního období.",
+          "Technické záznamy serveru: krátkodobě, podle nastavení poskytovatele hostingu."
+        ],
+        "after": "Údaje po uplynutí lhůty mažeme nejméně jednou za čtvrtletí. Smazané údaje mohou ještě krátce zůstat v zálohách databáze, dokud se zálohy nepřepíšou novými; zálohy používáme jen k obnově po havárii."
+      },
+      {
+        "title": "Vaše práva",
+        "paragraphs": [
+          "Máte právo na přístup ke svým údajům a na jejich opravu. Za podmínek stanovených GDPR také na výmaz, omezení zpracování a přenositelnost; přenositelnost se týká údajů, které zpracováváme automatizovaně na základě souhlasu nebo smlouvy. Proti zpracování na základě oprávněného zájmu můžete vznést námitku; vyhovíme, pokud nemáme závažné důvody pokračovat. Souhlas můžete kdykoli odvolat; zpracování před odvoláním tím nezaniká.",
+          "Žádosti posílejte přes stránku Kontakt. Odpovíme do jednoho měsíce. U složitých žádostí nebo při jejich velkém počtu můžeme lhůtu prodloužit o další dva měsíce; to vám oznámíme i s důvodem během prvního měsíce. Žádosti k soupiskám, docházce a přihláškám předáme pořadateli soutěže, pokud je nevyřídíme po dohodě s ním sami.",
+          "Pokud se domníváte, že s údaji nakládáme v rozporu s předpisy, můžete podat stížnost u Úřadu pro ochranu osobních údajů (www.uoou.gov.cz)."
+        ]
+      },
+      {
+        "title": "Změny těchto zásad",
+        "paragraphs": [
+          "Zásady upravíme, když se změní služba nebo předpisy. O podstatných změnách vás předem informujeme e-mailem nebo v aplikaci. Datum platnosti je nahoře na této stránce."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Obchodní podmínky",
+    "subtitle": "Pravidla používání ATM, placených plánů a zpracování údajů soutěží pro pořadatele.",
+    "updated": "Platné od 28. 10. 2026",
+    "footerLink": "Obchodní podmínky",
+    "sections": [
+      {
+        "title": "Úvodní ustanovení",
+        "paragraphs": [
+          "Tyto podmínky upravují používání webové aplikace ATM (Amateur Team Manager) na adrese atm-online.cz. Provozuje ji Conesoft s.r.o., IČO 24359114, DIČ CZ24359114, se sídlem Horní Žďár 112, 377 01 Jindřichův Hradec, zapsaná v obchodním rejstříku vedeném Krajským soudem v Českých Budějovicích, oddíl C, vložka 36120 (dále „my“).",
+          "Smlouva mezi vámi a námi vzniká založením účtu a pro placené plány jejich objednáním v aplikaci. Pokud ATM používáte jako spotřebitel, máte navíc práva, která vám dává zákon a která tyto podmínky nemohou omezit. Pokud ji používáte pro podnikání nebo za spolek či klub, některá ustanovení se liší; vždy na to upozorňujeme.",
+          "Podmínky jsou v češtině, angličtině a slovenštině. Při rozporu platí české znění. Jak zpracováváme osobní údaje, popisují zásady ochrany osobních údajů."
+        ]
+      },
+      {
+        "title": "Účet",
+        "items": [
+          "Účet si může založit osoba starší 15 let; mladší jen se souhlasem zákonného zástupce.",
+          "Uvádějte pravdivé údaje a heslo nikomu neprozrazujte. Za činnost ve svém účtu odpovídáte vy.",
+          "Účet je osobní; každý člověk má mít vlastní. Správu ligy, týmu nebo turnaje můžete předat jinému účtu pozvánkou.",
+          "Účet můžete kdykoli zrušit přes stránku Kontakt. Pokud podmínky závažně porušíte, můžeme účet zablokovat nebo zrušit; předem vás upozorníme, pokud to povaha porušení dovolí."
+        ]
+      },
+      {
+        "title": "Co ATM nabízí",
+        "paragraphs": [
+          "ATM slouží k vedení amatérských lig, sezón a turnajů: rozpisy, výsledky, tabulky, statistiky hráčů, přihlášky týmů, docházka a veřejné stránky soutěží včetně widgetu na web klubu. Základní používání je zdarma; rozsah bezplatné verze a placených plánů uvádí ceník na webu.",
+          "ATM průběžně vyvíjíme a funkce můžeme měnit. Funkci, kterou máte zaplacenou, po dobu platnosti plánu podstatně neomezíme. O dostupnost se staráme, nepřetržitý provoz bez výpadků ale zaručit nemůžeme; plánovanou údržbu se snažíme dělat mimo hlavní dobu zápasů."
+        ]
+      },
+      {
+        "title": "Placené plány a platby",
+        "items": [
+          "Ceny jsou uvedené v ceníku na webu a v aplikaci, včetně DPH, v korunách nebo eurech. Platí cena zobrazená při objednávce.",
+          "Plán Turnaj a Turnaj Plus platí pro jeden turnaj. Plán Organizátor platí 1 rok od zaplacení a sám se neprodlužuje.",
+          "Po objednávce dostanete platební údaje (číslo účtu, variabilní symbol, QR kód). Plán začne platit, jakmile platbu přijmeme na účet; daňový doklad vám pošleme e-mailem.",
+          "Nezaplacenou objednávku můžeme po 30 dnech zrušit."
+        ]
+      },
+      {
+        "title": "Odstoupení spotřebitele",
+        "paragraphs": [
+          "Spotřebitel může od smlouvy o placeném plánu odstoupit bez udání důvodu do 14 dnů od jejího uzavření, a to přes stránku Kontakt nebo dopisem na adresu sídla. Peníze vrátíme do 14 dnů od odstoupení stejným způsobem, jakým byly zaplaceny.",
+          "Pokud plán začal na vaši žádost platit už během této lhůty, vrátíme cenu sníženou o poměrnou část za dobu, po kterou plán platil. Pokud byla služba se souhlasem spotřebitele v této lhůtě zcela poskytnuta (například turnaj se zaplaceným plánem už proběhl), právo na odstoupení zaniká.",
+          "Podnikatelé a právnické osoby právo na odstoupení bez udání důvodu nemají."
+        ]
+      },
+      {
+        "title": "Reklamace a stížnosti",
+        "paragraphs": [
+          "Pokud zaplacená služba nefunguje tak, jak je popsaná, napište nám bez zbytečného odkladu přes stránku Kontakt. Reklamaci vyřídíme do 30 dnů: chybu opravíme, nebo vám poskytneme přiměřenou slevu či vrácení peněz.",
+          "Spotřebitel může spor řešit také mimosoudně u České obchodní inspekce (www.coi.cz)."
+        ]
+      },
+      {
+        "title": "Obsah, který do ATM vkládáte",
+        "items": [
+          "Za obsah, který zadáte nebo nahrajete (soupisky, výsledky, loga, dokumenty, texty), odpovídáte vy. Vkládejte jen to, k čemu máte právo, a údaje o lidech jen v rozsahu, který potřebujete pro vedení soutěže.",
+          "Nevkládejte nic protiprávního, urážlivého nebo zasahujícího do práv jiných. Takový obsah můžeme odstranit nebo skrýt.",
+          "K obsahu nám udělujete bezplatné oprávnění ukládat ho, upravovat pro zobrazení a zobrazovat v rozsahu, který ATM potřebuje k poskytování služby podle vašeho nastavení. Oprávnění končí smazáním obsahu.",
+          "Výsledky zadané týmy nebo zapisovateli kontroluje pořadatel soutěže. Za jejich správnost neodpovídáme."
+        ]
+      },
+      {
+        "title": "Údaje soutěží: pořadatel jako správce, my jako zpracovatel",
+        "paragraphs": [
+          "Tento článek je smlouvou o zpracování osobních údajů podle čl. 28 GDPR mezi pořadatelem soutěže (liga, klub, pořadatel turnaje, dále „pořadatel“) jako správcem a námi jako zpracovatelem."
+        ],
+        "items": [
+          "Předmět a doba: ukládání a zobrazování údajů, které pořadatel a správci týmů zadají do ATM, po dobu, kdy pořadatel ATM používá.",
+          "Povaha a účel: evidence soutěže, výpočet tabulek a statistik, zveřejnění podle nastavení viditelnosti, zasílání pozvánek a souhrnů, vyřizování přihlášek.",
+          "Údaje a subjekty: hráči, správci týmů, trenéři a kontaktní osoby týmů; jméno, číslo dresu, pozice, rok narození, poznámky, statistiky, docházka, kontakty z přihlášek a nahrané dokumenty.",
+          "Pokyny: údaje zpracováváme jen podle těchto podmínek a nastavení, které pořadatel v ATM zvolí. Pokud bychom považovali pokyn za protiprávní, upozorníme na to.",
+          "Mlčenlivost a zabezpečení: k údajům mají přístup jen oprávněné osoby vázané mlčenlivostí. Používáme šifrované spojení, hesla ukládáme jen jako otisky, přístup řídíme rolemi a databázi zálohujeme.",
+          "Další zpracovatelé: pořadatel nám dává obecné povolení zapojit další zpracovatele. Dnes jsou to Railway Corporation (servery a databáze), Cloudflare, Inc. (doručování webu a úložiště souborů) a Resend (e-maily). O změně informujeme nejméně 30 dní předem na stránce Ochrana osobních údajů nebo e-mailem; pořadatel může vznést námitku a smlouvu ukončit.",
+          "Součinnost: pomůžeme pořadateli vyřizovat žádosti lidí o jejich údaje a plnit další povinnosti správce. O porušení zabezpečení, které se týká jeho údajů, ho informujeme bez zbytečného odkladu.",
+          "Ukončení: po smazání soutěže, týmu nebo účtu údaje smažeme; ze záloh zmizí jejich přepsáním. Na žádost pořadatele před smazáním předáme údaje v běžném strojově čitelném formátu.",
+          "Kontrola: na žádost poskytneme informace potřebné k doložení těchto povinností. Kontrolu u nás lze provést po dohodě a s přiměřeným předstihem."
+        ],
+        "after": "Pořadatel odpovídá za to, že má pro zpracování právní základ, že zadává jen potřebné údaje a že lidi, jejichž údaje zadává (zejména hráče bez účtu), o zpracování informuje. Zvlášť zvažuje zveřejnění údajů dětí."
+      },
+      {
+        "title": "Odpovědnost",
+        "paragraphs": [
+          "Odpovídáme za škodu, kterou způsobíme porušením svých povinností. Neodpovídáme za obsah, který do ATM vloží uživatelé, ani za výpadky způsobené okolnostmi mimo naši kontrolu.",
+          "Vůči podnikatelům a právnickým osobám neodpovídáme za ušlý zisk a nepřímé škody a celková náhrada je omezena částkou, kterou nám zaplatili za posledních 12 měsíců. Toto omezení neplatí pro škodu způsobenou úmyslně nebo z hrubé nedbalosti ani vůči spotřebitelům."
+        ]
+      },
+      {
+        "title": "Ukončení služby",
+        "paragraphs": [
+          "ATM můžete kdykoli přestat používat. Pokud bychom ATM nebo placený plán přestali provozovat, oznámíme to nejméně 3 měsíce předem a nevyčerpanou část zaplacené ceny vrátíme."
+        ]
+      },
+      {
+        "title": "Změny podmínek",
+        "paragraphs": [
+          "Podmínky můžeme změnit, když se změní služba, ceny nebo předpisy. Změnu oznámíme nejméně 1 měsíc předem e-mailem nebo v aplikaci. Pokud se změnou nesouhlasíte, můžete smlouvu do její účinnosti ukončit; zaplacený plán vám dobíhá za původních podmínek nebo vrátíme jeho nevyčerpanou část."
+        ]
+      },
+      {
+        "title": "Závěrečná ustanovení",
+        "paragraphs": [
+          "Smlouva se řídí českým právem. Spotřebitel z jiné země EU neztrácí ochranu, kterou mu dávají kogentní předpisy jeho země. Pokud by některé ustanovení bylo neplatné, ostatní platí dál."
+        ]
+      }
+    ]
+  },
+  "legal": {
+    "signupNote": "Založením účtu (i přes Google) souhlasíte s <terms>obchodními podmínkami</terms> a berete na vědomí <privacy>zásady ochrany osobních údajů</privacy>.",
+    "immediateStart": "Chci, aby plán začal platit hned po zaplacení. Beru na vědomí, že jako spotřebitel mohu do 14 dnů odstoupit s vrácením poměrné části ceny a že po úplném poskytnutí služby právo na odstoupení zaniká (<terms>obchodní podmínky</terms>, čl. 5)."
   }
 }

@@ -131,3 +131,43 @@ describe('a team page seen by the public', () => {
     expect(res.body.players[0].note).toBe('Ankle injury');
   });
 });
+
+describe('a tournament roster seen by the public', () => {
+  let tournamentTeamId: string;
+
+  beforeAll(async () => {
+    const series = await request(app).post('/api/tournaments/series').set(auth(managerToken))
+      .send({ name: `Public Series ${stamp}`, sportType: 'FLOORBALL' });
+    const tournament = await request(app).post(`/api/tournaments/series/${series.body.id}/tournaments`).set(auth(managerToken))
+      .send({ name: `Public Cup ${stamp}` });
+    const team = await request(app).post(`/api/tournaments/${tournament.body.id}/teams`).set(auth(managerToken))
+      .send({ name: `Public Cup Team ${stamp}` });
+    tournamentTeamId = team.body.id;
+    await request(app).post(`/api/tournaments/teams/${tournamentTeamId}/players`).set(auth(managerToken))
+      .send({ name: 'Cup Player', number: 4, bornYear: 2011, note: 'Asthma inhaler' });
+  });
+
+  it('hides birth years and notes from a visitor', async () => {
+    const players = await request(app).get(`/api/tournaments/teams/${tournamentTeamId}/players`);
+    expect(players.status).toBe(200);
+    expect(players.body[0].name).toBe('Cup Player');
+    expect(players.body[0].bornYear).toBeUndefined();
+    expect(players.body[0].note).toBeUndefined();
+
+    const team = await request(app).get(`/api/tournaments/teams/${tournamentTeamId}`);
+    expect(team.status).toBe(200);
+    expect(team.body.players[0].bornYear).toBeUndefined();
+    expect(team.body.players[0].note).toBeUndefined();
+  });
+
+  it('gives a signed-in stranger no more than a visitor', async () => {
+    const res = await request(app).get(`/api/tournaments/teams/${tournamentTeamId}/players`).set(auth(strangerToken));
+    expect(res.body[0].bornYear).toBeUndefined();
+  });
+
+  it('gives the organiser the whole row', async () => {
+    const res = await request(app).get(`/api/tournaments/teams/${tournamentTeamId}`).set(auth(managerToken));
+    expect(res.body.players[0].bornYear).toBe(2011);
+    expect(res.body.players[0].note).toBe('Asthma inhaler');
+  });
+});

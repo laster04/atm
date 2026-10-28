@@ -67,6 +67,12 @@ export default function PublicFooter() {
 				<div className="flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/45 sm:flex-row sm:items-center">
 					<span className="flex-1">© {new Date().getFullYear()} {t('landing.footer')}</span>
 					<span className="flex flex-wrap gap-3">
+						<Link to="/privacy" className="self-start hover:text-white/80">
+							{t('privacy.footerLink')}
+						</Link>
+						<Link to="/terms" className="self-start hover:text-white/80">
+							{t('terms.footerLink')}
+						</Link>
 						<button type="button" onClick={openCookieSettings} className="self-start hover:text-white/80">
 							{t('cookieConsent.settings')}
 						</button>

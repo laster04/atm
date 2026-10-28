@@ -67,12 +67,18 @@ const notifyAdmins = (payment: PaymentWithRelations): void => {
   })().catch((error) => console.error('Payment notice email error:', error));
 };
 
-/** POST /api/tournaments/:id/payments { plan, currency } */
+/** POST /api/tournaments/:id/payments { plan, currency, immediateStart } */
 export const startPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { plan, currency } = req.body ?? {};
+    const { plan, currency, immediateStart } = req.body ?? {};
     if (!OFFER_PLANS.includes(plan) || !CURRENCIES.includes(currency)) {
       res.status(400).json({ error: 'Choose a plan and a currency', code: 'INVALID_INPUT' });
+      return;
+    }
+    // The terms let a consumer withdraw within 14 days; the plan starts as soon
+    // as the money arrives, so the payer has to ask for that explicitly.
+    if (immediateStart !== true) {
+      res.status(400).json({ error: 'Confirm that the plan should start at once', code: 'IMMEDIATE_START_REQUIRED' });
       return;
     }
     const payment = await createPayment({
@@ -80,6 +86,7 @@ export const startPayment = async (req: AuthRequest, res: Response): Promise<voi
       payerId: req.user!.id,
       plan: plan as OfferPlan,
       currency: currency as Currency,
+      immediateStartConsentAt: new Date(),
     });
     notifyAdmins(payment);
     res.status(201).json(paymentView(payment));

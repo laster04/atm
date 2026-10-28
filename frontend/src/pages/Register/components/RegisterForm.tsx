@@ -8,6 +8,7 @@ import { safeNextPath, withNext } from '@/utils/nextPath';
 import { AxiosError } from 'axios';
 import { CheckCircle, Mail, Trophy } from 'lucide-react';
 import GoogleSignInButton from '@components/GoogleSignInButton';
+import LegalConsentNote from '@components/LegalConsentNote';
 
 interface RegisterFormData {
   name: string;
@@ -152,6 +153,8 @@ export default function RegisterForm() {
           {loading ? t('auth.register.submitting') : t('auth.register.submit')}
         </button>
       </form>
+
+      <LegalConsentNote className="mt-4 text-center" />
 
       <p className="text-center mt-4 text-gray-600">
         {t('auth.register.hasAccount')}{' '}

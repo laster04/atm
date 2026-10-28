@@ -12,6 +12,7 @@ import { checkPosition } from '../utils/playerPositions.js';
 import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
 import { releaseFiles } from '../services/storage/files.js';
 import { assertTeamSlot, PlanLimitError, planLimitBody } from '../services/plans/tournamentPlan.js';
+import { canSeeFullTournamentRoster, toPublicTournamentPlayer } from '../services/publicView.js';
 
 // ── Teams ──────────────────────────────────────────────────
 
@@ -33,7 +34,7 @@ export const getTeamsByTournament = async (req: Request, res: Response): Promise
   }
 };
 
-export const getTeamById = async (req: Request, res: Response): Promise<void> => {
+export const getTeamById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const team = await prisma.tournamentTeam.findUnique({
@@ -45,6 +46,11 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
       },
     });
     if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
+    // Visitors get the roster without birth years and notes, as on a league.
+    if (!(await canSeeFullTournamentRoster(req.user, team.id))) {
+      res.json({ ...team, players: team.players.map(toPublicTournamentPlayer) });
+      return;
+    }
     res.json(team);
   } catch (error) {
     console.error('Get tournament team error:', error);
@@ -116,13 +122,17 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
 
 // ── Players ────────────────────────────────────────────────
 
-export const getPlayersByTeam = async (req: Request, res: Response): Promise<void> => {
+export const getPlayersByTeam = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { teamId } = req.params;
     const players = await prisma.tournamentPlayer.findMany({
       where: { teamId: teamId },
       orderBy: [{ number: 'asc' }, { name: 'asc' }],
     });
+    if (!(await canSeeFullTournamentRoster(req.user, teamId))) {
+      res.json(players.map(toPublicTournamentPlayer));
+      return;
+    }
     res.json(players);
   } catch (error) {
     console.error('Get tournament players error:', error);
