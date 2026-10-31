@@ -12,15 +12,21 @@ interface StandingsTableProps {
 	games: Game[];
 	/** Volleyball gets its own columns: the 3:2 split, sets and balls. */
 	sport?: SportType;
+	/** An archived season has no games left, only its frozen table. */
+	archived?: boolean;
 }
 
-export default function StandingsTable({ tables, games, sport }: StandingsTableProps) {
+export default function StandingsTable({ tables, games, sport, archived }: StandingsTableProps) {
 	const { t } = useTranslation();
 	const volleyball = sport === SportType.VOLLEYBALL;
 	const standings = tables.flatMap((table) => table.standings);
 	const live = hasLiveGames(standings);
 	// The table is the regular season; play-off games are counted on the bracket.
-	const played = games.filter((game) => game.status === GameStatus.COMPLETED && !game.playoffSeriesId).length;
+	// An archived season's games are gone, so the count comes from the frozen
+	// table instead: every game added one "played" to each of its two teams.
+	const played = archived
+		? Math.round(standings.reduce((sum, row) => sum + row.played, 0) / 2)
+		: games.filter((game) => game.status === GameStatus.COMPLETED && !game.playoffSeriesId).length;
 	// A single unnamed table is an undivided season and needs no heading.
 	const divided = tables.length > 1 || tables.some((table) => table.group !== null);
 
