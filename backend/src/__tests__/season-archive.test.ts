@@ -164,6 +164,9 @@ describe('Season Archive', () => {
 
     expect(res.body).toHaveProperty('season');
     expect(res.body.season.archivedAt).not.toBeNull();
+    // The games go, so the season keeps how many were played and their goals.
+    expect(res.body.season.archivedGames).toBe(1);
+    expect(res.body.season.archivedGoals).toBe(4);
   });
 
   it('should delete live season-scoped rows', async () => {

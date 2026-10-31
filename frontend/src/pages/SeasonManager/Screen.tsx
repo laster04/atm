@@ -10,6 +10,7 @@ import SeasonFormModal, { type SeasonFormData } from '@/pages/Admin/components/s
 import { SEASON_ACCENT, SEASON_STATUS_TONE, teamCount } from './components/util';
 import LeaguesSection from './components/LeaguesSection';
 import { VisibilityBadge } from '@/components/public';
+import { seasonGameCount } from '@/utils/season';
 import { strictest } from '@/utils/visibility';
 
 export default function Screen() {
@@ -112,7 +113,7 @@ export default function Screen() {
 										</span>
 										<span className="flex items-center gap-1">
 											<CalendarDays className="size-3.5" aria-hidden />
-											{season._count?.games ?? 0}
+											{seasonGameCount(season)}
 										</span>
 									</div>
 								</div>

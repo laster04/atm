@@ -4,6 +4,7 @@ import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Panel } from '@/components/public';
 import ApplicationsOpenBadge from '@/components/registrations/ApplicationsOpenBadge';
 import { REGISTRATION_SLUG } from '@/components/registrations/SharePanel';
+import { seasonGameCount } from '@/utils/season';
 import type { Season, TournamentSeries } from '@types';
 
 const OPEN_LIMIT = 6;
@@ -97,7 +98,7 @@ export default function OpenCompetitionsSection({ seasons, series, loading }: Op
 										{[
 											season.league && season.name,
 											t('dashboard.playing.teams', { count: season._count?.seasonTeams ?? season._count?.teams ?? 0 }),
-											t('dashboard.playing.games', { count: season._count?.games ?? 0 }),
+											t('dashboard.playing.games', { count: seasonGameCount(season) }),
 										].filter(Boolean).join(' · ')}
 									</span>
 								</Link>

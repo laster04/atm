@@ -304,6 +304,7 @@
     "overview": {
       "gamePlayed": "Games played",
       "outOfTotal": "Out of {{count}} total",
+      "seasonFinished": "Season finished",
       "leader": "Leading team",
       "leaderPoints": "{{points}} points",
       "scoredTotal": "Goals scored",
