@@ -494,6 +494,8 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
       // Every game in the season is removed on archive, but only COMPLETED games count toward standings
       const allGames = await tx.game.findMany({ where: { seasonId } });
       const completedGames = allGames.filter(countsTowardTable);
+      // What the season's overview counts as played, play-off included.
+      const playedGames = allGames.filter(g => g.status === 'COMPLETED');
       const standings = computeStandings(teams, completedGames, archivePolicy);
 
       if (standings.length > 0) {
@@ -598,7 +600,11 @@ export const archiveSeason = async (req: AuthRequest, res: Response): Promise<vo
 
       return tx.season.update({
         where: { id: seasonId },
-        data: { archivedAt: new Date() },
+        data: {
+          archivedAt: new Date(),
+          archivedGames: playedGames.length,
+          archivedGoals: playedGames.reduce((sum, g) => sum + (g.homeScore ?? 0) + (g.awayScore ?? 0), 0),
+        },
         include: {
           league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
           _count: { select: { seasonTeams: true, games: true } }

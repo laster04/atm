@@ -6,3 +6,7 @@ import type { Season } from '@types';
  */
 export const seasonLabel = (season: Pick<Season, 'name' | 'league'>): string =>
 	season.league ? `${season.league.name} · ${season.name}` : season.name;
+
+/** An archived season has no games left; the count it kept stands in for them. */
+export const seasonGameCount = (season: Pick<Season, 'archivedAt' | 'archivedGames' | '_count'>): number =>
+	season.archivedAt ? season.archivedGames ?? 0 : season._count?.games ?? 0;

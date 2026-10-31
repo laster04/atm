@@ -14,10 +14,13 @@ interface StatsOverviewProps {
 	standings: Standing[];
 	games: Game[];
 	archived?: boolean;
+	/** What an archived season kept of its deleted games. */
+	archivedGames?: number | null;
+	archivedGoals?: number | null;
 	sport?: SportType;
 }
 
-export function StatsOverview({ seasonId, standings, games, archived, sport }: StatsOverviewProps) {
+export function StatsOverview({ seasonId, standings, games, archived, archivedGames, archivedGoals, sport }: StatsOverviewProps) {
 	const { t } = useTranslation();
 	const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
 	const [loadingScorers, setLoadingScorers] = useState(true);
@@ -35,13 +38,10 @@ export function StatsOverview({ seasonId, standings, games, archived, sport }: S
 
 	const leader = standings[0];
 	const completed = games.filter((game) => game.status === GameStatus.COMPLETED);
-	// An archived season has no games left, only its frozen table. Every game
-	// sits in two rows of it, once for each side.
-	const playedCount = archived
-		? Math.round(standings.reduce((sum, row) => sum + row.played, 0) / 2)
-		: completed.length;
+	// An archived season has no games left; it kept their count and goals.
+	const playedCount = archived ? archivedGames ?? 0 : completed.length;
 	const goals = archived
-		? standings.reduce((sum, row) => sum + row.goalsFor, 0)
+		? archivedGoals ?? 0
 		: completed.reduce((sum, game) => sum + (game.homeScore ?? 0) + (game.awayScore ?? 0), 0);
 
 	return (
@@ -69,7 +69,7 @@ export function StatsOverview({ seasonId, standings, games, archived, sport }: S
 				/>
 				<StatTile
 					label={t('seasonDetail.overview.scoredTotal')}
-					value={standings.reduce((sum, row) => sum + row.goalsFor, 0)}
+					value={archived ? goals : standings.reduce((sum, row) => sum + row.goalsFor, 0)}
 					caption={t('seasonDetail.overview.leagueWide')}
 					icon={<Target className="size-4.5" />}
 				/>

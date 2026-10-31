@@ -185,6 +185,10 @@ export interface Season {
   /** Both teams reporting the same score completes and confirms the game. */
   autoConfirmAgreed?: boolean;
   archivedAt?: string | null;
+  /** Kept on archive, when the games are deleted: games played, play-off included. */
+  archivedGames?: number | null;
+  /** Goals scored in those games. */
+  archivedGoals?: number | null;
   createdAt: string;
   updatedAt: string;
   leagueId: string;

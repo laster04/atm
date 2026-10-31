@@ -15,6 +15,7 @@ import { formatSeasonDate } from '@/utils/date';
 import { Panel, PublicHero, SectionTabs, SeasonStatusBadge, VisibilityBadge, type SectionTab } from '@/components/public';
 import SeasonPlayoffBracket from '@/components/playoff/SeasonPlayoffBracket';
 import RegistrationButton from '@/components/registrations/RegistrationButton';
+import { seasonGameCount } from '@/utils/season';
 import { strictest } from '@/utils/visibility';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
@@ -125,7 +126,7 @@ export default function SeasonDetailScreen() {
   const isArchived = !!season.archivedAt;
 
   const tabs: { id: TabSeasonDetailType; label: string; icon: JSX.Element; content: JSX.Element }[] = [
-    { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} sport={season.league?.sportType} /> },
+    { id: TabSeasonDetailType.OVERVIEW, label: t('seasonDetail.tabs.overview'), icon: <BarChart3 className="size-4" />, content: <StatsOverview seasonId={season.id} standings={standings} games={games} archived={isArchived} archivedGames={season.archivedGames} archivedGoals={season.archivedGoals} sport={season.league?.sportType} /> },
     { id: TabSeasonDetailType.STANDINGS, label: t('seasonDetail.tabs.standings'), icon: <Trophy className="size-4" />, content: <StandingsTable tables={tables} games={games} sport={season.league?.sportType} /> },
     // Only a season that has drawn its play-off gets the tab.
     ...(playoff ? [{ id: TabSeasonDetailType.PLAYOFF, label: t('playoff.title'), icon: <Swords className="size-4" />, content: <Panel flush title={t('playoff.title')}><SeasonPlayoffBracket playoff={playoff} /></Panel> }] : []),
@@ -170,7 +171,7 @@ export default function SeasonDetailScreen() {
             </span>
             <span className="flex items-center gap-2">
               <Trophy className="size-4 text-brand" />
-              {t('public.games.count', { count: season._count?.games ?? games.length })}
+              {t('public.games.count', { count: isArchived ? seasonGameCount(season) : season._count?.games ?? games.length })}
             </span>
           </>
         }

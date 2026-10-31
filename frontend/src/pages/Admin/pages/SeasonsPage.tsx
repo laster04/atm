@@ -8,6 +8,7 @@ import { leagueApi, seasonApi } from '@/services/api';
 import { SeasonStatus, type League, type Season } from '@types';
 import { cn } from '@/components/utils';
 import { VisibilityBadge } from '@/components/public';
+import { seasonGameCount } from '@/utils/season';
 import { strictest } from '@/utils/visibility';
 import {
 	DropdownMenu,
@@ -204,7 +205,7 @@ export default function SeasonsPage() {
 										</span>
 										<span className="flex items-center gap-1">
 											<CalendarDays className="size-3.5" aria-hidden />
-											{season._count?.games ?? 0}
+											{seasonGameCount(season)}
 										</span>
 									</span>
 								</span>

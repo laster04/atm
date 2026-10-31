@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, Trophy, Users } from 'lucide-react';
 import { formatSeasonDate } from '@/utils/date';
 import { SeasonStatus, type Season } from '@types';
 import { SeasonStatusBadge, VisibilityBadge } from '@/components/public';
+import { seasonGameCount } from '@/utils/season';
 import { strictest } from '@/utils/visibility';
 import ApplicationsOpenBadge from '@/components/registrations/ApplicationsOpenBadge';
 
@@ -17,7 +18,7 @@ const STRIPE: Record<SeasonStatus, string> = {
 export default function SeasonCard({ season }: { season: Season }) {
 	const { t, i18n } = useTranslation();
 	const teams = season._count?.seasonTeams ?? season._count?.teams ?? 0;
-	const games = season._count?.games ?? 0;
+	const games = seasonGameCount(season);
 
 	return (
 		<Link

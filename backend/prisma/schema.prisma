@@ -181,6 +181,10 @@ model Season {
   // completed and confirmed without waiting for the season manager.
   autoConfirmAgreed Boolean      @default(true) @map("auto_confirm_agreed")
   archivedAt        DateTime?    @map("archived_at")
+  // Archiving deletes the games, so their count and the goals scored in them
+  // (play-off included) are kept here. Null on a season that is not archived.
+  archivedGames     Int?         @map("archived_games")
+  archivedGoals     Int?         @map("archived_goals")
   createdAt         DateTime     @default(now()) @map("created_at")
   updatedAt         DateTime     @updatedAt @map("updated_at")
 
