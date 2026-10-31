@@ -304,6 +304,7 @@
     "overview": {
       "gamePlayed": "Odohraných zápasov",
       "outOfTotal": "Z celkového počtu {{count}}",
+      "seasonFinished": "Sezóna sa skončila",
       "leader": "Vedúci tím",
       "leaderPoints": "{{points}} bodov",
       "scoredTotal": "Strelených gólov",

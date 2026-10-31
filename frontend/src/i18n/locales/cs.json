@@ -304,6 +304,7 @@
     "overview": {
       "gamePlayed": "Odehráno zápasů",
       "outOfTotal": "Z celkového počtu {{count}}",
+      "seasonFinished": "Sezóna skončila",
       "leader": "Vedoucí team",
       "leaderPoints": "{{points}} bodů",
       "scoredTotal": "Nastříleno gólů",

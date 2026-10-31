@@ -13,7 +13,7 @@ type Filter = 'all' | 'applications' | SeasonStatus;
 
 export default function SeasonsScreen() {
 	const { t } = useTranslation();
-	const [filter, setFilter] = useState<Filter>('all');
+	const [filter, setFilter] = useState<Filter>(SeasonStatus.ACTIVE);
 	const [search, setSearch] = useState('');
 	const [seasons, setSeasons] = useState<Season[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -22,7 +22,11 @@ export default function SeasonsScreen() {
 
 	useEffect(() => {
 		seasonApi.getAll()
-			.then((res) => setSeasons(res.data))
+			.then((res) => {
+				setSeasons(res.data);
+				// Running seasons come first; with none running, show them all.
+				if (!res.data.some((season) => season.status === SeasonStatus.ACTIVE)) setFilter('all');
+			})
 			.catch((error) => console.error(error))
 			.finally(() => setLoading(false));
 	}, []);
