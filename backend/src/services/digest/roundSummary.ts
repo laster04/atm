@@ -69,7 +69,7 @@ const TOP_SCORER_LIMIT = 5;
 
 /**
  * Everything a results email says: what was played, where that leaves the
- * table, and who is leading the scoring.
+ * table, and who scored most in the games listed.
  *
  * The table is the season to date rather than the listed games alone - a
  * handful of results in isolation tells a reader nothing about where their team
@@ -98,6 +98,7 @@ const buildSummary = async (
       ...('round' in games ? { round: games.round } : { id: { in: games.ids } }),
     },
     select: {
+      id: true,
       date: true,
       homeScore: true,
       awayScore: true,
@@ -127,11 +128,14 @@ const buildSummary = async (
     policyFromRows(season, season.league, 'LEAGUE')
   );
 
-  // Scoring is read from the aggregate rows, which are kept in step with the
-  // event log, so this counts the same whether a game was reported either way.
+  // The scorers, unlike the table, are the best players of the listed games
+  // only: a reader sharing three results wants to see who decided them, not
+  // the season's leaders again. Scoring is read from the aggregate rows, which
+  // are kept in step with the event log, so this counts the same whether a
+  // game was reported either way.
   const stats = await prisma.playerGameStatistic.groupBy({
     by: ['playerId'],
-    where: { game: { seasonId, ...COUNTS_TOWARD_TABLE } },
+    where: { gameId: { in: roundGames.map(game => game.id) } },
     _sum: { goals: true, assists: true, points: true },
   });
   // Volleyball keeps no player lines, so its summary has no scorers at all.
