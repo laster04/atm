@@ -276,6 +276,9 @@ describe('the results email', () => {
     expect(res.body.summary.round).toBeNull();
     expect(res.body.summary.results).toHaveLength(1);
     expect(res.body.summary.results[0].confirmed).toBe(false);
+    // Scorers come from the picked games alone. Round 1's scorer leads the
+    // season but did not score in this one, so nobody is listed.
+    expect(res.body.summary.topScorers).toEqual([]);
   });
 
   it('rejects an empty pick', async () => {
