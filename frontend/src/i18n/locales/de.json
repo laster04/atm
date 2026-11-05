@@ -1195,7 +1195,9 @@
       "noAvailableTeams": "No other teams available in this season",
       "movePlayerBtn": "Move Player",
       "withinGroups": "Keep fixtures inside divisions",
-      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)"
+      "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)",
+      "seasonNeedsLeague": "Eine Saison gehört zu einer Liga. Legen Sie zuerst eine Liga an und fügen Sie ihr dann eine Saison hinzu.",
+      "seasonLeagueRequired": "Wählen Sie eine Liga."
     },
     "roles": {
       "ADMIN": "Admin",

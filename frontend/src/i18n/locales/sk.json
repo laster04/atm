@@ -1292,7 +1292,9 @@
       "movePlayerBtn": "Presunúť hráča",
       "withinGroups": "Losovať len vnútri skupín",
       "withinGroupsHint": "Tímy hrajú len s ostatnými vo svojej skupine (skupín: {{count}})",
-      "teamLogo": "Logo tímu"
+      "teamLogo": "Logo tímu",
+      "seasonNeedsLeague": "Sezóna patrí do ligy. Najprv založte ligu, potom k nej pridajte sezónu.",
+      "seasonLeagueRequired": "Vyberte ligu."
     },
     "roles": {
       "ADMIN": "Administrátor",
