@@ -2,7 +2,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import { serverLocale } from '@/i18n/languages';
 import type {
-  EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
+  EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanInterestInput, PlanInterestOverview, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, ResultClaimsView, SeasonResultClaims, ScorerLinkState, ScorerLinkCreated, ScorerPage, ScorerGoalInput, MatchEvent, MatchEventInput, MyPlayerProfile,
   CourtScorerPage, CourtGoalInput, PartScore, TournamentScorerLinks,
@@ -512,6 +512,7 @@ export const adminApi = {
   exportAudit: (params: ListQuery) => downloadCsv('/admin/audit', params),
   auditTypes: () => api.get<string[]>('/admin/audit/types'),
   embeds: () => api.get<EmbedUsage>('/admin/embeds'),
+  planInterest: () => api.get<PlanInterestOverview>('/admin/plan-interest'),
   payments: (params: ListQuery) => api.get<ListPage<PlanPayment>>('/admin/payments', { params }),
   exportPayments: (params: ListQuery) => downloadCsv('/admin/payments', params),
   paymentDocument: (id: string) => api.get<{ url: string; number: string }>(`/admin/payments/${id}/document`),
@@ -544,6 +545,8 @@ export const billingApi = {
   vatCheck: (vatId: string) => api.post<VatCheckResult>('/billing/vat-check', { vatId }),
   company: (ico: string) => api.get<CompanyLookup>(`/billing/company/${encodeURIComponent(ico)}`),
   prices: () => api.get<{ plans: PublicPlanPrice[] }>('/billing/prices'),
+  // The click and the contact form after it share one clientToken and make one row.
+  interest: (data: PlanInterestInput) => api.post<{ received: true }>('/billing/interest', data),
 };
 
 export const contactApi = {

@@ -6,6 +6,7 @@ import { adminApi } from '@/services/api';
 import type { AdminOverview } from '@types';
 import RegistrationFunnelCard from '../components/RegistrationFunnelCard';
 import EmbedUsageCard from '../components/EmbedUsageCard';
+import PlanInterestCard from '../components/PlanInterestCard';
 import { ADMIN_GOLD_INK } from '../components/util';
 
 /** What waits for an admin, first thing after signing in. */
@@ -72,6 +73,7 @@ export default function OverviewPage() {
 				<p className="text-xs text-muted-foreground">{t('adminShell.overview.activeHint')}</p>
 			</section>
 
+			<PlanInterestCard />
 			<RegistrationFunnelCard />
 			<EmbedUsageCard />
 		</div>

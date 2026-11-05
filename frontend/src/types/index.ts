@@ -916,6 +916,32 @@ export interface EmbedTeamOption {
   color: string | null;
 }
 
+/** "Mám zájem" on the Liga plan, which is not on sale yet. */
+export interface PlanInterestInput {
+  plan: 'LEAGUE';
+  clientToken: string;
+  email?: string;
+  leagueName?: string;
+  teamCount?: number;
+  website?: string;
+}
+
+/** Admin: how many asked for the Liga plan, and who left a way to reach them. */
+export interface PlanInterestOverview {
+  plan: 'LEAGUE';
+  total: number;
+  last30Days: number;
+  contacts: number;
+  leads: {
+    id: string;
+    email: string | null;
+    leagueName: string | null;
+    teamCount: number | null;
+    createdAt: string;
+    user: { id: string; name: string; email: string } | null;
+  }[];
+}
+
 /** One tournament plan on the public price list. Minor units, VAT included; a null limit is unlimited. */
 export interface PublicPlanPrice {
   plan: PlanName;

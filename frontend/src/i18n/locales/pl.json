@@ -1911,7 +1911,7 @@
       },
       "nextTitle": "Next games",
       "pricing": {
-        "kicker": "Tournament pricing",
+        "kicker": "Cennik",
         "title": "Small tournaments are free. Bigger ones cost a one-off fee.",
         "text": "A tournament with up to {{teams}} teams is free, and you can run as many as you like. You pay only for more teams or extra features: once per tournament, or yearly for all of them.",
         "per": {
@@ -1962,7 +1962,31 @@
         },
         "soon": "Soon",
         "note": "Prices include VAT. Leagues and seasons are free for now.",
-        "cta": "Start a tournament"
+        "cta": "Start a tournament",
+        "league": {
+          "name": "Liga",
+          "priceSoon": "Cena wkrótce",
+          "for": "Dla organizatorów lig i sezonów",
+          "points": [
+            "Pierwsza liga i jej pierwszy sezon za darmo, bez limitu drużyn",
+            "Potem roczny plan za każdą ligę",
+            "Drużyny i zawodnicy nigdy nie płacą",
+            "Terminarz, protokoły, tabele, play-off i statystyki"
+          ],
+          "ask": "Cenę planu Liga dopiero ustalamy. Chcielibyście z niego korzystać? Dajcie nam znać.",
+          "interested": "Jestem zainteresowany",
+          "thanksClick": "Dziękujemy, zanotowaliśmy to.",
+          "formHint": "Chcesz, żebyśmy odezwali się z ceną? Zostaw kontakt. Wszystkie pola są opcjonalne.",
+          "email": "E-mail",
+          "leagueName": "Nazwa ligi",
+          "teams": "Liczba drużyn",
+          "send": "Wyślij",
+          "privacy": "Użyjemy e-maila tylko po to, by skontaktować się w sprawie planu Liga.",
+          "thanksSent": "Dziękujemy! Odezwiemy się, gdy cena planu Liga będzie znana.",
+          "emailInvalid": "Sprawdź adres e-mail.",
+          "teamsInvalid": "Liczba drużyn musi być liczbą całkowitą od 1 do 500.",
+          "sendError": "Nie udało się wysłać. Spróbuj ponownie."
+        }
       }
     },
     "leagues": {
@@ -2503,7 +2527,16 @@
       "embedsHint": "Websites that showed a table or games from ATM in the last 30 days.",
       "embedsViews_one": "{{count}} view",
       "embedsViews_other": "{{count}} views",
-      "embedsNone": "Nobody has embedded it yet."
+      "embedsNone": "Nobody has embedded it yet.",
+      "planInterest": "Zainteresowanie planem Liga",
+      "planInterestCounts": "{{total}} kliknięć · {{recent}} w 30 dni · {{contacts}} z kontaktem",
+      "planInterestHint": "Przycisk „Jestem zainteresowany” w cenniku na stronie głównej. Kontakty to kandydaci do rozmowy o cenie.",
+      "planInterestNone": "Nikt jeszcze nie zostawił kontaktu.",
+      "planInterestNoLeague": "Bez nazwy ligi",
+      "planInterestTeams_one": "{{count}} drużyna",
+      "planInterestTeams_few": "{{count}} drużyny",
+      "planInterestTeams_many": "{{count}} drużyn",
+      "planInterestTeams_other": "{{count}} drużyny"
     },
     "pricing": {
       "readOnly": "You can look but not change. Only the pricing manager account changes prices, VAT rates, limits and OSS.",
