@@ -34,6 +34,8 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 	const { t } = useTranslation();
 	const isEditing = !!season;
 	const isArchived = !!season?.archivedAt;
+	// A season belongs to a league; with none to choose, the form cannot be sent.
+	const noLeagues = !isEditing && leagues.length === 0;
 
 	const initValues = {
 		name: season?.name || '',
@@ -120,14 +122,17 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 							/>
 						</div>
 						<div className="space-y-2">
-							<FormControl className="w-full" size="small">
+							{noLeagues && (
+								<p role="alert" className="rounded-lg bg-muted p-3 text-sm">{t('admin.modal.seasonNeedsLeague')}</p>
+							)}
+							<FormControl className="w-full" size="small" error={!!form.formState.errors.leagueId} hidden={noLeagues}>
 								<InputLabel id="select-league-label">{t('admin.modal.league')}</InputLabel>
 								<Select
 									labelId="select-league-label"
 									id="select-league"
 									label={t('admin.modal.league')}
 									disabled={isArchived}
-									{...form.register('leagueId', { valueAsNumber: true })}
+									{...form.register('leagueId', { required: true })}
 									defaultValue={initValues.leagueId}
 								>
 									{leagues.map((league) => (
@@ -137,6 +142,9 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 									))}
 								</Select>
 							</FormControl>
+							{form.formState.errors.leagueId && !noLeagues && (
+								<p className="text-sm text-destructive-strong">{t('admin.modal.seasonLeagueRequired')}</p>
+							)}
 						</div>
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 							<div className="space-y-2">
@@ -235,7 +243,7 @@ export default function SeasonFormModal({ season, leagues, seasons = [], onSubmi
 						<Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
 							{t('common.cancel')}
 						</Button>
-						<Button className="w-full sm:w-auto" type="submit">
+						<Button className="w-full sm:w-auto" type="submit" disabled={noLeagues}>
 							{isEditing ? t('common.save') : t('common.create')}
 						</Button>
 					</div>

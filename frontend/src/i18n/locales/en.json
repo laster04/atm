@@ -1280,7 +1280,9 @@
       "movePlayerBtn": "Move Player",
       "withinGroups": "Keep fixtures inside divisions",
       "withinGroupsHint": "Teams meet only the others in their own division ({{count}} divisions)",
-      "teamLogo": "Team logo"
+      "teamLogo": "Team logo",
+      "seasonNeedsLeague": "A season belongs to a league. Create a league first, then add a season to it.",
+      "seasonLeagueRequired": "Choose a league."
     },
     "roles": {
       "ADMIN": "Admin",
