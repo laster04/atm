@@ -2058,7 +2058,7 @@
         }
       },
       "pricing": {
-        "kicker": "Tournament pricing",
+        "kicker": "Pricing",
         "title": "Small tournaments are free. Bigger ones cost a one-off fee.",
         "text": "A tournament with up to {{teams}} teams is free, and you can run as many as you like. You pay only for more teams or extra features: once per tournament, or yearly for all of them.",
         "per": {
@@ -2109,7 +2109,31 @@
         },
         "soon": "Soon",
         "note": "Prices include VAT. Leagues and seasons are free for now.",
-        "cta": "Start a tournament"
+        "cta": "Start a tournament",
+        "league": {
+          "name": "League",
+          "priceSoon": "Price coming soon",
+          "for": "For league and season organisers",
+          "points": [
+            "Your first league and its first season free, with no team limit",
+            "After that, a yearly plan per league",
+            "Teams and players never pay",
+            "Schedule, match reports, tables, play-off and stats"
+          ],
+          "ask": "We're still setting the price of the League plan. Would you want it? Let us know.",
+          "interested": "I'm interested",
+          "thanksClick": "Thanks, we've noted it.",
+          "formHint": "Want us to get in touch with the price? Leave a contact. Every field is optional.",
+          "email": "Email",
+          "leagueName": "League name",
+          "teams": "Number of teams",
+          "send": "Send",
+          "privacy": "We'll use your email only to contact you about the League plan.",
+          "thanksSent": "Thanks! We'll be in touch once the League plan has a price.",
+          "emailInvalid": "Check the email address.",
+          "teamsInvalid": "The number of teams must be a whole number from 1 to 500.",
+          "sendError": "Sending failed. Please try again."
+        }
       }
     },
     "leagues": {
@@ -3016,7 +3040,14 @@
       "embedsHint": "Websites that showed a table or games from ATM in the last 30 days.",
       "embedsViews_one": "{{count}} view",
       "embedsViews_other": "{{count}} views",
-      "embedsNone": "Nobody has embedded it yet."
+      "embedsNone": "Nobody has embedded it yet.",
+      "planInterest": "Interest in the League plan",
+      "planInterestCounts": "{{total}} clicks · {{recent}} in 30 days · {{contacts}} with a contact",
+      "planInterestHint": "The \"I'm interested\" button on the landing page price list. Contacts are candidates for a pricing interview.",
+      "planInterestNone": "Nobody has left a contact yet.",
+      "planInterestNoLeague": "No league name",
+      "planInterestTeams_one": "{{count}} team",
+      "planInterestTeams_other": "{{count}} teams"
     },
     "pricing": {
       "readOnly": "You can look but not change. Only the pricing manager account changes prices, VAT rates, limits and OSS.",

@@ -2082,7 +2082,7 @@
         }
       },
       "pricing": {
-        "kicker": "Ceník turnajů",
+        "kicker": "Ceník",
         "title": "Malé turnaje zdarma, větší za jednorázový poplatek",
         "text": "Turnaj do {{teams}} týmů je zdarma a pořádat jich můžete, kolik chcete. Platíte jen za víc týmů nebo funkce navíc: jednou za turnaj, nebo ročně za všechny.",
         "per": {
@@ -2133,7 +2133,31 @@
         },
         "soon": "Brzy",
         "note": "Ceny jsou s DPH. Ligy a sezóny jsou zatím zdarma.",
-        "cta": "Založit turnaj"
+        "cta": "Založit turnaj",
+        "league": {
+          "name": "Liga",
+          "priceSoon": "Cena brzy",
+          "for": "Pro organizátory lig a sezón",
+          "points": [
+            "První liga a její první sezóna zdarma, bez limitu týmů",
+            "Potom roční plán za každou ligu",
+            "Týmy a hráči neplatí nikdy",
+            "Rozpis, zápisy, tabulky, play-off a statistiky"
+          ],
+          "ask": "Cenu plánu Liga teprve stanovujeme. Chtěli byste ho? Dejte nám vědět.",
+          "interested": "Mám zájem",
+          "thanksClick": "Díky, zapsali jsme si to.",
+          "formHint": "Chcete, abychom se ozvali s cenou? Nechte nám kontakt. Všechna pole jsou nepovinná.",
+          "email": "E-mail",
+          "leagueName": "Název ligy",
+          "teams": "Počet týmů",
+          "send": "Odeslat",
+          "privacy": "E-mail použijeme jen k tomu, abychom se vám ozvali kvůli plánu Liga.",
+          "thanksSent": "Díky! Ozveme se, až bude cena plánu Liga známá.",
+          "emailInvalid": "Zkontrolujte e-mail.",
+          "teamsInvalid": "Počet týmů musí být celé číslo od 1 do 500.",
+          "sendError": "Odeslání se nepovedlo. Zkuste to prosím znovu."
+        }
       }
     },
     "leagues": {
@@ -3081,7 +3105,16 @@
       "embedsViews_one": "{{count}} zobrazení",
       "embedsViews_few": "{{count}} zobrazení",
       "embedsViews_other": "{{count}} zobrazení",
-      "embedsNone": "Zatím ho nikdo nevložil."
+      "embedsNone": "Zatím ho nikdo nevložil.",
+      "planInterest": "Zájem o plán Liga",
+      "planInterestCounts": "{{total}} kliknutí · {{recent}} za 30 dní · {{contacts}} s kontaktem",
+      "planInterestHint": "Tlačítko „Mám zájem“ v ceníku na úvodní stránce. Kontakty jsou kandidáti na rozhovor o ceně.",
+      "planInterestNone": "Zatím nikdo nenechal kontakt.",
+      "planInterestNoLeague": "Bez názvu ligy",
+      "planInterestTeams_one": "{{count}} tým",
+      "planInterestTeams_few": "{{count}} týmy",
+      "planInterestTeams_many": "{{count}} týmu",
+      "planInterestTeams_other": "{{count}} týmů"
     },
     "pricing": {
       "readOnly": "Můžete se dívat, ale ne měnit. Ceny, sazby DPH, limity a OSS mění jen účet správce ceníku.",

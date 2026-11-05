@@ -5,6 +5,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { billingApi } from '@/services/api';
 import { formatMoney } from '@/utils/money';
 import type { PlanName, PublicPlanPrice } from '@types';
+import LeaguePlanInterest from './LeaguePlanInterest';
 
 /** Features of Turnaj Plus that arrive with celek C; listed, but marked as coming. */
 const COMING: Partial<Record<PlanName, string[]>> = {
@@ -13,7 +14,8 @@ const COMING: Partial<Record<PlanName, string[]>> = {
 
 /**
  * The tournament price list, read from the server so it always shows what
- * the admin has set. Leagues have no price yet, so they are only mentioned.
+ * the admin has set. The Liga plan has no price yet: it shows the model and
+ * counts who would want it.
  */
 export default function PricingSection({ signedIn }: { signedIn: boolean }) {
 	const { t, i18n } = useTranslation();
@@ -90,6 +92,8 @@ export default function PricingSection({ signedIn }: { signedIn: boolean }) {
 					);
 				})}
 			</ul>
+
+			<LeaguePlanInterest />
 
 			<div className="mt-6 flex flex-wrap items-center justify-between gap-4">
 				<p className="text-[13px] text-muted-foreground">{t('public.landing.pricing.note')}</p>

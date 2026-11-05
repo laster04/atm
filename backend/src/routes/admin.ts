@@ -4,6 +4,7 @@ import { listAudit, listAuditTypes } from '../controllers/adminAuditController.j
 import { getOverview } from '../controllers/adminOverviewController.js';
 import { setTournamentPlan } from '../controllers/adminTournamentController.js';
 import { getEmbedUsage } from '../controllers/embedController.js';
+import { getPlanInterest } from '../controllers/planInterestController.js';
 import { cancelPayments, confirmPayments, getPaymentDocument, listPayments } from '../controllers/adminPaymentController.js';
 import {
   cancelPrice,
@@ -31,6 +32,7 @@ router.get('/audit', listAudit);
 router.get('/audit/types', listAuditTypes);
 router.put('/tournaments/:id/plan', setTournamentPlan);
 router.get('/embeds', getEmbedUsage);
+router.get('/plan-interest', getPlanInterest);
 router.get('/payments', listPayments);
 router.post('/payments/confirm', confirmPayments);
 router.post('/payments/cancel', cancelPayments);
