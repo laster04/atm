@@ -785,7 +785,15 @@
       "players": "Players",
       "add": "Add team",
       "empty": "No teams in this season yet",
-      "createError": "Failed to create the team"
+      "createError": "Failed to create the team",
+      "menuLabel": "More actions for {{team}}",
+      "delete": "Delete team",
+      "deleteTitle": "Delete {{team}}?",
+      "deleteDescription": "This deletes the team with its roster, trainings and invites. It can't be undone. A team that already has games can't be deleted.",
+      "deleteConfirm": "Delete",
+      "deleteError": "The team could not be deleted.",
+      "deleteHasGames_one": "{{team}} has {{count}} game, so it can't be deleted. Delete its games first.",
+      "deleteHasGames_other": "{{team}} has {{count}} games, so it can't be deleted. Delete its games first."
     },
     "table": {
       "teams_one": "{{count}} team",

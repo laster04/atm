@@ -760,7 +760,17 @@
       "players": "Players",
       "add": "Add team",
       "empty": "No teams in this season yet",
-      "createError": "Failed to create the team"
+      "createError": "Failed to create the team",
+      "menuLabel": "Więcej działań dla drużyny {{team}}",
+      "delete": "Usuń drużynę",
+      "deleteTitle": "Usunąć drużynę {{team}}?",
+      "deleteDescription": "Usunięta zostanie drużyna wraz ze składem, treningami i zaproszeniami. Nie można tego cofnąć. Drużyny, która ma już mecze, nie można usunąć.",
+      "deleteConfirm": "Usuń",
+      "deleteError": "Nie udało się usunąć drużyny.",
+      "deleteHasGames_one": "{{team}} ma {{count}} mecz, więc nie można jej usunąć. Najpierw usuń jej mecze.",
+      "deleteHasGames_few": "{{team}} ma {{count}} mecze, więc nie można jej usunąć. Najpierw usuń jej mecze.",
+      "deleteHasGames_many": "{{team}} ma {{count}} meczów, więc nie można jej usunąć. Najpierw usuń jej mecze.",
+      "deleteHasGames_other": "{{team}} ma {{count}} meczu, więc nie można jej usunąć. Najpierw usuń jej mecze."
     },
     "table": {
       "teams_one": "{{count}} team",

@@ -793,7 +793,17 @@
       "players": "Hráči",
       "add": "Přidat tým",
       "empty": "V této sezóně zatím nejsou žádné týmy",
-      "createError": "Nepodařilo se vytvořit tým"
+      "createError": "Nepodařilo se vytvořit tým",
+      "menuLabel": "Další akce pro tým {{team}}",
+      "delete": "Smazat tým",
+      "deleteTitle": "Smazat tým {{team}}?",
+      "deleteDescription": "Smaže se tým i jeho soupiska, tréninky a pozvánky. Nejde to vrátit. Tým, který už má zápasy, smazat nejde.",
+      "deleteConfirm": "Smazat",
+      "deleteError": "Tým se nepodařilo smazat.",
+      "deleteHasGames_one": "{{team}} má {{count}} zápas, proto ho smazat nejde. Nejdřív smažte jeho zápasy.",
+      "deleteHasGames_few": "{{team}} má {{count}} zápasy, proto ho smazat nejde. Nejdřív smažte jeho zápasy.",
+      "deleteHasGames_many": "{{team}} má {{count}} zápasu, proto ho smazat nejde. Nejdřív smažte jeho zápasy.",
+      "deleteHasGames_other": "{{team}} má {{count}} zápasů, proto ho smazat nejde. Nejdřív smažte jeho zápasy."
     },
     "table": {
       "teams_one": "{{count}} tým",

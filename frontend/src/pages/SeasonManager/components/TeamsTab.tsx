@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Check, ChevronDown, ChevronRight, Plus, Send, UserPlus } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, MoreVertical, Plus, Send, Trash2, UserPlus } from 'lucide-react';
 import { AxiosError } from 'axios';
 import { inviteApi, teamApi } from '@/services/api';
 import type { ManagerInvite, ManagerInviteSent, Season, Team } from '@types';
@@ -13,6 +13,7 @@ import {
 	DropdownMenuTrigger,
 } from '@components/base/dropdown-menu';
 import InviteManagerSheet from '@/components/invite/InviteManagerSheet';
+import ConfirmDialog from '@/pages/Admin/components/list/ConfirmDialog';
 import { invitesByTarget, managerState, sentAgo, type ManagerState } from '@/components/invite/inviteState';
 import { SEASON_ACCENT, initials } from './util';
 
@@ -38,6 +39,7 @@ export default function TeamsTab({ season, teams, invites, onTeamsChange, onInvi
 	const [error, setError] = useState('');
 	/** The team being invited for, and the result when the sheet shows a sent invite. */
 	const [sheet, setSheet] = useState<{ team: Team; sent?: ManagerInviteSent } | null>(null);
+	const [deleting, setDeleting] = useState<Team | null>(null);
 
 	const inviteFor = useMemo(() => invitesByTarget(invites, 'teamId'), [invites]);
 	const stateOf = (team: Team) => managerState(team.managerId ?? team.manager?.id, inviteFor.get(team.id));
@@ -59,6 +61,23 @@ export default function TeamsTab({ season, teams, invites, onTeamsChange, onInvi
 		} catch (err) {
 			const axiosError = err as AxiosError<{ error: string }>;
 			setError(axiosError.response?.data?.error || t('seasonManagement.teams.createError'));
+		}
+	};
+
+	const handleDelete = async (team: Team) => {
+		setError('');
+		try {
+			await teamApi.delete(team.id);
+			onTeamsChange(teams.filter((other) => other.id !== team.id));
+		} catch (err) {
+			const axiosError = err as AxiosError<{ error: string; code?: string; games?: number }>;
+			const body = axiosError.response?.data;
+			// A team with games stays: its results are part of everyone's table.
+			setError(
+				body?.code === 'TEAM_HAS_GAMES'
+					? t('seasonManagement.teams.deleteHasGames', { count: body.games ?? 0, team: team.name })
+					: body?.error || t('seasonManagement.teams.deleteError')
+			);
 		}
 	};
 
@@ -248,6 +267,23 @@ export default function TeamsTab({ season, teams, invites, onTeamsChange, onInvi
 								)}
 							</button>
 							{action(team)}
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button
+										type="button"
+										className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-muted-foreground hover:bg-muted"
+										aria-label={t('seasonManagement.teams.menuLabel', { team: team.name })}
+									>
+										<MoreVertical className="size-4" aria-hidden />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuItem onSelect={() => setDeleting(team)} className="text-destructive-strong">
+										<Trash2 className="size-4" aria-hidden />
+										{t('seasonManagement.teams.delete')}
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 					);
 				})
@@ -266,6 +302,17 @@ export default function TeamsTab({ season, teams, invites, onTeamsChange, onInvi
 				<TeamFormModal
 					onSubmit={handleCreate}
 					onClose={() => setShowForm(false)}
+				/>
+			)}
+
+			{deleting && (
+				<ConfirmDialog
+					title={t('seasonManagement.teams.deleteTitle', { team: deleting.name })}
+					description={t('seasonManagement.teams.deleteDescription')}
+					confirmLabel={t('seasonManagement.teams.deleteConfirm')}
+					tone="danger"
+					onConfirm={() => handleDelete(deleting)}
+					onClose={() => setDeleting(null)}
 				/>
 			)}
 
