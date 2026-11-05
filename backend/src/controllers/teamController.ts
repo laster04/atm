@@ -13,6 +13,7 @@ import { toNullableId } from '../utils/ids.js';
 import { Prisma } from '@prisma/client';
 import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
 import { releaseFiles } from '../services/storage/files.js';
+import { recordAudit } from '../services/audit/record.js';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -344,9 +345,28 @@ export const deleteTeam = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // Games hold other teams' results too: deleting them with the team would
+    // silently change everyone's table. The database refuses it anyway, so
+    // say why instead of failing.
+    const games = await prisma.game.count({ where: { OR: [{ homeTeamId: id }, { awayTeamId: id }] } });
+    if (games > 0) {
+      res.status(409).json({
+        error: 'This team has games. Delete its games first, or remove the team from the season.',
+        code: 'TEAM_HAS_GAMES',
+        games,
+      });
+      return;
+    }
 
     await prisma.team.delete({ where: { id: id } });
     await releaseFiles([{ type: 'TEAM', id }]);
+    await recordAudit({
+      entityType: 'Team',
+      entityId: id,
+      action: 'DELETE',
+      before: { name: team.name, seasonIds: team.seasonTeams.map(entry => entry.seasonId) },
+      actorId: req.user?.id ?? null,
+    });
     res.json({ message: 'Team deleted successfully' });
   } catch (error) {
     console.error('Delete team error:', error);
