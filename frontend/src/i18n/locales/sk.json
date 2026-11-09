@@ -3831,5 +3831,20 @@
   "legal": {
     "signupNote": "Založením účtu (aj cez Google) súhlasíte s <terms>obchodnými podmienkami</terms> a beriete na vedomie <privacy>zásady ochrany osobných údajov</privacy>.",
     "immediateStart": "Chcem, aby plán začal platiť hneď po zaplatení. Beriem na vedomie, že ako spotrebiteľ môžem do 14 dní odstúpiť s vrátením pomernej časti ceny a že po úplnom poskytnutí služby právo na odstúpenie zaniká (<terms>obchodné podmienky</terms>, čl. 5)."
+  },
+  "tournamentGameDetail": {
+    "notFound": "Zápas sa nenašiel.",
+    "group": "Skupina {{name}}",
+    "groupStage": "Skupina",
+    "groupTable": "Skupina {{name}}",
+    "allGroups": "Všetky skupiny",
+    "meetings": "Ďalšie zápasy tých istých tímov",
+    "next": {
+      "title": "Kam postupuje víťaz",
+      "goesTo": "Víťaz hrá {{round}}",
+      "against": "proti tímu {{team}}",
+      "opponentUnknown": "Súper sa ešte len rozhodne.",
+      "bracket": "Celý pavúk"
+    }
   }
 }

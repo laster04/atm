@@ -3845,5 +3845,20 @@
   "legal": {
     "signupNote": "By creating an account (including with Google) you agree to the <terms>terms of service</terms> and acknowledge the <privacy>privacy policy</privacy>.",
     "immediateStart": "I want the plan to start as soon as it is paid. I understand that as a consumer I can withdraw within 14 days with a proportional refund, and that the right of withdrawal ends once the service has been fully provided (<terms>terms of service</terms>, section 5)."
+  },
+  "tournamentGameDetail": {
+    "notFound": "Game not found.",
+    "group": "Group {{name}}",
+    "groupStage": "Group",
+    "groupTable": "Group {{name}}",
+    "allGroups": "All groups",
+    "meetings": "Other games of these teams",
+    "next": {
+      "title": "Where the winner goes",
+      "goesTo": "The winner plays the {{round}}",
+      "against": "against {{team}}",
+      "opponentUnknown": "The opponent is not decided yet.",
+      "bracket": "Whole bracket"
+    }
   }
 }

@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/public';
 import type { GameDetail } from '@types';
 import MatchHeader from './components/MatchHeader';
 import Timeline from './components/Timeline';
-import SetsPanel from './components/SetsPanel';
+import SetsPanel from '@/components/match/SetsPanel';
 import PlayerLines from './components/PlayerLines';
 import TableExcerpt from './components/TableExcerpt';
 import Meetings from './components/Meetings';
