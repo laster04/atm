@@ -6,3 +6,7 @@ import { GameStatus } from '@types';
  */
 export const gamePage = (game: { id: string; status: GameStatus | string }): string | null =>
 	game.status === GameStatus.COMPLETED || game.status === GameStatus.IN_PROGRESS ? `/games/${game.id}` : null;
+
+/** The same for a tournament game. */
+export const tournamentGamePage = (game: { id: string; status: GameStatus | string }): string | null =>
+	game.status === GameStatus.COMPLETED || game.status === GameStatus.IN_PROGRESS ? `/tournament/games/${game.id}` : null;

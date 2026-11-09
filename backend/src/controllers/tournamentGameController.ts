@@ -11,6 +11,7 @@ import {
 import { advancePlayoffBracket, resolvePlayoffSeeds } from './tournamentPlayoffController.js';
 import { toId, toNullableId } from '../utils/ids.js';
 import { checkParts, partsWon, profileFor } from '../services/sports/profile.js';
+import { tournamentGameDetail } from '../services/tournaments/gameDetail.js';
 
 const gameInclude = {
   homeTeam: { select: { id: true, name: true, logo: true, primaryColor: true, country: true } },
@@ -81,6 +82,18 @@ export const getGameById = async (req: Request, res: Response): Promise<void> =>
     res.json(game);
   } catch (error) {
     console.error('Get tournament game error:', error);
+    res.status(500).json({ error: 'Failed to fetch game' });
+  }
+};
+
+/** The public page of one tournament game. */
+export const getGameDetail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const detail = await tournamentGameDetail(req.params.id);
+    if (!detail) { res.status(404).json({ error: 'Game not found' }); return; }
+    res.json(detail);
+  } catch (error) {
+    console.error('Get tournament game detail error:', error);
     res.status(500).json({ error: 'Failed to fetch game' });
   }
 };

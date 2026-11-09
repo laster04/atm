@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock } from 'lucide-react';
@@ -5,6 +6,7 @@ import type { Tournament, TournamentGame } from '@types';
 import { EmptyState, FilterTabs, GameStatusBadge, Panel } from '@/components/public';
 import { formatDateShort, formatGameTime } from '@/utils/date';
 import { isPlayed } from './shared';
+import { tournamentGamePage } from '@/utils/gameLink';
 
 interface ScheduleTabProps {
 	tournament: Tournament;
@@ -105,7 +107,7 @@ function GameRow({ game, first }: { game: TournamentGame; first: boolean }) {
 		`min-w-0 flex-1 truncate text-[13px] ${won || !played ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`;
 
 	return (
-		<div className={`flex items-center gap-3 px-5 py-3 ${first ? '' : 'border-t border-border-subtle'}`}>
+		<Row href={tournamentGamePage(game)} className={`flex items-center gap-3 px-5 py-3 ${first ? '' : 'border-t border-border-subtle'}`}>
 			<span className="hidden w-14 shrink-0 truncate text-xs text-muted-foreground sm:block">{game.location}</span>
 			<span className={`${side(homeWon)} text-right`}>{game.homeTeam?.name ?? t('tm.common.tbd')}</span>
 			{played ? (
@@ -130,6 +132,15 @@ function GameRow({ game, first }: { game: TournamentGame; first: boolean }) {
 				</span>
 			)}
 			<span className={`${side(awayWon)} text-left`}>{game.awayTeam?.name ?? t('tm.common.tbd')}</span>
-		</div>
+		</Row>
+	);
+}
+
+/** A played game's row opens its page; one still to come stays a plain row. */
+function Row({ href, className, children }: { href: string | null; className: string; children: React.ReactNode }) {
+	return href ? (
+		<Link to={href} className={`${className} transition-colors hover:bg-muted/50`}>{children}</Link>
+	) : (
+		<div className={className}>{children}</div>
 	);
 }

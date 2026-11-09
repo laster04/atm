@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Check, Copy } from 'lucide-react';
 import { embedApi } from '@/services/api';
 import type { EmbedCompetition, EmbedTeamOption } from '@types';
+import type { EmbedLang } from '@/embed/Widget';
 
 interface EmbedPanelProps {
 	kind: 'season' | 'tournament';
@@ -33,7 +34,7 @@ export default function EmbedPanel({ kind, id, accent, fixedTeam }: EmbedPanelPr
 	const [results, setResults] = useState(true);
 	const [theme, setTheme] = useState<'light' | 'dark'>('light');
 	const [color, setColor] = useState(accent);
-	const [lang, setLang] = useState<'cs' | 'en'>(i18n.language.startsWith('en') ? 'en' : 'cs');
+	const [lang, setLang] = useState<EmbedLang>(i18n.language.startsWith('en') ? 'en' : i18n.language.startsWith('sk') ? 'sk' : 'cs');
 	const [logos, setLogos] = useState(true);
 	const [hideBrand, setHideBrand] = useState(false);
 	const [copied, setCopied] = useState(false);
@@ -168,9 +169,10 @@ export default function EmbedPanel({ kind, id, accent, fixedTeam }: EmbedPanelPr
 						</label>
 						<label className={label}>
 							{t('embedPanel.language')}
-							<select className={field} value={lang} onChange={(e) => setLang(e.target.value as 'cs' | 'en')}>
+							<select className={field} value={lang} onChange={(e) => setLang(e.target.value as EmbedLang)}>
 								<option value="cs">Čeština</option>
 								<option value="en">English</option>
+								<option value="sk">Slovenčina</option>
 							</select>
 						</label>
 					</div>

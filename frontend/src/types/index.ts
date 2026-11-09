@@ -1519,3 +1519,47 @@ export interface GameDetail {
     confirmed: boolean;
   }[];
 }
+
+/** The public page of one tournament game: GET /api/tournaments/games/:id/detail. */
+export interface TournamentGameDetail {
+  game: {
+    id: string;
+    phase: TournamentGamePhase;
+    group: { id: string; name: string } | null;
+    date: string | null;
+    location: string | null;
+    status: GameStatus;
+    homeScore: number | null;
+    awayScore: number | null;
+    periodScores: PartScore[] | null;
+    homeTeam: Pick<TournamentTeam, 'id' | 'name' | 'logo' | 'primaryColor' | 'country'> | null;
+    awayTeam: Pick<TournamentTeam, 'id' | 'name' | 'logo' | 'primaryColor' | 'country'> | null;
+  };
+  tournament: { id: string; name: string };
+  series: { id: string; name: string; sportType: SportType; logo: string | null };
+  /** Only players with goals or assists. */
+  players: { teamId: string; player: { id: string; name: string; number: number | null }; goals: number; assists: number }[];
+  /** A group game's group table. */
+  table: { group: { id: string; name: string } | null; rows: TournamentStanding[] } | null;
+  /** A play-off game: the round its winner moves to and who waits there. */
+  next: {
+    phase: TournamentGamePhase;
+    gameId: string | null;
+    date: string | null;
+    opponent: Pick<TournamentTeam, 'id' | 'name' | 'logo' | 'primaryColor'> | null;
+  } | null;
+  /** The two teams' other games in this tournament. */
+  meetings: {
+    id: string;
+    phase: TournamentGamePhase;
+    date: string | null;
+    status: GameStatus;
+    homeTeamId: string | null;
+    awayTeamId: string | null;
+    homeScore: number | null;
+    awayScore: number | null;
+  }[];
+  sponsors: TournamentSponsor[];
+  documents: TournamentDocumentRef[];
+  branding: Branding;
+}
