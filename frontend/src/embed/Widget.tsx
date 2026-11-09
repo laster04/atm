@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import atmMark from './atm-mark.png';
 
+/** The languages the widget can show; its texts are the `embed` section of the app's locale file. */
+export type EmbedLang = 'cs' | 'en' | 'sk';
+
 export interface WidgetOptions {
 	kind: 'season' | 'tournament';
 	id: string;
 	view: 'standings' | 'games';
-	lang: 'cs' | 'en';
+	lang: EmbedLang;
 	/** Rows of the table, or games per list; null = the whole table, 5 games. */
 	rows: number | null;
 	/** Highlights this team in the table, keeps only its games in the list. */
@@ -41,8 +44,8 @@ type Texts = Record<string, unknown>;
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 /** Only the chosen language's file is loaded; the widget reads its `embed` section. */
-const loadTexts = (lang: 'cs' | 'en') =>
-	(lang === 'en' ? import('../i18n/locales/en.json') : import('../i18n/locales/cs.json'))
+const loadTexts = (lang: EmbedLang) =>
+	(lang === 'en' ? import('../i18n/locales/en.json') : lang === 'sk' ? import('../i18n/locales/sk.json') : import('../i18n/locales/cs.json'))
 		.then((module) => (module.default as { embed: Texts }).embed);
 
 /** `t('columns.points')` with `{{name}}` placeholders, like i18next, without its weight. */
@@ -188,7 +191,7 @@ function Standings({ data, options, t }: { data: Data; options: WidgetOptions; t
 }
 
 function Games({ data, options, t }: { data: Data; options: WidgetOptions; t: T }) {
-	const locale = options.lang === 'en' ? 'en-GB' : 'cs-CZ';
+	const locale = options.lang === 'en' ? 'en-GB' : options.lang === 'sk' ? 'sk-SK' : 'cs-CZ';
 	const when = (date: string | null) => date
 		? new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }).format(new Date(date))
 		: t('dateTbd');
