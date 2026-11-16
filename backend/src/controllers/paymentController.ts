@@ -4,12 +4,13 @@ import { AuthRequest } from '../types/index.js';
 import { canManageLeague, canManageTournament } from '../services/access.js';
 import emailService from '../services/emailService.js';
 import { CURRENCIES, type Currency } from '../services/pricing/catalog.js';
-import { payableCurrencies } from '../services/payments/account.js';
+import { payableCurrencies, suggestedMethod } from '../services/payments/account.js';
 import {
   cancelPayment,
   createPayment,
   findPayment,
   paymentView,
+  sendPaymentInstructions,
   planOffers,
   planStatus,
   PaymentError,
@@ -44,7 +45,12 @@ export const getPlan = async (req: AuthRequest, res: Response): Promise<void> =>
 /** GET /api/tournaments/:id/plan/offers */
 export const getOffers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    res.json({ offers: await planOffers(req.params.id, req.user!.id), currencies: payableCurrencies() });
+    const currencies = await payableCurrencies();
+    res.json({
+      offers: await planOffers(req.params.id, req.user!.id),
+      currencies,
+      suggestedMethod: suggestedMethod(req.user!.locale, currencies),
+    });
   } catch (error) {
     answerError(res, error, 'Failed to fetch the offers', 'Get plan offers error:');
   }
@@ -89,6 +95,7 @@ export const startPayment = async (req: AuthRequest, res: Response): Promise<voi
       immediateStartConsentAt: new Date(),
     });
     notifyAdmins(payment);
+    sendPaymentInstructions(payment);
     res.status(201).json(paymentView(payment));
   } catch (error) {
     answerError(res, error, 'Failed to start the payment', 'Start payment error:');

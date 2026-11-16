@@ -3172,6 +3172,14 @@
         "offConfirm": "New seasons will be free. Seasons already waiting for the plan keep waiting.",
         "switchedOn": "League plan turned on",
         "switchedOff": "League plan turned off"
+      },
+      "bankAccounts": {
+        "title": "Bank accounts",
+        "hint": "Organisers pay plans to these accounts. A currency without an account is not offered. Payments already created keep the account they were given.",
+        "change": "Change",
+        "recipient": "Account holder",
+        "missing": "No account: payments in this currency are not available.",
+        "saved": "Account saved"
       }
     },
     "payments": {
@@ -3322,10 +3330,30 @@
       "recipient": "Recipient",
       "qrAlt": "QR code for the payment",
       "hint": "Scan the code in your banking app, or enter the details by hand with the variable symbol. The plan applies as soon as we confirm the payment.",
-      "cancel": "Cancel payment"
+      "cancel": "Cancel payment",
+      "currency": "Currency",
+      "message": "Message for the recipient",
+      "format": "QR code format",
+      "copy": "Copy: {{label}}",
+      "hintSepa": "Scan the code in your banking app, or enter a SEPA transfer by hand and copy the message for the recipient exactly; we match the payment by it. The plan starts once we confirm the payment."
     },
     "organizerUntil": "Organiser until {{date}}",
-    "renew": "Renew Organiser"
+    "renew": "Renew Organiser",
+    "method": {
+      "label": "Where will you pay from?",
+      "SPD": {
+        "title": "Czech bank",
+        "hint": "in crowns, QR payment"
+      },
+      "BYSQUARE": {
+        "title": "Slovak bank",
+        "hint": "in euros, PAY by square"
+      },
+      "EPC": {
+        "title": "Other eurozone bank",
+        "hint": "in euros, EPC QR code"
+      }
+    }
   },
   "embed": {
     "standings": "Standings",

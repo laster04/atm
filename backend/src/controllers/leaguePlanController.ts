@@ -10,6 +10,7 @@ import {
   createLeaguePayment,
   leaguePlanView,
   paymentView,
+  sendPaymentInstructions,
   PaymentError,
   type LeagueOfferKind,
   type PaymentWithRelations,
@@ -35,7 +36,7 @@ const answerError = (res: Response, error: unknown, fallback: string, log: strin
 /** GET /api/leagues/:id/plan: cover, waiting seasons, offers and the payment waiting. */
 export const getLeaguePlan = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const view = await leaguePlanView(req.params.id);
+    const view = await leaguePlanView(req.params.id, req.user!.locale);
     if (!view) { res.status(404).json({ error: 'League not found' }); return; }
     res.json(view);
   } catch (error) {
@@ -85,6 +86,7 @@ export const startLeaguePayment = async (req: AuthRequest, res: Response): Promi
       immediateStartConsentAt: new Date(),
     });
     notifyAdmins(payment);
+    sendPaymentInstructions(payment);
     res.status(201).json(paymentView(payment));
   } catch (error) {
     answerError(res, error, 'Failed to start the payment', 'Start league payment error:');

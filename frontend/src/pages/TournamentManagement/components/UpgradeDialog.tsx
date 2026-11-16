@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import type { OfferPlan, PaymentCurrency, PlanOffer, PlanPayment } from '@types';
+import { METHOD_CURRENCY, type OfferPlan, type PaymentCurrency, type PaymentMethod, type PlanOffer, type PlanPayment } from '@types';
+import PaymentMethodPicker, { initialMethod } from '@/components/plans/PaymentMethodPicker';
 import { tournamentApi } from '@/services/api';
 import { formatMoney } from '@/utils/money';
 import { formatSeasonDate } from '@/utils/date';
@@ -24,7 +25,8 @@ export default function UpgradeDialog({ tournamentId, open, onOpenChange, paymen
   const { t } = useTranslation();
   const [offers, setOffers] = useState<PlanOffer[] | null>(null);
   const [currencies, setCurrencies] = useState<PaymentCurrency[]>([]);
-  const [currency, setCurrency] = useState<PaymentCurrency>('CZK');
+  const [method, setMethod] = useState<PaymentMethod | null>(null);
+  const currency: PaymentCurrency = method ? METHOD_CURRENCY[method] : 'CZK';
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   // Asked afresh each time the offers open; see the terms, section 5.
@@ -38,7 +40,7 @@ export default function UpgradeDialog({ tournamentId, open, onOpenChange, paymen
       .then((res) => {
         setOffers(res.data.offers);
         setCurrencies(res.data.currencies);
-        setCurrency((current) => (res.data.currencies.includes(current) ? current : res.data.currencies[0] ?? current));
+        setMethod((current) => (current && res.data.currencies.includes(METHOD_CURRENCY[current]) ? current : initialMethod(res.data.currencies, res.data.suggestedMethod)));
       })
       .catch(() => setError(t('plans.offersError')));
   }, [open, payment, tournamentId, t]);
@@ -78,18 +80,19 @@ export default function UpgradeDialog({ tournamentId, open, onOpenChange, paymen
         </DialogHeader>
         {error && <p className="text-sm text-red-700">{error}</p>}
         {payment
-          ? <PaymentDetails payment={payment} busy={busy} onCancel={() => void cancel()} />
-          : <Offers offers={offers} currencies={currencies} currency={currency} onCurrency={setCurrency} immediateStart={immediateStart} onImmediateStart={setImmediateStart} busy={busy} onChoose={(plan) => void choose(plan)} />}
+          ? <PaymentDetails payment={payment} busy={busy} onCancel={() => void cancel()} suggested={method} />
+          : <Offers offers={offers} currencies={currencies} currency={currency} method={method} onMethod={setMethod} immediateStart={immediateStart} onImmediateStart={setImmediateStart} busy={busy} onChoose={(plan) => void choose(plan)} />}
       </DialogContent>
     </Dialog>
   );
 }
 
-function Offers({ offers, currencies, currency, onCurrency, immediateStart, onImmediateStart, busy, onChoose }: {
+function Offers({ offers, currencies, currency, method, onMethod, immediateStart, onImmediateStart, busy, onChoose }: {
   offers: PlanOffer[] | null;
   currencies: PaymentCurrency[];
   currency: PaymentCurrency;
-  onCurrency: (currency: PaymentCurrency) => void;
+  method: PaymentMethod | null;
+  onMethod: (method: PaymentMethod) => void;
   immediateStart: boolean;
   onImmediateStart: (value: boolean) => void;
   busy: boolean;
@@ -106,17 +109,7 @@ function Offers({ offers, currencies, currency, onCurrency, immediateStart, onIm
         {t('plans.offers.intro')}{' '}
         <Link to="/docs/plany-turnaju" target="_blank" className="font-semibold text-primary hover:underline">{t('plans.offers.howItWorks')}</Link>
       </p>
-      {currencies.length > 1 && (
-        <fieldset className="flex items-center gap-2 text-sm">
-          <legend className="sr-only">{t('plans.offers.currency')}</legend>
-          {currencies.map((value) => (
-            <label key={value} className={`cursor-pointer rounded border px-3 py-1.5 ${currency === value ? 'border-primary bg-primary/10 font-semibold' : ''}`}>
-              <input type="radio" name="currency" value={value} checked={currency === value} onChange={() => onCurrency(value)} className="sr-only" />
-              {value}
-            </label>
-          ))}
-        </fieldset>
-      )}
+      <PaymentMethodPicker currencies={currencies} value={method} onChange={onMethod} />
       <ul className="grid gap-3 sm:grid-cols-3">
         {offers.map((offer) => {
           const price = offer.prices[currency];

@@ -8,6 +8,7 @@ import app from '../app.js';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { overrideLeaguePlansForTests } from '../services/pricing/catalog.js';
+import { useTestBankAccounts } from './helpers/bankAccounts.js';
 
 // Confirming a payment renders its tax document; keep those out of the project's uploads.
 process.env.STORAGE_LOCAL_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'atm-league-plan-'));
@@ -28,10 +29,12 @@ async function account(label: string, role: 'ADMIN' | 'USER' = 'USER') {
 
 let admin: Awaited<ReturnType<typeof account>>;
 
+jest.spyOn(emailService, 'sendPaymentInstructionsEmail').mockResolvedValue(true);
 jest.spyOn(emailService, 'sendPaymentNoticeEmail').mockResolvedValue(true);
 jest.spyOn(emailService, 'sendTaxDocumentEmail').mockResolvedValue(true);
 
 beforeAll(async () => {
+  await useTestBankAccounts();
   admin = await account('admin', 'ADMIN');
   overrideLeaguePlansForTests(true);
 });
@@ -166,7 +169,7 @@ describe('a season waiting for its plan', () => {
       .send({ band: 'SMALL', kind: 'NEW', currency: 'CZK', immediateStart: true });
     expect(bought.status).toBe(201);
     expect(bought.body.league.id).toBe(leagueId);
-    expect(bought.body.qr).toContain('SPD*1.0');
+    expect(bought.body.qr.SPD).toContain('SPD*1.0');
 
     const again = await request(app).post(`/api/leagues/${leagueId}/payments`).set(auth(owner.token))
       .send({ band: 'SMALL', kind: 'NEW', currency: 'CZK', immediateStart: true });

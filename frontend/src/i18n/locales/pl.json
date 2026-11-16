@@ -3294,6 +3294,14 @@
         "offConfirm": "Nowe sezony będą darmowe. Sezony, które już czekają na plan, czekają dalej.",
         "switchedOn": "Plan Liga włączony",
         "switchedOff": "Plan Liga wyłączony"
+      },
+      "bankAccounts": {
+        "title": "Konta bankowe",
+        "hint": "Na te konta organizatorzy płacą za plany. Waluty bez konta ATM nie zaproponuje. Już utworzone płatności zachowują konto, które otrzymały.",
+        "change": "Zmień",
+        "recipient": "Właściciel konta",
+        "missing": "Brak konta: płatności w tej walucie nie są dostępne.",
+        "saved": "Konto zapisane"
       }
     },
     "payments": {
@@ -3460,10 +3468,30 @@
       "recipient": "Odbiorca",
       "qrAlt": "Kod QR do płatności",
       "hint": "Zeskanuj kod w aplikacji bankowej albo wpisz dane ręcznie, razem z symbolem zmiennym w tytule. Plan zacznie obowiązywać, gdy potwierdzimy płatność.",
-      "cancel": "Anuluj płatność"
+      "cancel": "Anuluj płatność",
+      "currency": "Waluta",
+      "message": "Tytuł przelewu",
+      "format": "Format kodu QR",
+      "copy": "Kopiuj: {{label}}",
+      "hintSepa": "Zeskanuj kod w aplikacji bankowej albo wpisz przelew SEPA ręcznie i przepisz dokładnie tytuł przelewu; po nim dopasujemy płatność. Plan zacznie obowiązywać, gdy potwierdzimy płatność."
     },
     "organizerUntil": "Organizator do {{date}}",
-    "renew": "Przedłuż Organizatora"
+    "renew": "Przedłuż Organizatora",
+    "method": {
+      "label": "Skąd zapłacisz?",
+      "SPD": {
+        "title": "Bank czeski",
+        "hint": "w koronach, płatność QR"
+      },
+      "BYSQUARE": {
+        "title": "Bank słowacki",
+        "hint": "w euro, PAY by square"
+      },
+      "EPC": {
+        "title": "Inny bank w strefie euro",
+        "hint": "w euro, kod QR EPC"
+      }
+    }
   },
   "embed": {
     "standings": "Tabela",

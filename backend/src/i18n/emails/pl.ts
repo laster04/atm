@@ -127,6 +127,23 @@ const pl: EmailTexts = {
     file: 'dokument-{{number}}.pdf',
   },
 
+  paymentInstructions: {
+    subject: 'Płatność za {{product}} – symbol zmienny {{variableSymbol}}',
+    header: 'Jak zapłacić',
+    intro: 'wybrałeś <strong>{{product}}</strong>. Plan zacznie obowiązywać, gdy płatność dotrze i ją potwierdzimy.',
+    amount: 'Kwota',
+    account: 'Konto',
+    iban: 'IBAN',
+    bic: 'BIC (SWIFT)',
+    recipient: 'Odbiorca',
+    variableSymbol: 'Symbol zmienny',
+    message: 'Tytuł przelewu',
+    qr: 'Kod QR znajdziesz w ATM przy planie: {{format}}.',
+    formats: { SPD: 'czeska płatność QR', BYSQUARE: 'PAY by square dla banków słowackich', EPC: 'kod QR EPC dla banków strefy euro' },
+    sepa: 'Wyślij przelew SEPA w euro i przepisz dokładnie tytuł przelewu; po nim dopasujemy płatność.',
+    button: 'Pokaż płatność',
+  },
+
   registrationReceived: {
     subject: 'Zgłoszenie drużyny {{team}} – {{competition}}',
     header: 'Zgłoszenie przyjęte',

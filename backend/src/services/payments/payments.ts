@@ -4,8 +4,24 @@ import { recordAudit } from '../audit/record.js';
 import { limitAt, priceAt, quote, type Currency, type Plan, type PriceSnapshot } from '../pricing/catalog.js';
 import { splitGross } from '../pricing/vat.js';
 import { lockCompetition, organizerPlanUntil, PRODUCT_PLAN, teamAllowance } from '../plans/tournamentPlan.js';
-import { paymentAccount, payableCurrencies, spdString } from './account.js';
+import {
+  bankAccounts,
+  czechLocal,
+  epcString,
+  METHODS_BY_CURRENCY,
+  paymentAccount,
+  payableCurrencies,
+  spdString,
+  suggestedMethod,
+  transferMessage,
+  type BankAccounts,
+  type PaymentAccount,
+  type PaymentMethod,
+} from './account.js';
+import { bysquareString } from './bysquare.js';
 import { issueTaxDocument } from '../invoices/documents.js';
+import emailService from '../emailService.js';
+import { localeOf } from '../../i18n/index.js';
 import {
   BAND_PLAN,
   BAND_PRODUCT,
@@ -50,7 +66,12 @@ export interface PlanOffer {
 }
 
 /** What a payment snapshot holds beyond the quote: an upgrade records what it was paid on top of. */
-export type PaymentSnapshot = PriceSnapshot & { upgradeFrom?: TournamentPlan | LeaguePlanBand; fullGross?: number };
+export type PaymentSnapshot = PriceSnapshot & {
+  upgradeFrom?: TournamentPlan | LeaguePlanBand;
+  fullGross?: number;
+  /** The account the payer was told to pay to; later edits in the administration never change it. */
+  account?: Pick<PaymentAccount, 'iban' | 'bic' | 'recipient'>;
+};
 
 export class PaymentError extends Error {
   constructor(
@@ -69,7 +90,7 @@ export async function planOffers(tournamentId: string, userId: string, tx: DbCli
     select: { plan: true, series: { select: { managerId: true } } },
   });
   if (!tournament) throw new PaymentError('NOT_FOUND', 'Tournament not found', 404);
-  const currencies = payableCurrencies();
+  const currencies = await payableCurrencies(tx);
   const managerId = tournament.series.managerId;
   const now = new Date();
   const organizerUntil = managerId ? await organizerPlanUntil(managerId, now, tx) : null;
@@ -119,11 +140,51 @@ const paymentInclude = {
 
 export type PaymentWithRelations = Prisma.PaymentGetPayload<{ include: typeof paymentInclude }>;
 
+/**
+ * The account a payment goes to: the one stored when it was created, or for
+ * a payment from before celek K the administration's current one.
+ */
+function accountOf(payment: Payment, accounts?: BankAccounts): PaymentAccount | null {
+  const currency = payment.currency as Currency;
+  const stored = (payment.snapshot as unknown as PaymentSnapshot).account;
+  if (stored) return { currency, local: czechLocal(stored.iban) ?? stored.iban, ...stored };
+  return accounts?.[currency] ?? null;
+}
+
+/** What to pay for a waiting payment: the QR string per format, and the details to type in by hand. */
+function transferView(payment: Payment, account: PaymentAccount | null) {
+  if (payment.status !== 'PENDING' || !account) return { qr: null, transfer: null };
+  const currency = payment.currency as Currency;
+  const methods = METHODS_BY_CURRENCY[currency];
+  // The Czech flow stays as it was; euro transfers carry /VS/…/ for the Czech bank's statement.
+  const message = currency === 'CZK'
+    ? `ATM ${payment.productCode} ${payment.variableSymbol}`
+    : transferMessage(payment.variableSymbol, payment.productCode);
+  const qr: Partial<Record<PaymentMethod, string>> = {};
+  for (const method of methods) {
+    if (method === 'SPD') qr.SPD = spdString(account, payment.amount, payment.variableSymbol, message);
+    if (method === 'EPC') qr.EPC = epcString(account, payment.amount, message);
+    if (method === 'BYSQUARE') qr.BYSQUARE = bysquareString(account, payment.amount, payment.variableSymbol, message);
+  }
+  return {
+    qr,
+    transfer: {
+      iban: account.iban,
+      bic: account.bic,
+      recipient: account.recipient,
+      amount: (payment.amount / 100).toFixed(2),
+      currency,
+      variableSymbol: payment.variableSymbol,
+      message,
+    },
+  };
+}
+
 /** A payment as the organiser and the admin see it, with what to pay to. */
-export function paymentView(payment: PaymentWithRelations) {
+export function paymentView(payment: PaymentWithRelations, accounts?: BankAccounts) {
   const snapshot = payment.snapshot as unknown as PaymentSnapshot;
   const currency = payment.currency as Currency;
-  const account = paymentAccount(currency);
+  const account = accountOf(payment, accounts);
   return {
     id: payment.id,
     variableSymbol: payment.variableSymbol,
@@ -145,11 +206,16 @@ export function paymentView(payment: PaymentWithRelations) {
     confirmedAt: payment.confirmedAt,
     cancelledAt: payment.cancelledAt,
     document: payment.taxDocument,
-    account: { local: account.local, iban: account.iban, bic: account.bic, recipient: account.recipient },
-    qr: payment.status === 'PENDING'
-      ? spdString(account, payment.amount, payment.variableSymbol, `ATM ${payment.productCode} ${payment.variableSymbol}`)
-      : null,
+    account: account ? { local: account.local, iban: account.iban, bic: account.bic, recipient: account.recipient } : null,
+    methods: METHODS_BY_CURRENCY[currency],
+    ...transferView(payment, account),
   };
+}
+
+/** Views of several payments, reading the administration's accounts once. */
+export async function paymentViews(payments: PaymentWithRelations[]) {
+  const accounts = await bankAccounts();
+  return payments.map((payment) => paymentView(payment, accounts));
 }
 
 export async function findPayment(id: string, tx: DbClient = prisma) {
@@ -182,11 +248,13 @@ export async function createPayment(input: {
     const amount = offer?.prices[input.currency];
     if (!offer || amount === undefined) throw new PaymentError('NOT_OFFERED', 'This plan is not offered for the tournament', 400);
 
+    const account = await paymentAccount(input.currency, tx);
+    if (!account) throw new PaymentError('NOT_OFFERED', 'There is no account for this currency', 400);
     // Until billing details arrive (B6), every customer is a Czech consumer.
     const quoted = await quote({ productCode: offer.productCode, currency: input.currency, country: 'CZ' }, tx);
-    let snapshot: PaymentSnapshot = quoted;
+    let snapshot: PaymentSnapshot = { ...quoted, account: { iban: account.iban, bic: account.bic, recipient: account.recipient } };
     if (offer.upgradeFrom) {
-      snapshot = { ...quoted, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
+      snapshot = { ...snapshot, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
     }
 
     const payment = await tx.payment.create({
@@ -309,7 +377,7 @@ export async function planStatus(tournamentId: string) {
   const allowance = await teamAllowance(tournamentId);
   if (!allowance) return null;
   const pending = await pendingPayment(tournamentId);
-  return { ...allowance, payment: pending ? paymentView(pending) : null };
+  return { ...allowance, payment: pending ? paymentView(pending, await bankAccounts()) : null };
 }
 
 // ---------------------------------------------------------------------------
@@ -347,7 +415,7 @@ export async function leaguePlanOffers(leagueId: string, tx: DbClient = prisma):
   const league = await tx.league.findUnique({ where: { id: leagueId }, select: { id: true } });
   if (!league) throw new PaymentError('NOT_FOUND', 'League not found', 404);
   const now = new Date();
-  const currencies = payableCurrencies();
+  const currencies = await payableCurrencies(tx);
   const running = await runningLeaguePlan(leagueId, now, tx);
   const needed = await bandFor(await teamsNeeded(leagueId, tx), now, tx);
   const bands: LeaguePlanBand[] = (['SMALL', 'LARGE'] as const).filter((band) => BAND_RANK[band] >= BAND_RANK[needed]);
@@ -410,10 +478,12 @@ export async function createLeaguePayment(input: {
     const amount = offer?.prices[input.currency];
     if (!offer || amount === undefined) throw new PaymentError('NOT_OFFERED', 'This plan is not offered for the league', 400);
 
+    const account = await paymentAccount(input.currency, tx);
+    if (!account) throw new PaymentError('NOT_OFFERED', 'There is no account for this currency', 400);
     const quoted = await quote({ productCode: offer.productCode, currency: input.currency, country: 'CZ' }, tx);
-    let snapshot: PaymentSnapshot = quoted;
+    let snapshot: PaymentSnapshot = { ...quoted, account: { iban: account.iban, bic: account.bic, recipient: account.recipient } };
     if (offer.upgradeFrom) {
-      snapshot = { ...quoted, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
+      snapshot = { ...snapshot, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
     }
     const payment = await tx.payment.create({
       data: {
@@ -451,10 +521,53 @@ async function applyLeaguePlan(tx: Prisma.TransactionClient, payment: PaymentWit
 }
 
 /** For the league manager's view: the plan, waiting seasons, offers and the payment waiting. */
-export async function leaguePlanView(leagueId: string) {
+export async function leaguePlanView(leagueId: string, viewerLocale?: string) {
   const status = await leaguePlanStatus(leagueId);
   if (!status) return null;
   const pending = await pendingLeaguePayment(leagueId);
   const offers = status.enabled ? await leaguePlanOffers(leagueId) : [];
-  return { ...status, offers, currencies: payableCurrencies(), payment: pending ? paymentView(pending) : null };
+  const accounts = await bankAccounts();
+  const currencies = await payableCurrencies();
+  return {
+    ...status,
+    offers,
+    currencies,
+    suggestedMethod: suggestedMethod(viewerLocale, currencies),
+    payment: pending ? paymentView(pending, accounts) : null,
+  };
+}
+
+/**
+ * E-mails the payer the transfer details of a payment they just started, in
+ * their language, naming the QR format their country most likely uses.
+ */
+export function sendPaymentInstructions(payment: PaymentWithRelations): void {
+  void (async () => {
+    if (!payment.payerId) return;
+    const payer = await prisma.user.findUnique({ where: { id: payment.payerId }, select: { email: true, name: true, locale: true } });
+    const view = paymentView(payment);
+    if (!payer || !view.transfer) return;
+    const locale = localeOf(payer.locale);
+    const currencies = [view.currency];
+    const method = suggestedMethod(payer.locale, currencies) ?? view.methods[0];
+    const path = payment.tournamentId
+      ? `/tournament-management/tournament/${payment.tournamentId}`
+      : '/season-management/my-seasons';
+    await emailService.sendPaymentInstructionsEmail({
+      to: payer.email,
+      name: payer.name,
+      locale,
+      product: locale === 'en' ? view.productName.en : view.productName.cs,
+      amount: view.transfer.amount,
+      currency: view.transfer.currency,
+      iban: view.transfer.iban,
+      bic: view.transfer.bic,
+      recipient: view.transfer.recipient,
+      local: view.account?.local !== view.transfer.iban ? (view.account?.local ?? null) : null,
+      variableSymbol: view.transfer.variableSymbol,
+      message: view.transfer.message,
+      method,
+      path,
+    });
+  })().catch((error) => console.error('Payment instructions email error:', error));
 }

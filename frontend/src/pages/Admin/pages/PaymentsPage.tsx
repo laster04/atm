@@ -14,7 +14,7 @@ import { formatMoney } from '../components/pricing/money';
 import { ADMIN_GOLD, ADMIN_INK } from '../components/util';
 
 const STATUSES = ['PENDING', 'PAID', 'CANCELLED'] as const;
-const PRODUCTS = ['TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER_YEAR'] as const;
+const PRODUCTS = ['TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER_YEAR', 'LEAGUE_SMALL_YEAR', 'LEAGUE_LARGE_YEAR'] as const;
 
 const STATUS_TONE: Record<PlanPayment['status'], string> = {
 	PENDING: 'bg-amber-100 text-amber-900',

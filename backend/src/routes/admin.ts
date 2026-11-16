@@ -15,6 +15,7 @@ import {
   createVatRate,
   getPricing,
   requirePricingManager,
+  updateBankAccount,
   updateOss,
 } from '../controllers/adminPricingController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
@@ -49,5 +50,6 @@ router.delete('/pricing/vat-rates/:id', requirePricingManager, cancelVatRate);
 router.post('/pricing/limits', requirePricingManager, createLimits);
 router.put('/pricing/oss', requirePricingManager, updateOss);
 router.put('/pricing/league-plans', requirePricingManager, setLeaguePlansSwitch);
+router.put('/pricing/bank-accounts/:currency', requirePricingManager, updateBankAccount);
 
 export default router;
