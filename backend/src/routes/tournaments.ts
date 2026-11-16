@@ -59,6 +59,7 @@ import {
 import {
   getGamesByTournament,
   getGameById,
+  getGameDetail,
   createGame,
   updateGame,
   deleteGame,
@@ -144,6 +145,7 @@ router.delete('/:tournamentId/playoffs', authenticate, requireTournamentAccess('
 router.get('/:tournamentId/games', optionalAuth, requireVisible('tournament', 'tournamentId'), getGamesByTournament);
 router.post('/:tournamentId/games', authenticate, requireTournamentAccess('tournamentId'), createGame);
 
+router.get('/games/:id/detail', optionalAuth, requireVisible('tournamentGame'), getGameDetail);
 router.get('/games/:id', optionalAuth, requireVisible('tournamentGame'), getGameById);
 router.put('/games/:id', authenticate, requireTournamentGameAccess(), updateGame);
 router.delete('/games/:id', authenticate, requireTournamentGameAccess(), deleteGame);

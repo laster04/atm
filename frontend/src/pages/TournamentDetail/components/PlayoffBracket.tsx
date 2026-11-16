@@ -3,6 +3,7 @@ import type { TournamentGame, TournamentGamePhase } from '@types';
 import { EmptyState, KnockoutBracket, Panel } from '@/components/public';
 import type { KnockoutCard, KnockoutRound } from '@/components/public';
 import { isPlayed } from './shared';
+import { tournamentGamePage } from '@/utils/gameLink';
 
 /** Knockout rounds left to right; the bronze game hangs under the final. */
 const ROUNDS: KnockoutRound[] = ['ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL'];
@@ -44,6 +45,7 @@ export default function PlayoffBracket({ games, seeds }: PlayoffBracketProps) {
 			round: game.phase as Exclude<TournamentGamePhase, 'GROUP'>,
 			slot: game.bracketSlot ?? 0,
 			decided: played,
+			href: tournamentGamePage(game),
 			home: side(game.homeTeam, game.homeSeed, game.homeScore, played && game.homeScore! > game.awayScore!),
 			away: side(game.awayTeam, game.awaySeed, game.awayScore, played && game.awayScore! > game.homeScore!),
 		};

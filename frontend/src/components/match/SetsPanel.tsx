@@ -1,9 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Panel } from '@/components/public';
-import type { GameDetail } from '@types';
+import type { PartScore, Team } from '@types';
 
 /** Volleyball: every set's points, and the balls they add up to. */
-export default function SetsPanel({ game }: { game: GameDetail['game'] }) {
+interface SetsGame {
+	periodScores?: PartScore[] | null;
+	homeTeam: Pick<Team, 'name'>;
+	awayTeam: Pick<Team, 'name'>;
+}
+
+export default function SetsPanel({ game }: { game: SetsGame }) {
 	const { t } = useTranslation();
 	const sets = game.periodScores ?? [];
 	const balls = sets.reduce((sum, set) => ({ home: sum.home + set.home, away: sum.away + set.away }), { home: 0, away: 0 });

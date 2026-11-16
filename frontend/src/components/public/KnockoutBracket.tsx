@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Trophy } from 'lucide-react';
 
 export type KnockoutRound = 'ROUND_OF_16' | 'QUARTER_FINAL' | 'SEMI_FINAL' | 'FINAL';
@@ -27,6 +28,8 @@ export interface KnockoutCard {
 	caption?: string;
 	/** Something has been played, so the loser is greyed out. */
 	decided?: boolean;
+	/** The game's own page; the card links there when set. */
+	href?: string | null;
 }
 
 interface KnockoutBracketProps {
@@ -146,8 +149,9 @@ function Card({ card, highlight }: { card: KnockoutCard; highlight?: boolean }) 
 		);
 	};
 
-	return (
-		<div className={`overflow-hidden rounded-xl border bg-card shadow-sm ${highlight ? 'border-brand' : 'border-border'}`}>
+	const className = `block overflow-hidden rounded-xl border bg-card shadow-sm ${highlight ? 'border-brand' : 'border-border'}`;
+	const content = (
+		<>
 			{side(card.home)}
 			<div className="h-px bg-border-subtle" />
 			{side(card.away)}
@@ -156,6 +160,11 @@ function Card({ card, highlight }: { card: KnockoutCard; highlight?: boolean }) 
 					{card.caption}
 				</div>
 			)}
-		</div>
+		</>
+	);
+	return card.href ? (
+		<Link to={card.href} className={`${className} transition-colors hover:border-primary`}>{content}</Link>
+	) : (
+		<div className={className}>{content}</div>
 	);
 }

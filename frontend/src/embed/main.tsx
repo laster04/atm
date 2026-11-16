@@ -26,7 +26,7 @@ const options: WidgetOptions | null = kind && view && path[2]
 		kind,
 		id: path[2],
 		view,
-		lang: query.get('lang') === 'en' ? 'en' : 'cs',
+		lang: query.get('lang') === 'en' ? 'en' : query.get('lang') === 'sk' ? 'sk' : 'cs',
 		rows: positive(query.get('rows')),
 		team: query.get('team'),
 		group: query.get('group'),

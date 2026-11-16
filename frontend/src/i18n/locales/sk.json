@@ -743,6 +743,7 @@
       "noDate": "Termín nenastavený",
       "result": "Výsledok",
       "setDate": "Nastaviť termín",
+      "changeDate": "Zmeniť termín",
       "edit": "Upraviť",
       "empty": "V tomto výbere nie sú žiadne zápasy"
     },
@@ -3111,6 +3112,12 @@
       "activeTournaments": "Aktívne turnaje",
       "activeHint": "Aktívna znamená, že mala zápas s dátumom v posledných 30 dňoch.",
       "paymentsHint": "QR prevody čakajúce na potvrdenie.",
+      "embeds": "Widget na weboch",
+      "embedsHint": "Weby, ktoré za posledných 30 dní zobrazovali tabuľku alebo zápasy z ATM.",
+      "embedsViews_one": "{{count}} zobrazenie",
+      "embedsViews_few": "{{count}} zobrazenia",
+      "embedsViews_other": "{{count}} zobrazení",
+      "embedsNone": "Zatiaľ ho nikto nevložil.",
       "planInterest": "Záujem o plán Liga",
       "planInterestCounts": "{{total}} kliknutí · {{recent}} za 30 dní · {{contacts}} s kontaktom",
       "planInterestHint": "Tlačidlo „Mám záujem“ v cenníku na úvodnej stránke. Kontakty sú kandidáti na rozhovor o cene.",
@@ -3363,6 +3370,93 @@
     },
     "organizerUntil": "Organizátor do {{date}}",
     "renew": "Predĺžiť Organizátora"
+  },
+  "embed": {
+    "standings": "Tabuľka",
+    "upcoming": "Nadchádzajúce zápasy",
+    "recent": "Posledné výsledky",
+    "noTable": "Tabuľka zatiaľ nie je.",
+    "noUpcoming": "Žiadne naplánované zápasy.",
+    "noRecent": "Zatiaľ žiadne výsledky.",
+    "unavailable": "Nie je k dispozícii.",
+    "dateTbd": "Termín bude upresnený",
+    "tbd": "Bude upresnené",
+    "round": "{{n}}. kolo",
+    "postponed": "Odložené",
+    "live": "Hrá sa",
+    "brand": {
+      "before": "Výsledky z "
+    },
+    "columns": {
+      "rankLong": "Poradie",
+      "team": "Tím",
+      "played": "Z",
+      "playedLong": "Zápasy",
+      "wins": "V",
+      "winsLong": "Výhry",
+      "draws": "R",
+      "drawsLong": "Remízy",
+      "losses": "P",
+      "lossesLong": "Prehry",
+      "score": "Skóre",
+      "scoreLong": "Strelené a inkasované",
+      "points": "B",
+      "pointsLong": "Body",
+      "v3": "V3",
+      "v3Long": "Výhry 3:0 a 3:1",
+      "v2": "V2",
+      "v2Long": "Výhry 3:2",
+      "p1": "P1",
+      "p1Long": "Prehry 2:3",
+      "p0": "P0",
+      "p0Long": "Prehry 0:3 a 1:3",
+      "sets": "Sety",
+      "setsLong": "Sety vyhrané a prehrané"
+    },
+    "phases": {
+      "ROUND_OF_16": "Osemfinále",
+      "QUARTER_FINAL": "Štvrťfinále",
+      "SEMI_FINAL": "Semifinále",
+      "BRONZE": "O 3. miesto",
+      "FINAL": "Finále"
+    }
+  },
+  "embedPanel": {
+    "title": "Vložiť na web",
+    "hint": "Tabuľka alebo zápasy na webe ligy či klubu",
+    "teamHint": "Tabuľka s vaším tímom alebo jeho zápasy na webe klubu.",
+    "open": "Vytvoriť kód",
+    "intro": "Vyberte, čo sa má na webe zobrazovať. Kód vložte do stránky ako HTML; tabuľka a zápasy sa potom aktualizujú samy.",
+    "unavailable": "Súťaž je skrytá, widget by zobrazil iba „Nie je k dispozícii“. Nastavte jej viditeľnosť Verejné alebo Neverejné (cez odkaz).",
+    "widget": "Čo zobraziť",
+    "views": {
+      "standings": "Tabuľka poradia",
+      "games": "Zápasy"
+    },
+    "team": "Tím",
+    "allTeams": "Všetky tímy",
+    "division": "Divízia",
+    "group": "Skupina",
+    "allDivisions": "Všetky divízie",
+    "allGroups": "Všetky skupiny",
+    "wholeSeason": "Celá sezóna dokopy",
+    "rowsTable": "Počet riadkov",
+    "rowsGames": "Počet zápasov",
+    "rowsAll": "všetko",
+    "results": "Zobraziť aj posledné výsledky",
+    "theme": "Vzhľad",
+    "light": "Svetlý",
+    "dark": "Tmavý",
+    "language": "Jazyk",
+    "accent": "Farba zvýraznenia",
+    "logos": "Logá tímov",
+    "hideBrand": "Skryť odkaz „Výsledky z ATM“",
+    "hideBrandPaid": "Len v plánoch Turnaj Plus a Organizátor.",
+    "preview": "Náhľad",
+    "code": "Kód na vloženie",
+    "copy": "Kopírovať kód",
+    "copied": "Skopírované",
+    "help": "Ako vložiť tabuľku na web"
   },
   "gameDetail": {
     "title": "Zápas",
@@ -3831,5 +3925,20 @@
   "legal": {
     "signupNote": "Založením účtu (aj cez Google) súhlasíte s <terms>obchodnými podmienkami</terms> a beriete na vedomie <privacy>zásady ochrany osobných údajov</privacy>.",
     "immediateStart": "Chcem, aby plán začal platiť hneď po zaplatení. Beriem na vedomie, že ako spotrebiteľ môžem do 14 dní odstúpiť s vrátením pomernej časti ceny a že po úplnom poskytnutí služby právo na odstúpenie zaniká (<terms>obchodné podmienky</terms>, čl. 5)."
+  },
+  "tournamentGameDetail": {
+    "notFound": "Zápas sa nenašiel.",
+    "group": "Skupina {{name}}",
+    "groupStage": "Skupina",
+    "groupTable": "Skupina {{name}}",
+    "allGroups": "Všetky skupiny",
+    "meetings": "Ďalšie zápasy tých istých tímov",
+    "next": {
+      "title": "Kam postupuje víťaz",
+      "goesTo": "Víťaz hrá {{round}}",
+      "against": "proti tímu {{team}}",
+      "opponentUnknown": "Súper sa ešte len rozhodne.",
+      "bracket": "Celý pavúk"
+    }
   }
 }

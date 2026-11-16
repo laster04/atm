@@ -26,6 +26,7 @@ import Teams from './pages/Teams';
 import Players from './pages/Players';
 import Games from './pages/Games';
 import GameDetail from './pages/GameDetail/Screen';
+import TournamentGameDetail from './pages/TournamentGameDetail/Screen';
 import Stats from './pages/Stats';
 import About from './pages/About';
 import Updates from './pages/Updates';
@@ -115,6 +116,7 @@ function AppContent() {
           <Route path="/prihlaska/:kind/:id" element={<Registration />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:id" element={<TournamentSeriesDetail />} />
+          <Route path="/tournament/games/:id" element={<TournamentGameDetail />} />
           <Route path="/tournament/:id" element={<TournamentDetail />} />
           {/* Signed in only; the page sends anyone else to the landing page. */}
           <Route path="/dashboard" element={<Home />} />

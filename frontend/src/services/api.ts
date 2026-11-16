@@ -12,7 +12,7 @@ import type {
   RegistrationSettingsInput, RegistrationStatusView, RegistrationFunnel,
   ManagedCompetition,
   Attendance, AttendanceStatus, MyTeamEvent, TeamEvent, TeamEventInput,
-  TournamentSeries, Tournament, TournamentTeam, TournamentPlayer, TournamentPlus, TournamentSponsor, TournamentDocumentRef,
+  TournamentSeries, Tournament, TournamentTeam, TournamentPlayer, TournamentPlus, TournamentGameDetail, TournamentSponsor, TournamentDocumentRef,
   TournamentGroup, TournamentGame, TournamentGameStatistic,
   TournamentStanding, TournamentTopScorer,
   Paged, PublicTeam, PublicPlayer, PublicTeamQuery, PublicPlayerQuery,
@@ -446,6 +446,8 @@ export const tournamentGameApi = {
   getByTournament: (tournamentId: string | number, params?: { phase?: string; groupId?: string }) =>
     api.get<TournamentGame[]>(`/tournaments/${tournamentId}/games`, { params }),
   getById: (id: string | number) => api.get<TournamentGame>(`/tournaments/games/${id}`),
+  // Everything the public tournament match page shows, in one request.
+  getDetail: (id: string) => api.get<TournamentGameDetail>(`/tournaments/games/${id}/detail`),
   create: (tournamentId: string | number, data: Partial<TournamentGame>) =>
     api.post<TournamentGame>(`/tournaments/${tournamentId}/games`, data),
   update: (id: string | number, data: Partial<TournamentGame>) =>

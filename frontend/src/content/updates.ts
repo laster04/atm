@@ -39,6 +39,34 @@ export const updatesLocale = (language: string | undefined): UpdatesLocale =>
 
 export const RELEASES: ReleaseNote[] = [
 	{
+		slug: 'slovencina',
+		releasedAt: '2026-11-09',
+		areas: ['league', 'team', 'tournaments', 'public'],
+		docs: [],
+		content: {
+			cs: {
+				title: 'ATM ve slovenštině',
+				summary: 'Celou aplikaci teď můžete používat slovensky, včetně e-mailů.',
+				items: [
+					'Slovenčina v nabídce jazyků v záhlaví i v patičce.',
+					'E-maily chodí v jazyce, který máte zvolený v aplikaci.',
+					'Widget s tabulkou a zápasy pro web ligy nebo klubu umí i slovensky.',
+					'Nápovědu a novinky zatím čtenáři ve slovenštině dostanou česky.',
+				],
+			},
+			en: {
+				title: 'ATM in Slovak',
+				summary: 'You can now use the whole app in Slovak, e-mails included.',
+				items: [
+					'Slovenčina in the language menu in the header and footer.',
+					'E-mails arrive in the language you chose in the app.',
+					'The standings and games widget for a league or club website can show Slovak too.',
+					'Slovak readers get help articles and release notes in Czech for now.',
+				],
+			},
+		},
+	},
+	{
 		slug: 'plany-turnaju-a-turnaj-plus',
 		releasedAt: '2026-10-25',
 		areas: ['tournaments', 'public'],

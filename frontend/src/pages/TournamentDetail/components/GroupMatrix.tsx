@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { TournamentGame, TournamentTeam } from '@types';
 import { Td, Th, TableShell, HeadRow } from '@/components/public';
 import { isPlayed } from './shared';
@@ -14,11 +15,11 @@ interface GroupMatrixProps {
  * game with the score turned round.
  */
 export default function GroupMatrix({ teams, games, teamLabel }: GroupMatrixProps) {
-	const cell = (rowId: string, colId: string): { score: string; won: boolean } | null => {
+	const cell = (rowId: string, colId: string): { score: string; won: boolean; id: string } | null => {
 		const direct = games.find((game) => game.homeTeamId === rowId && game.awayTeamId === colId && isPlayed(game));
-		if (direct) return { score: `${direct.homeScore}:${direct.awayScore}`, won: direct.homeScore! > direct.awayScore! };
+		if (direct) return { score: `${direct.homeScore}:${direct.awayScore}`, won: direct.homeScore! > direct.awayScore!, id: direct.id };
 		const reverse = games.find((game) => game.homeTeamId === colId && game.awayTeamId === rowId && isPlayed(game));
-		if (reverse) return { score: `${reverse.awayScore}:${reverse.homeScore}`, won: reverse.awayScore! > reverse.homeScore! };
+		if (reverse) return { score: `${reverse.awayScore}:${reverse.homeScore}`, won: reverse.awayScore! > reverse.homeScore!, id: reverse.id };
 		return null;
 	};
 
@@ -56,7 +57,9 @@ export default function GroupMatrix({ teams, games, teamLabel }: GroupMatrixProp
 										result?.won ? 'font-semibold text-foreground' : 'text-muted-foreground'
 									}`}
 								>
-									{result?.score ?? ''}
+									{result ? (
+										<Link to={`/tournament/games/${result.id}`} className="hover:text-primary hover:underline">{result.score}</Link>
+									) : ''}
 								</Td>
 							);
 						})}

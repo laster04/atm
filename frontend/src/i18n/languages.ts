@@ -22,8 +22,8 @@ export interface Language {
 export const LANGUAGES: Language[] = [
 	{ code: 'cs', label: 'Čeština', short: 'CZ', live: true, fallback: ['en'], content: 'cs', locale: 'cs-CZ' },
 	{ code: 'en', label: 'English', short: 'EN', live: true, fallback: [], content: 'en', locale: 'en-US' },
-	// Waiting for the owner's check before launch (decided 23 Oct 2026).
-	{ code: 'sk', label: 'Slovenčina', short: 'SK', live: false, fallback: ['cs', 'en'], content: 'cs', locale: 'sk-SK' },
+	// Checked by the owner and launched 9 Nov 2026.
+	{ code: 'sk', label: 'Slovenčina', short: 'SK', live: true, fallback: ['cs', 'en'], content: 'cs', locale: 'sk-SK' },
 ];
 
 export const DEFAULT_LANGUAGE = 'en';

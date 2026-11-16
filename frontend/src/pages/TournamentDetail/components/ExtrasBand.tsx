@@ -10,7 +10,7 @@ const sizeOf = (bytes: number): string =>
  * Right under the tournament's header: its documents to download on the left,
  * its partners' logos on the right. Nothing when it has neither.
  */
-export default function ExtrasBand({ tournament }: { tournament: Tournament }) {
+export default function ExtrasBand({ tournament }: { tournament: Pick<Tournament, 'id' | 'sponsors' | 'documents'> }) {
 	const { t } = useTranslation();
 	const documents = tournament.documents ?? [];
 	const sponsors = tournament.sponsors ?? [];
