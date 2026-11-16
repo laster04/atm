@@ -8,6 +8,7 @@ import {
   deleteLeague,
 } from '../controllers/leagueController.js';
 import { inviteLeagueManager } from '../controllers/inviteController.js';
+import { getLeaguePlan, startLeaguePayment } from '../controllers/leaguePlanController.js';
 import { authenticate, authorize, optionalAuth } from '../middleware/auth.js';
 import { requireLeagueAccess, requireVisible } from '../middleware/access.js';
 
@@ -26,6 +27,9 @@ router.get('/:id', optionalAuth, requireVisible('league'), getLeagueById);
 router.post('/', authenticate, createLeague);
 router.put('/:id', authenticate, requireLeagueAccess(), updateLeague);
 router.delete('/:id', authenticate, requireLeagueAccess(), deleteLeague);
+// The League plan: its manager sees the cover and pays for the year.
+router.get('/:id/plan', authenticate, requireLeagueAccess(), getLeaguePlan);
+router.post('/:id/payments', authenticate, requireLeagueAccess(), startLeaguePayment);
 router.post('/:id/invite-manager', authenticate, authorize('ADMIN'), inviteLeagueManager);
 
 export default router;

@@ -527,6 +527,7 @@ class EmailService {
     variableSymbol: number;
     productName: string;
     tournamentName: string | null;
+    leagueName?: string | null;
     payerEmail: string | null;
     amount: number;
     currency: string;
@@ -534,7 +535,7 @@ class EmailService {
     const accent = '#0F172A';
     const amount = `${(params.amount / 100).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${params.currency === 'CZK' ? 'Kč' : '€'}`;
     const body = [
-      this.p(`Organizátor zvolil plán <strong>${escapeHtml(params.productName)}</strong>${params.tournamentName ? ` pro turnaj <strong>${escapeHtml(params.tournamentName)}</strong>` : ''} a dostal QR platbu.`),
+      this.p(`Organizátor zvolil plán <strong>${escapeHtml(params.productName)}</strong>${params.tournamentName ? ` pro turnaj <strong>${escapeHtml(params.tournamentName)}</strong>` : ''}${params.leagueName ? ` pro ligu <strong>${escapeHtml(params.leagueName)}</strong>` : ''} a dostal QR platbu.`),
       this.p(`Částka: <strong>${amount}</strong> &middot; variabilní symbol <strong>${params.variableSymbol}</strong>`, { size: 14 }),
       params.payerEmail ? this.p(`Plátce: ${escapeHtml(params.payerEmail)}`, { size: 14, color: COLORS.muted }) : '',
       this.p('Až platba dorazí na účet, potvrďte ji v administraci; plán se tím odemkne.', { size: 14, color: COLORS.muted }),

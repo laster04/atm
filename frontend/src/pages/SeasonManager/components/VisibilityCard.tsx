@@ -89,6 +89,13 @@ export default function VisibilityCard({ season, onSeasonChange }: VisibilityCar
 					</p>
 				)}
 
+				{/* Waiting for the League plan, the season is hidden whatever it is set to. */}
+				{season.plan === 'UNPAID' && (
+					<p className="rounded-[9px] bg-amber-50 px-3 py-2 text-[12.5px] leading-snug text-amber-900">
+						{t('leaguePlan.visibilityNote')}
+					</p>
+				)}
+
 				{editing && <VisibilityPicker value={level} onChange={save} disabled={saving} />}
 
 				{!editing && level !== Visibility.PUBLIC && (

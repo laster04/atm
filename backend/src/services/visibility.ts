@@ -62,13 +62,20 @@ export const viewableLeagueWhere = (user: Viewer): Prisma.LeagueWhereInput =>
 // Seasons - as visible as the stricter of the season and its league
 // ---------------------------------------------------------------------------
 
+/**
+ * A season waiting for its League plan behaves as PRIVATE whatever it is set
+ * to: its manager prepares it, nobody else sees it until the plan is paid
+ * (services/plans/leaguePlan.ts).
+ */
+const PAID: Prisma.SeasonWhereInput = { plan: { not: 'UNPAID' } };
+
 /** Seasons that may appear in a list anywhere on the site. */
 export const listedSeasonWhere = (user: Viewer): Prisma.SeasonWhereInput =>
   seesEverything(user)
     ? {}
     : orManaged<Prisma.SeasonWhereInput>(
         user,
-        { visibility: 'PUBLIC', league: { visibility: 'PUBLIC' } },
+        { visibility: 'PUBLIC', league: { visibility: 'PUBLIC' }, ...PAID },
         id => ({ league: { managerId: id } })
       );
 
@@ -81,14 +88,14 @@ export const listedSeasonWhere = (user: Viewer): Prisma.SeasonWhereInput =>
 export const listedSeasonInLeagueWhere = (user: Viewer): Prisma.SeasonWhereInput =>
   seesEverything(user)
     ? {}
-    : orManaged<Prisma.SeasonWhereInput>(user, { visibility: 'PUBLIC' }, id => ({ league: { managerId: id } }));
+    : orManaged<Prisma.SeasonWhereInput>(user, { visibility: 'PUBLIC', ...PAID }, id => ({ league: { managerId: id } }));
 
 export const viewableSeasonWhere = (user: Viewer): Prisma.SeasonWhereInput =>
   seesEverything(user)
     ? {}
     : orManaged<Prisma.SeasonWhereInput>(
         user,
-        { visibility: BY_LINK, league: { visibility: BY_LINK } },
+        { visibility: BY_LINK, league: { visibility: BY_LINK }, ...PAID },
         id => ({ league: { managerId: id } })
       );
 

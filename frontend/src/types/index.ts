@@ -172,6 +172,9 @@ export interface LeagueRef {
   visibility?: Visibility;
 }
 
+/** How a season is covered by the League plan; fixed when it is created. */
+export type SeasonPlan = 'FREE' | 'TRIAL' | 'LEAGUE' | 'UNPAID';
+
 export interface Season {
   id: string;
   name: string;
@@ -184,6 +187,8 @@ export interface Season {
   visibility?: Visibility;
   /** Both teams reporting the same score completes and confirms the game. */
   autoConfirmAgreed?: boolean;
+  /** How the season is paid for (League plan); UNPAID waits for the plan. */
+  plan?: SeasonPlan;
   archivedAt?: string | null;
   /** Kept on archive, when the games are deleted: games played, play-off included. */
   archivedGames?: number | null;
@@ -847,7 +852,7 @@ export interface TournamentSeries {
 
 export type TournamentPlan = 'FREE' | 'TOURNAMENT' | 'TOURNAMENT_PLUS';
 /** The plan a tournament's limits come from: its own, or the series manager's Organizer plan. */
-export type PlanName = TournamentPlan | 'ORGANIZER';
+export type PlanName = TournamentPlan | 'ORGANIZER' | 'LEAGUE_SMALL' | 'LEAGUE_LARGE';
 
 export interface TeamAllowance {
   plan: PlanName;
@@ -878,8 +883,9 @@ export interface PlanPayment {
   base: number;
   vat: number;
   vatRateBp: number;
-  upgradeFrom: TournamentPlan | null;
+  upgradeFrom: TournamentPlan | LeaguePlanBand | null;
   tournament: { id: string; name: string } | null;
+  league: { id: string; name: string } | null;
   payer: { id: string; name: string; email: string } | null;
   confirmedBy: { id: string; name: string; email: string } | null;
   createdAt: string;
@@ -950,6 +956,37 @@ export interface PublicPlanPrice {
 }
 
 export interface PlanStatus extends TeamAllowance {
+  payment: PlanPayment | null;
+}
+
+/** The League plan's two bands: up to 12 teams a season, and no limit. */
+export type LeaguePlanBand = 'SMALL' | 'LARGE';
+export type LeagueOfferKind = 'NEW' | 'UPGRADE' | 'RENEWAL';
+
+export interface LeaguePlanOffer {
+  band: LeaguePlanBand;
+  kind: LeagueOfferKind;
+  productCode: string;
+  limit: number | null;
+  prices: Partial<Record<PaymentCurrency, number>>;
+  upgradeFrom: LeaguePlanBand | null;
+  /** A renewal: when the next year starts. */
+  startsAt: string | null;
+  /** An upgrade: it runs to the end of the current year. */
+  endsAt: string | null;
+}
+
+/** What a league's manager sees about its League plan. */
+export interface LeaguePlanView {
+  /** Whether the paywall is on; off, every new season is free. */
+  enabled: boolean;
+  /** The league needs no plan for seasons created before this. */
+  freeUntil: string | null;
+  plan: { band: LeaguePlanBand; until: string } | null;
+  waitingSeasons: { id: string; name: string; teams: number }[];
+  trialAvailable: boolean;
+  offers: LeaguePlanOffer[];
+  currencies: PaymentCurrency[];
   payment: PlanPayment | null;
 }
 
@@ -1287,6 +1324,8 @@ export interface PricingOverview {
     /** False until payments (celek B) feed the counter. */
     tracked: boolean;
   };
+  /** The League plan paywall; off, every new season is free. */
+  leaguePlans: { enabled: boolean };
 }
 
 export interface VatCheckResult {

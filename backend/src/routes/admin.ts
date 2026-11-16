@@ -3,6 +3,7 @@ import { getUserDetail, listUsers, setUsersActive } from '../controllers/adminUs
 import { listAudit, listAuditTypes } from '../controllers/adminAuditController.js';
 import { getOverview } from '../controllers/adminOverviewController.js';
 import { setTournamentPlan } from '../controllers/adminTournamentController.js';
+import { setLeaguePlan, setLeaguePlansSwitch } from '../controllers/leaguePlanController.js';
 import { getEmbedUsage } from '../controllers/embedController.js';
 import { getPlanInterest } from '../controllers/planInterestController.js';
 import { cancelPayments, confirmPayments, getPaymentDocument, listPayments } from '../controllers/adminPaymentController.js';
@@ -31,6 +32,7 @@ router.get('/users/:id', getUserDetail);
 router.get('/audit', listAudit);
 router.get('/audit/types', listAuditTypes);
 router.put('/tournaments/:id/plan', setTournamentPlan);
+router.put('/leagues/:id/plan', setLeaguePlan);
 router.get('/embeds', getEmbedUsage);
 router.get('/plan-interest', getPlanInterest);
 router.get('/payments', listPayments);
@@ -46,5 +48,6 @@ router.post('/pricing/vat-rates', requirePricingManager, createVatRate);
 router.delete('/pricing/vat-rates/:id', requirePricingManager, cancelVatRate);
 router.post('/pricing/limits', requirePricingManager, createLimits);
 router.put('/pricing/oss', requirePricingManager, updateOss);
+router.put('/pricing/league-plans', requirePricingManager, setLeaguePlansSwitch);
 
 export default router;

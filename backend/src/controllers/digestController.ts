@@ -10,6 +10,19 @@ import { emailService } from '../services/emailService.js';
 import { recordAudit } from '../services/audit/record.js';
 import { renderResultsImage } from '../services/digest/resultsImage.js';
 import { localeOf, type Locale } from '../i18n/index.js';
+import { assertSeasonPaid, PlanRequiredError, planRequiredBody } from '../services/plans/leaguePlan.js';
+
+/** A season waiting for its League plan e-mails nobody but its manager (decision 6). */
+const refuseUnpaid = async (seasonId: string, res: Response): Promise<boolean> => {
+  try {
+    await assertSeasonPaid(seasonId);
+    return false;
+  } catch (error) {
+    if (!(error instanceof PlanRequiredError)) throw error;
+    res.status(409).json(planRequiredBody(error));
+    return true;
+  }
+};
 
 const parseRound = (raw: string): number | null => {
   const round = Number(raw);
@@ -63,6 +76,7 @@ export const sendRoundSummary = async (req: AuthRequest, res: Response): Promise
   try {
     const { id, round: rawRound } = req.params;
     const { resend } = req.body as { resend?: boolean };
+    if (await refuseUnpaid(id, res)) return;
 
     const round = parseRound(rawRound);
     if (round === null) {
@@ -270,6 +284,7 @@ export const sendTestResultsEmail = async (req: AuthRequest, res: Response): Pro
 export const sendResultsEmail = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    if (await refuseUnpaid(id, res)) return;
     const gameIds = parseGameIds(req.body);
     if (!gameIds) {
       res.status(400).json({ error: 'Pick at least one game' });

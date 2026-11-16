@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { recordAudit } from '../services/audit/record.js';
-import { CURRENCIES, LIMIT_KEYS, PLANS, ossEnabled, setOssEnabled, type LimitKey, type Plan } from '../services/pricing/catalog.js';
+import { CURRENCIES, LIMIT_KEYS, PLANS, leaguePlansEnabled, ossEnabled, setOssEnabled, type LimitKey, type Plan } from '../services/pricing/catalog.js';
 import { EU_COUNTRIES, isEuCountry, percentToBp } from '../services/pricing/vat.js';
 import { ossYearTotal } from '../services/pricing/oss.js';
 import { parseCalendarDate, zonedDateTime, zonedParts } from '../utils/time.js';
@@ -78,13 +78,14 @@ function splitVersions<T extends { validFrom: Date }>(rows: T[], now: Date) {
 export const getPricing = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const now = new Date();
-    const [me, products, rates, limits, oss, ossTotal] = await Promise.all([
+    const [me, products, rates, limits, oss, ossTotal, leaguePlans] = await Promise.all([
       prisma.user.findUnique({ where: { id: req.user!.id }, select: { canManagePricing: true } }),
       prisma.product.findMany({ orderBy: { sortOrder: 'asc' }, include: { prices: true } }),
       prisma.vatRate.findMany(),
       prisma.planLimit.findMany(),
       ossEnabled(),
       ossYearTotal(),
+      leaguePlansEnabled(),
     ]);
 
     const countries = [...new Set(rates.map((rate) => rate.country))].sort((a, b) => (a === 'CZ' ? -1 : b === 'CZ' ? 1 : a.localeCompare(b)));
@@ -100,6 +101,7 @@ export const getPricing = async (req: AuthRequest, res: Response): Promise<void>
       euCountries: EU_COUNTRIES,
       limits: { plans: PLANS, keys: LIMIT_KEYS, cells: limitCells },
       oss: { enabled: oss, ...ossTotal },
+      leaguePlans: { enabled: leaguePlans },
     });
   } catch (error) {
     fail(res, error, 'Failed to load pricing');

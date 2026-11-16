@@ -8,6 +8,7 @@ import RegistrationsSheet from './RegistrationsSheet';
 import type { SeasonTab } from '../Detail';
 import { SEASON_ACCENT, isPlayed, needsDate } from './util';
 import VisibilityCard from './VisibilityCard';
+import LeaguePlanCard from './LeaguePlanCard';
 import SetupChecklist, { type SetupStep } from '@/components/SetupChecklist';
 import { invitesByTarget, managerState } from '@/components/invite/inviteState';
 import { APP_TIME_ZONE } from '@/utils/date';
@@ -294,6 +295,7 @@ export default function OverviewTab({
 				/>
 			)}
 
+			<LeaguePlanCard season={season} onSeasonChange={onSeasonChange} />
 			<VisibilityCard season={season} onSeasonChange={onSeasonChange} />
 
 			{/* Next up */}

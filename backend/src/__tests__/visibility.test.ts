@@ -341,6 +341,37 @@ describe('a season inside a public league', () => {
   });
 });
 
+describe('a public season waiting for its League plan', () => {
+  beforeAll(async () => {
+    await setLeague('PUBLIC');
+    await setSeason('PUBLIC');
+    await prisma.season.update({ where: { id: seasonId }, data: { plan: 'UNPAID' } });
+  });
+
+  afterAll(async () => {
+    await prisma.season.update({ where: { id: seasonId }, data: { plan: 'FREE' } });
+  });
+
+  it('behaves as private for a visitor and a stranger', async () => {
+    for (const token of [undefined, strangerToken]) {
+      for (const [route, status] of await statuses(seasonRoutes(), token)) {
+        expect({ route, status }).toEqual({ route, status: 404 });
+      }
+    }
+    expect(ids((await request(app).get('/api/seasons')).body)).not.toContain(seasonId);
+    expect(ids((await request(app).get('/api/games?scope=all&take=200')).body)).not.toContain(gameId);
+    expect((await request(app).get(`/api/embed/season/${seasonId}/standings`)).status).toBe(404);
+  });
+
+  it('still opens for its manager and an admin', async () => {
+    for (const token of [managerToken, adminToken]) {
+      for (const [route, status] of await statuses(seasonRoutes(), token)) {
+        expect({ route, status }).toEqual({ route, status: 200 });
+      }
+    }
+  });
+});
+
 describe('a tournament series', () => {
   it('hides every tournament page under it when private', async () => {
     await setSeries('PRIVATE');
