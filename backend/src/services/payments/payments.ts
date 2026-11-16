@@ -1,4 +1,4 @@
-import { Prisma, type Payment, type TournamentPlan } from '@prisma/client';
+import { Prisma, type LeaguePlanBand, type Payment, type TournamentPlan } from '@prisma/client';
 import prisma, { type DbClient } from '../../config/database.js';
 import { recordAudit } from '../audit/record.js';
 import { limitAt, priceAt, quote, type Currency, type Plan, type PriceSnapshot } from '../pricing/catalog.js';
@@ -6,6 +6,16 @@ import { splitGross } from '../pricing/vat.js';
 import { lockCompetition, organizerPlanUntil, PRODUCT_PLAN, teamAllowance } from '../plans/tournamentPlan.js';
 import { paymentAccount, payableCurrencies, spdString } from './account.js';
 import { issueTaxDocument } from '../invoices/documents.js';
+import {
+  BAND_PLAN,
+  BAND_PRODUCT,
+  BAND_RANK,
+  bandFor,
+  coverWaitingSeasons,
+  leaguePlanStatus,
+  PRODUCT_BAND,
+  runningLeaguePlan,
+} from '../plans/leaguePlan.js';
 
 /**
  * Buying a plan for a tournament (celek B3): the organiser picks a plan, ATM
@@ -40,7 +50,7 @@ export interface PlanOffer {
 }
 
 /** What a payment snapshot holds beyond the quote: an upgrade records what it was paid on top of. */
-export type PaymentSnapshot = PriceSnapshot & { upgradeFrom?: TournamentPlan; fullGross?: number };
+export type PaymentSnapshot = PriceSnapshot & { upgradeFrom?: TournamentPlan | LeaguePlanBand; fullGross?: number };
 
 export class PaymentError extends Error {
   constructor(
@@ -101,6 +111,7 @@ export async function planOffers(tournamentId: string, userId: string, tx: DbCli
 
 const paymentInclude = {
   tournament: { select: { id: true, name: true } },
+  league: { select: { id: true, name: true } },
   payer: { select: { id: true, name: true, email: true } },
   confirmedBy: { select: { id: true, name: true, email: true } },
   taxDocument: { select: { id: true, number: true, kind: true, issuedAt: true, emailedAt: true } },
@@ -118,7 +129,7 @@ export function paymentView(payment: PaymentWithRelations) {
     variableSymbol: payment.variableSymbol,
     status: payment.status,
     productCode: payment.productCode,
-    plan: PRODUCT_PLAN[payment.productCode] ?? null,
+    plan: PRODUCT_PLAN[payment.productCode] ?? (PRODUCT_BAND[payment.productCode] ? BAND_PLAN[PRODUCT_BAND[payment.productCode]] : null),
     productName: snapshot.productName,
     currency,
     amount: payment.amount,
@@ -127,6 +138,7 @@ export function paymentView(payment: PaymentWithRelations) {
     vatRateBp: snapshot.vatRateBp,
     upgradeFrom: snapshot.upgradeFrom ?? null,
     tournament: payment.tournament,
+    league: payment.league,
     payer: payment.payer,
     confirmedBy: payment.confirmedBy,
     createdAt: payment.createdAt,
@@ -200,7 +212,7 @@ export async function createPayment(input: {
   });
 }
 
-const auditView = (payment: Payment & { tournament?: { name: string } | null }) => ({
+const auditView = (payment: Payment & { tournament?: { name: string } | null; league?: { name: string } | null }) => ({
   name: `${payment.variableSymbol}`,
   variableSymbol: payment.variableSymbol,
   productCode: payment.productCode,
@@ -208,6 +220,7 @@ const auditView = (payment: Payment & { tournament?: { name: string } | null }) 
   currency: payment.currency,
   status: payment.status,
   tournament: payment.tournament?.name ?? null,
+  league: payment.league?.name ?? null,
 });
 
 /** Withdraws a payment nobody confirmed yet. */
@@ -264,6 +277,8 @@ export async function confirmPayment(id: string, adminId: string, reason?: strin
       await tx.organizerPlan.create({
         data: { userId: payment.payerId, validFrom, validUntil: period.until, paymentId: payment.id },
       });
+    } else if (PRODUCT_BAND[payment.productCode] && payment.leagueId) {
+      period = await applyLeaguePlan(tx, payment, now);
     } else if (plan && payment.tournamentId) {
       const tournament = await tx.tournament.findUnique({ where: { id: payment.tournamentId }, select: { plan: true } });
       const target = plan as TournamentPlan;
@@ -295,4 +310,151 @@ export async function planStatus(tournamentId: string) {
   if (!allowance) return null;
   const pending = await pendingPayment(tournamentId);
   return { ...allowance, payment: pending ? paymentView(pending) : null };
+}
+
+// ---------------------------------------------------------------------------
+// League plan (services/plans/leaguePlan.ts): a year per league, two bands
+// ---------------------------------------------------------------------------
+
+export type LeagueOfferKind = 'NEW' | 'UPGRADE' | 'RENEWAL';
+
+export interface LeaguePlanOffer {
+  band: LeaguePlanBand;
+  kind: LeagueOfferKind;
+  productCode: string;
+  /** Teams a season may have; null is no limit. */
+  limit: number | null;
+  /** Minor units, VAT included, per payable currency. An upgrade costs the difference. */
+  prices: Partial<Record<Currency, number>>;
+  upgradeFrom: LeaguePlanBand | null;
+  /** When the year starts: now for a new plan, the end of the running year for a renewal. */
+  startsAt: Date | null;
+  /** When an upgrade ends: with the running year. */
+  endsAt: Date | null;
+}
+
+/** The most teams any season still in play has, the bigger one decides the band. */
+async function teamsNeeded(leagueId: string, tx: DbClient): Promise<number> {
+  const seasons = await tx.season.findMany({
+    where: { leagueId, archivedAt: null, OR: [{ plan: 'UNPAID' }, { status: { not: 'COMPLETED' } }] },
+    select: { _count: { select: { seasonTeams: true } } },
+  });
+  return Math.max(0, ...seasons.map((season) => season._count.seasonTeams));
+}
+
+/** The League plans the league's manager may buy now, with prices. */
+export async function leaguePlanOffers(leagueId: string, tx: DbClient = prisma): Promise<LeaguePlanOffer[]> {
+  const league = await tx.league.findUnique({ where: { id: leagueId }, select: { id: true } });
+  if (!league) throw new PaymentError('NOT_FOUND', 'League not found', 404);
+  const now = new Date();
+  const currencies = payableCurrencies();
+  const running = await runningLeaguePlan(leagueId, now, tx);
+  const needed = await bandFor(await teamsNeeded(leagueId, tx), now, tx);
+  const bands: LeaguePlanBand[] = (['SMALL', 'LARGE'] as const).filter((band) => BAND_RANK[band] >= BAND_RANK[needed]);
+
+  const candidates: { band: LeaguePlanBand; kind: LeagueOfferKind }[] = [];
+  if (!running) {
+    for (const band of bands) candidates.push({ band, kind: 'NEW' });
+  } else {
+    if (running.band === 'SMALL') candidates.push({ band: 'LARGE', kind: 'UPGRADE' });
+    if (running.until.getTime() - now.getTime() <= RENEWAL_DAYS * DAY_MS) {
+      for (const band of bands) candidates.push({ band, kind: 'RENEWAL' });
+    }
+  }
+
+  const offers: LeaguePlanOffer[] = [];
+  for (const { band, kind } of candidates) {
+    const productCode = BAND_PRODUCT[band];
+    const price = await priceAt(productCode, now, tx);
+    if (!price) continue;
+    const credit = kind === 'UPGRADE' ? await priceAt(BAND_PRODUCT.SMALL, now, tx) : null;
+    const prices: Partial<Record<Currency, number>> = {};
+    for (const currency of currencies) {
+      const field = currency === 'CZK' ? 'priceCzk' : 'priceEur';
+      prices[currency] = Math.max(0, price[field] - (credit?.[field] ?? 0));
+    }
+    offers.push({
+      band,
+      kind,
+      productCode,
+      limit: (await limitAt(BAND_PLAN[band], 'TEAMS_PER_SEASON', now, tx)) ?? null,
+      prices,
+      upgradeFrom: kind === 'UPGRADE' ? 'SMALL' : null,
+      startsAt: kind === 'RENEWAL' ? running!.until : null,
+      endsAt: kind === 'UPGRADE' ? running!.until : null,
+    });
+  }
+  return offers;
+}
+
+/** The league's payment waiting for confirmation, if there is one. */
+export async function pendingLeaguePayment(leagueId: string, tx: DbClient = prisma) {
+  return tx.payment.findFirst({ where: { leagueId, status: 'PENDING' }, include: paymentInclude });
+}
+
+/** Starts a payment for a League plan; one waits per league at a time. */
+export async function createLeaguePayment(input: {
+  leagueId: string;
+  payerId: string;
+  band: LeaguePlanBand;
+  kind: LeagueOfferKind;
+  currency: Currency;
+  immediateStartConsentAt: Date;
+}): Promise<PaymentWithRelations> {
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM leagues WHERE id = ${input.leagueId} FOR UPDATE`;
+    if (await tx.payment.count({ where: { leagueId: input.leagueId, status: 'PENDING' } })) {
+      throw new PaymentError('PAYMENT_PENDING', 'A payment for this league is already waiting', 409);
+    }
+    const offer = (await leaguePlanOffers(input.leagueId, tx)).find((item) => item.band === input.band && item.kind === input.kind);
+    const amount = offer?.prices[input.currency];
+    if (!offer || amount === undefined) throw new PaymentError('NOT_OFFERED', 'This plan is not offered for the league', 400);
+
+    const quoted = await quote({ productCode: offer.productCode, currency: input.currency, country: 'CZ' }, tx);
+    let snapshot: PaymentSnapshot = quoted;
+    if (offer.upgradeFrom) {
+      snapshot = { ...quoted, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
+    }
+    const payment = await tx.payment.create({
+      data: {
+        productCode: offer.productCode,
+        currency: input.currency,
+        amount: snapshot.gross,
+        snapshot: snapshot as unknown as Prisma.InputJsonValue,
+        payerId: input.payerId,
+        leagueId: input.leagueId,
+        immediateStartConsentAt: input.immediateStartConsentAt,
+      },
+      include: paymentInclude,
+    });
+    await recordAudit({ entityType: 'Payment', entityId: payment.id, action: 'CREATE', after: auditView(payment), actorId: input.payerId }, tx);
+    return payment;
+  });
+}
+
+/**
+ * Inside the confirming transaction: a year of the plan, starting when a
+ * running year ends; an upgrade covers the rest of the running year. Seasons
+ * waiting for the plan are covered from now on.
+ */
+async function applyLeaguePlan(tx: Prisma.TransactionClient, payment: PaymentWithRelations, now: Date) {
+  const band = PRODUCT_BAND[payment.productCode];
+  const leagueId = payment.leagueId!;
+  const snapshot = payment.snapshot as unknown as PaymentSnapshot;
+  const running = await runningLeaguePlan(leagueId, now, tx);
+  const upgrade = snapshot.upgradeFrom === 'SMALL';
+  const from = upgrade ? now : (running?.until ?? now);
+  const until = upgrade ? (running?.until ?? addYear(now)) : addYear(from);
+  await tx.leaguePlan.create({ data: { leagueId, band, validFrom: from, validUntil: until, paymentId: payment.id } });
+  await coverWaitingSeasons(tx, leagueId);
+  return { from, until };
+}
+
+/** For the league manager's view: the plan, waiting seasons, offers and the payment waiting. */
+export async function leaguePlanView(leagueId: string) {
+  const status = await leaguePlanStatus(leagueId);
+  if (!status) return null;
+  const pending = await pendingLeaguePayment(leagueId);
+  const offers = status.enabled ? await leaguePlanOffers(leagueId) : [];
+  return { ...status, offers, currencies: payableCurrencies(), payment: pending ? paymentView(pending) : null };
 }

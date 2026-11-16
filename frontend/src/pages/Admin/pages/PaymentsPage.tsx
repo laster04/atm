@@ -47,7 +47,7 @@ export default function PaymentsPage() {
 		{ key: 'variableSymbol', label: t('adminShell.payments.variableSymbol'), sort: 'variableSymbol', className: 'tabular-nums font-semibold', render: (row) => row.variableSymbol },
 		{ key: 'payer', label: t('adminShell.payments.customer'), render: (row) => (
 			<span className="flex flex-col">
-				<span className="font-semibold">{row.tournament?.name ?? '—'}</span>
+				<span className="font-semibold">{row.tournament?.name ?? row.league?.name ?? '—'}</span>
 				<span className="text-xs text-muted-foreground">{row.payer?.email ?? ''}</span>
 			</span>
 		) },
@@ -125,7 +125,7 @@ export default function PaymentsPage() {
 				<DetailPanel
 					key={open.id}
 					kicker={`${t('adminShell.payments.kicker')} · VS ${open.variableSymbol}`}
-					title={`${product(open.productCode)}${open.tournament ? ` · ${open.tournament.name}` : ''}`}
+					title={`${product(open.productCode)}${open.tournament ? ` · ${open.tournament.name}` : open.league ? ` · ${open.league.name}` : ''}`}
 					onClose={() => { setOpenId(null); setOpen(null); }}
 					tabs={[
 						{
@@ -139,10 +139,11 @@ export default function PaymentsPage() {
 										label: t('adminShell.payments.tournament'),
 										value: <Link to={`/tournament-management/tournament/${open.tournament.id}`} className="underline">{open.tournament.name}</Link>,
 									}] : []),
+									...(open.league ? [{ label: t('adminShell.payments.league'), value: open.league.name }] : []),
 									{ label: t('adminShell.payments.amount'), value: money(open, open.amount) },
 									{ label: t('adminShell.payments.base'), value: money(open, open.base) },
 									{ label: t('adminShell.payments.vatRate', { rate: open.vatRateBp / 100 }), value: money(open, open.vat) },
-									...(open.upgradeFrom ? [{ label: t('adminShell.payments.upgradeFrom'), value: product(open.upgradeFrom) }] : []),
+									...(open.upgradeFrom ? [{ label: t('adminShell.payments.upgradeFrom'), value: open.upgradeFrom === 'SMALL' ? product('LEAGUE_SMALL_YEAR') : product(open.upgradeFrom) }] : []),
 									{ label: t('adminShell.payments.account'), value: open.account ? `${open.account.recipient} · ${open.account.local}` : '—' },
 									{ label: t('adminShell.payments.created'), value: formatInstant(open.createdAt, i18n.language) },
 									...(open.confirmedAt ? [{

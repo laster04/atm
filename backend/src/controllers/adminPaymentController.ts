@@ -14,10 +14,11 @@ import {
 
 const SORTABLE = ['createdAt', 'variableSymbol', 'amount'] as const;
 const STATUSES = Object.values(PaymentStatus);
-const PRODUCTS = ['TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER_YEAR'] as const;
+const PRODUCTS = ['TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER_YEAR', 'LEAGUE_SMALL_YEAR', 'LEAGUE_LARGE_YEAR'] as const;
 
 const include = {
   tournament: { select: { id: true, name: true } },
+  league: { select: { id: true, name: true } },
   payer: { select: { id: true, name: true, email: true } },
   confirmedBy: { select: { id: true, name: true, email: true } },
   taxDocument: { select: { id: true, number: true, kind: true, issuedAt: true, emailedAt: true } },
@@ -31,6 +32,7 @@ const columns: CsvColumn<PaymentWithRelations>[] = [
   { header: 'amount', value: (row) => (row.amount / 100).toFixed(2) },
   { header: 'payer', value: (row) => row.payer?.email ?? '' },
   { header: 'tournament', value: (row) => row.tournament?.name ?? '' },
+  { header: 'league', value: (row) => row.league?.name ?? '' },
   { header: 'createdAt', value: (row) => row.createdAt },
   { header: 'confirmedAt', value: (row) => row.confirmedAt },
   { header: 'document', value: (row) => row.taxDocument?.number ?? '' },
@@ -41,7 +43,7 @@ const columns: CsvColumn<PaymentWithRelations>[] = [
  *
  * Filters: `status`, `product`, `currency`, `createdFrom`/`createdTo`. The search
  * matches the variable symbol, the tax document's number, the payer's email
- * or the tournament's name.
+ * or the tournament's or league's name.
  */
 export const listPayments = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -62,6 +64,7 @@ export const listPayments = async (req: AuthRequest, res: Response): Promise<voi
         { taxDocument: { number: params.q } },
         { payer: { email: { contains: params.q, mode: 'insensitive' as const } } },
         { tournament: { name: { contains: params.q, mode: 'insensitive' as const } } },
+        { league: { name: { contains: params.q, mode: 'insensitive' as const } } },
       ] }] : []),
     ];
     const where: Prisma.PaymentWhereInput = conditions.length ? { AND: conditions } : {};

@@ -14,6 +14,7 @@ import { Prisma } from '@prisma/client';
 import { prepareLogo, settleLogo } from '../services/storage/logoField.js';
 import { releaseFiles } from '../services/storage/files.js';
 import { recordAudit } from '../services/audit/record.js';
+import { assertSeasonTeamSlot, SeasonTeamLimitError, seasonTeamLimitBody } from '../services/plans/leaguePlan.js';
 
 export const getMyTeams = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -201,6 +202,7 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 
     // Create team and SeasonTeam association in a transaction
     const team = await prisma.$transaction(async (tx) => {
+      await assertSeasonTeamSlot(tx, seasonId);
       const newTeam = await tx.team.create({
         data: {
           name,
@@ -225,6 +227,10 @@ export const createTeam = async (req: AuthRequest, res: Response): Promise<void>
 
     res.status(201).json(team);
   } catch (error) {
+    if (error instanceof SeasonTeamLimitError) {
+      res.status(409).json(seasonTeamLimitBody(error));
+      return;
+    }
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
       res.status(400).json({ error: 'Team name already exists in this season' });
       return;
@@ -398,15 +404,17 @@ export const addTeamToSeason = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    await prisma.seasonTeam.create({
-      data: {
-        seasonId: seasonId,
-        teamId: id
-      }
+    await prisma.$transaction(async (tx) => {
+      await assertSeasonTeamSlot(tx, seasonId);
+      await tx.seasonTeam.create({ data: { seasonId, teamId: id } });
     });
 
     res.status(201).json({ message: 'Team added to season successfully' });
   } catch (error) {
+    if (error instanceof SeasonTeamLimitError) {
+      res.status(409).json(seasonTeamLimitBody(error));
+      return;
+    }
     if ((error as Prisma.PrismaClientKnownRequestError).code === 'P2002') {
       res.status(400).json({ error: 'Team is already in this season' });
       return;

@@ -6,16 +6,17 @@ import { splitGross, vatRule, VatRuleError, type VatIdStatus, type VatMode } fro
  * moment. Celek B reads everything through here, never from config.
  */
 
-export const PLANS = ['FREE', 'TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER'] as const;
+export const PLANS = ['FREE', 'TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER', 'LEAGUE_SMALL', 'LEAGUE_LARGE'] as const;
 export type Plan = (typeof PLANS)[number];
 
-export const LIMIT_KEYS = ['TEAMS_PER_TOURNAMENT', 'SPONSOR_LOGOS', 'DOCUMENTS', 'DOCUMENT_MAX_MB', 'LOGO_MAX_MB'] as const;
+export const LIMIT_KEYS = ['TEAMS_PER_TOURNAMENT', 'SPONSOR_LOGOS', 'DOCUMENTS', 'DOCUMENT_MAX_MB', 'LOGO_MAX_MB', 'TEAMS_PER_SEASON'] as const;
 export type LimitKey = (typeof LIMIT_KEYS)[number];
 
 export const CURRENCIES = ['CZK', 'EUR'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
 const OSS_KEY = 'oss';
+const LEAGUE_PLANS_KEY = 'league_plans';
 
 /** The version of a product's price in force at `at`. */
 export async function priceAt(code: string, at: Date = new Date(), tx: DbClient = prisma) {
@@ -61,6 +62,32 @@ export async function setOssEnabled(enabled: boolean, tx: DbClient = prisma): Pr
   await tx.appSetting.upsert({
     where: { key: OSS_KEY },
     create: { key: OSS_KEY, value: { enabled } },
+    update: { value: { enabled } },
+  });
+}
+
+/**
+ * Tests run in parallel against one database, so a test that needs the
+ * paywall on sets it for its own process here instead of flipping the shared
+ * setting under the other test files.
+ */
+let leaguePlansOverride: boolean | null = null;
+export const overrideLeaguePlansForTests = (value: boolean | null) => {
+  if (process.env.NODE_ENV !== 'test') throw new Error('Only tests may override the League plan switch');
+  leaguePlansOverride = value;
+};
+
+/** Whether new seasons need the League plan; off until an admin turns the paywall on. */
+export async function leaguePlansEnabled(tx: DbClient = prisma): Promise<boolean> {
+  if (leaguePlansOverride !== null) return leaguePlansOverride;
+  const row = await tx.appSetting.findUnique({ where: { key: LEAGUE_PLANS_KEY } });
+  return (row?.value as { enabled?: boolean } | null)?.enabled === true;
+}
+
+export async function setLeaguePlansEnabled(enabled: boolean, tx: DbClient = prisma): Promise<void> {
+  await tx.appSetting.upsert({
+    where: { key: LEAGUE_PLANS_KEY },
+    create: { key: LEAGUE_PLANS_KEY, value: { enabled } },
     update: { value: { enabled } },
   });
 }

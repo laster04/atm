@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@components/base/table.tsx';
 import { Button } from '@components/base/button.tsx';
 import { Card, CardContent, CardHeader } from '@components/base/card.tsx';
-import { Calendar, Edit, Plus, Trash2, UserPlus } from 'lucide-react';
+import { BadgeCheck, Calendar, Edit, Plus, Trash2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 import type { League, ManagerInvite, ManagerInviteSent } from '@types';
@@ -13,6 +13,7 @@ import { VisibilityBadge } from '@/components/public';
 import LeagueFormModal, { type LeagueFormData } from './LeagueFormModal.tsx';
 import { AdminTableView, AdminCardView, AdminCard, AdminCardField } from '../shared/AdminList';
 import InviteManagerSheet from '@/components/invite/InviteManagerSheet';
+import LeaguePlanAdminDialog from './LeaguePlanAdminDialog';
 import { invitesByTarget } from '@/components/invite/inviteState';
 import { ADMIN_GOLD, ADMIN_INK } from '../util';
 
@@ -28,6 +29,7 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 	const { isAdmin } = useAuth();
 	const navigate = useNavigate();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [planLeague, setPlanLeague] = useState<League | null>(null);
 	const [editingLeague, setEditingLeague] = useState<League | null>(null);
 	const [invitingLeague, setInvitingLeague] = useState<League | null>(null);
 	const [invites, setInvites] = useState<ManagerInvite[]>([]);
@@ -91,6 +93,17 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 					aria-label={t('invites.sheet.titleLeague')}
 				>
 					<UserPlus className="size-4" />
+				</Button>
+			)}
+			{isAdmin() && (
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => setPlanLeague(league)}
+					title={t('adminShell.leaguePlan.open')}
+					aria-label={t('adminShell.leaguePlan.open')}
+				>
+					<BadgeCheck className="size-4" />
 				</Button>
 			)}
 			<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(league)}>
@@ -216,6 +229,7 @@ export default function LeaguesTable({ leagues, onCreateLeague, onUpdateLeague, 
 				onClose={() => setInvitingLeague(null)}
 			/>
 		)}
+		<LeaguePlanAdminDialog league={planLeague} onClose={() => setPlanLeague(null)} />
 		</>
 	);
 }

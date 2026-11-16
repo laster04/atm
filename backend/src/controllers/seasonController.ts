@@ -13,6 +13,14 @@ import {
 import { Prisma } from '@prisma/client';
 import { toId } from '../utils/ids.js';
 import { canManageLeague, isAdmin } from '../services/access.js';
+import {
+  assertSeasonTeamSlot,
+  seasonCoverage,
+  SeasonTeamLimitError,
+  seasonTeamLimitBody,
+  TrialTooLongError,
+  trialEndLimit,
+} from '../services/plans/leaguePlan.js';
 import { isVisibility, listedSeasonInLeagueWhere, listedSeasonWhere } from '../services/visibility.js';
 import { computeTable } from '../services/standings/compute.js';
 import { COUNTS_TOWARD_TABLE, PENDING_RESULTS, countsTowardTable } from '../services/standings/filters.js';
@@ -211,24 +219,33 @@ export const createSeason = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    const season = await prisma.season.create({
-      data: {
-        name,
-        leagueId,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        status: status || 'DRAFT',
-        // Left out, the season starts unlisted and waits to be published.
-        ...(visibility && { visibility })
-      },
-      include: {
-        league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
-        _count: { select: { seasonTeams: true, games: true } }
-      }
+    // How the season is paid for is decided now and kept (League plan).
+    const season = await prisma.$transaction(async (tx) => {
+      const plan = await seasonCoverage(tx, { leagueId, endDate: new Date(endDate) });
+      return tx.season.create({
+        data: {
+          name,
+          leagueId,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+          status: status || 'DRAFT',
+          plan,
+          // Left out, the season starts unlisted and waits to be published.
+          ...(visibility && { visibility })
+        },
+        include: {
+          league: { select: { id: true, name: true, sportType: true, managerId: true, visibility: true } },
+          _count: { select: { seasonTeams: true, games: true } }
+        }
+      });
     });
 
     res.status(201).json(season);
   } catch (error) {
+    if (error instanceof TrialTooLongError) {
+      res.status(400).json({ error: error.message, code: error.code, latestEnd: error.latestEnd });
+      return;
+    }
     console.error('Create season error:', error);
     res.status(500).json({ error: 'Failed to create season' });
   }
@@ -271,6 +288,16 @@ export const updateSeason = async (req: AuthRequest, res: Response): Promise<voi
       const changesLeague = leagueId !== undefined && leagueId !== existingSeason.leagueId;
       if (changesStatus || changesLeague) {
         res.status(400).json({ error: 'Cannot change the status or league of an archived season' });
+        return;
+      }
+    }
+
+    // The free season cannot be stretched past its 12 months.
+    if (existingSeason.plan === 'TRIAL' && endDate) {
+      const latestEnd = trialEndLimit(existingSeason.createdAt);
+      if (new Date(endDate) > latestEnd) {
+        const tooLong = new TrialTooLongError(latestEnd);
+        res.status(400).json({ error: tooLong.message, code: tooLong.code, latestEnd });
         return;
       }
     }
@@ -750,9 +777,13 @@ export const copyTeamsToSeason = async (req: AuthRequest, res: Response): Promis
       return;
     }
 
-    await prisma.seasonTeam.createMany({
-      data: uniqueTeamIds.map(teamId => ({ seasonId, teamId })),
-      skipDuplicates: true
+    await prisma.$transaction(async (tx) => {
+      const already = await tx.seasonTeam.count({ where: { seasonId, teamId: { in: uniqueTeamIds } } });
+      await assertSeasonTeamSlot(tx, seasonId, uniqueTeamIds.length - already);
+      await tx.seasonTeam.createMany({
+        data: uniqueTeamIds.map(teamId => ({ seasonId, teamId })),
+        skipDuplicates: true
+      });
     });
 
     const teams = await prisma.team.findMany({
@@ -763,6 +794,10 @@ export const copyTeamsToSeason = async (req: AuthRequest, res: Response): Promis
 
     res.status(201).json({ message: 'Teams added to season successfully', teams });
   } catch (error) {
+    if (error instanceof SeasonTeamLimitError) {
+      res.status(409).json(seasonTeamLimitBody(error));
+      return;
+    }
     console.error('Copy teams to season error:', error);
     res.status(500).json({ error: 'Failed to copy teams to season' });
   }

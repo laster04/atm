@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
-import { canManageTournament } from '../services/access.js';
+import { canManageLeague, canManageTournament } from '../services/access.js';
 import emailService from '../services/emailService.js';
 import { CURRENCIES, type Currency } from '../services/pricing/catalog.js';
 import { payableCurrencies } from '../services/payments/account.js';
@@ -95,13 +95,14 @@ export const startPayment = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
-/** POST /api/payments/:id/cancel: the payer or whoever manages the tournament. */
+/** POST /api/payments/:id/cancel: the payer or whoever manages the tournament or league. */
 export const cancelOwnPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const payment = await findPayment(req.params.id);
     const allowed = payment && (
       payment.payerId === req.user!.id
       || (payment.tournamentId && (await canManageTournament(req.user!, payment.tournamentId)))
+      || (payment.leagueId && (await canManageLeague(req.user!, payment.leagueId)))
     );
     if (!payment || !allowed) { res.status(404).json({ error: 'Payment not found' }); return; }
     res.json(paymentView(await cancelPayment(payment.id, req.user!.id)));
