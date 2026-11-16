@@ -18,6 +18,7 @@ import { localeOf } from '../../i18n/index.js';
 const PLAN_NAMES: Record<string, { cs: string; en: string }> = {
   TOURNAMENT: { cs: 'Turnaj', en: 'Tournament' },
   TOURNAMENT_PLUS: { cs: 'Turnaj Plus', en: 'Tournament Plus' },
+  SMALL: { cs: 'Liga do 12 týmů', en: 'League up to 12 teams' },
 };
 
 const shortDay = (date: Date) => {
@@ -25,7 +26,7 @@ const shortDay = (date: Date) => {
   return `${day}. ${month}. ${year}`;
 };
 
-type PaymentForDocument = Payment & { tournament: { name: string } | null };
+type PaymentForDocument = Payment & { tournament: { name: string } | null; league?: { name: string } | null };
 
 /**
  * ATM26-0001: the year's last two digits and the sequence (decided 22 Oct
@@ -35,7 +36,7 @@ type PaymentForDocument = Payment & { tournament: { name: string } | null };
 export const documentNumber = (year: number, sequence: number) =>
   `ATM${String(year).slice(-2)}-${String(sequence).padStart(4, '0')}`;
 
-/** What the line says: the plan, its tournament, and what an upgrade or a year covers. */
+/** What the line says: the plan, its tournament or league, and what an upgrade or a year covers. */
 function describe(payment: PaymentForDocument, snapshot: PaymentSnapshot, period?: { from: Date; until: Date }) {
   let cs = snapshot.productName.cs;
   let en = snapshot.productName.en;
@@ -49,9 +50,10 @@ function describe(payment: PaymentForDocument, snapshot: PaymentSnapshot, period
     cs += `, ${span}`;
     en += `, ${span}`;
   }
-  if (payment.tournament) {
-    cs += ` – ${payment.tournament.name}`;
-    en += ` – ${payment.tournament.name}`;
+  const competition = payment.tournament?.name ?? payment.league?.name;
+  if (competition) {
+    cs += ` – ${competition}`;
+    en += ` – ${competition}`;
   }
   return { cs, en };
 }
@@ -140,7 +142,7 @@ export async function documentLink(document: TaxDocument): Promise<string> {
 export async function deliverTaxDocument(paymentId: string): Promise<void> {
   const document = await prisma.taxDocument.findUnique({
     where: { paymentId },
-    include: { payment: { include: { payer: { select: { email: true, name: true, locale: true } }, tournament: { select: { name: true } } } } },
+    include: { payment: { include: { payer: { select: { email: true, name: true, locale: true } }, tournament: { select: { name: true } }, league: { select: { name: true } } } } },
   });
   if (!document) return;
   const pdf = await documentPdf(document);

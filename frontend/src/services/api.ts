@@ -2,7 +2,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import { serverLocale } from '@/i18n/languages';
 import type {
-  EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanInterestInput, PlanInterestOverview, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
+  EmbedCompetition, EmbedTeamOption, EmbedUsage, LeagueOfferKind, LeaguePlanBand, LeaguePlanView, OfferPlan, PaymentCurrency, PlanInterestInput, PlanInterestOverview, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, ResultClaimsView, SeasonResultClaims, ScorerLinkState, ScorerLinkCreated, ScorerPage, ScorerGoalInput, MatchEvent, MatchEventInput, MyPlayerProfile,
   CourtScorerPage, CourtGoalInput, PartScore, TournamentScorerLinks,
@@ -44,9 +44,27 @@ api.interceptors.request.use((config) => {
 // password, or an invitation asking its holder to sign in first.
 const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/google', '/invites/token/'];
 
+/**
+ * League plan refusals come with a code; the screens show `error` as it is, so
+ * it is swapped here for the text in the reader's language.
+ */
+const PLAN_ERRORS: Record<string, (data: Record<string, unknown>) => string> = {
+  PLAN_REQUIRED: () => i18next.t('leaguePlan.errors.required'),
+  TRIAL_TOO_LONG: (data) => i18next.t('leaguePlan.errors.trialTooLong', {
+    date: typeof data.latestEnd === 'string' ? new Date(data.latestEnd).toLocaleDateString(i18next.language) : '',
+  }),
+};
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const data = error.response?.data as Record<string, unknown> | undefined;
+    const code = typeof data?.code === 'string' ? data.code : '';
+    if (data && PLAN_ERRORS[code]) data.error = PLAN_ERRORS[code](data);
+    // A season's team limit; a tournament's PLAN_LIMIT keeps its own handling.
+    if (data && code === 'PLAN_LIMIT' && data.plan === 'LEAGUE_SMALL') {
+      data.error = i18next.t('leaguePlan.errors.limit', { limit: data.limit });
+    }
     const isAuthEndpoint = AUTH_ENDPOINTS.some((path) => error.config?.url?.includes(path));
     if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('token');
@@ -116,6 +134,9 @@ export const leagueApi = {
   update: (id: string | number, data: Partial<League>) => api.put<League>(`/leagues/${id}`, data),
   inviteManager: (id: string | number, data: { email: string; name: string; locale?: string }) =>
     api.post<ManagerInviteSent>(`/leagues/${id}/invite-manager`, data),
+  getPlan: (id: string) => api.get<LeaguePlanView>(`/leagues/${id}/plan`),
+  startPayment: (id: string, band: LeaguePlanBand, kind: LeagueOfferKind, currency: PaymentCurrency) =>
+    api.post<PlanPayment>(`/leagues/${id}/payments`, { band, kind, currency, immediateStart: true }),
   delete: (id: string | number) => api.delete(`/leagues/${id}`)
 };
 
@@ -532,6 +553,9 @@ export const adminApi = {
   createLimits: (data: { validFrom: string | null; values: { plan: string; key: string; value: number | null }[] }) =>
     api.post('/admin/pricing/limits', data),
   setOss: (enabled: boolean, reason: string) => api.put<{ enabled: boolean }>('/admin/pricing/oss', { enabled, reason }),
+  setLeaguePlans: (enabled: boolean, reason: string) => api.put<{ enabled: boolean }>('/admin/pricing/league-plans', { enabled, reason }),
+  setLeaguePlan: (id: string, data: { freeUntil?: string | null; grant?: { band: LeaguePlanBand; until: string }; reason?: string }) =>
+    api.put<LeaguePlanView>(`/admin/leagues/${id}/plan`, data),
 };
 
 /** Billing details: an EU VAT ID through VIES, a Czech IČO through ARES. */
