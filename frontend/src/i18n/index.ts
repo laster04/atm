@@ -10,6 +10,7 @@ const STORAGE_KEY = 'i18nextLng';
 /** Languages beyond Czech and English are loaded only when someone uses them. */
 const LOADERS: Record<string, () => Promise<{ default: Record<string, unknown> }>> = {
 	sk: () => import('./locales/sk.json'),
+	pl: () => import('./locales/pl.json'),
 };
 
 const stored = (): string | null => {

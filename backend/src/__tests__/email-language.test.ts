@@ -31,7 +31,8 @@ describe('the language of an e-mail', () => {
   it('reads a language from a browser tag and falls back to Czech', () => {
     expect(localeOf('sk-SK')).toBe('sk');
     expect(localeOf('EN')).toBe('en');
-    expect(localeOf('pl')).toBe('cs');
+    expect(localeOf('pl-PL')).toBe('pl');
+    expect(localeOf('de')).toBe('cs');
     expect(localeOf(undefined)).toBe('cs');
     expect(localeOf(42)).toBe('cs');
   });
@@ -58,9 +59,16 @@ describe('the language of an e-mail', () => {
     expect(lastMail()).toMatchObject({ to: email, subject: emailTexts('sk').activation.subject });
   });
 
-  it('keeps Czech for a language the server does not write', async () => {
+  it('writes Polish e-mails to a Polish sign-up', async () => {
     const email = `register-pl-lang-${stamp}@test.com`;
-    await request(app).post('/api/auth/register').send({ email, password: 'password123', name: 'Ola', locale: 'pl' });
+    await request(app).post('/api/auth/register').send({ email, password: 'password123', name: 'Ola', locale: 'pl-PL' });
+    expect((await prisma.user.findUniqueOrThrow({ where: { email } })).locale).toBe('pl');
+    expect(lastMail()).toMatchObject({ to: email, subject: emailTexts('pl').activation.subject });
+  });
+
+  it('keeps Czech for a language the server does not write', async () => {
+    const email = `register-de-lang-${stamp}@test.com`;
+    await request(app).post('/api/auth/register').send({ email, password: 'password123', name: 'Anna', locale: 'de' });
     expect((await prisma.user.findUniqueOrThrow({ where: { email } })).locale).toBe('cs');
   });
 

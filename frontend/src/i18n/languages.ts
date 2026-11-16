@@ -24,6 +24,8 @@ export const LANGUAGES: Language[] = [
 	{ code: 'en', label: 'English', short: 'EN', live: true, fallback: [], content: 'en', locale: 'en-US' },
 	// Checked by the owner and launched 9 Nov 2026.
 	{ code: 'sk', label: 'Slovenčina', short: 'SK', live: true, fallback: ['cs', 'en'], content: 'cs', locale: 'sk-SK' },
+	// Waiting for the owner's check: reachable with ?lang=pl only.
+	{ code: 'pl', label: 'Polski', short: 'PL', live: false, fallback: ['en'], content: 'en', locale: 'pl-PL' },
 ];
 
 export const DEFAULT_LANGUAGE = 'en';
