@@ -9,6 +9,7 @@ import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { zonedParts } from '../utils/time.js';
 import { documentNumber } from '../services/invoices/documents.js';
+import { useTestBankAccounts } from './helpers/bankAccounts.js';
 
 // Rendered documents land in a throwaway folder, not the project's uploads.
 process.env.STORAGE_LOCAL_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'atm-tax-'));
@@ -29,10 +30,12 @@ let admin: Awaited<ReturnType<typeof account>>;
 let organiser: Awaited<ReturnType<typeof account>>;
 
 beforeAll(async () => {
+  await useTestBankAccounts();
   admin = await account('admin', 'ADMIN');
   organiser = await account('organiser');
 });
 
+jest.spyOn(emailService, 'sendPaymentInstructionsEmail').mockResolvedValue(true);
 jest.spyOn(emailService, 'sendPaymentNoticeEmail').mockResolvedValue(true);
 const documents = jest.spyOn(emailService, 'sendTaxDocumentEmail').mockResolvedValue(true);
 

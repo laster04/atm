@@ -3,7 +3,7 @@ import prisma from '../../config/database.js';
 import emailService from '../emailService.js';
 import { storage } from '../storage/index.js';
 import { zonedParts } from '../../utils/time.js';
-import { paymentAccount } from '../payments/account.js';
+import { czechLocal, paymentAccount } from '../payments/account.js';
 import type { PaymentSnapshot } from '../payments/payments.js';
 import { formatAmount, ISSUER, renderTaxDocument, type DocumentContent } from './template.js';
 import { localeOf } from '../../i18n/index.js';
@@ -78,7 +78,9 @@ export async function issueTaxDocument(
     RETURNING last`;
   const number = documentNumber(year, last);
   const snapshot = payment.snapshot as unknown as PaymentSnapshot;
-  const account = paymentAccount(payment.currency as 'CZK' | 'EUR');
+  // The account the payer was given; a payment from before celek K reads the current one.
+  const account = snapshot.account ?? (await paymentAccount(payment.currency as 'CZK' | 'EUR', tx));
+  const accountText = account ? `${czechLocal(account.iban) ?? ''}${czechLocal(account.iban) ? ' · ' : ''}IBAN ${account.iban}` : null;
 
   const content: DocumentContent = {
     number,
@@ -97,7 +99,7 @@ export async function issueTaxDocument(
     }],
     totals: { gross: snapshot.gross, base: snapshot.base, vat: snapshot.vat },
     vatMode: snapshot.vatMode,
-    payment: { variableSymbol: payment.variableSymbol, account: `${account.local} · IBAN ${account.iban}` },
+    payment: { variableSymbol: payment.variableSymbol, account: accountText },
   };
 
   return tx.taxDocument.create({

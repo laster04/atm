@@ -868,6 +868,9 @@ export interface TeamAllowance {
 
 export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED';
 export type PaymentCurrency = 'CZK' | 'EUR';
+/** The QR format of a transfer: Czech SPD, Slovak PAY by square, or the European EPC code. */
+export type PaymentMethod = 'SPD' | 'BYSQUARE' | 'EPC';
+export const METHOD_CURRENCY: Record<PaymentMethod, PaymentCurrency> = { SPD: 'CZK', BYSQUARE: 'EUR', EPC: 'EUR' };
 export type OfferPlan = 'TOURNAMENT' | 'TOURNAMENT_PLUS' | 'ORGANIZER';
 
 export interface PlanPayment {
@@ -894,8 +897,21 @@ export interface PlanPayment {
   /** The tax document issued on confirmation. */
   document: { id: string; number: string; kind: 'SIMPLIFIED' | 'FULL'; issuedAt: string; emailedAt: string | null } | null;
   account: { local: string; iban: string; bic: string | null; recipient: string } | null;
-  /** The QR payment string while the payment waits. */
-  qr: string | null;
+  /** The QR formats the payment's currency can be paid with. */
+  methods: PaymentMethod[];
+  /** The QR payment string per format while the payment waits. */
+  qr: Partial<Record<PaymentMethod, string>> | null;
+  /** What to type in by hand while the payment waits. */
+  transfer: {
+    iban: string;
+    bic: string;
+    recipient: string;
+    /** "59.00" */
+    amount: string;
+    currency: PaymentCurrency;
+    variableSymbol: number;
+    message: string;
+  } | null;
 }
 
 /** A competition as the embedded widget's API describes it. */
@@ -987,6 +1003,8 @@ export interface LeaguePlanView {
   trialAvailable: boolean;
   offers: LeaguePlanOffer[];
   currencies: PaymentCurrency[];
+  /** The QR format the viewer most likely needs, from their language. */
+  suggestedMethod: PaymentMethod | null;
   payment: PlanPayment | null;
 }
 
@@ -1326,6 +1344,16 @@ export interface PricingOverview {
   };
   /** The League plan paywall; off, every new season is free. */
   leaguePlans: { enabled: boolean };
+  /** The accounts organisers pay to; a currency without one cannot be paid in. */
+  bankAccounts: Partial<Record<PaymentCurrency, BankAccount>>;
+}
+
+export interface BankAccount {
+  currency: PaymentCurrency;
+  local: string;
+  iban: string;
+  bic: string;
+  recipient: string;
 }
 
 export interface VatCheckResult {

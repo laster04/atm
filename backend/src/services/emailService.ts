@@ -521,6 +521,59 @@ class EmailService {
     });
   }
 
+  /**
+   * Tells the payer how to pay a plan they just chose: the transfer details
+   * as text (the QR code itself is on the plan's page in ATM), and for a euro
+   * transfer that the message must stay as it is so the payment can be matched.
+   */
+  async sendPaymentInstructionsEmail(params: {
+    to: string;
+    name: string;
+    locale: Locale;
+    product: string;
+    amount: string;
+    currency: string;
+    iban: string;
+    bic: string;
+    recipient: string;
+    local: string | null;
+    variableSymbol: number;
+    message: string;
+    method: 'SPD' | 'BYSQUARE' | 'EPC';
+    /** Where in ATM the payment and its QR code are, e.g. /tournament-management/tournament/… */
+    path: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const all = emailTexts(params.locale);
+    const t = all.paymentInstructions;
+    const vars = { product: params.product, variableSymbol: params.variableSymbol, format: t.formats[params.method] };
+    const rows: [string, string][] = [
+      [t.amount, `${params.amount} ${params.currency}`],
+      ...(params.local ? [[t.account, params.local] as [string, string]] : []),
+      [t.iban, params.iban],
+      [t.bic, params.bic],
+      [t.recipient, params.recipient],
+      [t.variableSymbol, String(params.variableSymbol)],
+      [t.message, params.message],
+    ];
+    const details = rows
+      .map(([label, value]) => this.p(`${escapeHtml(label)}: <strong>${escapeHtml(value)}</strong>`, { mb: 4, size: 14 }))
+      .join('');
+    const body = [
+      this.p(fill(all.greeting, { name: params.name })),
+      this.p(fill(t.intro, vars)),
+      details,
+      params.currency === 'EUR' ? this.p(t.sepa, { size: 14, color: COLORS.muted }) : '',
+      this.p(fill(t.qr, vars), { size: 14, color: COLORS.muted }),
+      this.button(t.button, `${this.getAppUrl()}${params.path}`, accent),
+    ].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: fillText(t.subject, vars),
+      html: this.buildEmailHtml(accent, 'badge-check', t.header, body),
+    });
+  }
+
   /** Tells an admin a plan payment was started, so they watch the account for the transfer. */
   async sendPaymentNoticeEmail(params: {
     to: string;

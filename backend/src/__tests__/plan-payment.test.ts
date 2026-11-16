@@ -8,7 +8,8 @@ import app from '../app.js';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { resetRegistrationRateLimit } from '../controllers/registrationController.js';
-import { czechIban, paymentAccount, spdString } from '../services/payments/account.js';
+import { czechIban, czechLocal, epcString, normaliseBic, normaliseIban, spdString, suggestedMethod, transferMessage, type PaymentAccount } from '../services/payments/account.js';
+import { TEST_ACCOUNTS, useTestBankAccounts } from './helpers/bankAccounts.js';
 
 // Confirming a payment renders its tax document; keep those out of the project's uploads.
 process.env.STORAGE_LOCAL_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'atm-pay-'));
@@ -31,6 +32,7 @@ let organiser: Awaited<ReturnType<typeof account>>;
 let stranger: Awaited<ReturnType<typeof account>>;
 
 beforeAll(async () => {
+  await useTestBankAccounts();
   admin = await account('admin', 'ADMIN');
   organiser = await account('organiser');
   stranger = await account('stranger');
@@ -39,6 +41,7 @@ beforeAll(async () => {
 beforeEach(() => resetRegistrationRateLimit());
 
 const notices = jest.spyOn(emailService, 'sendPaymentNoticeEmail').mockResolvedValue(true);
+const instructions = jest.spyOn(emailService, 'sendPaymentInstructionsEmail').mockResolvedValue(true);
 jest.spyOn(emailService, 'sendRegistrationDecisionEmail').mockResolvedValue(true);
 jest.spyOn(emailService, 'sendRegistrationReceivedEmail').mockResolvedValue(true);
 jest.spyOn(emailService, 'sendRegistrationNoticeEmail').mockResolvedValue(true);
@@ -81,19 +84,50 @@ async function pendingApplication(id: string) {
   });
 }
 
+// Made-up accounts; the Czech one is the example from the Czech banks' IBAN standard.
+const czk: PaymentAccount = { currency: 'CZK', local: '19-2000145399/0800', iban: 'CZ6508000000192000145399', bic: 'TESTCZPP', recipient: 'Test s.r.o.' };
+const eur: PaymentAccount = { ...czk, currency: 'EUR' };
+
 describe('the account and the QR code', () => {
-  it('turns the Czech account numbers into valid IBANs', () => {
-    expect(czechIban('3573655016/3030')).toBe('CZ0930300000003573655016');
-    expect(czechIban('3573655032/3030')).toBe('CZ6230300000003573655032');
+  it('turns Czech account numbers into IBANs and back', () => {
     expect(czechIban('19-2000145399/0800')).toBe('CZ6508000000192000145399');
+    expect(czechLocal('CZ6508000000192000145399')).toBe('19-2000145399/0800');
+    expect(czechLocal(czechIban('123456/0800')!)).toBe('123456/0800');
+    expect(czechLocal('SK3112000000198742637541')).toBeNull();
     expect(czechIban('not an account')).toBeNull();
   });
 
+  it('checks an IBAN and a BIC typed in the administration', () => {
+    expect(normaliseIban('cz65 0800 0000 1920 0014 5399')).toBe('CZ6508000000192000145399');
+    expect(normaliseIban('CZ6608000000192000145399')).toBeNull();
+    expect(normaliseIban('DE89370400440532013000')).toBe('DE89370400440532013000');
+    expect(normaliseBic('testczpp')).toBe('TESTCZPP');
+    expect(normaliseBic('TEST CZ')).toBeNull();
+  });
+
   it('writes the Short Payment Descriptor', () => {
-    const account = paymentAccount('CZK');
-    expect(spdString(account, 69000, 2026000001, 'ATM TOURNAMENT 2026000001')).toBe(
-      'SPD*1.0*ACC:CZ0930300000003573655016+AIRACZPP*AM:690.00*CC:CZK*X-VS:2026000001*RN:Conesoft s.r.o.*MSG:ATM TOURNAMENT 2026000001'
+    expect(spdString(czk, 69000, 2026000001, 'ATM TOURNAMENT 2026000001')).toBe(
+      'SPD*1.0*ACC:CZ6508000000192000145399+TESTCZPP*AM:690.00*CC:CZK*X-VS:2026000001*RN:Test s.r.o.*MSG:ATM TOURNAMENT 2026000001'
     );
+  });
+
+  it('writes the EPC QR code with the variable symbol in the message', () => {
+    expect(epcString(eur, 5900, transferMessage(2026000042, 'TOURNAMENT_PLUS'))).toBe([
+      'BCD', '002', '1', 'SCT', 'TESTCZPP', 'Test s.r.o.', 'CZ6508000000192000145399', 'EUR59.00', '', '',
+      '/VS/2026000042/ ATM TOURNAMENT_PLUS',
+    ].join('\n'));
+    expect(() => epcString(czk, 5900, 'x')).toThrow();
+  });
+
+  it('suggests the QR format by the payer\'s language', () => {
+    expect(suggestedMethod('sk', ['CZK', 'EUR'])).toBe('BYSQUARE');
+    expect(suggestedMethod('de', ['CZK', 'EUR'])).toBe('EPC');
+    expect(suggestedMethod('pl', ['CZK', 'EUR'])).toBe('EPC');
+    expect(suggestedMethod('cs', ['CZK', 'EUR'])).toBe('SPD');
+    expect(suggestedMethod('en', ['CZK', 'EUR'])).toBe('SPD');
+    // Without a euro account a Slovak payer is offered the Czech code, and nothing without any account.
+    expect(suggestedMethod('sk', ['CZK'])).toBe('SPD');
+    expect(suggestedMethod('cs', [])).toBeNull();
   });
 });
 
@@ -126,6 +160,60 @@ describe('offers', () => {
   });
 });
 
+describe('paying in euros', () => {
+  it('gives a PAY by square and an EPC code to the euro account, with the variable symbol', async () => {
+    const id = await tournament('euro', 7);
+    const paid = await buy(id, 'TOURNAMENT', 'EUR');
+    expect(paid.status).toBe(201);
+    const vs = paid.body.variableSymbol;
+    expect(paid.body.methods).toEqual(['BYSQUARE', 'EPC']);
+    expect(paid.body.transfer).toEqual({
+      iban: TEST_ACCOUNTS.EUR.iban, bic: 'TESTCZPP', recipient: TEST_ACCOUNTS.EUR.recipient,
+      amount: '29.00', currency: 'EUR', variableSymbol: vs, message: `/VS/${vs}/ ATM TOURNAMENT`,
+    });
+    expect(paid.body.qr.EPC.split('\n')).toEqual([
+      'BCD', '002', '1', 'SCT', 'TESTCZPP', TEST_ACCOUNTS.EUR.recipient, TEST_ACCOUNTS.EUR.iban, 'EUR29.00', '', '', `/VS/${vs}/ ATM TOURNAMENT`,
+    ]);
+    const { decode } = await import('bysquare/pay');
+    const decoded = decode(paid.body.qr.BYSQUARE);
+    expect(decoded.payments[0]).toMatchObject({
+      amount: 29, currencyCode: 'EUR', variableSymbol: String(vs),
+      bankAccounts: [expect.objectContaining({ iban: TEST_ACCOUNTS.EUR.iban })],
+    });
+    expect(paid.body.qr.SPD).toBeUndefined();
+  });
+
+  it('keeps the account a payment was given when the administration changes it', async () => {
+    const id = await tournament('kept');
+    const paid = await buy(id, 'TOURNAMENT');
+    await prisma.payment.update({
+      where: { id: paid.body.id },
+      data: { snapshot: { ...(await prisma.payment.findUniqueOrThrow({ where: { id: paid.body.id } })).snapshot as object, account: { iban: 'CZ6508000000192000145399', bic: 'OLDBCZPP', recipient: 'Old s.r.o.' } } },
+    });
+    const view = await statusAs(id, organiser.token);
+    expect(view.body.payment.transfer).toMatchObject({ iban: 'CZ6508000000192000145399', bic: 'OLDBCZPP', recipient: 'Old s.r.o.' });
+  });
+
+  it('lets only the pricing manager change the accounts, with a reason', async () => {
+    const plain = await request(app).put('/api/admin/pricing/bank-accounts/EUR').set(auth(admin.token))
+      .send({ ...TEST_ACCOUNTS.EUR, reason: 'x' });
+    expect(plain.status).toBe(403);
+    await prisma.user.update({ where: { id: admin.id }, data: { canManagePricing: true } });
+    try {
+      const put = (body: object) => request(app).put('/api/admin/pricing/bank-accounts/EUR').set(auth(admin.token)).send(body);
+      expect((await put({ ...TEST_ACCOUNTS.EUR, iban: 'CZ00 1234', reason: 'x' })).body.code).toBe('IBAN_FORMAT');
+      expect((await put({ ...TEST_ACCOUNTS.EUR, bic: '12', reason: 'x' })).body.code).toBe('BIC_FORMAT');
+      expect((await put({ ...TEST_ACCOUNTS.EUR })).body.code).toBe('REASON_REQUIRED');
+      const saved = await put({ ...TEST_ACCOUNTS.EUR, reason: `New euro account ${stamp}` });
+      expect(saved.status).toBe(200);
+      expect(saved.body).toMatchObject({ currency: 'EUR', iban: TEST_ACCOUNTS.EUR.iban });
+      expect(await prisma.auditLog.count({ where: { entityId: 'bank_account_EUR', reason: `New euro account ${stamp}` } })).toBe(1);
+    } finally {
+      await prisma.user.update({ where: { id: admin.id }, data: { canManagePricing: false } });
+    }
+  });
+});
+
 describe('paying for a plan', () => {
   it('needs the payer to ask for an immediate start, and remembers when they did', async () => {
     const id = await tournament('consent');
@@ -147,12 +235,18 @@ describe('paying for a plan', () => {
     expect(paid.status).toBe(201);
     expect(paid.body).toMatchObject({
       status: 'PENDING', plan: 'TOURNAMENT', currency: 'CZK', amount: 69000, vat: 11975,
-      account: { local: '3573655016/3030', iban: 'CZ0930300000003573655016', recipient: 'Conesoft s.r.o.' },
+      account: { local: '123456/0800', iban: TEST_ACCOUNTS.CZK.iban, recipient: TEST_ACCOUNTS.CZK.recipient },
+      methods: ['SPD'],
     });
     expect(paid.body.variableSymbol).toBeGreaterThanOrEqual(2026000001);
-    expect(paid.body.qr).toContain(`X-VS:${paid.body.variableSymbol}`);
+    expect(paid.body.qr.SPD).toContain(`X-VS:${paid.body.variableSymbol}`);
+    expect(paid.body.transfer).toMatchObject({ amount: '690.00', currency: 'CZK', iban: TEST_ACCOUNTS.CZK.iban, variableSymbol: paid.body.variableSymbol });
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(notices).toHaveBeenCalledWith(expect.objectContaining({ to: admin.email, variableSymbol: paid.body.variableSymbol }));
+    expect(instructions).toHaveBeenCalledWith(expect.objectContaining({
+      to: organiser.email, method: 'SPD', currency: 'CZK', amount: '690.00', variableSymbol: paid.body.variableSymbol,
+      path: `/tournament-management/tournament/${id}`,
+    }));
 
     const again = await buy(id, 'TOURNAMENT_PLUS');
     expect(again.status).toBe(409);

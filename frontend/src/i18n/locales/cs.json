@@ -3242,6 +3242,14 @@
         "offConfirm": "Nové sezóny budou zdarma. Sezóny, které už na plán čekají, čekají dál.",
         "switchedOn": "Plán Liga zapnut",
         "switchedOff": "Plán Liga vypnut"
+      },
+      "bankAccounts": {
+        "title": "Bankovní účty",
+        "hint": "Na tyto účty organizátoři platí plány. Měnu bez účtu ATM k platbě nenabídne. Už vytvořené platby si nechávají účet, který dostaly.",
+        "change": "Změnit",
+        "recipient": "Majitel účtu",
+        "missing": "Účet chybí, platby v této měně nejsou k dispozici.",
+        "saved": "Účet uložen"
       }
     },
     "payments": {
@@ -3400,10 +3408,30 @@
       "recipient": "Příjemce",
       "qrAlt": "QR kód pro platbu",
       "hint": "Naskenujte kód v bankovní aplikaci, nebo zadejte údaje ručně i s variabilním symbolem. Plán začne platit, jakmile platbu potvrdíme.",
-      "cancel": "Zrušit platbu"
+      "cancel": "Zrušit platbu",
+      "currency": "Měna",
+      "message": "Zpráva pro příjemce",
+      "format": "Formát QR kódu",
+      "copy": "Kopírovat: {{label}}",
+      "hintSepa": "Naskenujte kód v bankovní aplikaci, nebo zadejte převod SEPA ručně a zprávu pro příjemce opište přesně, podle ní platbu spárujeme. Plán začne platit, jakmile platbu potvrdíme."
     },
     "organizerUntil": "Organizátor do {{date}}",
-    "renew": "Prodloužit Organizátora"
+    "renew": "Prodloužit Organizátora",
+    "method": {
+      "label": "Odkud budete platit?",
+      "SPD": {
+        "title": "Česká banka",
+        "hint": "v korunách, QR platba"
+      },
+      "BYSQUARE": {
+        "title": "Slovenská banka",
+        "hint": "v eurech, PAY by square"
+      },
+      "EPC": {
+        "title": "Jiná banka v eurozóně",
+        "hint": "v eurech, QR kód EPC"
+      }
+    }
   },
   "embed": {
     "standings": "Tabulka",

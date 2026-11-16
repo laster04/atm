@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import type { LeagueOfferKind, LeaguePlanBand, LeaguePlanView, PaymentCurrency } from '@types';
+import { METHOD_CURRENCY, type LeagueOfferKind, type LeaguePlanBand, type LeaguePlanView, type PaymentCurrency, type PaymentMethod } from '@types';
+import PaymentMethodPicker, { initialMethod } from '@/components/plans/PaymentMethodPicker';
 import { leagueApi, tournamentApi } from '@/services/api';
 import { formatMoney } from '@/utils/money';
 import { formatSeasonDate } from '@/utils/date';
@@ -23,7 +24,8 @@ const BAND_PLAN = { SMALL: 'LEAGUE_SMALL', LARGE: 'LEAGUE_LARGE' } as const;
 /** The League plan offers for a league, and the QR transfer once one is chosen. */
 export default function LeaguePlanDialog({ leagueId, view, open, onOpenChange, onChanged }: LeaguePlanDialogProps) {
 	const { t, i18n } = useTranslation();
-	const [currency, setCurrency] = useState<PaymentCurrency>(view.currencies[0] ?? 'CZK');
+	const [method, setMethod] = useState<PaymentMethod | null>(initialMethod(view.currencies, view.suggestedMethod));
+	const currency: PaymentCurrency = method ? METHOD_CURRENCY[method] : 'CZK';
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState('');
 	// Asked afresh each time the offers open; see the terms, section 5.
@@ -74,7 +76,7 @@ export default function LeaguePlanDialog({ leagueId, view, open, onOpenChange, o
 				</DialogHeader>
 				{error && <p className="text-sm text-red-700">{error}</p>}
 				{payment ? (
-					<PaymentDetails payment={payment} busy={busy} onCancel={() => void cancel()} />
+					<PaymentDetails payment={payment} busy={busy} onCancel={() => void cancel()} suggested={method ?? view.suggestedMethod} />
 				) : view.currencies.length === 0 ? (
 					<p className="text-sm">{t('plans.offers.unavailable')}</p>
 				) : view.offers.length === 0 ? (
@@ -82,17 +84,7 @@ export default function LeaguePlanDialog({ leagueId, view, open, onOpenChange, o
 				) : (
 					<div className="space-y-4">
 						<p className="text-sm text-muted-foreground">{t('leaguePlan.dialog.intro')}</p>
-						{view.currencies.length > 1 && (
-							<fieldset className="flex items-center gap-2 text-sm">
-								<legend className="sr-only">{t('plans.offers.currency')}</legend>
-								{view.currencies.map((value) => (
-									<label key={value} className={`cursor-pointer rounded border px-3 py-1.5 ${currency === value ? 'border-primary bg-primary/10 font-semibold' : ''}`}>
-										<input type="radio" name="currency" value={value} checked={currency === value} onChange={() => setCurrency(value)} className="sr-only" />
-										{value}
-									</label>
-								))}
-							</fieldset>
-						)}
+						<PaymentMethodPicker currencies={view.currencies} value={method} onChange={setMethod} />
 						<ul className="grid gap-3 sm:grid-cols-2">
 							{view.offers.map((offer) => {
 								const price = offer.prices[currency];

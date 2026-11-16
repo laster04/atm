@@ -2,7 +2,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import { serverLocale } from '@/i18n/languages';
 import type {
-  EmbedCompetition, EmbedTeamOption, EmbedUsage, LeagueOfferKind, LeaguePlanBand, LeaguePlanView, OfferPlan, PaymentCurrency, PlanInterestInput, PlanInterestOverview, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
+  BankAccount, EmbedCompetition, EmbedTeamOption, EmbedUsage, LeagueOfferKind, PaymentMethod, LeaguePlanBand, LeaguePlanView, OfferPlan, PaymentCurrency, PlanInterestInput, PlanInterestOverview, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, ResultClaimsView, SeasonResultClaims, ScorerLinkState, ScorerLinkCreated, ScorerPage, ScorerGoalInput, MatchEvent, MatchEventInput, MyPlayerProfile,
   CourtScorerPage, CourtGoalInput, PartScore, TournamentScorerLinks,
@@ -373,7 +373,7 @@ export const tournamentApi = {
   getById: (id: string | number) => api.get<Tournament>(`/tournaments/${id}`),
   getPlan: (id: string) => api.get<PlanStatus>(`/tournaments/${id}/plan`),
   getOffers: (id: string) =>
-    api.get<{ offers: PlanOffer[]; currencies: PaymentCurrency[] }>(`/tournaments/${id}/plan/offers`),
+    api.get<{ offers: PlanOffer[]; currencies: PaymentCurrency[]; suggestedMethod: PaymentMethod | null }>(`/tournaments/${id}/plan/offers`),
   // immediateStart: the payer ticked that the plan starts at once (terms, section 5).
   startPayment: (id: string, plan: OfferPlan, currency: PaymentCurrency) =>
     api.post<PlanPayment>(`/tournaments/${id}/payments`, { plan, currency, immediateStart: true }),
@@ -553,6 +553,8 @@ export const adminApi = {
   createLimits: (data: { validFrom: string | null; values: { plan: string; key: string; value: number | null }[] }) =>
     api.post('/admin/pricing/limits', data),
   setOss: (enabled: boolean, reason: string) => api.put<{ enabled: boolean }>('/admin/pricing/oss', { enabled, reason }),
+  setBankAccount: (currency: PaymentCurrency, data: { iban: string; bic: string; recipient: string; reason: string }) =>
+    api.put<BankAccount>(`/admin/pricing/bank-accounts/${currency}`, data),
   setLeaguePlans: (enabled: boolean, reason: string) => api.put<{ enabled: boolean }>('/admin/pricing/league-plans', { enabled, reason }),
   setLeaguePlan: (id: string, data: { freeUntil?: string | null; grant?: { band: LeaguePlanBand; until: string }; reason?: string }) =>
     api.put<LeaguePlanView>(`/admin/leagues/${id}/plan`, data),
