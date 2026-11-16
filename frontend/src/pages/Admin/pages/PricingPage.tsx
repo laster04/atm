@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/list/ConfirmDialog';
 import PriceForm from '../components/pricing/PriceForm';
 import OssCard from '../components/pricing/OssCard';
 import LeaguePlansCard from '../components/pricing/LeaguePlansCard';
+import BankAccountsCard from '../components/pricing/BankAccountsCard';
 import LookupCard from '../components/pricing/LookupCard';
 import { countryName, formatMoney, formatRate } from '../components/pricing/money';
 import { Card, PrimaryButton, SmallButton, inputClass, labelClass, useFromDay } from '../components/pricing/shared';
@@ -179,6 +180,7 @@ export default function PricingPage() {
 							onCancel={() => setEditingProduct(null)}
 						/>
 					)}
+					<BankAccountsCard accounts={data.bankAccounts} canEdit={data.canEdit} onChanged={load} />
 					<LeaguePlansCard enabled={data.leaguePlans.enabled} canEdit={data.canEdit} onChanged={load} />
 					<OssCard oss={data.oss} canEdit={data.canEdit} onChanged={load} />
 					<LookupCard />

@@ -7,7 +7,7 @@ import { deliverTaxDocument, documentLink } from '../services/invoices/documents
 import {
   cancelPayment,
   confirmPayment,
-  paymentView,
+  paymentViews,
   PaymentError,
   type PaymentWithRelations,
 } from '../services/payments/payments.js';
@@ -80,7 +80,7 @@ export const listPayments = async (req: AuthRequest, res: Response): Promise<voi
       prisma.payment.findMany({ where, include, orderBy, skip: (params.page - 1) * params.pageSize, take: params.pageSize }),
       totalRows('payments', conditions.length > 0, () => prisma.payment.count({ where })),
     ]);
-    res.json({ rows: rows.map(paymentView), ...count, page: params.page, pageSize: params.pageSize });
+    res.json({ rows: await paymentViews(rows), ...count, page: params.page, pageSize: params.pageSize });
   } catch (error) {
     console.error('List payments error:', error);
     res.status(500).json({ error: 'Failed to list payments' });
