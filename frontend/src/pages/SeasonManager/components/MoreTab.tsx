@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, ClipboardSignature, Code2, ExternalLink, Handshake, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
+import { CalendarPlus, ClipboardSignature, Code2, ExternalLink, FileSpreadsheet, Handshake, LayoutGrid, ListOrdered, Mail, Trophy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { gameApi, registrationApi, seasonApi } from '@/services/api';
@@ -13,6 +13,7 @@ import DivisionsSheet from './DivisionsSheet';
 import PlayoffSheet from './PlayoffSheet';
 import RegistrationsSheet from './RegistrationsSheet';
 import EmbedSheet from './EmbedSheet';
+import ScheduleImportSheet from './ScheduleImportSheet';
 import { SEASON_ACCENT } from './util';
 
 const NO_TEAM_REPORTS: SportType[] = [SportType.VOLLEYBALL, SportType.TENNIS];
@@ -40,6 +41,7 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 	const [searchParams] = useSearchParams();
 	const [showRegistrations, setShowRegistrations] = useState(searchParams.get('registrations') === '1');
 	const [showEmbed, setShowEmbed] = useState(false);
+	const [showImport, setShowImport] = useState(false);
 	const [waitingApplications, setWaitingApplications] = useState(0);
 
 	useEffect(() => {
@@ -135,6 +137,19 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 						</span>
 					</span>
 				</button>
+
+				{!season.archivedAt && (
+					<button
+						onClick={() => setShowImport(true)}
+						className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left"
+					>
+						<FileSpreadsheet className="size-5 shrink-0" style={{ color: SEASON_ACCENT }} aria-hidden />
+						<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+							<span className="text-sm font-semibold">{t('seasonManagement.more.importSchedule')}</span>
+							<span className="text-xs text-muted-foreground">{t('seasonManagement.more.importScheduleHint')}</span>
+						</span>
+					</button>
+				)}
 
 				<button
 					onClick={() => setShowDivisions(true)}
@@ -290,6 +305,19 @@ export default function MoreTab({ season, games, teams, teamCount, gameCount, on
 			)}
 
 			{showEmbed && <EmbedSheet season={season} onClose={() => setShowEmbed(false)} />}
+
+			{showImport && (
+				<ScheduleImportSheet
+					season={season}
+					onClose={() => setShowImport(false)}
+					onImported={() => {
+						onTeamsReload();
+						gameApi.getBySeason(season.id)
+							.then((res) => onGamesChange(res.data))
+							.catch(() => onGamesChange([...games]));
+					}}
+				/>
+			)}
 
 			{showSummary && (
 				<ResultsEmailSheet season={season} onClose={() => setShowSummary(false)} />

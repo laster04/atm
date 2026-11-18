@@ -806,7 +806,9 @@
       "resultsEmail": "Email results",
       "resultsEmailHint": "Pick finished games and email results and the table to everyone in the season",
       "divisions": "Divisions",
-      "divisionsHint": "Split the season into groups with a table each"
+      "divisionsHint": "Split the season into groups with a table each",
+      "importSchedule": "Importuj terminarz",
+      "importScheduleHint": "Drużyny i mecze z pliku XLSX lub CSV, np. z eksportu ČVS"
     },
     "report": {
       "title": "Match report",
@@ -967,6 +969,55 @@
       "saved": "League saved",
       "deleted": "League deleted",
       "seasonsTitle": "Seasons"
+    },
+    "import": {
+      "title": "Import terminarza",
+      "intro": "Prześlij terminarz jako XLSX lub CSV, np. eksport „Program” z systemu ČVS. Najpierw zobaczysz, co się stanie; nic się nie zmieni, dopóki nie potwierdzisz importu. Gdy później prześlesz zaktualizowany terminarz, przesuną się terminy i hale już utworzonych meczów.",
+      "choose": "Wybierz plik",
+      "columns": "Kolumny: Gospodarze, Goście i opcjonalnie Data, Godzina, Kolejka, Hala",
+      "done": "Gotowe: nowe mecze: {{create}}, zmienione: {{update}}, nowe drużyny: {{teams}}.",
+      "counts": {
+        "create": "Nowe mecze",
+        "update": "Zmienione",
+        "unchanged": "Bez zmian",
+        "skip": "Pominięte"
+      },
+      "teams": "Drużyny",
+      "teamGames_one": "{{count}} mecz",
+      "teamGames_few": "{{count}} mecze",
+      "teamGames_many": "{{count}} meczów",
+      "teamGames_other": "{{count}} meczów",
+      "teamExisting": "W sezonie",
+      "teamNew": "Nowa",
+      "games": "Mecze",
+      "line": "wiersz {{line}}",
+      "actions": {
+        "CREATE": "Nowy",
+        "UPDATE": "Zmiana",
+        "UNCHANGED": "Bez zmian",
+        "SKIP": "Pominięty"
+      },
+      "problems": {
+        "NO_TEAMS": "Brak drużyny",
+        "SAME_TEAM": "Ta sama drużyna po obu stronach",
+        "BAD_DATE": "Nieczytelna data",
+        "DUPLICATE": "Dwa razy w pliku",
+        "PLAYED": "Już rozegrany, bez zmian"
+      },
+      "confirmHint": "Import utworzy nowe drużyny i mecze oraz zaktualizuje przesunięte terminy. Rozegrane mecze pozostaną bez zmian.",
+      "nothing": "Plik nie wnosi nic nowego.",
+      "run": "Importuj",
+      "errors": {
+        "read": "Nie udało się odczytać pliku.",
+        "run": "Import się nie udał. Nic się nie zmieniło.",
+        "MISSING_COLUMNS": "W pliku brakuje kolumn Gospodarze i Goście.",
+        "FILE_MISSING": "Wybierz plik.",
+        "FILE_TOO_LARGE": "Plik jest większy niż 1 MB.",
+        "NOT_A_SPREADSHEET": "To nie jest plik XLSX ani CSV.",
+        "TOO_LARGE": "Plik jest za duży.",
+        "EMPTY": "Plik jest pusty.",
+        "ARCHIVED": "Do zarchiwizowanego sezonu nie można nic importować."
+      }
     }
   },
   "admin": {

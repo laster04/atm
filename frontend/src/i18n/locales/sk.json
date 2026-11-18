@@ -841,7 +841,9 @@
       "resultsEmailHint": "Vyberte odohraté zápasy a pošlite výsledky a tabuľku všetkým v sezóne",
       "divisions": "Skupiny",
       "divisionsHint": "Rozdelí sezónu do skupín, každú s vlastnou tabuľkou",
-      "playoffHint": "Pavúk pre najlepšie tímy tabuľky"
+      "playoffHint": "Pavúk pre najlepšie tímy tabuľky",
+      "importSchedule": "Importovať rozpis",
+      "importScheduleHint": "Tímy a zápasy zo súboru XLSX alebo CSV, napríklad z exportu ČVS"
     },
     "report": {
       "title": "Zápis o stretnutí",
@@ -1061,6 +1063,54 @@
       "saved": "Liga uložená",
       "deleted": "Liga vymazaná",
       "seasonsTitle": "Sezóny"
+    },
+    "import": {
+      "title": "Import rozpisu",
+      "intro": "Nahrajte rozpis ako XLSX alebo CSV, napríklad export „Program“ zo systému ČVS. Najprv uvidíte, čo sa stane; nič sa nezmení, kým import nepotvrdíte. Keď neskôr nahráte aktualizovaný rozpis, presunú sa termíny a haly už založených zápasov.",
+      "choose": "Vybrať súbor",
+      "columns": "Stĺpce: Domáci, Hostia a prípadne Dátum, Čas, Kolo, Hala",
+      "done": "Hotovo: {{create}} nových zápasov, {{update}} upravených, {{teams}} nových tímov.",
+      "counts": {
+        "create": "Nové zápasy",
+        "update": "Zmenené",
+        "unchanged": "Bez zmeny",
+        "skip": "Preskočené"
+      },
+      "teams": "Tímy",
+      "teamGames_one": "{{count}} zápas",
+      "teamGames_few": "{{count}} zápasy",
+      "teamGames_other": "{{count}} zápasov",
+      "teamExisting": "V sezóne",
+      "teamNew": "Nový",
+      "games": "Zápasy",
+      "line": "r. {{line}}",
+      "actions": {
+        "CREATE": "Nový",
+        "UPDATE": "Zmena",
+        "UNCHANGED": "Bez zmeny",
+        "SKIP": "Preskočený"
+      },
+      "problems": {
+        "NO_TEAMS": "Chýba tím",
+        "SAME_TEAM": "Rovnaký tím na oboch stranách",
+        "BAD_DATE": "Nečitateľný dátum",
+        "DUPLICATE": "Dvakrát v súbore",
+        "PLAYED": "Už odohrané, bez zmeny"
+      },
+      "confirmHint": "Import založí nové tímy a zápasy a upraví zmenené termíny. Odohrané zápasy zostanú, ako sú.",
+      "nothing": "Súbor neprináša nič nové.",
+      "run": "Importovať",
+      "errors": {
+        "read": "Súbor sa nepodarilo prečítať.",
+        "run": "Import sa nepodaril. Nič sa nezmenilo.",
+        "MISSING_COLUMNS": "V súbore chýbajú stĺpce Domáci a Hostia.",
+        "FILE_MISSING": "Vyberte súbor.",
+        "FILE_TOO_LARGE": "Súbor je väčší ako 1 MB.",
+        "NOT_A_SPREADSHEET": "Toto nie je súbor XLSX ani CSV.",
+        "TOO_LARGE": "Súbor je príliš veľký.",
+        "EMPTY": "Súbor je prázdny.",
+        "ARCHIVED": "Do archivovanej sezóny nie je možné nič importovať."
+      }
     }
   },
   "admin": {

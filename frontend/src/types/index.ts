@@ -1563,3 +1563,22 @@ export interface TournamentGameDetail {
   documents: TournamentDocumentRef[];
   branding: Branding;
 }
+
+/** What importing a fixture list would do (POST /seasons/:id/schedule-import/preview). */
+export interface ScheduleImportPlan {
+  teams: { name: string; existing: boolean; games: number }[];
+  fixtures: {
+    line: number;
+    round: number | null;
+    date: string | null;
+    location: string | null;
+    home: string;
+    away: string;
+    group: string | null;
+    problem: 'NO_TEAMS' | 'SAME_TEAM' | 'BAD_DATE' | 'DUPLICATE' | 'PLAYED' | null;
+    action: 'CREATE' | 'UPDATE' | 'UNCHANGED' | 'SKIP';
+    changes: ('date' | 'location')[];
+    gameId: string | null;
+  }[];
+  counts: { create: number; update: number; unchanged: number; skip: number; newTeams: number };
+}

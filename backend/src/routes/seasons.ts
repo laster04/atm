@@ -33,6 +33,7 @@ import {
   getStandingsByGroup
 } from '../controllers/seasonGroupController.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { parseScheduleUpload, previewScheduleImport, runScheduleImport } from '../controllers/scheduleImportController.js';
 import { requireSeasonAccess, requireVisible } from '../middleware/access.js';
 import { createSeasonPlayoff, deleteSeasonPlayoff, getSeasonPlayoff } from '../controllers/seasonPlayoffController.js';
 
@@ -54,6 +55,9 @@ router.get('/:id/copyable-teams', authenticate, getCopyableTeams);
 router.post('/', authenticate, createSeason);
 router.post('/:id/archive', authenticate, requireSeasonAccess(), archiveSeason);
 router.post('/:id/copy-teams', authenticate, requireSeasonAccess(), copyTeamsToSeason);
+// A fixture list from an XLSX or CSV file (the ČVS "Program" export): preview, then import.
+router.post('/:id/schedule-import/preview', authenticate, requireSeasonAccess(), parseScheduleUpload, previewScheduleImport);
+router.post('/:id/schedule-import', authenticate, requireSeasonAccess(), parseScheduleUpload, runScheduleImport);
 router.put('/:id', authenticate, requireSeasonAccess(), updateSeason);
 router.post('/:id/playoff', authenticate, requireSeasonAccess(), createSeasonPlayoff);
 router.delete('/:id/playoff', authenticate, requireSeasonAccess(), deleteSeasonPlayoff);
