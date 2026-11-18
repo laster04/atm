@@ -18,6 +18,8 @@ interface GameScheduleProps {
 	games: Game[];
 	/** How the part scores read: periods in brackets, or volleyball sets. */
 	sport?: SportType;
+	/** Rows stacked, for a panel half the page wide. */
+	compact?: boolean;
 }
 
 /**
@@ -25,14 +27,17 @@ interface GameScheduleProps {
  * the pairing in the middle, status on the right — the same anatomy the public
  * match list uses, so a schedule reads the same wherever it appears.
  */
-export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport }: GameScheduleProps) {
+export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport, compact = false }: GameScheduleProps) {
 	const profile = profileFor(sport);
 	const { t, i18n } = useTranslation();
 
+	// By date, whatever order the games came in: an imported season lists them
+	// by round, and rounds are often played out of order.
+	const time = (game: Game) => (game.date ? new Date(game.date).getTime() : Infinity);
 	const filtered =
-		filter === FilterTimeEnum.TODAY ? games.filter((game) => isToday(game.date))
-		: filter === FilterTimeEnum.UPCOMING ? games.filter((game) => isAfterToday(game.date))
-		: games.filter((game) => isBeforeToday(game.date)).reverse();
+		filter === FilterTimeEnum.TODAY ? games.filter((game) => isToday(game.date)).sort((a, b) => time(a) - time(b))
+		: filter === FilterTimeEnum.UPCOMING ? games.filter((game) => isAfterToday(game.date)).sort((a, b) => time(a) - time(b))
+		: games.filter((game) => isBeforeToday(game.date)).sort((a, b) => time(b) - time(a));
 
 	if (filtered.length === 0) {
 		return (
@@ -49,10 +54,13 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport }: G
 				const parts = formatParts(game.periodScores, profile);
 
 				const href = gamePage(game);
-				const rowClass = 'flex flex-col gap-3 border-b border-border-subtle px-5 py-4 last:border-0 sm:flex-row sm:items-center sm:gap-5';
+				// In a half-width panel the one-line layout has no room: stack it.
+				const rowClass = compact
+					? 'flex flex-col gap-3 border-b border-border-subtle px-5 py-4 last:border-0'
+					: 'flex flex-col gap-3 border-b border-border-subtle px-5 py-4 last:border-0 sm:flex-row sm:items-center sm:gap-5';
 				const content = (
 					<>
-						<div className="flex items-center gap-3 sm:w-40 sm:shrink-0">
+						<div className={`flex items-center gap-3 ${compact ? '' : 'sm:w-40 sm:shrink-0'}`}>
 							<span className="flex items-center gap-1.5 text-[13px] font-bold">
 								<CalendarDays className="size-3.5 text-muted-foreground" />
 								{game.date ? formatDateShort(game.date, i18n.language) : t('public.games.noTime')}
@@ -92,7 +100,7 @@ export function GameSchedule({ filter = FilterTimeEnum.RECENT, games, sport }: G
 							</div>
 						</div>
 
-						<div className="flex items-center gap-3 sm:w-44 sm:shrink-0 sm:justify-end">
+						<div className={`flex items-center gap-3 ${compact ? '' : 'sm:w-44 sm:shrink-0 sm:justify-end'}`}>
 							{game.playoffSeries && (
 								<span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-subtle-foreground">
 									{t('playoff.gameLabel', { round: t(`playoff.rounds.${game.playoffSeries.round}`) })}
