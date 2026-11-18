@@ -60,7 +60,7 @@ export const runScheduleImport = async (req: AuthRequest, res: Response): Promis
     if (!result) return;
     const { season, plan } = result;
     await prisma.$transaction(async (tx) => {
-      await applyImport(tx, season.id, plan);
+      await applyImport(tx, season.id, plan, req.user!.id);
       await recordAudit({
         entityType: 'Season',
         entityId: season.id,

@@ -112,7 +112,7 @@ export default function ScheduleImportSheet({ season, onClose, onImported }: Sch
 
 					{done && (
 						<p className="rounded-lg bg-green-50 px-3 py-2 text-sm font-semibold text-green-900">
-							{t('seasonManagement.import.done', { create: done.create, update: done.update, teams: done.newTeams })}
+							{t('seasonManagement.import.done', { create: done.create, update: done.update, teams: done.newTeams, results: done.results })}
 						</p>
 					)}
 
@@ -149,7 +149,19 @@ export default function ScheduleImportSheet({ season, onClose, onImported }: Sch
 										<li key={fixture.line} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-sm">
 											<span className="w-10 shrink-0 text-xs tabular-nums text-muted-foreground">{t('seasonManagement.import.line', { line: fixture.line })}</span>
 											<span className="w-12 shrink-0 text-xs text-muted-foreground">{fixture.round ? t('seasonManagement.games.roundShort', { n: fixture.round }) : ''}</span>
-											<span className="min-w-0 flex-1 font-semibold">{fixture.home} – {fixture.away}</span>
+											<span className="min-w-0 flex-1 font-semibold">
+												{fixture.home} – {fixture.away}
+												{fixture.result && (
+													<span className="ml-2 tabular-nums">
+														{fixture.result.home}:{fixture.result.away}
+														{fixture.result.parts && (
+															<span className="ml-1 text-xs font-normal text-muted-foreground">
+																({fixture.result.parts.map((part) => `${part.home}:${part.away}`).join(', ')})
+															</span>
+														)}
+													</span>
+												)}
+											</span>
 											<span className="text-xs tabular-nums text-muted-foreground">
 												{fixture.date ? formatGameDateTime(fixture.date, i18n.language) : t('seasonManagement.games.noDate')}
 												{fixture.location ? ` · ${fixture.location}` : ''}

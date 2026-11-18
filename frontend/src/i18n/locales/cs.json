@@ -1066,10 +1066,10 @@
     },
     "import": {
       "title": "Import rozpisu",
-      "intro": "Nahrajte rozpis jako XLSX nebo CSV, třeba export „Program“ ze systému ČVS. Nejdřív uvidíte, co se stane; nic se nezmění, dokud import nepotvrdíte. Když později nahrajete aktualizovaný rozpis, přesunou se termíny a haly už založených zápasů.",
+      "intro": "Nahrajte rozpis nebo výsledky jako XLSX nebo CSV, třeba export „Program“ nebo „Výsledky“ ze systému ČVS. Nejdřív uvidíte, co se stane; nic se nezmění, dokud import nepotvrdíte. Zápasy s výsledkem se zapíšou jako odehrané a potvrzené. Když později nahrajete aktualizovaný rozpis, přesunou se termíny a haly už založených zápasů.",
       "choose": "Vybrat soubor",
-      "columns": "Sloupce: Domácí, Hosté a případně Datum, Čas, Kolo, Hala",
-      "done": "Hotovo: {{create}} nových zápasů, {{update}} upravených, {{teams}} nových týmů.",
+      "columns": "Sloupce: Domácí, Hosté a případně Datum, Čas, Kolo, Hala, Výsledek",
+      "done": "Hotovo: {{create}} nových zápasů, {{update}} upravených, {{results}} výsledků, {{teams}} nových týmů.",
       "counts": {
         "create": "Nové zápasy",
         "update": "Změněné",
@@ -1095,9 +1095,10 @@
         "SAME_TEAM": "Stejný tým na obou stranách",
         "BAD_DATE": "Nečitelné datum",
         "DUPLICATE": "Dvakrát v souboru",
-        "PLAYED": "Už odehráno, beze změny"
+        "PLAYED": "Odehráno s jiným výsledkem",
+        "BAD_RESULT": "Nečitelný výsledek"
       },
-      "confirmHint": "Import založí nové týmy a zápasy a upraví změněné termíny. Odehrané zápasy zůstanou, jak jsou.",
+      "confirmHint": "Import založí nové týmy a zápasy, upraví změněné termíny a zapíše a potvrdí výsledky. Odehrané zápasy zůstanou, jak jsou.",
       "nothing": "Soubor nepřináší nic nového.",
       "run": "Importovat",
       "errors": {
