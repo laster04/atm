@@ -26,6 +26,8 @@ export function StatsOverview({ seasonId, standings, games, archived, archivedGa
 	const [loadingScorers, setLoadingScorers] = useState(true);
 
 	useEffect(() => {
+		// No player numbers in this sport, so nothing to ask for.
+		if (profileFor(sport).stats.length === 0) { setLoadingScorers(false); return; }
 		setLoadingScorers(true);
 		const request = archived
 			? gameStatisticApi.getArchivedPlayerStats(seasonId).then((res) => res.data.slice(0, 5).map(mapArchivedPlayerStat))
@@ -34,8 +36,12 @@ export function StatsOverview({ seasonId, standings, games, archived, archivedGa
 			.then((data) => setTopScorers(data))
 			.catch((error) => console.error('Failed to fetch top scorers:', error))
 			.finally(() => setLoadingScorers(false));
-	}, [seasonId, archived]);
+	}, [seasonId, archived, sport]);
 
+	const profile = profileFor(sport);
+	// Volleyball scores in sets and keeps no player numbers: no goals, no scorers.
+	const sets = profile.scoreIsPartsWon;
+	const playerNumbers = profile.stats.length > 0;
 	const leader = standings[0];
 	const completed = games.filter((game) => game.status === GameStatus.COMPLETED);
 	// An archived season has no games left; it kept their count and goals.
@@ -68,13 +74,13 @@ export function StatsOverview({ seasonId, standings, games, archived, archivedGa
 					icon={<Trophy className="size-4.5 text-brand" />}
 				/>
 				<StatTile
-					label={t('seasonDetail.overview.scoredTotal')}
+					label={sets ? t('seasonDetail.overview.setsTotal') : t('seasonDetail.overview.scoredTotal')}
 					value={archived ? goals : standings.reduce((sum, row) => sum + row.goalsFor, 0)}
 					caption={t('seasonDetail.overview.leagueWide')}
 					icon={<Target className="size-4.5" />}
 				/>
 				<StatTile
-					label={t('seasonDetail.overview.avgGoalsPerGame')}
+					label={sets ? t('seasonDetail.overview.avgSetsPerGame') : t('seasonDetail.overview.avgGoalsPerGame')}
 					value={playedCount ? (goals / playedCount).toFixed(1) : '0.0'}
 					caption={t('seasonDetail.overview.thisSeason')}
 					icon={<TrendingUp className="size-4.5 text-success" />}
@@ -88,13 +94,19 @@ export function StatsOverview({ seasonId, standings, games, archived, archivedGa
 						<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} sport={sport} />
 					</Panel>
 				)}
-				<Panel
-					flush
-					title={t('seasonDetail.overview.topScorers')}
-					description={t('seasonDetail.overview.leagueLeadersDescription')}
-				>
-					<TopScorers topScorers={topScorers} loading={loadingScorers} rankLabelKey={rankColumn(profileFor(sport)).labelKey} />
-				</Panel>
+				{playerNumbers ? (
+					<Panel
+						flush
+						title={t('seasonDetail.overview.topScorers')}
+						description={t('seasonDetail.overview.leagueLeadersDescription')}
+					>
+						<TopScorers topScorers={topScorers} loading={loadingScorers} rankLabelKey={rankColumn(profile).labelKey} />
+					</Panel>
+				) : !archived && (
+					<Panel flush title={t('seasonDetail.overview.recentResults')}>
+						<GameSchedule filter={FilterTimeEnum.RECENT} games={games} sport={sport} />
+					</Panel>
+				)}
 			</div>
 		</div>
 	);
