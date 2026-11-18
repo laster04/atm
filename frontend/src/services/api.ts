@@ -2,6 +2,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import { serverLocale } from '@/i18n/languages';
 import type {
+  ScheduleImportPlan,
   EmbedCompetition, EmbedTeamOption, EmbedUsage, OfferPlan, PaymentCurrency, PlanInterestInput, PlanInterestOverview, PlanOffer, PublicPlanPrice, PlanPayment, PlanStatus, TeamAllowance, TournamentPlan,
   User, League, Season, Team, Player, Game, Standing, PlayerGameStatistic, TopScorer,
   ArchivedStanding, ArchivedPlayerStat, AuditEntry, ResultClaimsView, SeasonResultClaims, ScorerLinkState, ScorerLinkCreated, ScorerPage, ScorerGoalInput, MatchEvent, MatchEventInput, MyPlayerProfile,
@@ -126,6 +127,17 @@ export const seasonApi = {
   getById: (id: string | number) => api.get<Season>(`/seasons/${id}`),
   create: (data: Partial<Season>) => api.post<Season>('/seasons', data),
   update: (id: string | number, data: Partial<Season>) => api.put<Season>(`/seasons/${id}`, data),
+  // A fixture list from an XLSX or CSV file: what it would do, then doing it.
+  previewScheduleImport: (id: string, file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return api.post<ScheduleImportPlan>(`/seasons/${id}/schedule-import/preview`, body, { headers: { 'Content-Type': undefined } });
+  },
+  runScheduleImport: (id: string, file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return api.post<ScheduleImportPlan['counts']>(`/seasons/${id}/schedule-import`, body, { headers: { 'Content-Type': undefined } });
+  },
   delete: (id: string | number) => api.delete(`/seasons/${id}`),
   archive: (id: string | number) => api.post<{ message: string; season: Season }>(`/seasons/${id}/archive`),
   getStandings: (id: string | number) => api.get<Standing[]>(`/seasons/${id}/standings`),

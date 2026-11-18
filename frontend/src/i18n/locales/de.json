@@ -804,7 +804,9 @@
       "resultsEmail": "Email results",
       "resultsEmailHint": "Pick finished games and email results and the table to everyone in the season",
       "divisions": "Divisions",
-      "divisionsHint": "Split the season into groups with a table each"
+      "divisionsHint": "Split the season into groups with a table each",
+      "importSchedule": "Import fixture list",
+      "importScheduleHint": "Teams and games from an XLSX or CSV file, such as the ČVS export"
     },
     "report": {
       "title": "Match report",
@@ -963,6 +965,53 @@
       "saved": "League saved",
       "deleted": "League deleted",
       "seasonsTitle": "Seasons"
+    },
+    "import": {
+      "title": "Import fixture list",
+      "intro": "Upload the fixture list as XLSX or CSV, for example the “Program” export from the ČVS system. You see what will happen first; nothing changes until you confirm. Uploading an updated list later moves the dates and venues of games already created.",
+      "choose": "Choose a file",
+      "columns": "Columns: Home, Away, and optionally Date, Time, Round, Venue",
+      "done": "Done: {{create}} new games, {{update}} changed, {{teams}} new teams.",
+      "counts": {
+        "create": "New games",
+        "update": "Changed",
+        "unchanged": "Unchanged",
+        "skip": "Skipped"
+      },
+      "teams": "Teams",
+      "teamGames_one": "{{count}} game",
+      "teamGames_other": "{{count}} games",
+      "teamExisting": "In the season",
+      "teamNew": "New",
+      "games": "Games",
+      "line": "row {{line}}",
+      "actions": {
+        "CREATE": "New",
+        "UPDATE": "Change",
+        "UNCHANGED": "Unchanged",
+        "SKIP": "Skipped"
+      },
+      "problems": {
+        "NO_TEAMS": "Team missing",
+        "SAME_TEAM": "Same team on both sides",
+        "BAD_DATE": "Unreadable date",
+        "DUPLICATE": "Twice in the file",
+        "PLAYED": "Already played, left as is"
+      },
+      "confirmHint": "The import creates new teams and games and updates moved dates. Played games stay as they are.",
+      "nothing": "The file brings nothing new.",
+      "run": "Import",
+      "errors": {
+        "read": "The file could not be read.",
+        "run": "The import failed. Nothing changed.",
+        "MISSING_COLUMNS": "The file lacks the Home and Away columns.",
+        "FILE_MISSING": "Choose a file.",
+        "FILE_TOO_LARGE": "The file is larger than 1 MB.",
+        "NOT_A_SPREADSHEET": "This is not an XLSX or CSV file.",
+        "TOO_LARGE": "The file is too large.",
+        "EMPTY": "The file is empty.",
+        "ARCHIVED": "Nothing can be imported into an archived season."
+      }
     }
   },
   "admin": {
