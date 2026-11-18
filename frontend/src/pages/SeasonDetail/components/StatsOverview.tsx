@@ -88,10 +88,10 @@ export function StatsOverview({ seasonId, standings, games, archived, archivedGa
 			</div>
 
 			{/* A finished season has nothing coming up, so its scorers take the row. */}
-			<div className={archived ? 'grid gap-5' : 'grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'}>
+			<div className={archived ? 'grid gap-5' : playerNumbers ? 'grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]' : 'grid gap-5 lg:grid-cols-2'}>
 				{!archived && (
 					<Panel flush title={t('seasonDetail.overview.upcomingGames')}>
-						<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} sport={sport} />
+						<GameSchedule filter={FilterTimeEnum.UPCOMING} games={games} sport={sport} compact={!playerNumbers} />
 					</Panel>
 				)}
 				{playerNumbers ? (
@@ -104,7 +104,7 @@ export function StatsOverview({ seasonId, standings, games, archived, archivedGa
 					</Panel>
 				) : !archived && (
 					<Panel flush title={t('seasonDetail.overview.recentResults')}>
-						<GameSchedule filter={FilterTimeEnum.RECENT} games={games} sport={sport} />
+						<GameSchedule filter={FilterTimeEnum.RECENT} games={games} sport={sport} compact />
 					</Panel>
 				)}
 			</div>

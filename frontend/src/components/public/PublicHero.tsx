@@ -42,16 +42,18 @@ export default function PublicHero({
 		<section
 			className={`relative overflow-hidden bg-navy ${size === 'tall' ? 'min-h-[380px]' : 'min-h-[240px]'}`}
 		>
-			<picture>
-				<source media="(max-width: 640px)" srcSet={image.srcSmall} />
-				<img
-					src={image.src}
-					alt=""
-					aria-hidden
-					className="absolute inset-0 size-full object-cover"
-					style={{ objectPosition: '55% 55%' }}
-				/>
-			</picture>
+			{image && (
+				<picture>
+					<source media="(max-width: 640px)" srcSet={image.srcSmall} />
+					<img
+						src={image.src}
+						alt=""
+						aria-hidden
+						className="absolute inset-0 size-full object-cover"
+						style={{ objectPosition: '55% 55%' }}
+					/>
+				</picture>
+			)}
 			{/* Dark on the left where the words are, clear on the right where the
 			    photograph's subject is. */}
 			<div
