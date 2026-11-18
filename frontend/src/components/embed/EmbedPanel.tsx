@@ -4,6 +4,7 @@ import { Check, Copy } from 'lucide-react';
 import { embedApi } from '@/services/api';
 import type { EmbedCompetition, EmbedTeamOption } from '@types';
 import type { EmbedLang } from '@/embed/Widget';
+import { CUSTOM_CSS_MAX, sanitizeCustomCss } from '@/embed/customCss';
 
 interface EmbedPanelProps {
 	kind: 'season' | 'tournament';
@@ -15,6 +16,11 @@ interface EmbedPanelProps {
 }
 
 type View = 'standings' | 'games';
+
+/** Code, not text: shown as the custom CSS field's example in every language. */
+const CSS_EXAMPLE = `@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;800&display=swap");
+:root { --font: 'Archivo', sans-serif; --bg: transparent; --size: 15px; }
+.w h1 { display: none; }`;
 
 /**
  * "Vložit na web": the manager picks a widget and its look, sees it live, and
@@ -37,6 +43,9 @@ export default function EmbedPanel({ kind, id, accent, fixedTeam }: EmbedPanelPr
 	const [lang, setLang] = useState<EmbedLang>(i18n.language.startsWith('en') ? 'en' : i18n.language.startsWith('sk') ? 'sk' : 'cs');
 	const [logos, setLogos] = useState(true);
 	const [hideBrand, setHideBrand] = useState(false);
+	const [css, setCss] = useState('');
+	// The preview reloads on every change of the address, so typing settles first.
+	const [appliedCss, setAppliedCss] = useState('');
 	const [copied, setCopied] = useState(false);
 	const [height, setHeight] = useState(360);
 	const preview = useRef<HTMLIFrameElement>(null);
@@ -62,6 +71,12 @@ export default function EmbedPanel({ kind, id, accent, fixedTeam }: EmbedPanelPr
 		return () => window.removeEventListener('message', onMessage);
 	}, []);
 
+	useEffect(() => {
+		const timer = setTimeout(() => setAppliedCss(css.trim()), 600);
+		return () => clearTimeout(timer);
+	}, [css]);
+	const cssRejected = appliedCss !== '' && !sanitizeCustomCss(appliedCss);
+
 	const src = useMemo(() => {
 		const query = new URLSearchParams();
 		if (team) query.set('team', team);
@@ -73,9 +88,10 @@ export default function EmbedPanel({ kind, id, accent, fixedTeam }: EmbedPanelPr
 		if (lang !== 'cs') query.set('lang', lang);
 		if (!logos) query.set('logos', '0');
 		if (hideBrand && competition?.canHideBrand) query.set('brand', '0');
+		if (appliedCss && sanitizeCustomCss(appliedCss)) query.set('css', appliedCss);
 		const search = query.toString();
 		return `${window.location.origin}/embed/${kind}/${id}/${view}${search ? `?${search}` : ''}`;
-	}, [kind, id, view, team, group, rows, results, theme, color, lang, logos, hideBrand, competition]);
+	}, [kind, id, view, team, group, rows, results, theme, color, lang, logos, hideBrand, appliedCss, competition]);
 
 	const title = competition
 		? `${t(`embedPanel.views.${view}`)} – ${competition.name}`
@@ -192,6 +208,29 @@ export default function EmbedPanel({ kind, id, accent, fixedTeam }: EmbedPanelPr
 						{t('embedPanel.hideBrand')}
 					</label>
 					{!competition?.canHideBrand && <p className="-mt-2 text-xs text-muted-foreground">{t('embedPanel.hideBrandPaid')}</p>}
+
+					<details className="rounded-lg border border-border bg-card">
+						<summary className="cursor-pointer px-3 py-2.5 text-sm font-semibold">{t('embedPanel.css.title')}</summary>
+						<div className="flex flex-col gap-2 border-t border-border p-3">
+							<p className="text-xs text-muted-foreground">{t('embedPanel.css.hint')}</p>
+							<textarea
+								aria-label={t('embedPanel.css.title')}
+								value={css}
+								maxLength={CUSTOM_CSS_MAX}
+								rows={7}
+								spellCheck={false}
+								placeholder={CSS_EXAMPLE}
+								onChange={(e) => setCss(e.target.value)}
+								className="w-full rounded-lg border border-border bg-background p-2 font-mono text-xs"
+							/>
+							<div className="flex items-start justify-between gap-3 text-xs">
+								{cssRejected
+									? <p role="alert" className="text-destructive">{t('embedPanel.css.rejected')}</p>
+									: <a href="/docs/vlozeni-na-web#vlastni-css" target="_blank" rel="noopener" className="font-semibold underline underline-offset-2">{t('embedPanel.css.help')}</a>}
+								<span className="shrink-0 tabular-nums text-muted-foreground">{t('embedPanel.css.count', { count: css.length, max: CUSTOM_CSS_MAX })}</span>
+							</div>
+						</div>
+					</details>
 				</div>
 
 				<div className="flex min-w-0 flex-col gap-3">

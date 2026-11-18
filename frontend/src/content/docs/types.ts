@@ -3,6 +3,7 @@
  *
  * Inline text may carry two markers:
  * - `**bold**` for emphasis;
+ * - `` `code` `` for CSS, addresses and other text typed as is;
  * - `{ui:some.i18n.key}` for the name of a control, rendered bold from the
  *   locale files, so an article can never drift from what the button says.
  */

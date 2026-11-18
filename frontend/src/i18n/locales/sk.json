@@ -3506,6 +3506,13 @@
     "logos": "Logá tímov",
     "hideBrand": "Skryť odkaz „Výsledky z ATM“",
     "hideBrandPaid": "Len v plánoch Turnaj Plus a Organizátor.",
+    "css": {
+      "title": "Vlastné CSS (pre pokročilých)",
+      "hint": "Upravte vzhľad podľa svojho webu: písmo, veľkosť, farby alebo priehľadné pozadie. Písma možno načítať z Google Fonts, iné adresy widget nepovolí.",
+      "rejected": "CSS obsahuje adresu mimo Google Fonts alebo nepovolený zápis, widget ho nepoužije.",
+      "help": "Premenné a triedy widgetu",
+      "count": "{{count}} / {{max}}"
+    },
     "preview": "Náhľad",
     "code": "Kód na vloženie",
     "copy": "Kopírovať kód",

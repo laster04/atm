@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import Widget, { type WidgetOptions } from './Widget';
+import { applyCustomCss } from './customCss';
 import './embed.css';
 
 /**
@@ -41,6 +42,7 @@ root.lang = options?.lang ?? 'cs';
 root.dataset.theme = query.get('theme') === 'dark' ? 'dark' : 'light';
 const accent = hex(query.get('accent'));
 if (accent) root.style.setProperty('--accent', accent);
+applyCustomCss(query.get('css'));
 
 // The host page's optional embed.js sizes the iframe to the content.
 const reportHeight = () => {
