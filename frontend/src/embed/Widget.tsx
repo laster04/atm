@@ -99,7 +99,8 @@ export default function Widget({ options }: { options: WidgetOptions | null }) {
 		<div className="w">
 			<h1>
 				{competition.name}
-				<small>{competition.parentName}</small>
+				{/* A season often carries its league's name; one line is enough then. */}
+				{competition.parentName !== competition.name && <small>{competition.parentName}</small>}
 			</h1>
 			{options.view === 'standings'
 				? <Standings data={data} options={options} t={t} />
