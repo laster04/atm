@@ -1575,10 +1575,12 @@ export interface ScheduleImportPlan {
     home: string;
     away: string;
     group: string | null;
-    problem: 'NO_TEAMS' | 'SAME_TEAM' | 'BAD_DATE' | 'DUPLICATE' | 'PLAYED' | null;
+    /** A played game's result from the file; parts are volleyball sets. */
+    result: { home: number; away: number; parts: { home: number; away: number }[] | null } | null;
+    problem: 'NO_TEAMS' | 'SAME_TEAM' | 'BAD_DATE' | 'DUPLICATE' | 'BAD_RESULT' | 'PLAYED' | null;
     action: 'CREATE' | 'UPDATE' | 'UNCHANGED' | 'SKIP';
-    changes: ('date' | 'location')[];
+    changes: ('date' | 'location' | 'result')[];
     gameId: string | null;
   }[];
-  counts: { create: number; update: number; unchanged: number; skip: number; newTeams: number };
+  counts: { create: number; update: number; unchanged: number; skip: number; newTeams: number; results: number };
 }

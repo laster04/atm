@@ -968,10 +968,10 @@
     },
     "import": {
       "title": "Import fixture list",
-      "intro": "Upload the fixture list as XLSX or CSV, for example the “Program” export from the ČVS system. You see what will happen first; nothing changes until you confirm. Uploading an updated list later moves the dates and venues of games already created.",
+      "intro": "Upload the fixture list or results as XLSX or CSV, for example the “Program” or “Výsledky” export from the ČVS system. You see what will happen first; nothing changes until you confirm. Games with a result are saved as played and confirmed. Uploading an updated list later moves the dates and venues of games already created.",
       "choose": "Choose a file",
-      "columns": "Columns: Home, Away, and optionally Date, Time, Round, Venue",
-      "done": "Done: {{create}} new games, {{update}} changed, {{teams}} new teams.",
+      "columns": "Columns: Home, Away, and optionally Date, Time, Round, Venue, Result",
+      "done": "Done: {{create}} new games, {{update}} changed, {{results}} results, {{teams}} new teams.",
       "counts": {
         "create": "New games",
         "update": "Changed",
@@ -996,9 +996,10 @@
         "SAME_TEAM": "Same team on both sides",
         "BAD_DATE": "Unreadable date",
         "DUPLICATE": "Twice in the file",
-        "PLAYED": "Already played, left as is"
+        "PLAYED": "Played with another result",
+        "BAD_RESULT": "Unreadable result"
       },
-      "confirmHint": "The import creates new teams and games and updates moved dates. Played games stay as they are.",
+      "confirmHint": "The import creates new teams and games, updates moved dates, and saves and confirms results. Played games stay as they are.",
       "nothing": "The file brings nothing new.",
       "run": "Import",
       "errors": {

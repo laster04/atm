@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import app from '../app.js';
 import prisma from '../config/database.js';
 import { readSpreadsheet } from '../services/imports/spreadsheet.js';
-import { parseFixtures } from '../services/imports/scheduleImport.js';
+import { parseFixtures, parseResult } from '../services/imports/scheduleImport.js';
 
 const stamp = Date.now();
 const auth = (value: string) => ({ Authorization: `Bearer ${value}` });
@@ -114,6 +114,22 @@ describe('reading the file', () => {
     expect(fixtures[0]).toMatchObject({ home: 'Žďár', away: 'Třebín' });
   });
 
+  it('reads ČVS results: sets by the loser\'s points from the home side', () => {
+    expect(parseResult('3:0 (10,19,14)')).toEqual({ home: 3, away: 0, parts: [{ home: 25, away: 10 }, { home: 25, away: 19 }, { home: 25, away: 14 }] });
+    expect(parseResult('1:3 (-19,14,-19,-22)')).toMatchObject({ parts: [{ home: 19, away: 25 }, { home: 25, away: 14 }, { home: 19, away: 25 }, { home: 22, away: 25 }] });
+    // Deuce: 28 means 30:28; the fifth set goes to 15, and past it after deuce.
+    expect(parseResult('3:1 (20,28,-19,24)')).toMatchObject({ parts: [{ home: 25, away: 20 }, { home: 30, away: 28 }, { home: 19, away: 25 }, { home: 26, away: 24 }] });
+    expect(parseResult('2:3 (15,-16,-13,23,-12)')).toMatchObject({ parts: [{ home: 25, away: 15 }, { home: 16, away: 25 }, { home: 13, away: 25 }, { home: 25, away: 23 }, { home: 12, away: 15 }] });
+    expect(parseResult('3:2 (-25,-17,24,14,8)')).toMatchObject({ parts: [{ home: 25, away: 27 }, { home: 17, away: 25 }, { home: 26, away: 24 }, { home: 25, away: 14 }, { home: 15, away: 8 }] });
+    expect(parseResult('2:1 (10,-20,13)')).toMatchObject({ parts: [{ home: 25, away: 10 }, { home: 20, away: 25 }, { home: 15, away: 13 }] });
+    expect(parseResult('4:2')).toEqual({ home: 4, away: 2, parts: null });
+    expect(parseResult('')).toBeNull();
+    // Sets that do not add up to the score, or are missing.
+    expect(parseResult('3:0 (10,-19,14)')).toBe('bad');
+    expect(parseResult('3:0 (10,19)')).toBe('bad');
+    expect(parseResult('vyhráli')).toBe('bad');
+  });
+
   it('refuses a file without home and away columns', () => {
     expect(() => parseFixtures(readSpreadsheet(Buffer.from('Datum;Tým\n1.1.2027;A', 'utf8')))).toThrow('lacks the columns');
   });
@@ -142,7 +158,7 @@ describe('importing into a season', () => {
     expect((await send('schedule-import/preview', program(), stranger)).status).toBe(403);
     const res = await send('schedule-import/preview', program());
     expect(res.status).toBe(200);
-    expect(res.body.counts).toEqual({ create: 3, update: 0, unchanged: 0, skip: 0, newTeams: 2 });
+    expect(res.body.counts).toEqual({ create: 3, update: 0, unchanged: 0, skip: 0, newTeams: 2, results: 0 });
     expect(res.body.teams).toEqual([
       { name: 'SK Gama', existing: false, games: 2 },
       { name: 'tj beta', existing: true, games: 2 },
@@ -168,8 +184,9 @@ describe('importing into a season', () => {
       [46352.84027777778, 46352.84027777778, 5, 'Přebor', 'SK Gama', 'Volejbal Alfa', null, null],
     ]);
     const preview = await send('schedule-import/preview', moved);
-    expect(preview.body.counts).toEqual({ create: 0, update: 1, unchanged: 1, skip: 1, newTeams: 0 });
-    expect(preview.body.fixtures[0]).toMatchObject({ action: 'SKIP', problem: 'PLAYED' });
+    // The played game is left alone, its date in the file notwithstanding.
+    expect(preview.body.counts).toEqual({ create: 0, update: 1, unchanged: 2, skip: 0, newTeams: 0, results: 0 });
+    expect(preview.body.fixtures[0]).toMatchObject({ action: 'UNCHANGED', problem: null });
     expect(preview.body.fixtures[1]).toMatchObject({ action: 'UPDATE', changes: ['date', 'location'] });
 
     await send('schedule-import', moved);
@@ -178,6 +195,32 @@ describe('importing into a season', () => {
     expect(after.location).toBe('Hala C');
     expect((await prisma.game.findUniqueOrThrow({ where: { id: games[0].id } })).date?.toISOString()).toBe(games[0].date?.toISOString());
     expect(await prisma.auditLog.count({ where: { entityType: 'Season', entityId: seasonId } })).toBe(2);
+  });
+
+  it('plays and confirms games from a results export, and leaves a played game with another result alone', async () => {
+    const results = xlsx([
+      [...HEADER.slice(0, 7), 'Výsledek', 'Poznámka'],
+      [46350.8125, null, 4, 'Přebor', 'Volejbal Alfa', 'TJ Beta', 'Hala A', '1:3 (-20,-20,25,-20)', null],
+      [46352.84027777778, null, 5, 'Přebor', 'SK Gama', 'Volejbal Alfa', null, '3:2 (20,-20,20,-20,13)', null],
+      [46353.8125, null, 6, 'Přebor', 'TJ Beta', 'Volejbal Alfa', 'Hala B', '3:0 (10,19,14)', null],
+      [46354.8125, null, 6, 'Přebor', 'SK Gama', 'TJ Beta', 'Hala B', '3:0 (10,-19,14)', null],
+    ]);
+    const preview = await send('schedule-import/preview', results);
+    expect(preview.body.fixtures.map((f: { action: string; problem: string | null }) => `${f.action}/${f.problem}`)).toEqual([
+      'SKIP/PLAYED', 'UPDATE/null', 'CREATE/null', 'SKIP/BAD_RESULT',
+    ]);
+    expect(preview.body.counts).toMatchObject({ create: 1, update: 1, results: 2 });
+
+    await send('schedule-import', results);
+    const game = await prisma.game.findFirstOrThrow({ where: { seasonId, round: 5, homeTeam: { name: 'SK Gama' } } });
+    expect(game).toMatchObject({ status: 'COMPLETED', homeScore: 3, awayScore: 2 });
+    expect(game.confirmedAt).toBeInstanceOf(Date);
+    expect(game.periodScores).toEqual([{ home: 25, away: 20 }, { home: 20, away: 25 }, { home: 25, away: 20 }, { home: 20, away: 25 }, { home: 15, away: 13 }]);
+    const created = await prisma.game.findFirstOrThrow({ where: { seasonId, round: 6, homeTeam: { name: 'tj beta' } } });
+    expect(created).toMatchObject({ status: 'COMPLETED', homeScore: 3, awayScore: 0 });
+    // The table counts them: Gama won 3:2, Beta 3:0 against Alfa.
+    const standings = await request(app).get(`/api/seasons/${seasonId}/standings`).set(auth(owner));
+    expect(standings.status).toBe(200);
   });
 
   it('explains a file it cannot use', async () => {

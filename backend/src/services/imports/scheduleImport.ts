@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import { partsWon, type PartScore } from '../sports/profile.js';
 import prisma, { type DbClient } from '../../config/database.js';
 import { zonedDateTime } from '../../utils/time.js';
 import type { Cell } from './spreadsheet.js';
@@ -20,7 +21,15 @@ export type ImportProblem =
   | 'SAME_TEAM'     // the same name on both sides
   | 'BAD_DATE'      // a date or time that cannot be read
   | 'DUPLICATE'     // the same fixture twice in the file
-  | 'PLAYED';       // the game exists and is already played; left as it is
+  | 'BAD_RESULT'    // a result that cannot be read, or whose sets do not add up
+  | 'PLAYED';       // the game is already played with another result; left as it is
+
+/** A played game's result: sets (or goals) won, and the set points when the file gives them. */
+export interface ParsedResult {
+  home: number;
+  away: number;
+  parts: PartScore[] | null;
+}
 
 export interface ParsedFixture {
   line: number;
@@ -30,6 +39,7 @@ export interface ParsedFixture {
   home: string;
   away: string;
   group: string | null;
+  result: ParsedResult | null;
   problem: ImportProblem | null;
 }
 
@@ -43,7 +53,7 @@ export class ScheduleImportError extends Error {
 export const normalise = (value: string) =>
   value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
-const HEADERS: Record<'date' | 'time' | 'round' | 'home' | 'away' | 'venue' | 'group', string[]> = {
+const HEADERS: Record<'date' | 'time' | 'round' | 'home' | 'away' | 'venue' | 'group' | 'result', string[]> = {
   date: ['datum', 'date', 'den', 'datum a cas'],
   time: ['cas', 'time', 'zacatek', 'start'],
   round: ['kolo', 'round', 'cislo kola'],
@@ -51,6 +61,7 @@ const HEADERS: Record<'date' | 'time' | 'round' | 'home' | 'away' | 'venue' | 'g
   away: ['hoste', 'away', 'hostujici', 'hoste tym', 'hostujici druzstvo', 'away team', 'hostia'],
   venue: ['hala', 'misto', 'venue', 'location', 'sportoviste', 'miesto'],
   group: ['skupina', 'group', 'soutez', 'division'],
+  result: ['vysledek', 'result', 'skore', 'score', 'vysledok'],
 };
 
 const text = (cell: Cell | undefined): string => (cell === null || cell === undefined ? '' : String(cell).trim());
@@ -100,6 +111,32 @@ function parseWhen(dateCell: Cell | undefined, timeCell: Cell | undefined): Date
   return zonedDateTime(parts.year, parts.month, parts.day, hour, minute);
 }
 
+/**
+ * A result as the ČVS writes it: "3:1 (16,21,-18,25)". The sets are listed
+ * from the home side by the loser's points: 16 means the home side won 25:16,
+ * -18 that it lost 18:25. The winner has 25 (15 in the deciding set), or two
+ * more than the loser after deuce. A plain "3:1" or "2:2" is just the score.
+ */
+export function parseResult(value: string): ParsedResult | null | 'bad' {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const match = /^(\d{1,3})\s*:\s*(\d{1,3})(?:\s*\(([^)]*)\))?\s*$/.exec(trimmed);
+  if (!match) return 'bad';
+  const home = Number(match[1]);
+  const away = Number(match[2]);
+  if (!match[3]) return { home, away, parts: null };
+  const values = match[3].split(/[,;]/).map((part) => part.trim().replace(/^\u2212/, '-')).filter(Boolean);
+  if (values.length !== home + away || values.some((part) => !/^[+-]?\d{1,2}$/.test(part))) return 'bad';
+  const decidingSet = 2 * Math.max(home, away) - 2;
+  const parts = values.map((part, index) => {
+    const loser = Math.abs(Number(part));
+    const winner = Math.max(index === decidingSet ? 15 : 25, loser + 2);
+    return part.startsWith('-') ? { home: loser, away: winner } : { home: winner, away: loser };
+  });
+  const won = partsWon(parts);
+  return won.home === home && won.away === away ? { home, away, parts } : 'bad';
+}
+
 /** The fixtures in a sheet: finds the header row, then reads every row under it. */
 export function parseFixtures(rows: Cell[][]): ParsedFixture[] {
   const headerIndex = rows.findIndex((row) => {
@@ -112,6 +149,7 @@ export function parseFixtures(rows: Cell[][]): ParsedFixture[] {
   const columns = {
     date: column('date'), time: column('time'), round: column('round'),
     home: column('home'), away: column('away'), venue: column('venue'), group: column('group'),
+    result: column('result'),
   };
 
   const seen = new Set<string>();
@@ -122,6 +160,7 @@ export function parseFixtures(rows: Cell[][]): ParsedFixture[] {
     const roundText = columns.round >= 0 ? text(row[columns.round]) : '';
     const round = /^\d{1,3}$/.test(roundText) ? Number(roundText) : null;
     const when = columns.date >= 0 ? parseWhen(row[columns.date], columns.time >= 0 ? row[columns.time] : undefined) : null;
+    const result = columns.result >= 0 ? parseResult(text(row[columns.result])) : null;
     const fixture: ParsedFixture = {
       line,
       round,
@@ -130,11 +169,13 @@ export function parseFixtures(rows: Cell[][]): ParsedFixture[] {
       home: home.slice(0, 100),
       away: away.slice(0, 100),
       group: columns.group >= 0 ? text(row[columns.group]) || null : null,
+      result: result === 'bad' ? null : result,
       problem: null,
     };
     if (!home || !away) fixture.problem = 'NO_TEAMS';
     else if (normalise(home) === normalise(away)) fixture.problem = 'SAME_TEAM';
     else if (when === 'bad') fixture.problem = 'BAD_DATE';
+    else if (result === 'bad') fixture.problem = 'BAD_RESULT';
     else {
       const key = `${round ?? ''}|${normalise(home)}|${normalise(away)}`;
       if (seen.has(key)) fixture.problem = 'DUPLICATE';
@@ -151,20 +192,23 @@ export interface ImportPlan {
   fixtures: (Omit<ParsedFixture, 'date'> & {
     date: string | null;
     action: FixtureAction;
-    /** For an update: what moves. */
-    changes: ('date' | 'location')[];
+    /** For an update: what moves, and whether the game gets its result. */
+    changes: ('date' | 'location' | 'result')[];
     gameId: string | null;
   })[];
-  counts: { create: number; update: number; unchanged: number; skip: number; newTeams: number };
+  counts: { create: number; update: number; unchanged: number; skip: number; newTeams: number; results: number };
 }
 
 const sameInstant = (a: Date | null, b: Date | null) => (a?.getTime() ?? null) === (b?.getTime() ?? null);
 
 /** What importing these fixtures into the season would do, without doing it. */
 export async function planImport(seasonId: string, parsed: ParsedFixture[], tx: DbClient = prisma): Promise<ImportPlan> {
+  // Set points only mean something in volleyball; elsewhere the score alone is kept.
+  const season = await tx.season.findUnique({ where: { id: seasonId }, select: { league: { select: { sportType: true } } } });
+  const withSets = season?.league.sportType === 'VOLLEYBALL';
   const [seasonTeams, games] = await Promise.all([
     tx.seasonTeam.findMany({ where: { seasonId }, select: { team: { select: { id: true, name: true } } } }),
-    tx.game.findMany({ where: { seasonId }, select: { id: true, round: true, homeTeamId: true, awayTeamId: true, date: true, location: true, status: true } }),
+    tx.game.findMany({ where: { seasonId }, select: { id: true, round: true, homeTeamId: true, awayTeamId: true, date: true, location: true, status: true, homeScore: true, awayScore: true } }),
   ]);
   const teamByName = new Map(seasonTeams.map(({ team }) => [normalise(team.name), team]));
 
@@ -176,8 +220,12 @@ export async function planImport(seasonId: string, parsed: ParsedFixture[], tx: 
     teams.set(key, entry);
   };
 
-  const fixtures = parsed.map((fixture) => {
-    const base = { ...fixture, date: fixture.date?.toISOString() ?? null, changes: [] as ('date' | 'location')[], gameId: null as string | null };
+  const fixtures = parsed.map((parsedFixture) => {
+    const fixture = {
+      ...parsedFixture,
+      result: parsedFixture.result && !withSets ? { ...parsedFixture.result, parts: null } : parsedFixture.result,
+    };
+    const base = { ...fixture, date: fixture.date?.toISOString() ?? null, changes: [] as ('date' | 'location' | 'result')[], gameId: null as string | null };
     if (fixture.problem) return { ...base, action: 'SKIP' as const };
     noteTeam(fixture.home);
     noteTeam(fixture.away);
@@ -186,13 +234,18 @@ export async function planImport(seasonId: string, parsed: ParsedFixture[], tx: 
     const existing = home && away
       ? games.find((game) => game.homeTeamId === home.id && game.awayTeamId === away.id && (fixture.round === null || game.round === fixture.round))
       : undefined;
-    if (!existing) return { ...base, action: 'CREATE' as const };
-    const changes: ('date' | 'location')[] = [];
+    if (!existing) return { ...base, action: 'CREATE' as const, changes: fixture.result ? ['result' as const] : [] };
+    // A played game stays as it is; only a different result in the file is worth saying.
+    if (existing.status === 'COMPLETED') {
+      const differs = fixture.result && (fixture.result.home !== existing.homeScore || fixture.result.away !== existing.awayScore);
+      return differs
+        ? { ...base, gameId: existing.id, action: 'SKIP' as const, problem: 'PLAYED' as const }
+        : { ...base, gameId: existing.id, action: 'UNCHANGED' as const };
+    }
+    const changes: ('date' | 'location' | 'result')[] = [];
     if (fixture.date && !sameInstant(existing.date, fixture.date)) changes.push('date');
     if (fixture.location && fixture.location !== existing.location) changes.push('location');
-    if (changes.length && existing.status === 'COMPLETED') {
-      return { ...base, gameId: existing.id, action: 'SKIP' as const, problem: 'PLAYED' as const };
-    }
+    if (fixture.result) changes.push('result');
     return { ...base, gameId: existing.id, changes, action: changes.length ? 'UPDATE' as const : 'UNCHANGED' as const };
   });
 
@@ -207,12 +260,27 @@ export async function planImport(seasonId: string, parsed: ParsedFixture[], tx: 
       unchanged: count('UNCHANGED'),
       skip: count('SKIP'),
       newTeams: teamList.filter((team) => !team.existing).length,
+      results: fixtures.filter((fixture) => fixture.changes.includes('result')).length,
     },
   };
 }
 
-/** Carries out a plan: new teams join the season, new games are scheduled, moved ones move. */
-export async function applyImport(tx: Prisma.TransactionClient, seasonId: string, plan: ImportPlan): Promise<void> {
+/** The fields a game gets from an imported result: played, scored and confirmed by the importer. */
+const resultData = (result: ParsedResult, actorId: string) => ({
+  status: 'COMPLETED' as const,
+  homeScore: result.home,
+  awayScore: result.away,
+  ...(result.parts && { periodScores: result.parts as unknown as Prisma.InputJsonValue }),
+  confirmedAt: new Date(),
+  confirmedById: actorId,
+});
+
+/**
+ * Carries out a plan: new teams join the season, new games are scheduled,
+ * moved ones move, and games with a result in the file are played and
+ * confirmed: the file is the federation's official record.
+ */
+export async function applyImport(tx: Prisma.TransactionClient, seasonId: string, plan: ImportPlan, actorId: string): Promise<void> {
   const seasonTeams = await tx.seasonTeam.findMany({ where: { seasonId }, select: { team: { select: { id: true, name: true } } } });
   const teamId = new Map(seasonTeams.map(({ team }) => [normalise(team.name), team.id]));
   for (const team of plan.teams) {
@@ -232,6 +300,7 @@ export async function applyImport(tx: Prisma.TransactionClient, seasonId: string
           round: fixture.round,
           date,
           location: fixture.location,
+          ...(fixture.result && resultData(fixture.result, actorId)),
         },
       });
     } else if (fixture.action === 'UPDATE' && fixture.gameId) {
@@ -240,6 +309,7 @@ export async function applyImport(tx: Prisma.TransactionClient, seasonId: string
         data: {
           ...(fixture.changes.includes('date') && { date }),
           ...(fixture.changes.includes('location') && { location: fixture.location }),
+          ...(fixture.changes.includes('result') && fixture.result && resultData(fixture.result, actorId)),
         },
       });
     }
