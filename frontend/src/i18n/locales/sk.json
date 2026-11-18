@@ -318,7 +318,10 @@
       "goalsShort": "G",
       "assistsShort": "A",
       "pointsShort": "B",
-      "viewFullSchedule": "Celý rozpis →"
+      "viewFullSchedule": "Celý rozpis →",
+      "setsTotal": "Odohrané sety",
+      "avgSetsPerGame": "Priemer setov/zápas",
+      "recentResults": "Posledné výsledky"
     },
     "playersStats": {
       "title": "Štatistiky hráčov",

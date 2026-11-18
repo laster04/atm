@@ -20,6 +20,7 @@ import { strictest } from '@/utils/visibility';
 
 import { StatsOverview } from "@/pages/SeasonDetail/components/StatsOverview.tsx";
 import PlayersStatsTable from "@/pages/SeasonDetail/components/PlayersStatsTable.tsx";
+import { profileFor } from "@/utils/sportProfiles";
 
 export enum TabSeasonDetailType {
   OVERVIEW = 'overview',
@@ -133,7 +134,10 @@ export default function SeasonDetailScreen() {
     ...(isArchived ? [] : [{ id: TabSeasonDetailType.SCHEDULE, label: t('seasonDetail.tabs.schedule'), icon: <CalendarDays className="size-4" />, content: <ScheduleList games={games} sport={season.league?.sportType} /> }]),
     // A season with no teams (an archived one keeps none) gets no empty tab.
     ...(season.teams?.length ? [{ id: TabSeasonDetailType.TEAMS, label: t('seasonDetail.tabs.teams'), icon: <LayoutGrid className="size-4" />, content: <TeamsGrid teams={season.teams} /> }] : []),
-    { id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} sport={season.league?.sportType} /> },
+    // A sport that keeps no player numbers (volleyball) has nothing to list here.
+    ...(profileFor(season.league?.sportType).stats.length
+      ? [{ id: TabSeasonDetailType.PLAYERS, label: t('seasonDetail.tabs.players'), icon: <Users className="size-4" />, content: <PlayersStatsTable topScorers={topScorers || []} sport={season.league?.sportType} /> }]
+      : []),
   ];
 
   const sectionTabs: SectionTab<TabSeasonDetailType>[] = tabs.map(({ id, label, icon }) => ({ value: id, label, icon }));

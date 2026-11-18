@@ -318,7 +318,10 @@
       "goalsShort": "G",
       "assistsShort": "A",
       "pointsShort": "Pts",
-      "viewFullSchedule": "Full schedule →"
+      "viewFullSchedule": "Full schedule →",
+      "setsTotal": "Sets played",
+      "avgSetsPerGame": "Average sets/game",
+      "recentResults": "Latest results"
     },
     "playersStats": {
       "title": "Player Statistics",
