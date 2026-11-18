@@ -1,6 +1,7 @@
 /*
  * The embedded widget's own small stylesheet: no Tailwind, no web fonts, so
- * it loads fast inside other websites and makes no third-party requests.
+ * it loads fast inside other websites and makes no third-party requests
+ * (a club's own CSS may add Google Fonts, see customCss.ts).
  */
 :root {
 	--bg: #ffffff;
@@ -10,6 +11,10 @@
 	--row: #f8fafc;
 	--accent: #0f172a;
 	--accent-ink: #ffffff;
+	/* Clubs restyle the widget through these first (?css=, see customCss.ts). */
+	--font: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--heading-font: var(--font);
+	--size: 14px;
 	color-scheme: light;
 }
 :root[data-theme='dark'] {
@@ -23,17 +28,17 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--fg); }
 body {
-	font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	font: var(--size)/1.4 var(--font);
 	min-width: 280px;
 }
 .w { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
-.w h1 { margin: 0; font-size: 15px; font-weight: 700; }
-.w h1 small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
-.w h2 { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.w h1 { margin: 0; font-family: var(--heading-font); font-size: 1.07em; font-weight: 700; }
+.w h1 small { display: block; font-size: 0.8em; font-weight: 500; color: var(--muted); }
+.w h2 { margin: 0 0 6px; font-family: var(--heading-font); font-size: 0.93em; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 
 table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-caption { text-align: left; font-size: 13px; font-weight: 700; padding-bottom: 6px; }
-th { font-size: 11.5px; font-weight: 600; color: var(--muted); text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+caption { text-align: left; font-family: var(--heading-font); font-size: 0.93em; font-weight: 700; padding-bottom: 6px; }
+th { font-size: 0.82em; font-weight: 600; color: var(--muted); text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--line); }
 th.team { text-align: left; }
 td { padding: 6px; text-align: right; border-bottom: 1px solid var(--line); }
 td.rank { width: 28px; color: var(--muted); }
@@ -53,12 +58,12 @@ abbr { text-decoration: none; }
 /* The home team reads towards the score: name, then crest, right-aligned. */
 .games .home .name { flex-direction: row-reverse; text-align: right; }
 .games .mid { text-align: center; min-width: 64px; }
-.games .score { font-weight: 800; font-size: 15px; }
-.games .when { font-size: 12px; color: var(--muted); }
-.games .meta { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); text-align: center; margin-top: -4px; }
+.games .score { font-weight: 800; font-size: 1.07em; }
+.games .when { font-size: 0.86em; color: var(--muted); }
+.games .meta { grid-column: 1 / -1; font-size: 0.82em; color: var(--muted); text-align: center; margin-top: -4px; }
 .games li.mine .score, .games li.mine .when { color: var(--fg); }
 
-.note { color: var(--muted); font-size: 13px; padding: 8px 0; }
+.note { color: var(--muted); font-size: 0.93em; padding: 8px 0; }
 .brand { display: flex; justify-content: flex-end; font-size: 11.5px; }
 .brand a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; }
 /* The yellow mark reads on both the light and the dark theme. */

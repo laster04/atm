@@ -2750,6 +2750,13 @@
     "logos": "Team logos",
     "hideBrand": "Hide the “Results from ATM” link",
     "hideBrandPaid": "Only in the Tournament Plus and Organiser plans.",
+    "css": {
+      "title": "Custom CSS (advanced)",
+      "hint": "Match the widget to your website: font, size, colours or a transparent background. Fonts can load from Google Fonts; the widget allows no other addresses.",
+      "rejected": "The CSS contains an address outside Google Fonts or something not allowed, so the widget will not use it.",
+      "help": "The widget's variables and classes",
+      "count": "{{count}} / {{max}}"
+    },
     "preview": "Preview",
     "code": "Code to paste",
     "copy": "Copy code",

@@ -38,7 +38,7 @@ export const normalize = (text: string): string =>
 
 /** Inline markers reduced to readable text; `{ui:key}` is resolved by the caller. */
 export const plainText = (text: string, resolve: (key: string) => string): string =>
-	text.replace(/\{ui:([\w.-]+)\}/g, (_, key: string) => resolve(key)).replace(/\*\*(.+?)\*\*/g, '$1');
+	text.replace(/\{ui:([\w.-]+)\}/g, (_, key: string) => resolve(key)).replace(/\*\*(.+?)\*\*/g, '$1').replace(/`([^`]+)`/g, '$1');
 
 const blockText = (block: DocsBlock): string[] => {
 	switch (block.type) {
