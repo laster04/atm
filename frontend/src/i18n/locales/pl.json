@@ -972,10 +972,10 @@
     },
     "import": {
       "title": "Import terminarza",
-      "intro": "Prześlij terminarz jako XLSX lub CSV, np. eksport „Program” z systemu ČVS. Najpierw zobaczysz, co się stanie; nic się nie zmieni, dopóki nie potwierdzisz importu. Gdy później prześlesz zaktualizowany terminarz, przesuną się terminy i hale już utworzonych meczów.",
+      "intro": "Prześlij terminarz lub wyniki jako XLSX lub CSV, np. eksport „Program” lub „Výsledky” z systemu ČVS. Najpierw zobaczysz, co się stanie; nic się nie zmieni, dopóki nie potwierdzisz importu. Mecze z wynikiem zostaną zapisane jako rozegrane i zatwierdzone. Gdy później prześlesz zaktualizowany terminarz, przesuną się terminy i hale już utworzonych meczów.",
       "choose": "Wybierz plik",
-      "columns": "Kolumny: Gospodarze, Goście i opcjonalnie Data, Godzina, Kolejka, Hala",
-      "done": "Gotowe: nowe mecze: {{create}}, zmienione: {{update}}, nowe drużyny: {{teams}}.",
+      "columns": "Kolumny: Gospodarze, Goście i opcjonalnie Data, Godzina, Kolejka, Hala, Wynik",
+      "done": "Gotowe: nowe mecze: {{create}}, zmienione: {{update}}, wyniki: {{results}}, nowe drużyny: {{teams}}.",
       "counts": {
         "create": "Nowe mecze",
         "update": "Zmienione",
@@ -1002,9 +1002,10 @@
         "SAME_TEAM": "Ta sama drużyna po obu stronach",
         "BAD_DATE": "Nieczytelna data",
         "DUPLICATE": "Dwa razy w pliku",
-        "PLAYED": "Już rozegrany, bez zmian"
+        "PLAYED": "Rozegrany z innym wynikiem",
+        "BAD_RESULT": "Nieczytelny wynik"
       },
-      "confirmHint": "Import utworzy nowe drużyny i mecze oraz zaktualizuje przesunięte terminy. Rozegrane mecze pozostaną bez zmian.",
+      "confirmHint": "Import utworzy nowe drużyny i mecze, zaktualizuje przesunięte terminy oraz zapisze i zatwierdzi wyniki. Rozegrane mecze pozostaną bez zmian.",
       "nothing": "Plik nie wnosi nic nowego.",
       "run": "Importuj",
       "errors": {
