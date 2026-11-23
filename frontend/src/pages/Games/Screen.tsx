@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays } from 'lucide-react';
 import { gameApi, leagueApi } from '@/services/api';
@@ -11,14 +12,30 @@ import GameRow from './components/GameRow';
 
 const PAGE_SIZE = 40;
 type Scope = NonNullable<PublicGameQuery['scope']>;
+const SCOPES: Scope[] = ['upcoming', 'live', 'results'];
 
 export default function GamesScreen() {
 	const { t, i18n } = useTranslation();
-	const [scope, setScope] = useState<Scope>('upcoming');
+	// Filters live in the URL so a refresh (or a shared link) lands on the same
+	// bunch of matches.
+	const [searchParams, setSearchParams] = useSearchParams();
+	const scopeParam = searchParams.get('scope') as Scope | null;
+	const scope: Scope = scopeParam && SCOPES.includes(scopeParam) ? scopeParam : 'upcoming';
+	const leagueId = searchParams.get('league') ?? '';
 	const [games, setGames] = useState<Game[]>([]);
 	const [total, setTotal] = useState(0);
 	const [leagues, setLeagues] = useState<League[]>([]);
-	const [leagueId, setLeagueId] = useState('');
+
+	const updateFilter = (key: 'scope' | 'league', value: string, fallback = '') => {
+		setSearchParams((current) => {
+			const next = new URLSearchParams(current);
+			if (value && value !== fallback) next.set(key, value);
+			else next.delete(key);
+			return next;
+		}, { replace: true });
+	};
+	const setScope = (value: Scope) => updateFilter('scope', value, 'upcoming');
+	const setLeagueId = (value: string) => updateFilter('league', value);
 	const [loading, setLoading] = useState(true);
 	const [loadingMore, setLoadingMore] = useState(false);
 
