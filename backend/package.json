@@ -25,6 +25,7 @@
     "@prisma/client": "^5.22.0",
     "@resvg/resvg-js": "^2.6.2",
     "bcryptjs": "^2.4.3",
+    "bysquare": "4.1.0",
     "cors": "^2.8.5",
     "dejavu-fonts-ttf": "^2.37.3",
     "dotenv": "^16.4.5",

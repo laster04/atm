@@ -107,6 +107,9 @@ model User {
   // May change prices, VAT rates, plan limits and the OSS switch. Other admins
   // only see them. Set by migration on admin@atm.cz, never by comparing emails.
   canManagePricing            Boolean   @default(false) @map("can_manage_pricing")
+  // When the account used its one free league season (League plan). Set by
+  // migration for everyone who already ran a league before the plan existed.
+  leagueTrialUsedAt           DateTime? @map("league_trial_used_at")
   createdAt                   DateTime  @default(now()) @map("created_at")
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 
@@ -114,29 +117,29 @@ model User {
   managedTeams            Team[]
   managedTournamentSeries TournamentSeries[]
   playerProfiles          Player[]
-  recordedMatchEvents     MatchEvent[]       @relation("MatchEventRecorder")
-  confirmedGames          Game[]             @relation("GameConfirmer")
-  resultClaims            GameResultClaim[]  @relation("ResultClaimSubmitter")
-  scorerLinks             ScorerLink[]       @relation("ScorerLinkCreator")
+  recordedMatchEvents     MatchEvent[]           @relation("MatchEventRecorder")
+  confirmedGames          Game[]                 @relation("GameConfirmer")
+  resultClaims            GameResultClaim[]      @relation("ResultClaimSubmitter")
+  scorerLinks             ScorerLink[]           @relation("ScorerLinkCreator")
   tournamentScorerLinks   TournamentScorerLink[] @relation("TournamentScorerLinkCreator")
-  auditEntries            AuditLog[]         @relation("AuditActor")
-  createdTeamEvents       TeamEvent[]        @relation("TeamEventCreator")
-  attendanceResponses     Attendance[]       @relation("AttendanceResponder")
-  sentDigests             SeasonDigest[]     @relation("DigestSender")
+  auditEntries            AuditLog[]             @relation("AuditActor")
+  createdTeamEvents       TeamEvent[]            @relation("TeamEventCreator")
+  attendanceResponses     Attendance[]           @relation("AttendanceResponder")
+  sentDigests             SeasonDigest[]         @relation("DigestSender")
   supportTickets          SupportTicket[]
   planInterests           PlanInterest[]
-  sentManagerInvites      ManagerInvite[]    @relation("InviteSender")
-  registrations           Registration[]     @relation("RegistrationApplicant")
-  decidedRegistrations    Registration[]     @relation("RegistrationDecider")
-  promotedRegistrations   Registration[]     @relation("RegistrationPromoter")
-  priceVersions           ProductPrice[]     @relation("PriceAuthor")
-  vatRateVersions         VatRate[]          @relation("VatRateAuthor")
-  planLimitVersions       PlanLimit[]        @relation("PlanLimitAuthor")
-  vatChecks               VatCheck[]         @relation("VatCheckRequester")
-  uploadedFiles           StoredFile[]       @relation("FileUploader")
-  organizerPlans          OrganizerPlan[]    @relation("OrganizerPlanHolder")
-  payments                Payment[]          @relation("PaymentPayer")
-  confirmedPayments       Payment[]          @relation("PaymentConfirmer")
+  sentManagerInvites      ManagerInvite[]        @relation("InviteSender")
+  registrations           Registration[]         @relation("RegistrationApplicant")
+  decidedRegistrations    Registration[]         @relation("RegistrationDecider")
+  promotedRegistrations   Registration[]         @relation("RegistrationPromoter")
+  priceVersions           ProductPrice[]         @relation("PriceAuthor")
+  vatRateVersions         VatRate[]              @relation("VatRateAuthor")
+  planLimitVersions       PlanLimit[]            @relation("PlanLimitAuthor")
+  vatChecks               VatCheck[]             @relation("VatCheckRequester")
+  uploadedFiles           StoredFile[]           @relation("FileUploader")
+  organizerPlans          OrganizerPlan[]        @relation("OrganizerPlanHolder")
+  payments                Payment[]              @relation("PaymentPayer")
+  confirmedPayments       Payment[]              @relation("PaymentConfirmer")
 
   // The admin user list sorts and filters on these.
   @@index([createdAt])
@@ -154,6 +157,10 @@ model League {
   // sport default in services/scoring/policy.ts. A season may override again.
   scoring     Json?
   visibility  Visibility @default(PUBLIC)
+  // Seasons created before this moment need no League plan. Leagues that
+  // existed when the plan launched get the end of 31 Aug 2027; an admin sets
+  // it for a waiver or a founding deal.
+  freeUntil   DateTime?  @map("free_until")
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
@@ -162,8 +169,24 @@ model League {
 
   seasons        Season[]
   managerInvites ManagerInvite[]
+  plans          LeaguePlan[]
+  payments       Payment[]
 
   @@map("leagues")
+}
+
+/// How a season is covered by the League plan. Fixed when the season is
+/// created, so a running season always finishes in the plan it started in.
+enum SeasonPlan {
+  // The paywall was off, or the league is free until a date (League.freeUntil).
+  FREE
+  // The organiser's one free season.
+  TRIAL
+  // Covered by a paid League plan.
+  LEAGUE
+  // Waits for a League plan: setup works, but nothing public, no e-mails to
+  // players and no confirmed results until it is paid.
+  UNPAID
 }
 
 model Season {
@@ -181,6 +204,9 @@ model Season {
   // When both teams' managers report the same final score, the game is
   // completed and confirmed without waiting for the season manager.
   autoConfirmAgreed Boolean      @default(true) @map("auto_confirm_agreed")
+  // How this season is paid for; set when it is created (services/plans/leaguePlan.ts).
+  // Only UNPAID ever changes, to LEAGUE once the league's plan is paid.
+  plan              SeasonPlan   @default(FREE)
   archivedAt        DateTime?    @map("archived_at")
   // Archiving deletes the games, so their count and the goals scored in them
   // (play-off included) are kept here. Null on a season that is not archived.
@@ -679,13 +705,13 @@ model MatchEvent {
 
   // Who recorded it. Kept when the account goes so the trail does not vanish
   // with the person.
-  recordedById String?  @map("recorded_by_id")
-  recordedBy   User?    @relation("MatchEventRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+  recordedById String?     @map("recorded_by_id")
+  recordedBy   User?       @relation("MatchEventRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
   // Or the scorer link it was recorded through, for someone without an account.
   scorerLinkId String?     @map("scorer_link_id")
   scorerLink   ScorerLink? @relation(fields: [scorerLinkId], references: [id], onDelete: SetNull)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
 
   @@index([gameId])
   @@index([playerId])
@@ -723,20 +749,20 @@ model SeasonArchiveStanding {
   teamLogo         String? @map("team_logo")
   teamPrimaryColor String? @map("team_primary_color")
 
-  rank         Int
-  played       Int
-  wins         Int
-  draws        Int
-  losses       Int
-  goalsFor     Int      @map("goals_for")
-  goalsAgainst Int      @map("goals_against")
-  points       Int
+  rank              Int
+  played            Int
+  wins              Int
+  draws             Int
+  losses            Int
+  goalsFor          Int      @map("goals_for")
+  goalsAgainst      Int      @map("goals_against")
+  points            Int
   // The volleyball table's split and its balls; see services/standings/compute.
-  otWins            Int @default(0) @map("ot_wins")
-  otLosses          Int @default(0) @map("ot_losses")
-  partPointsFor     Int @default(0) @map("part_points_for")
-  partPointsAgainst Int @default(0) @map("part_points_against")
-  createdAt    DateTime @default(now()) @map("created_at")
+  otWins            Int      @default(0) @map("ot_wins")
+  otLosses          Int      @default(0) @map("ot_losses")
+  partPointsFor     Int      @default(0) @map("part_points_for")
+  partPointsAgainst Int      @default(0) @map("part_points_against")
+  createdAt         DateTime @default(now()) @map("created_at")
 
   @@unique([seasonId, teamId])
   @@map("season_archive_standings")
@@ -886,8 +912,8 @@ model TournamentPlayer {
   team   TournamentTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   statistics TournamentGameStatistic[]
-  goals      TournamentGoal[] @relation("TournamentGoalScorer")
-  assists    TournamentGoal[] @relation("TournamentGoalAssist")
+  goals      TournamentGoal[]          @relation("TournamentGoalScorer")
+  assists    TournamentGoal[]          @relation("TournamentGoalAssist")
 
   @@map("tournament_players")
 }
@@ -917,21 +943,21 @@ model TournamentGroupTeam {
 }
 
 model TournamentGame {
-  id          String              @id @default(uuid())
-  phase       TournamentGamePhase
-  homeScore   Int?                @map("home_score")
-  awayScore   Int?                @map("away_score")
+  id           String              @id @default(uuid())
+  phase        TournamentGamePhase
+  homeScore    Int?                @map("home_score")
+  awayScore    Int?                @map("away_score")
   // Set scores of a volleyball game, as on Game; the score follows from them.
-  periodScores Json?              @map("period_scores")
-  date        DateTime?
-  location    String?
-  status      GameStatus          @default(SCHEDULED)
-  bracketSlot Int?                @map("bracket_slot")
-  homeSeed    Int?                @map("home_seed")
-  awaySeed    Int?                @map("away_seed")
-  note        String?
-  createdAt   DateTime            @default(now()) @map("created_at")
-  updatedAt   DateTime            @updatedAt @map("updated_at")
+  periodScores Json?               @map("period_scores")
+  date         DateTime?
+  location     String?
+  status       GameStatus          @default(SCHEDULED)
+  bracketSlot  Int?                @map("bracket_slot")
+  homeSeed     Int?                @map("home_seed")
+  awaySeed     Int?                @map("away_seed")
+  note         String?
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
 
   tournamentId String     @map("tournament_id")
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
@@ -949,7 +975,7 @@ model TournamentGame {
   // Goals a scorer link wrote. While keptByLink is set the score and the
   // statistics follow from them (for volleyball, the link keeps the sets).
   goals      TournamentGoal[]
-  keptByLink Boolean          @default(false) @map("kept_by_link")
+  keptByLink Boolean                   @default(false) @map("kept_by_link")
 
   @@map("tournament_games")
 }
@@ -1370,6 +1396,34 @@ model OrganizerPlan {
   @@map("organizer_plans")
 }
 
+enum LeaguePlanBand {
+  // Seasons of up to 12 teams.
+  SMALL
+  // No team limit.
+  LARGE
+}
+
+/// A year of the League plan for one league. Every season created while it
+/// runs, and every season waiting for it when it is paid, is covered for good.
+model LeaguePlan {
+  id         String         @id @default(uuid())
+  leagueId   String         @map("league_id")
+  league     League         @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  band       LeaguePlanBand
+  validFrom  DateTime       @map("valid_from")
+  validUntil DateTime       @map("valid_until")
+
+  paymentId String?  @unique @map("payment_id")
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  // Granted by an admin without a payment; the audit log has the reason.
+  grantedById String?  @map("granted_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([leagueId, validUntil])
+  @@map("league_plans")
+}
+
 enum PaymentStatus {
   PENDING
   PAID
@@ -1393,6 +1447,8 @@ model Payment {
   payer        User?       @relation("PaymentPayer", fields: [payerId], references: [id], onDelete: SetNull)
   tournamentId String?     @map("tournament_id")
   tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: SetNull)
+  leagueId     String?     @map("league_id")
+  league       League?     @relation(fields: [leagueId], references: [id], onDelete: SetNull)
 
   // When the payer asked for the plan to start at once and acknowledged that a
   // consumer loses the right to withdraw once the service is fully provided
@@ -1405,6 +1461,7 @@ model Payment {
   cancelledAt   DateTime? @map("cancelled_at")
 
   organizerPlan OrganizerPlan?
+  leaguePlan    LeaguePlan?
   taxDocument   TaxDocument?
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -1413,6 +1470,7 @@ model Payment {
   @@index([status, createdAt])
   @@index([payerId])
   @@index([tournamentId])
+  @@index([leagueId])
   @@map("payments")
 }
 

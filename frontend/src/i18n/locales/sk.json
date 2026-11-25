@@ -3081,7 +3081,8 @@
         "PlanLimit": "Limity plánov",
         "Setting": "Nastavenia",
         "Tournament": "Turnaje",
-        "Payment": "Platby"
+        "Payment": "Platby",
+        "League": "Ligy"
       }
     },
     "users": {
@@ -3185,7 +3186,6 @@
     "pricing": {
       "readOnly": "Môžete sa pozerať, ale nie meniť. Ceny, sadzby DPH, limity a OSS mení len účet správcu cenníka.",
       "products": "Produkty",
-      "leaguePlansLater": "Plány líg pribudnú neskôr",
       "product": "Produkt",
       "czk": "CZK s DPH",
       "eur": "EUR s DPH",
@@ -3232,14 +3232,17 @@
         "FREE": "Zadarmo",
         "TOURNAMENT": "Turnaj",
         "TOURNAMENT_PLUS": "Turnaj Plus",
-        "ORGANIZER": "Organizátor"
+        "ORGANIZER": "Organizátor",
+        "LEAGUE_SMALL": "Liga do 12",
+        "LEAGUE_LARGE": "Liga nad 12"
       },
       "limitKeys": {
         "TEAMS_PER_TOURNAMENT": "Tímov na turnaj",
         "SPONSOR_LOGOS": "Logá sponzorov",
         "DOCUMENTS": "Dokumenty (PDF)",
         "DOCUMENT_MAX_MB": "Veľkosť dokumentu (MB)",
-        "LOGO_MAX_MB": "Logo tímu (MB)"
+        "LOGO_MAX_MB": "Logo tímu (MB)",
+        "TEAMS_PER_SEASON": "Tímov v sezóne"
       },
       "limitsHint": "Prázdne pole znamená bez limitu, 0, že plán to nemá. Uložia sa len zmenené polia.",
       "limitsSaved": "Zmena limitov naplánovaná",
@@ -3282,7 +3285,26 @@
       "checkedAt": "Overené {{when}}",
       "consultation": "číslo dopytu {{id}}",
       "ico": "IČO {{ico}}",
-      "dic": "IČ DPH {{dic}}"
+      "dic": "IČ DPH {{dic}}",
+      "leaguePlans": {
+        "title": "Platený plán Liga",
+        "onHint": "Zapnuté: druhá sezóna alebo druhá liga organizátora čaká na plán Liga. Ligy s dátumom „zadarmo do“ a sezóny zadarmo platiť nemusia.",
+        "offHint": "Vypnuté: každá nová sezóna je zadarmo. Zapnite, keď budú ceny plánu Liga hotové.",
+        "onTitle": "Zapnúť platený plán Liga?",
+        "offTitle": "Vypnúť platený plán Liga?",
+        "onConfirm": "Nové sezóny bez nároku na sezónu zadarmo budú čakať na plán Liga. Už založené sezóny sa nemenia.",
+        "offConfirm": "Nové sezóny budú zadarmo. Sezóny, ktoré už na plán čakajú, čakajú ďalej.",
+        "switchedOn": "Plán Liga zapnutý",
+        "switchedOff": "Plán Liga vypnutý"
+      },
+      "bankAccounts": {
+        "title": "Bankové účty",
+        "hint": "Na tieto účty organizátori platia plány. Menu bez účtu ATM na platbu neponúkne. Už vytvorené platby si nechávajú účet, ktorý dostali.",
+        "change": "Zmeniť",
+        "recipient": "Majiteľ účtu",
+        "missing": "Účet chýba, platby v tejto mene nie sú k dispozícii.",
+        "saved": "Účet uložený"
+      }
     },
     "payments": {
       "kicker": "Platba",
@@ -3305,7 +3327,9 @@
       "products": {
         "TOURNAMENT": "Turnaj",
         "TOURNAMENT_PLUS": "Turnaj Plus",
-        "ORGANIZER_YEAR": "Organizátor (rok)"
+        "ORGANIZER_YEAR": "Organizátor (rok)",
+        "LEAGUE_SMALL_YEAR": "Liga do 12 tímov (rok)",
+        "LEAGUE_LARGE_YEAR": "Liga nad 12 tímov (rok)"
       },
       "upgradeFrom": "Doplatok z plánu",
       "account": "Účet",
@@ -3348,7 +3372,23 @@
       "documentEmailed": "Odoslané platiteľovi {{when}}",
       "documentNotEmailed": "Zatiaľ neodoslané",
       "downloadDocument": "Stiahnuť PDF",
-      "documentError": "Doklad sa nepodarilo otvoriť."
+      "documentError": "Doklad sa nepodarilo otvoriť.",
+      "league": "Liga"
+    },
+    "leaguePlan": {
+      "open": "Plán Liga",
+      "title": "Plán Liga · {{name}}",
+      "current": "Teraz",
+      "waiting": "Sezóny čakajúce na plán",
+      "reason": "Dôvod (uloží sa do auditného logu)",
+      "freeUntil": "Zadarmo do",
+      "freeUntilHint": "Sezóny založené do tohto dňa plán nepotrebujú. Prázdne pole dátum zruší.",
+      "save": "Uložiť",
+      "grant": "Udeliť plán bez platby",
+      "grantHint": "Pre zakladateľskú cenu alebo výnimku. Pokryje aj sezóny, ktoré na plán čakajú.",
+      "until": "Platí do",
+      "grantAction": "Udeliť",
+      "saved": "Plán ligy uložený"
     }
   },
   "files": {
@@ -3369,7 +3409,9 @@
       "FREE": "Zadarmo",
       "TOURNAMENT": "Turnaj",
       "TOURNAMENT_PLUS": "Turnaj Plus",
-      "ORGANIZER": "Organizátor"
+      "ORGANIZER": "Organizátor",
+      "LEAGUE_SMALL": "Liga do 12 tímov",
+      "LEAGUE_LARGE": "Liga nad 12 tímov"
     },
     "usage": "{{plan}} · {{teams}}/{{limit}} tímov",
     "usageUnlimited_one": "{{plan}} · {{count}} tím, bez limitu",
@@ -3411,7 +3453,7 @@
       "howItWorks": "Ako plány fungujú"
     },
     "payment": {
-      "title": "QR platba",
+      "title": "Platba prevodom",
       "waiting": "Čaká na potvrdenie platby",
       "plan": "Plán",
       "amount": "Suma",
@@ -3420,10 +3462,31 @@
       "recipient": "Príjemca",
       "qrAlt": "QR kód na platbu",
       "hint": "Naskenujte kód v bankovej aplikácii alebo zadajte údaje ručne aj s variabilným symbolom. Plán začne platiť, hneď ako platbu potvrdíme.",
-      "cancel": "Zrušiť platbu"
+      "cancel": "Zrušiť platbu",
+      "currency": "Mena",
+      "message": "Správa pre príjemcu",
+      "format": "Spôsob platby",
+      "copy": "Kopírovať: {{label}}",
+      "hintSepa": "Naskenujte kód v bankovej aplikácii alebo zadajte prevod SEPA ručne a správu pre príjemcu opíšte presne, podľa nej platbu spárujeme. Plán začne platiť, hneď ako platbu potvrdíme.",
+      "hintTransfer": "Zadajte prevod SEPA v eurách ručne podľa údajov vyššie a správu pre príjemcu opíšte presne, podľa nej platbu spárujeme. Plán začne platiť, hneď ako platbu potvrdíme."
     },
     "organizerUntil": "Organizátor do {{date}}",
-    "renew": "Predĺžiť Organizátora"
+    "renew": "Predĺžiť Organizátora",
+    "method": {
+      "label": "Odkiaľ budete platiť?",
+      "SPD": {
+        "title": "Česká banka",
+        "hint": "v korunách, QR platba"
+      },
+      "BYSQUARE": {
+        "title": "Slovenská banka",
+        "hint": "v eurách, PAY by square"
+      },
+      "SEPA": {
+        "title": "Iná banka v eurozóne",
+        "hint": "v eurách, prevod SEPA bez QR kódu"
+      }
+    }
   },
   "embed": {
     "standings": "Tabuľka",
@@ -3910,6 +3973,7 @@
         "items": [
           "Ceny sú uvedené v cenníku na webe a v aplikácii, vrátane DPH, v českých korunách alebo eurách. Platí cena zobrazená pri objednávke.",
           "Plán Turnaj a Turnaj Plus platí pre jeden turnaj. Plán Organizátor platí 1 rok od zaplatenia a sám sa nepredlžuje.",
+          "Plán Liga platí pre jednu ligu a všetky jej sezóny 1 rok od zaplatenia a sám sa nepredlžuje. Sezóna založená počas platnosti plánu v ňom dobehne do konca.",
           "Po objednávke dostanete platobné údaje (číslo účtu, variabilný symbol, QR kód). Plán začne platiť, hneď ako platbu prijmeme na účet; daňový doklad vám pošleme e-mailom.",
           "Nezaplatenú objednávku môžeme po 30 dňoch zrušiť."
         ]
@@ -4000,6 +4064,48 @@
       "against": "proti tímu {{team}}",
       "opponentUnknown": "Súper sa ešte len rozhodne.",
       "bracket": "Celý pavúk"
+    }
+  },
+  "leaguePlan": {
+    "label": "Plán Liga",
+    "status": {
+      "FREE": "Zadarmo",
+      "FREE_UNTIL": "Zadarmo do {{date}}",
+      "TRIAL": "Zadarmo – prvá sezóna",
+      "LEAGUE": "Plán Liga do {{date}}",
+      "UNPAID": "Čaká na plán Liga"
+    },
+    "hint": {
+      "FREE": "Táto sezóna je zadarmo až do konca.",
+      "TRIAL": "Prvá sezóna vašej prvej ligy je zadarmo, bez limitu tímov. Ďalšia sezóna alebo liga už potrebuje plán Liga.",
+      "LEAGUE": "Sezónu pokrýva ročný plán Liga. Dobehne v ňom až do konca.",
+      "UNPAID": "Sezónu môžete celú pripraviť. Zverejní sa, keď bude plán Liga zaplatený."
+    },
+    "blocked": {
+      "public": "Verejné stránky a widget ju zatiaľ neukážu.",
+      "emails": "Hráčom zatiaľ nechodia e-maily s výsledkami.",
+      "confirm": "Výsledky zápasov sa dajú zapísať, potvrdiť až po zaplatení."
+    },
+    "choose": "Zvoliť plán",
+    "showPayment": "Zobraziť platbu",
+    "renew": "Predĺžiť plán",
+    "upgrade": "Navýšiť plán",
+    "awaiting": "Čaká na potvrdenie platby. Hneď ako ju potvrdíme, sezóna sa zverejní.",
+    "visibilityNote": "Kým nie je plán Liga zaplatený, sezónu vidíte len vy, nech je nastavená akokoľvek.",
+    "dialog": {
+      "title": "Plán Liga",
+      "intro": "Plán platí rok pre celú ligu so všetkými jej sezónami. Platí sa QR prevodom a začne platiť, hneď ako platbu potvrdíme.",
+      "none": "Teraz nie je čo zaplatiť.",
+      "upgradeUntil": "doplatok do {{date}}",
+      "points": {
+        "SMALL": "Sezóny do {{limit}} tímov, celý rok.",
+        "LARGE": "Bez limitu tímov, celý rok."
+      }
+    },
+    "errors": {
+      "required": "Sezóna čaká na plán Liga. Keď bude zaplatený, pôjde to.",
+      "trialTooLong": "Sezóna zadarmo smie skončiť najneskôr {{date}}.",
+      "limit": "Plán Liga do {{limit}} tímov je plný. Pre ďalší tím plán navýšte."
     }
   }
 }

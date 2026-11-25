@@ -1,11 +1,36 @@
-import { Prisma, type Payment, type TournamentPlan } from '@prisma/client';
+import { Prisma, type LeaguePlanBand, type Payment, type TournamentPlan } from '@prisma/client';
 import prisma, { type DbClient } from '../../config/database.js';
 import { recordAudit } from '../audit/record.js';
 import { limitAt, priceAt, quote, type Currency, type Plan, type PriceSnapshot } from '../pricing/catalog.js';
 import { splitGross } from '../pricing/vat.js';
 import { lockCompetition, organizerPlanUntil, PRODUCT_PLAN, teamAllowance } from '../plans/tournamentPlan.js';
-import { paymentAccount, payableCurrencies, spdString } from './account.js';
+import {
+  bankAccounts,
+  czechLocal,
+  METHODS_BY_CURRENCY,
+  paymentAccount,
+  payableCurrencies,
+  spdString,
+  suggestedMethod,
+  transferMessage,
+  type BankAccounts,
+  type PaymentAccount,
+  type PaymentMethod,
+} from './account.js';
+import { bysquareString } from './bysquare.js';
 import { issueTaxDocument } from '../invoices/documents.js';
+import emailService from '../emailService.js';
+import { localeOf } from '../../i18n/index.js';
+import {
+  BAND_PLAN,
+  BAND_PRODUCT,
+  BAND_RANK,
+  bandFor,
+  coverWaitingSeasons,
+  leaguePlanStatus,
+  PRODUCT_BAND,
+  runningLeaguePlan,
+} from '../plans/leaguePlan.js';
 
 /**
  * Buying a plan for a tournament (celek B3): the organiser picks a plan, ATM
@@ -40,7 +65,12 @@ export interface PlanOffer {
 }
 
 /** What a payment snapshot holds beyond the quote: an upgrade records what it was paid on top of. */
-export type PaymentSnapshot = PriceSnapshot & { upgradeFrom?: TournamentPlan; fullGross?: number };
+export type PaymentSnapshot = PriceSnapshot & {
+  upgradeFrom?: TournamentPlan | LeaguePlanBand;
+  fullGross?: number;
+  /** The account the payer was told to pay to; later edits in the administration never change it. */
+  account?: Pick<PaymentAccount, 'iban' | 'bic' | 'recipient'>;
+};
 
 export class PaymentError extends Error {
   constructor(
@@ -59,7 +89,7 @@ export async function planOffers(tournamentId: string, userId: string, tx: DbCli
     select: { plan: true, series: { select: { managerId: true } } },
   });
   if (!tournament) throw new PaymentError('NOT_FOUND', 'Tournament not found', 404);
-  const currencies = payableCurrencies();
+  const currencies = await payableCurrencies(tx);
   const managerId = tournament.series.managerId;
   const now = new Date();
   const organizerUntil = managerId ? await organizerPlanUntil(managerId, now, tx) : null;
@@ -101,6 +131,7 @@ export async function planOffers(tournamentId: string, userId: string, tx: DbCli
 
 const paymentInclude = {
   tournament: { select: { id: true, name: true } },
+  league: { select: { id: true, name: true } },
   payer: { select: { id: true, name: true, email: true } },
   confirmedBy: { select: { id: true, name: true, email: true } },
   taxDocument: { select: { id: true, number: true, kind: true, issuedAt: true, emailedAt: true } },
@@ -108,17 +139,56 @@ const paymentInclude = {
 
 export type PaymentWithRelations = Prisma.PaymentGetPayload<{ include: typeof paymentInclude }>;
 
+/**
+ * The account a payment goes to: the one stored when it was created, or for
+ * a payment from before celek K the administration's current one.
+ */
+function accountOf(payment: Payment, accounts?: BankAccounts): PaymentAccount | null {
+  const currency = payment.currency as Currency;
+  const stored = (payment.snapshot as unknown as PaymentSnapshot).account;
+  if (stored) return { currency, local: czechLocal(stored.iban) ?? stored.iban, ...stored };
+  return accounts?.[currency] ?? null;
+}
+
+/** What to pay for a waiting payment: the QR string per QR method (none for a SEPA transfer), and the details to type in by hand. */
+function transferView(payment: Payment, account: PaymentAccount | null) {
+  if (payment.status !== 'PENDING' || !account) return { qr: null, transfer: null };
+  const currency = payment.currency as Currency;
+  const methods = METHODS_BY_CURRENCY[currency];
+  // The Czech flow stays as it was; euro transfers carry /VS/…/ for the Czech bank's statement.
+  const message = currency === 'CZK'
+    ? `ATM ${payment.productCode} ${payment.variableSymbol}`
+    : transferMessage(payment.variableSymbol, payment.productCode);
+  const qr: Partial<Record<PaymentMethod, string>> = {};
+  for (const method of methods) {
+    if (method === 'SPD') qr.SPD = spdString(account, payment.amount, payment.variableSymbol, message);
+    if (method === 'BYSQUARE') qr.BYSQUARE = bysquareString(account, payment.amount, payment.variableSymbol, message);
+  }
+  return {
+    qr,
+    transfer: {
+      iban: account.iban,
+      bic: account.bic,
+      recipient: account.recipient,
+      amount: (payment.amount / 100).toFixed(2),
+      currency,
+      variableSymbol: payment.variableSymbol,
+      message,
+    },
+  };
+}
+
 /** A payment as the organiser and the admin see it, with what to pay to. */
-export function paymentView(payment: PaymentWithRelations) {
+export function paymentView(payment: PaymentWithRelations, accounts?: BankAccounts) {
   const snapshot = payment.snapshot as unknown as PaymentSnapshot;
   const currency = payment.currency as Currency;
-  const account = paymentAccount(currency);
+  const account = accountOf(payment, accounts);
   return {
     id: payment.id,
     variableSymbol: payment.variableSymbol,
     status: payment.status,
     productCode: payment.productCode,
-    plan: PRODUCT_PLAN[payment.productCode] ?? null,
+    plan: PRODUCT_PLAN[payment.productCode] ?? (PRODUCT_BAND[payment.productCode] ? BAND_PLAN[PRODUCT_BAND[payment.productCode]] : null),
     productName: snapshot.productName,
     currency,
     amount: payment.amount,
@@ -127,17 +197,23 @@ export function paymentView(payment: PaymentWithRelations) {
     vatRateBp: snapshot.vatRateBp,
     upgradeFrom: snapshot.upgradeFrom ?? null,
     tournament: payment.tournament,
+    league: payment.league,
     payer: payment.payer,
     confirmedBy: payment.confirmedBy,
     createdAt: payment.createdAt,
     confirmedAt: payment.confirmedAt,
     cancelledAt: payment.cancelledAt,
     document: payment.taxDocument,
-    account: { local: account.local, iban: account.iban, bic: account.bic, recipient: account.recipient },
-    qr: payment.status === 'PENDING'
-      ? spdString(account, payment.amount, payment.variableSymbol, `ATM ${payment.productCode} ${payment.variableSymbol}`)
-      : null,
+    account: account ? { local: account.local, iban: account.iban, bic: account.bic, recipient: account.recipient } : null,
+    methods: METHODS_BY_CURRENCY[currency],
+    ...transferView(payment, account),
   };
+}
+
+/** Views of several payments, reading the administration's accounts once. */
+export async function paymentViews(payments: PaymentWithRelations[]) {
+  const accounts = await bankAccounts();
+  return payments.map((payment) => paymentView(payment, accounts));
 }
 
 export async function findPayment(id: string, tx: DbClient = prisma) {
@@ -170,11 +246,13 @@ export async function createPayment(input: {
     const amount = offer?.prices[input.currency];
     if (!offer || amount === undefined) throw new PaymentError('NOT_OFFERED', 'This plan is not offered for the tournament', 400);
 
+    const account = await paymentAccount(input.currency, tx);
+    if (!account) throw new PaymentError('NOT_OFFERED', 'There is no account for this currency', 400);
     // Until billing details arrive (B6), every customer is a Czech consumer.
     const quoted = await quote({ productCode: offer.productCode, currency: input.currency, country: 'CZ' }, tx);
-    let snapshot: PaymentSnapshot = quoted;
+    let snapshot: PaymentSnapshot = { ...quoted, account: { iban: account.iban, bic: account.bic, recipient: account.recipient } };
     if (offer.upgradeFrom) {
-      snapshot = { ...quoted, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
+      snapshot = { ...snapshot, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
     }
 
     const payment = await tx.payment.create({
@@ -200,7 +278,7 @@ export async function createPayment(input: {
   });
 }
 
-const auditView = (payment: Payment & { tournament?: { name: string } | null }) => ({
+const auditView = (payment: Payment & { tournament?: { name: string } | null; league?: { name: string } | null }) => ({
   name: `${payment.variableSymbol}`,
   variableSymbol: payment.variableSymbol,
   productCode: payment.productCode,
@@ -208,6 +286,7 @@ const auditView = (payment: Payment & { tournament?: { name: string } | null }) 
   currency: payment.currency,
   status: payment.status,
   tournament: payment.tournament?.name ?? null,
+  league: payment.league?.name ?? null,
 });
 
 /** Withdraws a payment nobody confirmed yet. */
@@ -264,6 +343,8 @@ export async function confirmPayment(id: string, adminId: string, reason?: strin
       await tx.organizerPlan.create({
         data: { userId: payment.payerId, validFrom, validUntil: period.until, paymentId: payment.id },
       });
+    } else if (PRODUCT_BAND[payment.productCode] && payment.leagueId) {
+      period = await applyLeaguePlan(tx, payment, now);
     } else if (plan && payment.tournamentId) {
       const tournament = await tx.tournament.findUnique({ where: { id: payment.tournamentId }, select: { plan: true } });
       const target = plan as TournamentPlan;
@@ -294,5 +375,197 @@ export async function planStatus(tournamentId: string) {
   const allowance = await teamAllowance(tournamentId);
   if (!allowance) return null;
   const pending = await pendingPayment(tournamentId);
-  return { ...allowance, payment: pending ? paymentView(pending) : null };
+  return { ...allowance, payment: pending ? paymentView(pending, await bankAccounts()) : null };
+}
+
+// ---------------------------------------------------------------------------
+// League plan (services/plans/leaguePlan.ts): a year per league, two bands
+// ---------------------------------------------------------------------------
+
+export type LeagueOfferKind = 'NEW' | 'UPGRADE' | 'RENEWAL';
+
+export interface LeaguePlanOffer {
+  band: LeaguePlanBand;
+  kind: LeagueOfferKind;
+  productCode: string;
+  /** Teams a season may have; null is no limit. */
+  limit: number | null;
+  /** Minor units, VAT included, per payable currency. An upgrade costs the difference. */
+  prices: Partial<Record<Currency, number>>;
+  upgradeFrom: LeaguePlanBand | null;
+  /** When the year starts: now for a new plan, the end of the running year for a renewal. */
+  startsAt: Date | null;
+  /** When an upgrade ends: with the running year. */
+  endsAt: Date | null;
+}
+
+/** The most teams any season still in play has, the bigger one decides the band. */
+async function teamsNeeded(leagueId: string, tx: DbClient): Promise<number> {
+  const seasons = await tx.season.findMany({
+    where: { leagueId, archivedAt: null, OR: [{ plan: 'UNPAID' }, { status: { not: 'COMPLETED' } }] },
+    select: { _count: { select: { seasonTeams: true } } },
+  });
+  return Math.max(0, ...seasons.map((season) => season._count.seasonTeams));
+}
+
+/** The League plans the league's manager may buy now, with prices. */
+export async function leaguePlanOffers(leagueId: string, tx: DbClient = prisma): Promise<LeaguePlanOffer[]> {
+  const league = await tx.league.findUnique({ where: { id: leagueId }, select: { id: true } });
+  if (!league) throw new PaymentError('NOT_FOUND', 'League not found', 404);
+  const now = new Date();
+  const currencies = await payableCurrencies(tx);
+  const running = await runningLeaguePlan(leagueId, now, tx);
+  const needed = await bandFor(await teamsNeeded(leagueId, tx), now, tx);
+  const bands: LeaguePlanBand[] = (['SMALL', 'LARGE'] as const).filter((band) => BAND_RANK[band] >= BAND_RANK[needed]);
+
+  const candidates: { band: LeaguePlanBand; kind: LeagueOfferKind }[] = [];
+  if (!running) {
+    for (const band of bands) candidates.push({ band, kind: 'NEW' });
+  } else {
+    if (running.band === 'SMALL') candidates.push({ band: 'LARGE', kind: 'UPGRADE' });
+    if (running.until.getTime() - now.getTime() <= RENEWAL_DAYS * DAY_MS) {
+      for (const band of bands) candidates.push({ band, kind: 'RENEWAL' });
+    }
+  }
+
+  const offers: LeaguePlanOffer[] = [];
+  for (const { band, kind } of candidates) {
+    const productCode = BAND_PRODUCT[band];
+    const price = await priceAt(productCode, now, tx);
+    if (!price) continue;
+    const credit = kind === 'UPGRADE' ? await priceAt(BAND_PRODUCT.SMALL, now, tx) : null;
+    const prices: Partial<Record<Currency, number>> = {};
+    for (const currency of currencies) {
+      const field = currency === 'CZK' ? 'priceCzk' : 'priceEur';
+      prices[currency] = Math.max(0, price[field] - (credit?.[field] ?? 0));
+    }
+    offers.push({
+      band,
+      kind,
+      productCode,
+      limit: (await limitAt(BAND_PLAN[band], 'TEAMS_PER_SEASON', now, tx)) ?? null,
+      prices,
+      upgradeFrom: kind === 'UPGRADE' ? 'SMALL' : null,
+      startsAt: kind === 'RENEWAL' ? running!.until : null,
+      endsAt: kind === 'UPGRADE' ? running!.until : null,
+    });
+  }
+  return offers;
+}
+
+/** The league's payment waiting for confirmation, if there is one. */
+export async function pendingLeaguePayment(leagueId: string, tx: DbClient = prisma) {
+  return tx.payment.findFirst({ where: { leagueId, status: 'PENDING' }, include: paymentInclude });
+}
+
+/** Starts a payment for a League plan; one waits per league at a time. */
+export async function createLeaguePayment(input: {
+  leagueId: string;
+  payerId: string;
+  band: LeaguePlanBand;
+  kind: LeagueOfferKind;
+  currency: Currency;
+  immediateStartConsentAt: Date;
+}): Promise<PaymentWithRelations> {
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM leagues WHERE id = ${input.leagueId} FOR UPDATE`;
+    if (await tx.payment.count({ where: { leagueId: input.leagueId, status: 'PENDING' } })) {
+      throw new PaymentError('PAYMENT_PENDING', 'A payment for this league is already waiting', 409);
+    }
+    const offer = (await leaguePlanOffers(input.leagueId, tx)).find((item) => item.band === input.band && item.kind === input.kind);
+    const amount = offer?.prices[input.currency];
+    if (!offer || amount === undefined) throw new PaymentError('NOT_OFFERED', 'This plan is not offered for the league', 400);
+
+    const account = await paymentAccount(input.currency, tx);
+    if (!account) throw new PaymentError('NOT_OFFERED', 'There is no account for this currency', 400);
+    const quoted = await quote({ productCode: offer.productCode, currency: input.currency, country: 'CZ' }, tx);
+    let snapshot: PaymentSnapshot = { ...quoted, account: { iban: account.iban, bic: account.bic, recipient: account.recipient } };
+    if (offer.upgradeFrom) {
+      snapshot = { ...snapshot, ...splitGross(amount, quoted.vatRateBp), gross: amount, upgradeFrom: offer.upgradeFrom, fullGross: quoted.gross };
+    }
+    const payment = await tx.payment.create({
+      data: {
+        productCode: offer.productCode,
+        currency: input.currency,
+        amount: snapshot.gross,
+        snapshot: snapshot as unknown as Prisma.InputJsonValue,
+        payerId: input.payerId,
+        leagueId: input.leagueId,
+        immediateStartConsentAt: input.immediateStartConsentAt,
+      },
+      include: paymentInclude,
+    });
+    await recordAudit({ entityType: 'Payment', entityId: payment.id, action: 'CREATE', after: auditView(payment), actorId: input.payerId }, tx);
+    return payment;
+  });
+}
+
+/**
+ * Inside the confirming transaction: a year of the plan, starting when a
+ * running year ends; an upgrade covers the rest of the running year. Seasons
+ * waiting for the plan are covered from now on.
+ */
+async function applyLeaguePlan(tx: Prisma.TransactionClient, payment: PaymentWithRelations, now: Date) {
+  const band = PRODUCT_BAND[payment.productCode];
+  const leagueId = payment.leagueId!;
+  const snapshot = payment.snapshot as unknown as PaymentSnapshot;
+  const running = await runningLeaguePlan(leagueId, now, tx);
+  const upgrade = snapshot.upgradeFrom === 'SMALL';
+  const from = upgrade ? now : (running?.until ?? now);
+  const until = upgrade ? (running?.until ?? addYear(now)) : addYear(from);
+  await tx.leaguePlan.create({ data: { leagueId, band, validFrom: from, validUntil: until, paymentId: payment.id } });
+  await coverWaitingSeasons(tx, leagueId);
+  return { from, until };
+}
+
+/** For the league manager's view: the plan, waiting seasons, offers and the payment waiting. */
+export async function leaguePlanView(leagueId: string, viewerLocale?: string) {
+  const status = await leaguePlanStatus(leagueId);
+  if (!status) return null;
+  const pending = await pendingLeaguePayment(leagueId);
+  const offers = status.enabled ? await leaguePlanOffers(leagueId) : [];
+  const accounts = await bankAccounts();
+  const currencies = await payableCurrencies();
+  return {
+    ...status,
+    offers,
+    currencies,
+    suggestedMethod: suggestedMethod(viewerLocale, currencies),
+    payment: pending ? paymentView(pending, accounts) : null,
+  };
+}
+
+/**
+ * E-mails the payer the transfer details of a payment they just started, in
+ * their language, naming the QR format their country most likely uses.
+ */
+export function sendPaymentInstructions(payment: PaymentWithRelations): void {
+  void (async () => {
+    if (!payment.payerId) return;
+    const payer = await prisma.user.findUnique({ where: { id: payment.payerId }, select: { email: true, name: true, locale: true } });
+    const view = paymentView(payment);
+    if (!payer || !view.transfer) return;
+    const locale = localeOf(payer.locale);
+    const currencies = [view.currency];
+    const method = suggestedMethod(payer.locale, currencies) ?? view.methods[0];
+    const path = payment.tournamentId
+      ? `/tournament-management/tournament/${payment.tournamentId}`
+      : '/season-management/my-seasons';
+    await emailService.sendPaymentInstructionsEmail({
+      to: payer.email,
+      name: payer.name,
+      locale,
+      product: locale === 'en' ? view.productName.en : view.productName.cs,
+      amount: view.transfer.amount,
+      currency: view.transfer.currency,
+      iban: view.transfer.iban,
+      bic: view.transfer.bic,
+      recipient: view.transfer.recipient,
+      local: view.account?.local !== view.transfer.iban ? (view.account?.local ?? null) : null,
+      variableSymbol: view.transfer.variableSymbol,
+      message: view.transfer.message,
+      method,
+      path,
+    });
+  })().catch((error) => console.error('Payment instructions email error:', error));
 }

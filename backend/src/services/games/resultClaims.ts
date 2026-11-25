@@ -65,12 +65,13 @@ export const settleClaims = async (
   const game = await tx.game.findUniqueOrThrow({
     where: { id: gameId },
     include: {
-      season: { select: { autoConfirmAgreed: true } },
+      season: { select: { autoConfirmAgreed: true, plan: true } },
       resultClaims: true,
     },
   });
 
-  const state = claimState(game, game.season.autoConfirmAgreed);
+  // A season waiting for its League plan confirms nothing: agreeing teams stay AGREED.
+  const state = claimState(game, game.season.autoConfirmAgreed && game.season.plan !== 'UNPAID');
   if (state !== 'CONFIRMED') return state ?? 'WAITING';
 
   const { homeScore, awayScore } = game.resultClaims[0];

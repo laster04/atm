@@ -46,8 +46,17 @@ The frontend opens the plan offer (`UpgradeDialog`) on either refusal.
 ## Payments
 
 1. `POST /api/tournaments/:id/payments` creates a `Payment` with a numeric
-   variable symbol; the dialog shows an SPD QR code for the ATM account
-   (`services/payments/account.ts`, hardcoded).
+   variable symbol and stores the account it goes to. The bank accounts (CZK
+   and EUR) are set by the pricing manager in admin › Ceník a DPH
+   (`app_settings.bank_accounts`, audited); account numbers are never in the
+   code. The payer picks where they pay from (suggested by their language):
+   a Czech bank gets the SPD code in CZK, a Slovak bank PAY by square in EUR
+   (`services/payments/bysquare.ts`, also to a Czech EUR IBAN), any other
+   eurozone bank a plain SEPA transfer in EUR without a QR code (IBAN, BIC
+   and message typed in by hand; the EPC QR code was dropped because banks
+   read it too unevenly). Euro transfers carry `/VS/<variable symbol>/` in the message. Every
+   detail is also shown as text with a copy button, and the payer gets the
+   instructions by e-mail (celek K, canvas page 14).
 2. An admin confirms the transfer in the admin payments screen
    (`POST /api/admin/payments/confirm`). The plan applies from then on.
 3. A tax document (`TaxDocument`, numbered `ATM26-0001`) is rendered as PDF

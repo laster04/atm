@@ -2,7 +2,8 @@ import { NextFunction, Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
 import { recordAudit } from '../services/audit/record.js';
-import { CURRENCIES, LIMIT_KEYS, PLANS, ossEnabled, setOssEnabled, type LimitKey, type Plan } from '../services/pricing/catalog.js';
+import { bankAccounts, normaliseBic, normaliseIban, setBankAccount } from '../services/payments/account.js';
+import { CURRENCIES, LIMIT_KEYS, PLANS, leaguePlansEnabled, ossEnabled, setOssEnabled, type Currency, type LimitKey, type Plan } from '../services/pricing/catalog.js';
 import { EU_COUNTRIES, isEuCountry, percentToBp } from '../services/pricing/vat.js';
 import { ossYearTotal } from '../services/pricing/oss.js';
 import { parseCalendarDate, zonedDateTime, zonedParts } from '../utils/time.js';
@@ -78,13 +79,15 @@ function splitVersions<T extends { validFrom: Date }>(rows: T[], now: Date) {
 export const getPricing = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const now = new Date();
-    const [me, products, rates, limits, oss, ossTotal] = await Promise.all([
+    const [me, products, rates, limits, oss, ossTotal, leaguePlans, accounts] = await Promise.all([
       prisma.user.findUnique({ where: { id: req.user!.id }, select: { canManagePricing: true } }),
       prisma.product.findMany({ orderBy: { sortOrder: 'asc' }, include: { prices: true } }),
       prisma.vatRate.findMany(),
       prisma.planLimit.findMany(),
       ossEnabled(),
       ossYearTotal(),
+      leaguePlansEnabled(),
+      bankAccounts(),
     ]);
 
     const countries = [...new Set(rates.map((rate) => rate.country))].sort((a, b) => (a === 'CZ' ? -1 : b === 'CZ' ? 1 : a.localeCompare(b)));
@@ -100,6 +103,8 @@ export const getPricing = async (req: AuthRequest, res: Response): Promise<void>
       euCountries: EU_COUNTRIES,
       limits: { plans: PLANS, keys: LIMIT_KEYS, cells: limitCells },
       oss: { enabled: oss, ...ossTotal },
+      leaguePlans: { enabled: leaguePlans },
+      bankAccounts: accounts,
     });
   } catch (error) {
     fail(res, error, 'Failed to load pricing');
@@ -288,5 +293,42 @@ export const updateOss = async (req: AuthRequest, res: Response): Promise<void> 
     res.json({ enabled });
   } catch (error) {
     fail(res, error, 'Failed to switch OSS');
+  }
+};
+
+/**
+ * PUT /api/admin/pricing/bank-accounts/:currency { iban, bic, recipient, reason }
+ * The account organisers pay to in that currency (celek K). Only the pricing
+ * manager; every change is audited with the reason. Payments already created
+ * keep the account they were given.
+ */
+export const updateBankAccount = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const currency = req.params.currency as Currency;
+    if (!CURRENCIES.includes(currency)) throw new InputError('Unknown currency', 'CURRENCY');
+    const iban = normaliseIban(String(req.body?.iban ?? ''));
+    if (!iban) throw new InputError('This IBAN is not valid', 'IBAN_FORMAT');
+    const bic = normaliseBic(String(req.body?.bic ?? ''));
+    if (!bic) throw new InputError('This BIC is not valid', 'BIC_FORMAT');
+    const recipient = typeof req.body?.recipient === 'string' ? req.body.recipient.trim().slice(0, 70) : '';
+    if (!recipient) throw new InputError('The account holder is required', 'RECIPIENT_REQUIRED');
+    const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim().slice(0, 500) : '';
+    if (!reason) throw new InputError('A reason is required to change a bank account', 'REASON_REQUIRED');
+
+    await prisma.$transaction(async (tx) => {
+      const before = await setBankAccount(currency, { iban, bic, recipient }, tx);
+      await recordAudit({
+        entityType: 'Setting',
+        entityId: `bank_account_${currency}`,
+        action: before ? 'UPDATE' : 'CREATE',
+        before: before ? { name: `${currency} account`, ...before } : undefined,
+        after: { name: `${currency} account`, iban, bic, recipient },
+        reason,
+        actorId: req.user!.id,
+      }, tx);
+    });
+    res.json((await bankAccounts())[currency]);
+  } catch (error) {
+    fail(res, error, 'Failed to save the bank account');
   }
 };

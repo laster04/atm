@@ -159,7 +159,8 @@ describe('admin pricing API', () => {
     const asViewer = await request(app).get('/api/admin/pricing').set(auth(viewer.token));
     expect(asViewer.status).toBe(200);
     expect(asViewer.body.canEdit).toBe(false);
-    expect(asViewer.body.products.map((row: { code: string }) => row.code)).toEqual(['TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER_YEAR']);
+    expect(asViewer.body.products.map((row: { code: string }) => row.code)).toEqual(['TOURNAMENT', 'TOURNAMENT_PLUS', 'ORGANIZER_YEAR', 'LEAGUE_SMALL_YEAR', 'LEAGUE_LARGE_YEAR']);
+    expect(asViewer.body.leaguePlans).toEqual({ enabled: false });
     expect(asViewer.body.products[0].current).toMatchObject({ priceCzk: 69000, priceEur: 2900 });
     expect(asViewer.body.oss).toMatchObject({ enabled: false, limitEurCents: 1_000_000, tracked: false });
 

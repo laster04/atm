@@ -1,15 +1,16 @@
 import { Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthRequest } from '../types/index.js';
-import { canManageTournament } from '../services/access.js';
+import { canManageLeague, canManageTournament } from '../services/access.js';
 import emailService from '../services/emailService.js';
 import { CURRENCIES, type Currency } from '../services/pricing/catalog.js';
-import { payableCurrencies } from '../services/payments/account.js';
+import { payableCurrencies, suggestedMethod } from '../services/payments/account.js';
 import {
   cancelPayment,
   createPayment,
   findPayment,
   paymentView,
+  sendPaymentInstructions,
   planOffers,
   planStatus,
   PaymentError,
@@ -44,7 +45,12 @@ export const getPlan = async (req: AuthRequest, res: Response): Promise<void> =>
 /** GET /api/tournaments/:id/plan/offers */
 export const getOffers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    res.json({ offers: await planOffers(req.params.id, req.user!.id), currencies: payableCurrencies() });
+    const currencies = await payableCurrencies();
+    res.json({
+      offers: await planOffers(req.params.id, req.user!.id),
+      currencies,
+      suggestedMethod: suggestedMethod(req.user!.locale, currencies),
+    });
   } catch (error) {
     answerError(res, error, 'Failed to fetch the offers', 'Get plan offers error:');
   }
@@ -89,19 +95,21 @@ export const startPayment = async (req: AuthRequest, res: Response): Promise<voi
       immediateStartConsentAt: new Date(),
     });
     notifyAdmins(payment);
+    sendPaymentInstructions(payment);
     res.status(201).json(paymentView(payment));
   } catch (error) {
     answerError(res, error, 'Failed to start the payment', 'Start payment error:');
   }
 };
 
-/** POST /api/payments/:id/cancel: the payer or whoever manages the tournament. */
+/** POST /api/payments/:id/cancel: the payer or whoever manages the tournament or league. */
 export const cancelOwnPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const payment = await findPayment(req.params.id);
     const allowed = payment && (
       payment.payerId === req.user!.id
       || (payment.tournamentId && (await canManageTournament(req.user!, payment.tournamentId)))
+      || (payment.leagueId && (await canManageLeague(req.user!, payment.leagueId)))
     );
     if (!payment || !allowed) { res.status(404).json({ error: 'Payment not found' }); return; }
     res.json(paymentView(await cancelPayment(payment.id, req.user!.id)));

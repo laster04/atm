@@ -123,6 +123,23 @@ const en: EmailTexts = {
     file: 'document-{{number}}.pdf',
   },
 
+  paymentInstructions: {
+    subject: 'Payment for {{product}} – reference {{variableSymbol}}',
+    header: 'How to pay',
+    intro: 'you chose <strong>{{product}}</strong>. The plan starts once the payment arrives and we confirm it.',
+    amount: 'Amount',
+    account: 'Account',
+    iban: 'IBAN',
+    bic: 'BIC (SWIFT)',
+    recipient: 'Recipient',
+    variableSymbol: 'Variable symbol',
+    message: 'Message for the recipient',
+    qr: 'The QR code is in ATM next to the plan: {{format}}.',
+    formats: { SPD: 'Czech QR payment', BYSQUARE: 'PAY by square for Slovak banks' },
+    sepa: 'Please send a SEPA transfer in euros and copy the message for the recipient exactly; we match the payment by it.',
+    button: 'Show the payment',
+  },
+
   registrationReceived: {
     subject: 'Application for {{team}} – {{competition}}',
     header: 'Application received',

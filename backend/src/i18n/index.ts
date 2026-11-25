@@ -1,6 +1,7 @@
 import cs from './emails/cs.js';
 import en from './emails/en.js';
 import sk from './emails/sk.js';
+import pl from './emails/pl.js';
 
 /**
  * Languages the server writes in: e-mails and the shareable results image.
@@ -8,7 +9,7 @@ import sk from './emails/sk.js';
  * leave the server. Adding a language = a file in ./emails with the same
  * shape (TypeScript refuses one with a text missing) and an entry here.
  */
-export const LOCALES = ['cs', 'en', 'sk'] as const;
+export const LOCALES = ['cs', 'en', 'sk', 'pl'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = 'cs';
@@ -23,11 +24,11 @@ export function localeOf(value: unknown, fallback: Locale = DEFAULT_LOCALE): Loc
 }
 
 /** For Intl date and number formatting. */
-export const intlLocale = (locale: Locale): string => ({ cs: 'cs-CZ', en: 'en-GB', sk: 'sk-SK' })[locale];
+export const intlLocale = (locale: Locale): string => ({ cs: 'cs-CZ', en: 'en-GB', sk: 'sk-SK', pl: 'pl-PL' })[locale];
 
 export type EmailTexts = typeof cs;
 
-const EMAILS: Record<Locale, EmailTexts> = { cs, en, sk };
+const EMAILS: Record<Locale, EmailTexts> = { cs, en, sk, pl };
 
 export const emailTexts = (locale: Locale): EmailTexts => EMAILS[locale];
 

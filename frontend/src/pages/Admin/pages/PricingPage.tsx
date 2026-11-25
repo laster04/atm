@@ -8,6 +8,8 @@ import type { PricingOverview } from '@types';
 import ConfirmDialog from '../components/list/ConfirmDialog';
 import PriceForm from '../components/pricing/PriceForm';
 import OssCard from '../components/pricing/OssCard';
+import LeaguePlansCard from '../components/pricing/LeaguePlansCard';
+import BankAccountsCard from '../components/pricing/BankAccountsCard';
 import LookupCard from '../components/pricing/LookupCard';
 import { countryName, formatMoney, formatRate } from '../components/pricing/money';
 import { Card, PrimaryButton, SmallButton, inputClass, labelClass, useFromDay } from '../components/pricing/shared';
@@ -81,7 +83,7 @@ export default function PricingPage() {
 
 			<div className="flex flex-wrap items-start gap-4">
 				<div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4">
-					<Card title={t('adminShell.pricing.products')} action={<span className="text-[13px] text-muted-foreground">{t('adminShell.pricing.leaguePlansLater')}</span>}>
+					<Card title={t('adminShell.pricing.products')}>
 						<div className="overflow-x-auto">
 							<table className="w-full min-w-[640px] border-collapse text-[13.5px]">
 								<thead>
@@ -178,6 +180,8 @@ export default function PricingPage() {
 							onCancel={() => setEditingProduct(null)}
 						/>
 					)}
+					<BankAccountsCard accounts={data.bankAccounts} canEdit={data.canEdit} onChanged={load} />
+					<LeaguePlansCard enabled={data.leaguePlans.enabled} canEdit={data.canEdit} onChanged={load} />
 					<OssCard oss={data.oss} canEdit={data.canEdit} onChanged={load} />
 					<LookupCard />
 				</aside>
@@ -258,6 +262,8 @@ function LimitsCard({ data, editing, onEdit, onDone, onCancel }: {
 	const fromDay = useFromDay();
 	const { plans, keys, cells } = data.limits;
 	const cell = (plan: string, key: string) => cells.find((row) => row.plan === plan && row.key === key);
+	// League plans have only a team limit per season, and only they have it.
+	const applies = (plan: string, key: string) => plan.startsWith('LEAGUE_') === (key === 'TEAMS_PER_SEASON');
 	const asText = (value: number | null | undefined) => (value === null ? '' : value === undefined ? '0' : String(value));
 	const [draft, setDraft] = useState<Record<string, string>>({});
 	const [validFrom, setValidFrom] = useState('');
@@ -311,6 +317,7 @@ function LimitsCard({ data, editing, onEdit, onDone, onCancel }: {
 								{plans.map((plan) => {
 									const row = cell(plan, key);
 									const id = `${plan}:${key}`;
+									if (!applies(plan, key)) return <td key={plan} className="px-3.5 py-2 text-muted-foreground" aria-hidden>·</td>;
 									return (
 										<td key={plan} className="px-3.5 py-2">
 											{editing ? (

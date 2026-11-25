@@ -16,6 +16,7 @@ import {
   teamAllowance,
   type TeamAllowance,
 } from '../services/plans/tournamentPlan.js';
+import { assertSeasonTeamSlot, SeasonTeamLimitError, seasonTeamLimitBody } from '../services/plans/leaguePlan.js';
 
 type Kind = 'season' | 'tournament';
 
@@ -890,6 +891,7 @@ export const approve = async (req: AuthRequest, res: Response): Promise<void> =>
       if (allowance && allowance.limit !== null && teams >= allowance.limit) throw new PlanLimitError({ ...allowance, teams });
 
       if (competition.kind === 'season') {
+        await assertSeasonTeamSlot(tx, competition.id);
         let teamId = registration.existingTeamId;
         if (teamId) {
           const already = await tx.seasonTeam.findUnique({ where: { seasonId_teamId: { seasonId: competition.id, teamId } } });
@@ -928,6 +930,10 @@ export const approve = async (req: AuthRequest, res: Response): Promise<void> =>
   } catch (error) {
     if (error instanceof PlanLimitError) {
       res.status(409).json(planLimitBody(error));
+      return;
+    }
+    if (error instanceof SeasonTeamLimitError) {
+      res.status(409).json(seasonTeamLimitBody(error));
       return;
     }
     if (error instanceof Full) {

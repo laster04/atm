@@ -3021,7 +3021,8 @@
         "PlanLimit": "Plan limits",
         "Setting": "Settings",
         "Tournament": "Tournaments",
-        "Payment": "Payments"
+        "Payment": "Payments",
+        "League": "Leagues"
       }
     },
     "users": {
@@ -3115,7 +3116,6 @@
     "pricing": {
       "readOnly": "You can look but not change. Only the pricing manager account changes prices, VAT rates, limits and OSS.",
       "products": "Products",
-      "leaguePlansLater": "League plans come later",
       "product": "Product",
       "czk": "CZK incl. VAT",
       "eur": "EUR incl. VAT",
@@ -3162,14 +3162,17 @@
         "FREE": "Free",
         "TOURNAMENT": "Tournament",
         "TOURNAMENT_PLUS": "Tournament Plus",
-        "ORGANIZER": "Organiser"
+        "ORGANIZER": "Organiser",
+        "LEAGUE_SMALL": "League ≤12",
+        "LEAGUE_LARGE": "League >12"
       },
       "limitKeys": {
         "TEAMS_PER_TOURNAMENT": "Teams per tournament",
         "SPONSOR_LOGOS": "Sponsor logos",
         "DOCUMENTS": "Documents (PDF)",
         "DOCUMENT_MAX_MB": "Document size (MB)",
-        "LOGO_MAX_MB": "Team logo (MB)"
+        "LOGO_MAX_MB": "Team logo (MB)",
+        "TEAMS_PER_SEASON": "Teams per season"
       },
       "limitsHint": "Leave a cell empty for unlimited; 0 means not included. Only changed cells are saved.",
       "limitsSaved": "Limit change scheduled",
@@ -3211,7 +3214,26 @@
       "checkedAt": "Checked {{when}}",
       "consultation": "consultation number {{id}}",
       "ico": "IČO {{ico}}",
-      "dic": "VAT ID {{dic}}"
+      "dic": "VAT ID {{dic}}",
+      "leaguePlans": {
+        "title": "Paid League plan",
+        "onHint": "On: an organiser’s second season or second league waits for the League plan. Leagues with a free-until date and free seasons do not pay.",
+        "offHint": "Off: every new season is free. Turn it on once the League plan prices are final.",
+        "onTitle": "Turn the paid League plan on?",
+        "offTitle": "Turn the paid League plan off?",
+        "onConfirm": "New seasons without a free season left will wait for the League plan. Seasons already created do not change.",
+        "offConfirm": "New seasons will be free. Seasons already waiting for the plan keep waiting.",
+        "switchedOn": "League plan turned on",
+        "switchedOff": "League plan turned off"
+      },
+      "bankAccounts": {
+        "title": "Bank accounts",
+        "hint": "Organisers pay plans to these accounts. A currency without an account is not offered. Payments already created keep the account they were given.",
+        "change": "Change",
+        "recipient": "Account holder",
+        "missing": "No account: payments in this currency are not available.",
+        "saved": "Account saved"
+      }
     },
     "payments": {
       "kicker": "Payment",
@@ -3234,7 +3256,9 @@
       "products": {
         "TOURNAMENT": "Tournament",
         "TOURNAMENT_PLUS": "Tournament Plus",
-        "ORGANIZER_YEAR": "Organiser (year)"
+        "ORGANIZER_YEAR": "Organiser (year)",
+        "LEAGUE_SMALL_YEAR": "League up to 12 teams (year)",
+        "LEAGUE_LARGE_YEAR": "League over 12 teams (year)"
       },
       "upgradeFrom": "Upgrade from",
       "account": "Account",
@@ -3270,7 +3294,23 @@
       "documentEmailed": "E-mailed to the payer {{when}}",
       "documentNotEmailed": "Not e-mailed yet",
       "downloadDocument": "Download PDF",
-      "documentError": "The document could not be opened."
+      "documentError": "The document could not be opened.",
+      "league": "League"
+    },
+    "leaguePlan": {
+      "open": "League plan",
+      "title": "League plan · {{name}}",
+      "current": "Now",
+      "waiting": "Seasons waiting for the plan",
+      "reason": "Reason (saved to the audit log)",
+      "freeUntil": "Free until",
+      "freeUntilHint": "Seasons created up to this day need no plan. An empty field removes the date.",
+      "save": "Save",
+      "grant": "Grant a plan without payment",
+      "grantHint": "For a founding price or an exception. It also covers seasons waiting for the plan.",
+      "until": "Valid until",
+      "grantAction": "Grant",
+      "saved": "League plan saved"
     }
   },
   "files": {
@@ -3291,7 +3331,9 @@
       "FREE": "Free",
       "TOURNAMENT": "Tournament",
       "TOURNAMENT_PLUS": "Tournament Plus",
-      "ORGANIZER": "Organiser"
+      "ORGANIZER": "Organiser",
+      "LEAGUE_SMALL": "League up to 12 teams",
+      "LEAGUE_LARGE": "League over 12 teams"
     },
     "usage": "{{plan}} · {{teams}}/{{limit}} teams",
     "usageUnlimited_one": "{{plan}} · {{count}} team, no limit",
@@ -3332,7 +3374,7 @@
       "howItWorks": "How plans work"
     },
     "payment": {
-      "title": "QR payment",
+      "title": "Bank transfer",
       "waiting": "Awaiting payment confirmation",
       "plan": "Plan",
       "amount": "Amount",
@@ -3341,10 +3383,31 @@
       "recipient": "Recipient",
       "qrAlt": "QR code for the payment",
       "hint": "Scan the code in your banking app, or enter the details by hand with the variable symbol. The plan applies as soon as we confirm the payment.",
-      "cancel": "Cancel payment"
+      "cancel": "Cancel payment",
+      "currency": "Currency",
+      "message": "Message for the recipient",
+      "format": "Payment method",
+      "copy": "Copy: {{label}}",
+      "hintSepa": "Scan the code in your banking app, or enter a SEPA transfer by hand and copy the message for the recipient exactly; we match the payment by it. The plan starts once we confirm the payment.",
+      "hintTransfer": "Enter a SEPA transfer in euros by hand with the details above and copy the message for the recipient exactly; we match the payment by it. The plan starts once we confirm the payment."
     },
     "organizerUntil": "Organiser until {{date}}",
-    "renew": "Renew Organiser"
+    "renew": "Renew Organiser",
+    "method": {
+      "label": "Where will you pay from?",
+      "SPD": {
+        "title": "Czech bank",
+        "hint": "in crowns, QR payment"
+      },
+      "BYSQUARE": {
+        "title": "Slovak bank",
+        "hint": "in euros, PAY by square"
+      },
+      "SEPA": {
+        "title": "Other eurozone bank",
+        "hint": "in euros, SEPA transfer without a QR code"
+      }
+    }
   },
   "embed": {
     "standings": "Standings",
@@ -3829,6 +3892,7 @@
         "items": [
           "Prices are shown in the price list on the website and in the app, including VAT, in Czech crowns or euros. The price shown when you order applies.",
           "The Tournament and Tournament Plus plans apply to one tournament. The Organiser plan is valid for 1 year from payment and does not renew automatically.",
+          "The League plan applies to one league and all its seasons for 1 year from payment and does not renew automatically. A season created while the plan runs stays in it to its end.",
           "After ordering you get the payment details (account number, payment reference, QR code). The plan starts once we receive the payment; we e-mail you the tax document.",
           "We may cancel an order that has not been paid within 30 days."
         ]
@@ -3919,6 +3983,48 @@
       "against": "against {{team}}",
       "opponentUnknown": "The opponent is not decided yet.",
       "bracket": "Whole bracket"
+    }
+  },
+  "leaguePlan": {
+    "label": "League plan",
+    "status": {
+      "FREE": "Free",
+      "FREE_UNTIL": "Free until {{date}}",
+      "TRIAL": "Free – first season",
+      "LEAGUE": "League plan until {{date}}",
+      "UNPAID": "Waiting for the League plan"
+    },
+    "hint": {
+      "FREE": "This season is free to the end.",
+      "TRIAL": "The first season of your first league is free, with no team limit. Another season or league needs the League plan.",
+      "LEAGUE": "The yearly League plan covers this season, to its very end.",
+      "UNPAID": "You can set the season up in full. It goes public once the League plan is paid."
+    },
+    "blocked": {
+      "public": "Public pages and the widget do not show it yet.",
+      "emails": "Players get no results e-mails yet.",
+      "confirm": "Results can be entered, and confirmed once it is paid."
+    },
+    "choose": "Choose a plan",
+    "showPayment": "Show the payment",
+    "renew": "Renew the plan",
+    "upgrade": "Upgrade the plan",
+    "awaiting": "Waiting for the payment to be confirmed. Once it is, the season goes public.",
+    "visibilityNote": "Until the League plan is paid, only you see this season, whatever it is set to.",
+    "dialog": {
+      "title": "League plan",
+      "intro": "The plan runs for a year for the whole league and all its seasons. You pay by QR transfer, and it starts once we confirm the payment.",
+      "none": "There is nothing to pay right now.",
+      "upgradeUntil": "top-up until {{date}}",
+      "points": {
+        "SMALL": "Seasons of up to {{limit}} teams, for a year.",
+        "LARGE": "No team limit, for a year."
+      }
+    },
+    "errors": {
+      "required": "This season is waiting for the League plan. It will work once the plan is paid.",
+      "trialTooLong": "The free season may end on {{date}} at the latest.",
+      "limit": "The League plan for up to {{limit}} teams is full. Upgrade the plan to add another team."
     }
   }
 }

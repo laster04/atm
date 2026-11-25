@@ -521,12 +521,66 @@ class EmailService {
     });
   }
 
+  /**
+   * Tells the payer how to pay a plan they just chose: the transfer details
+   * as text (the QR code itself is on the plan's page in ATM), and for a euro
+   * transfer that the message must stay as it is so the payment can be matched.
+   */
+  async sendPaymentInstructionsEmail(params: {
+    to: string;
+    name: string;
+    locale: Locale;
+    product: string;
+    amount: string;
+    currency: string;
+    iban: string;
+    bic: string;
+    recipient: string;
+    local: string | null;
+    variableSymbol: number;
+    message: string;
+    method: 'SPD' | 'BYSQUARE' | 'SEPA';
+    /** Where in ATM the payment and its QR code are, e.g. /tournament-management/tournament/… */
+    path: string;
+  }): Promise<boolean> {
+    const accent = '#0F172A';
+    const all = emailTexts(params.locale);
+    const t = all.paymentInstructions;
+    const vars = { product: params.product, variableSymbol: params.variableSymbol, format: params.method === 'SEPA' ? '' : t.formats[params.method] };
+    const rows: [string, string][] = [
+      [t.amount, `${params.amount} ${params.currency}`],
+      ...(params.local ? [[t.account, params.local] as [string, string]] : []),
+      [t.iban, params.iban],
+      [t.bic, params.bic],
+      [t.recipient, params.recipient],
+      [t.variableSymbol, String(params.variableSymbol)],
+      [t.message, params.message],
+    ];
+    const details = rows
+      .map(([label, value]) => this.p(`${escapeHtml(label)}: <strong>${escapeHtml(value)}</strong>`, { mb: 4, size: 14 }))
+      .join('');
+    const body = [
+      this.p(fill(all.greeting, { name: params.name })),
+      this.p(fill(t.intro, vars)),
+      details,
+      params.currency === 'EUR' ? this.p(t.sepa, { size: 14, color: COLORS.muted }) : '',
+      params.method === 'SEPA' ? '' : this.p(fill(t.qr, vars), { size: 14, color: COLORS.muted }),
+      this.button(t.button, `${this.getAppUrl()}${params.path}`, accent),
+    ].join('');
+    return this.sendEmail({
+      to: params.to,
+      subject: fillText(t.subject, vars),
+      html: this.buildEmailHtml(accent, 'badge-check', t.header, body),
+    });
+  }
+
   /** Tells an admin a plan payment was started, so they watch the account for the transfer. */
   async sendPaymentNoticeEmail(params: {
     to: string;
     variableSymbol: number;
     productName: string;
     tournamentName: string | null;
+    leagueName?: string | null;
     payerEmail: string | null;
     amount: number;
     currency: string;
@@ -534,7 +588,7 @@ class EmailService {
     const accent = '#0F172A';
     const amount = `${(params.amount / 100).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${params.currency === 'CZK' ? 'Kč' : '€'}`;
     const body = [
-      this.p(`Organizátor zvolil plán <strong>${escapeHtml(params.productName)}</strong>${params.tournamentName ? ` pro turnaj <strong>${escapeHtml(params.tournamentName)}</strong>` : ''} a dostal QR platbu.`),
+      this.p(`Organizátor zvolil plán <strong>${escapeHtml(params.productName)}</strong>${params.tournamentName ? ` pro turnaj <strong>${escapeHtml(params.tournamentName)}</strong>` : ''}${params.leagueName ? ` pro ligu <strong>${escapeHtml(params.leagueName)}</strong>` : ''} a dostal QR platbu.`),
       this.p(`Částka: <strong>${amount}</strong> &middot; variabilní symbol <strong>${params.variableSymbol}</strong>`, { size: 14 }),
       params.payerEmail ? this.p(`Plátce: ${escapeHtml(params.payerEmail)}`, { size: 14, color: COLORS.muted }) : '',
       this.p('Až platba dorazí na účet, potvrďte ji v administraci; plán se tím odemkne.', { size: 14, color: COLORS.muted }),

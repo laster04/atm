@@ -123,6 +123,23 @@ const sk: EmailTexts = {
     file: 'doklad-{{number}}.pdf',
   },
 
+  paymentInstructions: {
+    subject: 'Platba za {{product}} – variabilný symbol {{variableSymbol}}',
+    header: 'Pokyny k platbe',
+    intro: 'vybrali ste <strong>{{product}}</strong>. Plán začne platiť, hneď ako platba príde a potvrdíme ju.',
+    amount: 'Suma',
+    account: 'Účet',
+    iban: 'IBAN',
+    bic: 'BIC (SWIFT)',
+    recipient: 'Príjemca',
+    variableSymbol: 'Variabilný symbol',
+    message: 'Správa pre príjemcu',
+    qr: 'QR kód nájdete v ATM pri pláne: {{format}}.',
+    formats: { SPD: 'QR platba českej banky', BYSQUARE: 'PAY by square pre slovenské banky' },
+    sepa: 'Pošlite prosím prevod SEPA v eurách a správu pre príjemcu opíšte presne, podľa nej platbu spárujeme.',
+    button: 'Zobraziť platbu',
+  },
+
   registrationReceived: {
     subject: 'Prihláška tímu {{team}} – {{competition}}',
     header: 'Prihláška prijatá',

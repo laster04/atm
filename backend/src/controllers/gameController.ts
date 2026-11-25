@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database.js';
+import { planRequiredBody, unpaidSeason } from '../services/plans/leaguePlan.js';
 import { auditSnapshot, recordAudit } from '../services/audit/record.js';
 import { syncFixtureEvents } from '../services/teamEvents/mirror.js';
 import { playoffResultLock, syncPlayoff } from '../services/playoff/sync.js';
@@ -216,6 +217,11 @@ export const updateGame = async (req: AuthRequest, res: Response): Promise<void>
     // Confirming a fixture nobody has played would lock in an empty result, so
     // the flag only takes effect on a game that ends up completed.
     const confirms = !correctsConfirmed && confirm === true && (status ?? existingGame.status) === 'COMPLETED';
+    const unpaid = confirms ? await unpaidSeason(existingGame.seasonId) : null;
+    if (unpaid) {
+      res.status(409).json(planRequiredBody(unpaid));
+      return;
+    }
     // A confirmed result that is no longer a played game has nothing left to confirm.
     const unconfirms = correctsConfirmed && (status ?? existingGame.status) !== 'COMPLETED';
 
@@ -609,6 +615,11 @@ export const confirmGame = async (req: AuthRequest, res: Response): Promise<void
     }
     if (game.playoffSeriesId && (game.homeScore == null || game.homeScore === game.awayScore)) {
       res.status(400).json({ error: PLAYOFF_NEEDS_WINNER });
+      return;
+    }
+    const unpaid = await unpaidSeason(game.seasonId);
+    if (unpaid) {
+      res.status(409).json(planRequiredBody(unpaid));
       return;
     }
 
