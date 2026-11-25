@@ -139,7 +139,7 @@ const cs = {
     variableSymbol: 'Variabilní symbol',
     message: 'Zpráva pro příjemce',
     qr: 'QR kód najdete v ATM u plánu: {{format}}.',
-    formats: { SPD: 'QR platba české banky', BYSQUARE: 'PAY by square pro slovenské banky', EPC: 'QR kód EPC pro banky eurozóny' },
+    formats: { SPD: 'QR platba české banky', BYSQUARE: 'PAY by square pro slovenské banky' },
     sepa: 'Pošlete prosím převod SEPA v eurech a zprávu pro příjemce opište přesně, podle ní platbu spárujeme.',
     button: 'Zobrazit platbu',
   },

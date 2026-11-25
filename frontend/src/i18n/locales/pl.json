@@ -3514,7 +3514,7 @@
       "howItWorks": "Jak działają plany"
     },
     "payment": {
-      "title": "Płatność QR",
+      "title": "Płatność przelewem",
       "waiting": "Czeka na potwierdzenie płatności",
       "plan": "Plan",
       "amount": "Kwota",
@@ -3526,9 +3526,10 @@
       "cancel": "Anuluj płatność",
       "currency": "Waluta",
       "message": "Tytuł przelewu",
-      "format": "Format kodu QR",
+      "format": "Sposób płatności",
       "copy": "Kopiuj: {{label}}",
-      "hintSepa": "Zeskanuj kod w aplikacji bankowej albo wpisz przelew SEPA ręcznie i przepisz dokładnie tytuł przelewu; po nim dopasujemy płatność. Plan zacznie obowiązywać, gdy potwierdzimy płatność."
+      "hintSepa": "Zeskanuj kod w aplikacji bankowej albo wpisz przelew SEPA ręcznie i przepisz dokładnie tytuł przelewu; po nim dopasujemy płatność. Plan zacznie obowiązywać, gdy potwierdzimy płatność.",
+      "hintTransfer": "Wpisz ręcznie przelew SEPA w euro według powyższych danych i przepisz dokładnie tytuł przelewu; po nim dopasujemy płatność. Plan zacznie obowiązywać, gdy potwierdzimy płatność."
     },
     "organizerUntil": "Organizator do {{date}}",
     "renew": "Przedłuż Organizatora",
@@ -3542,9 +3543,9 @@
         "title": "Bank słowacki",
         "hint": "w euro, PAY by square"
       },
-      "EPC": {
+      "SEPA": {
         "title": "Inny bank w strefie euro",
-        "hint": "w euro, kod QR EPC"
+        "hint": "w euro, przelew SEPA bez kodu QR"
       }
     }
   },

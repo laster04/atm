@@ -135,7 +135,7 @@ const sk: EmailTexts = {
     variableSymbol: 'Variabilný symbol',
     message: 'Správa pre príjemcu',
     qr: 'QR kód nájdete v ATM pri pláne: {{format}}.',
-    formats: { SPD: 'QR platba českej banky', BYSQUARE: 'PAY by square pre slovenské banky', EPC: 'QR kód EPC pre banky eurozóny' },
+    formats: { SPD: 'QR platba českej banky', BYSQUARE: 'PAY by square pre slovenské banky' },
     sepa: 'Pošlite prosím prevod SEPA v eurách a správu pre príjemcu opíšte presne, podľa nej platbu spárujeme.',
     button: 'Zobraziť platbu',
   },

@@ -51,8 +51,10 @@ The frontend opens the plan offer (`UpgradeDialog`) on either refusal.
    (`app_settings.bank_accounts`, audited); account numbers are never in the
    code. The payer picks where they pay from (suggested by their language):
    a Czech bank gets the SPD code in CZK, a Slovak bank PAY by square in EUR
-   (`services/payments/bysquare.ts`), any other eurozone bank the EPC code in
-   EUR. Euro transfers carry `/VS/<variable symbol>/` in the message. Every
+   (`services/payments/bysquare.ts`, also to a Czech EUR IBAN), any other
+   eurozone bank a plain SEPA transfer in EUR without a QR code (IBAN, BIC
+   and message typed in by hand; the EPC QR code was dropped because banks
+   read it too unevenly). Euro transfers carry `/VS/<variable symbol>/` in the message. Every
    detail is also shown as text with a copy button, and the payer gets the
    instructions by e-mail (celek K, canvas page 14).
 2. An admin confirms the transfer in the admin payments screen

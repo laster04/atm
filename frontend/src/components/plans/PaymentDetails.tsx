@@ -10,13 +10,13 @@ interface PaymentDetailsProps {
   payment: PlanPayment;
   busy: boolean;
   onCancel: () => void;
-  /** The QR format the payer most likely needs; a euro payment can switch between its two. */
+  /** The method the payer most likely needs; a euro payment can switch between PAY by square and a plain SEPA transfer. */
   suggested?: PaymentMethod | null;
 }
 
 /**
  * A plan payment waiting for its transfer: the QR code in the payer's
- * format, every detail as text with a copy button, and a way to withdraw it.
+ * format (none for a plain SEPA transfer), every detail as text with a copy button, and a way to withdraw it.
  */
 export default function PaymentDetails({ payment, busy, onCancel, suggested }: PaymentDetailsProps) {
   const { t, i18n } = useTranslation();
@@ -110,7 +110,9 @@ export default function PaymentDetails({ payment, busy, onCancel, suggested }: P
         </dl>
       </div>
       <p className="text-sm text-muted-foreground">
-        {payment.currency === 'EUR' ? t('plans.payment.hintSepa') : t('plans.payment.hint')}
+        {method === 'SEPA'
+          ? t('plans.payment.hintTransfer')
+          : payment.currency === 'EUR' ? t('plans.payment.hintSepa') : t('plans.payment.hint')}
       </p>
       <div className="flex justify-end">
         <Button variant="outline" disabled={busy} onClick={onCancel}>{t('plans.payment.cancel')}</Button>

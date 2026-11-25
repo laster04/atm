@@ -8,7 +8,7 @@ import app from '../app.js';
 import prisma from '../config/database.js';
 import emailService from '../services/emailService.js';
 import { resetRegistrationRateLimit } from '../controllers/registrationController.js';
-import { czechIban, czechLocal, epcString, normaliseBic, normaliseIban, spdString, suggestedMethod, transferMessage, type PaymentAccount } from '../services/payments/account.js';
+import { czechIban, czechLocal, normaliseBic, normaliseIban, spdString, suggestedMethod, transferMessage, type PaymentAccount } from '../services/payments/account.js';
 import { TEST_ACCOUNTS, useTestBankAccounts } from './helpers/bankAccounts.js';
 
 // Confirming a payment renders its tax document; keep those out of the project's uploads.
@@ -111,18 +111,14 @@ describe('the account and the QR code', () => {
     );
   });
 
-  it('writes the EPC QR code with the variable symbol in the message', () => {
-    expect(epcString(eur, 5900, transferMessage(2026000042, 'TOURNAMENT_PLUS'))).toBe([
-      'BCD', '002', '1', 'SCT', 'TESTCZPP', 'Test s.r.o.', 'CZ6508000000192000145399', 'EUR59.00', '', '',
-      '/VS/2026000042/ ATM TOURNAMENT_PLUS',
-    ].join('\n'));
-    expect(() => epcString(czk, 5900, 'x')).toThrow();
+  it('carries the variable symbol in a euro transfer message', () => {
+    expect(transferMessage(2026000042, 'TOURNAMENT_PLUS')).toBe('/VS/2026000042/ ATM TOURNAMENT_PLUS');
   });
 
-  it('suggests the QR format by the payer\'s language', () => {
+  it('suggests the payment method by the payer\'s language', () => {
     expect(suggestedMethod('sk', ['CZK', 'EUR'])).toBe('BYSQUARE');
-    expect(suggestedMethod('de', ['CZK', 'EUR'])).toBe('EPC');
-    expect(suggestedMethod('pl', ['CZK', 'EUR'])).toBe('EPC');
+    expect(suggestedMethod('de', ['CZK', 'EUR'])).toBe('SEPA');
+    expect(suggestedMethod('pl', ['CZK', 'EUR'])).toBe('SEPA');
     expect(suggestedMethod('cs', ['CZK', 'EUR'])).toBe('SPD');
     expect(suggestedMethod('en', ['CZK', 'EUR'])).toBe('SPD');
     // Without a euro account a Slovak payer is offered the Czech code, and nothing without any account.
@@ -161,19 +157,18 @@ describe('offers', () => {
 });
 
 describe('paying in euros', () => {
-  it('gives a PAY by square and an EPC code to the euro account, with the variable symbol', async () => {
+  it('gives a PAY by square code and plain SEPA details for the euro account, with the variable symbol', async () => {
     const id = await tournament('euro', 7);
     const paid = await buy(id, 'TOURNAMENT', 'EUR');
     expect(paid.status).toBe(201);
     const vs = paid.body.variableSymbol;
-    expect(paid.body.methods).toEqual(['BYSQUARE', 'EPC']);
+    expect(paid.body.methods).toEqual(['BYSQUARE', 'SEPA']);
     expect(paid.body.transfer).toEqual({
       iban: TEST_ACCOUNTS.EUR.iban, bic: 'TESTCZPP', recipient: TEST_ACCOUNTS.EUR.recipient,
       amount: '29.00', currency: 'EUR', variableSymbol: vs, message: `/VS/${vs}/ ATM TOURNAMENT`,
     });
-    expect(paid.body.qr.EPC.split('\n')).toEqual([
-      'BCD', '002', '1', 'SCT', 'TESTCZPP', TEST_ACCOUNTS.EUR.recipient, TEST_ACCOUNTS.EUR.iban, 'EUR29.00', '', '', `/VS/${vs}/ ATM TOURNAMENT`,
-    ]);
+    // A SEPA transfer is typed in by hand: no QR code for it.
+    expect(Object.keys(paid.body.qr)).toEqual(['BYSQUARE']);
     const { decode } = await import('bysquare/pay');
     const decoded = decode(paid.body.qr.BYSQUARE);
     expect(decoded.payments[0]).toMatchObject({

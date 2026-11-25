@@ -539,14 +539,14 @@ class EmailService {
     local: string | null;
     variableSymbol: number;
     message: string;
-    method: 'SPD' | 'BYSQUARE' | 'EPC';
+    method: 'SPD' | 'BYSQUARE' | 'SEPA';
     /** Where in ATM the payment and its QR code are, e.g. /tournament-management/tournament/… */
     path: string;
   }): Promise<boolean> {
     const accent = '#0F172A';
     const all = emailTexts(params.locale);
     const t = all.paymentInstructions;
-    const vars = { product: params.product, variableSymbol: params.variableSymbol, format: t.formats[params.method] };
+    const vars = { product: params.product, variableSymbol: params.variableSymbol, format: params.method === 'SEPA' ? '' : t.formats[params.method] };
     const rows: [string, string][] = [
       [t.amount, `${params.amount} ${params.currency}`],
       ...(params.local ? [[t.account, params.local] as [string, string]] : []),
@@ -564,7 +564,7 @@ class EmailService {
       this.p(fill(t.intro, vars)),
       details,
       params.currency === 'EUR' ? this.p(t.sepa, { size: 14, color: COLORS.muted }) : '',
-      this.p(fill(t.qr, vars), { size: 14, color: COLORS.muted }),
+      params.method === 'SEPA' ? '' : this.p(fill(t.qr, vars), { size: 14, color: COLORS.muted }),
       this.button(t.button, `${this.getAppUrl()}${params.path}`, accent),
     ].join('');
     return this.sendEmail({

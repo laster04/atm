@@ -7,7 +7,6 @@ import { lockCompetition, organizerPlanUntil, PRODUCT_PLAN, teamAllowance } from
 import {
   bankAccounts,
   czechLocal,
-  epcString,
   METHODS_BY_CURRENCY,
   paymentAccount,
   payableCurrencies,
@@ -151,7 +150,7 @@ function accountOf(payment: Payment, accounts?: BankAccounts): PaymentAccount | 
   return accounts?.[currency] ?? null;
 }
 
-/** What to pay for a waiting payment: the QR string per format, and the details to type in by hand. */
+/** What to pay for a waiting payment: the QR string per QR method (none for a SEPA transfer), and the details to type in by hand. */
 function transferView(payment: Payment, account: PaymentAccount | null) {
   if (payment.status !== 'PENDING' || !account) return { qr: null, transfer: null };
   const currency = payment.currency as Currency;
@@ -163,7 +162,6 @@ function transferView(payment: Payment, account: PaymentAccount | null) {
   const qr: Partial<Record<PaymentMethod, string>> = {};
   for (const method of methods) {
     if (method === 'SPD') qr.SPD = spdString(account, payment.amount, payment.variableSymbol, message);
-    if (method === 'EPC') qr.EPC = epcString(account, payment.amount, message);
     if (method === 'BYSQUARE') qr.BYSQUARE = bysquareString(account, payment.amount, payment.variableSymbol, message);
   }
   return {

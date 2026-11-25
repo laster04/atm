@@ -3374,7 +3374,7 @@
       "howItWorks": "How plans work"
     },
     "payment": {
-      "title": "QR payment",
+      "title": "Bank transfer",
       "waiting": "Awaiting payment confirmation",
       "plan": "Plan",
       "amount": "Amount",
@@ -3386,9 +3386,10 @@
       "cancel": "Cancel payment",
       "currency": "Currency",
       "message": "Message for the recipient",
-      "format": "QR code format",
+      "format": "Payment method",
       "copy": "Copy: {{label}}",
-      "hintSepa": "Scan the code in your banking app, or enter a SEPA transfer by hand and copy the message for the recipient exactly; we match the payment by it. The plan starts once we confirm the payment."
+      "hintSepa": "Scan the code in your banking app, or enter a SEPA transfer by hand and copy the message for the recipient exactly; we match the payment by it. The plan starts once we confirm the payment.",
+      "hintTransfer": "Enter a SEPA transfer in euros by hand with the details above and copy the message for the recipient exactly; we match the payment by it. The plan starts once we confirm the payment."
     },
     "organizerUntil": "Organiser until {{date}}",
     "renew": "Renew Organiser",
@@ -3402,9 +3403,9 @@
         "title": "Slovak bank",
         "hint": "in euros, PAY by square"
       },
-      "EPC": {
+      "SEPA": {
         "title": "Other eurozone bank",
-        "hint": "in euros, EPC QR code"
+        "hint": "in euros, SEPA transfer without a QR code"
       }
     }
   },

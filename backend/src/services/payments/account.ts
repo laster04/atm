@@ -107,19 +107,23 @@ export async function setBankAccount(currency: Currency, account: StoredAccount,
 // QR payment strings
 // ---------------------------------------------------------------------------
 
-/** How a payment's QR code is written: Czech SPD, Slovak PAY by square, or the European EPC code. */
-export type PaymentMethod = 'SPD' | 'BYSQUARE' | 'EPC';
+/**
+ * How a payment is made: a Czech SPD QR code, a Slovak PAY by square QR code,
+ * or a plain SEPA transfer typed in by hand (no QR code: other eurozone banks
+ * read QR payment codes too unevenly to rely on one).
+ */
+export type PaymentMethod = 'SPD' | 'BYSQUARE' | 'SEPA';
 
-/** The QR formats a currency can be paid with. */
-export const METHODS_BY_CURRENCY: Record<Currency, PaymentMethod[]> = { CZK: ['SPD'], EUR: ['BYSQUARE', 'EPC'] };
+/** The ways a currency can be paid. */
+export const METHODS_BY_CURRENCY: Record<Currency, PaymentMethod[]> = { CZK: ['SPD'], EUR: ['BYSQUARE', 'SEPA'] };
 
 /**
  * The method an organiser most likely needs, from their country. Until
  * billing details exist (celek B6) the account's language stands in for it:
- * Slovak → PAY by square in EUR, German or Polish → EPC in EUR, else Czech SPD.
+ * Slovak → PAY by square in EUR, German or Polish → SEPA transfer in EUR, else Czech SPD.
  */
 export function suggestedMethod(locale: string | null | undefined, available: Currency[]): PaymentMethod | null {
-  const wanted: PaymentMethod = locale === 'sk' ? 'BYSQUARE' : locale === 'de' || locale === 'pl' ? 'EPC' : 'SPD';
+  const wanted: PaymentMethod = locale === 'sk' ? 'BYSQUARE' : locale === 'de' || locale === 'pl' ? 'SEPA' : 'SPD';
   const currency: Currency = wanted === 'SPD' ? 'CZK' : 'EUR';
   if (available.includes(currency)) return wanted;
   const fallback = available[0];
@@ -150,28 +154,4 @@ export function spdString(account: PaymentAccount, amount: number, variableSymbo
     `MSG:${clean(message)}`,
   ];
   return fields.join('*');
-}
-
-/**
- * The EPC QR code (EPC069-12, "GiroCode"): version 002, UTF-8, SEPA credit
- * transfer, BIC, recipient (max 70), IBAN, amount in EUR, no purpose, no
- * structured reference, the message as unstructured remittance (max 140).
- * Lines are separated by LF; the whole payload stays under 331 bytes.
- */
-export function epcString(account: PaymentAccount, amount: number, message: string): string {
-  if (account.currency !== 'EUR') throw new Error('An EPC QR code is for euro transfers only');
-  const lines = [
-    'BCD',
-    '002',
-    '1',
-    'SCT',
-    account.bic,
-    account.recipient.slice(0, 70),
-    account.iban,
-    `EUR${(amount / 100).toFixed(2)}`,
-    '',
-    '',
-    message.slice(0, 140),
-  ];
-  return lines.join('\n');
 }

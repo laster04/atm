@@ -135,7 +135,7 @@ const en: EmailTexts = {
     variableSymbol: 'Variable symbol',
     message: 'Message for the recipient',
     qr: 'The QR code is in ATM next to the plan: {{format}}.',
-    formats: { SPD: 'Czech QR payment', BYSQUARE: 'PAY by square for Slovak banks', EPC: 'EPC QR code for eurozone banks' },
+    formats: { SPD: 'Czech QR payment', BYSQUARE: 'PAY by square for Slovak banks' },
     sepa: 'Please send a SEPA transfer in euros and copy the message for the recipient exactly; we match the payment by it.',
     button: 'Show the payment',
   },

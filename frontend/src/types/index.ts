@@ -868,9 +868,9 @@ export interface TeamAllowance {
 
 export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED';
 export type PaymentCurrency = 'CZK' | 'EUR';
-/** The QR format of a transfer: Czech SPD, Slovak PAY by square, or the European EPC code. */
-export type PaymentMethod = 'SPD' | 'BYSQUARE' | 'EPC';
-export const METHOD_CURRENCY: Record<PaymentMethod, PaymentCurrency> = { SPD: 'CZK', BYSQUARE: 'EUR', EPC: 'EUR' };
+/** How a transfer is made: Czech SPD QR code, Slovak PAY by square QR code, or a SEPA transfer typed in by hand (no QR code). */
+export type PaymentMethod = 'SPD' | 'BYSQUARE' | 'SEPA';
+export const METHOD_CURRENCY: Record<PaymentMethod, PaymentCurrency> = { SPD: 'CZK', BYSQUARE: 'EUR', SEPA: 'EUR' };
 export type OfferPlan = 'TOURNAMENT' | 'TOURNAMENT_PLUS' | 'ORGANIZER';
 
 export interface PlanPayment {

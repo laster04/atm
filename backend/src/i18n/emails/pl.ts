@@ -139,7 +139,7 @@ const pl: EmailTexts = {
     variableSymbol: 'Symbol zmienny',
     message: 'Tytuł przelewu',
     qr: 'Kod QR znajdziesz w ATM przy planie: {{format}}.',
-    formats: { SPD: 'czeska płatność QR', BYSQUARE: 'PAY by square dla banków słowackich', EPC: 'kod QR EPC dla banków strefy euro' },
+    formats: { SPD: 'czeska płatność QR', BYSQUARE: 'PAY by square dla banków słowackich' },
     sepa: 'Wyślij przelew SEPA w euro i przepisz dokładnie tytuł przelewu; po nim dopasujemy płatność.',
     button: 'Pokaż płatność',
   },

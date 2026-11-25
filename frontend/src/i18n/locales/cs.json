@@ -3453,7 +3453,7 @@
       "howItWorks": "Jak plány fungují"
     },
     "payment": {
-      "title": "QR platba",
+      "title": "Platba převodem",
       "waiting": "Čeká na potvrzení platby",
       "plan": "Plán",
       "amount": "Částka",
@@ -3465,9 +3465,10 @@
       "cancel": "Zrušit platbu",
       "currency": "Měna",
       "message": "Zpráva pro příjemce",
-      "format": "Formát QR kódu",
+      "format": "Způsob platby",
       "copy": "Kopírovat: {{label}}",
-      "hintSepa": "Naskenujte kód v bankovní aplikaci, nebo zadejte převod SEPA ručně a zprávu pro příjemce opište přesně, podle ní platbu spárujeme. Plán začne platit, jakmile platbu potvrdíme."
+      "hintSepa": "Naskenujte kód v bankovní aplikaci, nebo zadejte převod SEPA ručně a zprávu pro příjemce opište přesně, podle ní platbu spárujeme. Plán začne platit, jakmile platbu potvrdíme.",
+      "hintTransfer": "Zadejte převod SEPA v eurech ručně podle údajů výše a zprávu pro příjemce opište přesně, podle ní platbu spárujeme. Plán začne platit, jakmile platbu potvrdíme."
     },
     "organizerUntil": "Organizátor do {{date}}",
     "renew": "Prodloužit Organizátora",
@@ -3481,9 +3482,9 @@
         "title": "Slovenská banka",
         "hint": "v eurech, PAY by square"
       },
-      "EPC": {
+      "SEPA": {
         "title": "Jiná banka v eurozóně",
-        "hint": "v eurech, QR kód EPC"
+        "hint": "v eurech, převod SEPA bez QR kódu"
       }
     }
   },
